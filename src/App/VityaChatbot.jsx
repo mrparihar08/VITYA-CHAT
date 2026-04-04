@@ -766,7 +766,7 @@ const Chatbot = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("https://vitya-ai-qlbn.onrender.com/api/chat", {
+      const res = await fetch("https://mother-8599.onrender.com/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
