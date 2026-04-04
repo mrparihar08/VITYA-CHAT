@@ -1164,7 +1164,7 @@ const styles = {
   },
   chatArea: {
     width: "min(1120px, 100%)",
-    padding: "18px 16px 150px",
+    padding: "18px 16px 170px",
     overflowY: "auto",
     display: "flex",
     flexDirection: "column",
@@ -1328,10 +1328,10 @@ const styles = {
   },
 
   bottomDock: {
-    width: "100%",
+    width: "calc(100% - var(--sidebar-width, 0px))",
     position: "fixed",
     bottom: 0,
-    left: 0,
+    left: "var(--sidebar-width, 0px)",
     zIndex: 100,
     padding: "0 10px 10px",
     boxSizing: "border-box",
@@ -1342,6 +1342,7 @@ const styles = {
   composerWrap: {
     width: "min(1020px, 100%)",
     position: "relative",
+    maxWidth: "100%",
   },
   menuPanel: {
     position: "absolute",

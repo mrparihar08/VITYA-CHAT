@@ -86,12 +86,13 @@ const APP_REGISTRY = [
 ];
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState("chat");
   const [activeApp, setActiveApp] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 900);
-
-  const navigate = useNavigate();
 
   const user = useMemo(() => {
     try {
@@ -102,11 +103,11 @@ const Dashboard = () => {
     }
   }, []);
 
-  const isDesktop = useMemo(() => window.innerWidth >= 900, []);
-
   useEffect(() => {
     const handleResize = () => {
-      setSidebarOpen(window.innerWidth >= 900);
+      const mobile = window.innerWidth < 900;
+      setIsMobile(mobile);
+      setSidebarOpen(!mobile);
     };
 
     window.addEventListener("resize", handleResize);
@@ -117,6 +118,10 @@ const Dashboard = () => {
     if (window.innerWidth < 900) {
       setSidebarOpen(false);
     }
+  }, []);
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen((prev) => !prev);
   }, []);
 
   const handleTabClick = useCallback(
@@ -217,17 +222,29 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      {sidebarOpen && !isDesktop && (
+      {sidebarOpen && isMobile && (
         <div className="overlay" onClick={() => setSidebarOpen(false)} />
       )}
 
       <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-        <div className="sidebarTop">
-          <img src="/logo.png" alt="Vitya.AI logo" className="logo" />
-          <div className="brandWrap">
-            <h2 className="brand">Vitya.AI</h2>
-            <p className="brandText">AI Assistant</p>
+        <div className="sidebarHeader">
+          <div className="sidebarTop">
+            <img src="/logo.png" alt="Vitya.AI logo" className="logo" />
+            <div className="brandWrap">
+              <h2 className="brand">Vitya.AI</h2>
+              <p className="brandText">AI Assistant</p>
+            </div>
           </div>
+
+          {isMobile && (
+            <button
+              className="sidebarCloseBtn"
+              onClick={() => setSidebarOpen(false)}
+              aria-label="Close sidebar"
+            >
+              ×
+            </button>
+          )}
         </div>
 
         <div className="sidebarSearch">
@@ -286,8 +303,8 @@ const Dashboard = () => {
 
       <div className="mainWrap">
         <header className="topbar">
-          {!isDesktop && (
-            <button className="menuBtn" onClick={() => setSidebarOpen((v) => !v)}>
+          {isMobile && (
+            <button className="menuBtn" onClick={toggleSidebar} aria-label="Open sidebar">
               ☰
             </button>
           )}
