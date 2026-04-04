@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import {
   BarChart,
@@ -54,6 +54,13 @@ const MODES = [
   { key: "file", label: "Create File", hint: "Generate file output" },
 ];
 
+const QUICK_PROMPTS = [
+  "Explain this in simple words",
+  "Create a React dashboard UI",
+  "Show latest AI news",
+  "Search Wikipedia: Alan Turing",
+];
+
 const safeJSON = (value) => {
   if (typeof value !== "string") return value;
   const trimmed = value.trim();
@@ -87,7 +94,12 @@ const normalizeWikiData = (value) => {
     title: data.title || data.name || data.pageTitle || "Wikipedia",
     summary: data.summary || data.extract || data.description || "",
     image:
-      data.image || data.images?.[0] || data.thumbnail?.source || data.thumbnail || data.imageUrl || "",
+      data.image ||
+      data.images?.[0] ||
+      data.thumbnail?.source ||
+      data.thumbnail ||
+      data.imageUrl ||
+      "",
     url: data.url || data.pageUrl || data.content_urls?.desktop?.page || "",
   };
 };
@@ -356,9 +368,7 @@ const Chatbot = () => {
 
   const getChartData = (msg) => {
     const raw = msg.content ?? msg.text ?? msg.data ?? null;
-    if (msg.type === "multi_line") {
-      return normalizeMultiLineData(safeJSON(raw));
-    }
+    if (msg.type === "multi_line") return normalizeMultiLineData(safeJSON(raw));
     return findArrayDeep(raw);
   };
 
@@ -392,10 +402,10 @@ const Chatbot = () => {
       else if (parsed?.articles && Array.isArray(parsed.articles)) data = parsed.articles;
     }
 
-    if (!data.length) return <div style={styles.emptyState}>No news available</div>;
+    if (!data.length) return <div style={styles.emptyText}>No news available</div>;
 
     return (
-      <div style={styles.stack}>
+      <div style={styles.cardList}>
         {data.map((item, i) => (
           <div key={i} style={styles.infoCard}>
             {item?.image ? (
@@ -408,7 +418,6 @@ const Chatbot = () => {
                 }}
               />
             ) : null}
-
             <div style={styles.cardTitle}>{item?.title || "No title"}</div>
             <div style={styles.cardBody}>{item?.description || "No description"}</div>
             {item?.url ? (
@@ -425,7 +434,7 @@ const Chatbot = () => {
   const renderWiki = (msg) => {
     const data = normalizeWikiData(msg.content ?? msg.text ?? msg.data ?? {});
     if (!data.title && !data.summary && !data.url && !data.image) {
-      return <div style={styles.emptyState}>No Wikipedia data available</div>;
+      return <div style={styles.emptyText}>No Wikipedia data available</div>;
     }
 
     return (
@@ -440,7 +449,6 @@ const Chatbot = () => {
             }}
           />
         ) : null}
-
         <div style={styles.cardTitle}>{data.title}</div>
         <div style={styles.cardBody}>{data.summary || "No summary available"}</div>
         {data.url ? (
@@ -465,8 +473,9 @@ const Chatbot = () => {
   const renderChart = (msg) => {
     const type = (msg.type || "").toLowerCase().trim();
     const data = getChartData(msg);
+
     if (!data || !Array.isArray(data) || data.length === 0) {
-      return <div style={styles.emptyState}>No chart data</div>;
+      return <div style={styles.emptyText}>No chart data</div>;
     }
 
     const { xKey, yKey } = getKeys(data, type);
@@ -632,7 +641,7 @@ const Chatbot = () => {
           </ResponsiveContainer>
         );
       default:
-        return <div style={styles.emptyState}>No chart available</div>;
+        return <div style={styles.emptyText}>No chart available</div>;
     }
   };
 
@@ -719,6 +728,7 @@ const Chatbot = () => {
 
   const handleDownloadMessage = (msg, index) => {
     const type = (msg.type || "").toLowerCase().trim();
+
     if (CHAT_TYPES.has(type)) return downloadChartPNG(index, msg);
 
     if (MEDIA_TYPES.has(type)) {
@@ -819,7 +829,6 @@ const Chatbot = () => {
     }
   };
 
-  const showLanding = messages.length === 0;
   const placeholderMap = {
     chat: "Type your message...",
     news: "Ask for news, e.g. latest AI news",
@@ -832,117 +841,156 @@ const Chatbot = () => {
     setPlusOpen(false);
   };
 
+  const showLanding = messages.length === 0;
+
   return (
     <div style={styles.page}>
       <style>{`
-        .chat-scroll::-webkit-scrollbar { display: none; }
+        .chat-scroll::-webkit-scrollbar { width: 0; height: 0; }
         .chat-scroll { scrollbar-width: none; -ms-overflow-style: none; }
       `}</style>
 
-      <div style={styles.main}>
+      <header style={styles.topbar}>
+        <div style={styles.brandBlock}>
+          <div style={styles.brandBadge}>V</div>
+          <div>
+            <div style={styles.brandTitle}>Vitya.AI</div>
+            <div style={styles.brandSub}>Smart assistant workspace</div>
+          </div>
+        </div>
+
+        <div style={styles.topbarRight}>
+          <div style={styles.modePill}>
+            <span style={styles.statusDot} />
+            {MODES.find((m) => m.key === mode)?.label || "Chat"} mode
+          </div>
+
+          <button
+            onClick={() => setVoiceEnabled((v) => !v)}
+            style={styles.topbarIconBtn}
+            title={voiceEnabled ? "Voice on" : "Voice off"}
+          >
+            <img
+              src={voiceEnabled ? "/mic.png" : "/mic-off.png"}
+              alt="voice"
+              style={styles.topbarIcon}
+            />
+          </button>
+        </div>
+      </header>
+
+      <main style={styles.main}>
         <div style={styles.chatArea} className="chat-scroll">
-          {showLanding && (
-            <div style={styles.hero}>
-              <div style={styles.heroText}>
+          {showLanding ? (
+            <section style={styles.emptyState}>
+              <div style={styles.emptyCard}>
                 <div style={styles.heroTitle}>What can I help you with today?</div>
+                <div style={styles.heroSub}>
+                  Ask anything, generate charts, search news or Wikipedia, and create files from the same workspace.
+                </div>
+
+                <div style={styles.promptGrid}>
+                  {QUICK_PROMPTS.map((item) => (
+                    <button key={item} style={styles.promptBtn} onClick={() => sendMessage(item)}>
+                      {item}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            </section>
+          ) : (
+            messages.map((msg, i) => {
+              const type = (msg.type || "").toLowerCase().trim();
+              const chartElement = CHAT_TYPES.has(type) ? renderChart(msg) : null;
+              const isUser = msg.sender === "user";
 
-          {messages.map((msg, i) => {
-            const type = (msg.type || "").toLowerCase().trim();
-            const chartElement = CHAT_TYPES.has(type) ? renderChart(msg) : null;
-            const bubbleMaxWidth =
-              CHAT_TYPES.has(type) || type === "news" || type === "wiki" ? "95%" : "78%";
-
-            return (
-              <div
-                key={i}
-                style={{
-                  ...styles.messageRow,
-                  justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
-                }}
-              >
+              return (
                 <div
+                  key={i}
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 8,
-                    width: "fit-content",
-                    maxWidth: bubbleMaxWidth,
-                    alignItems: msg.sender === "user" ? "flex-end" : "flex-start",
+                    ...styles.messageRow,
+                    justifyContent: isUser ? "flex-end" : "flex-start",
                   }}
                 >
                   <div
                     style={{
-                      ...styles.bubble,
-                      background:
-                        msg.sender === "user"
-                          ? styles.userBubble.background
-                          : styles.botBubble.background,
+                      ...styles.messageStack,
+                      alignItems: isUser ? "flex-end" : "flex-start",
                     }}
                   >
-                    {type === "news" ? (
-                      <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
-                        {renderNews(msg)}
+                    <div style={styles.messageMeta}>
+                      <span style={styles.senderName}>{isUser ? "You" : "Vitya"}</span>
+                      <span style={styles.senderDot} />
+                    </div>
+
+                    <div
+                      style={{
+                        ...styles.bubble,
+                        ...(isUser ? styles.userBubble : styles.botBubble),
+                      }}
+                    >
+                      {type === "news" ? (
+                        <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
+                          {renderNews(msg)}
+                        </div>
+                      ) : type === "wiki" ? (
+                        <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
+                          {renderWiki(msg)}
+                        </div>
+                      ) : MEDIA_TYPES.has(type) ? (
+                        <div style={styles.stack}>
+                          {getMediaSrc(msg) ? (
+                            <img
+                              src={getMediaSrc(msg)}
+                              alt={type}
+                              style={styles.mediaSmall}
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
+                          ) : (
+                            <div style={styles.emptyText}>Invalid media data</div>
+                          )}
+                        </div>
+                      ) : CHAT_TYPES.has(type) ? (
+                        <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
+                          {chartElement || <div style={styles.emptyText}>No chart data</div>}
+                        </div>
+                      ) : (
+                        <span>{typeof msg.text === "string" ? msg.text : JSON.stringify(msg.text)}</span>
+                      )}
+                    </div>
+
+                    {!isUser && (
+                      <div style={styles.messageActions}>
+                        <button onClick={() => handleCopyMessage(msg)} style={styles.actionBtn} title="Copy">
+                          <img src="/copy.png" alt="copy" style={styles.iconTiny} />
+                        </button>
+                        <button onClick={() => handleSpeakMessage(msg)} style={styles.actionBtn} title="Speak">
+                          <img src="/speak.png" alt="speak" style={styles.iconTiny} />
+                        </button>
+                        <button
+                          onClick={() => handleDownloadMessage(msg, i)}
+                          style={styles.actionBtn}
+                          title="Download"
+                        >
+                          <img src="/downloading.png" alt="download" style={styles.iconTiny} />
+                        </button>
+                        <button onClick={() => alert("Add action here")} style={styles.actionBtn} title="More">
+                          <img src="/dots.png" alt="more" style={{ width: 10, height: 10 }} />
+                        </button>
                       </div>
-                    ) : type === "wiki" ? (
-                      <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
-                        {renderWiki(msg)}
-                      </div>
-                    ) : MEDIA_TYPES.has(type) ? (
-                      <div style={styles.stack}>
-                        {getMediaSrc(msg) ? (
-                          <img
-                            src={getMediaSrc(msg)}
-                            alt={type}
-                            style={styles.mediaSmall}
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                            }}
-                          />
-                        ) : (
-                          <div style={styles.emptyState}>Invalid QR / image data</div>
-                        )}
-                      </div>
-                    ) : CHAT_TYPES.has(type) ? (
-                      <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
-                        {chartElement || <div style={styles.emptyState}>No chart data</div>}
-                      </div>
-                    ) : (
-                      <span>{typeof msg.text === "string" ? msg.text : JSON.stringify(msg.text)}</span>
                     )}
                   </div>
-
-                  {msg.sender === "bot" && (
-                    <div style={styles.messageActions}>
-                      <button onClick={() => handleCopyMessage(msg)} style={styles.actionBtn} title="Copy">
-                        <img src="/copy.png" alt="copy" style={styles.iconTiny} />
-                      </button>
-                      <button onClick={() => handleSpeakMessage(msg)} style={styles.actionBtn} title="Speak">
-                        <img src="/speak.png" alt="speak" style={styles.iconTiny} />
-                      </button>
-                      <button
-                        onClick={() => handleDownloadMessage(msg, i)}
-                        style={styles.actionBtn}
-                        title="Download"
-                      >
-                        <img src="/downloading.png" alt="download" style={styles.iconTiny} />
-                      </button>
-                      <button onClick={() => alert("Add action here")} style={styles.actionBtn} title="more">
-                        <img src="/dots.png" alt="more" style={{ width: 10, height: 10 }} />
-                      </button>
-                    </div>
-                  )}
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
 
           {loading && <div style={styles.typing}>Bot typing…</div>}
           <div ref={bottomRef} />
         </div>
-      </div>
+      </main>
 
       <div style={styles.bottomDock}>
         <div style={styles.composerWrap} ref={menuRef}>
@@ -991,20 +1039,22 @@ const Chatbot = () => {
               title="Click to talk. Right-click to turn voice on/off."
               style={{
                 ...styles.iconBtn,
-                background: listening ? "rgba(139,92,246,0.18)" : "transparent",
+                background: listening ? "rgba(139,92,246,0.18)" : "rgba(255,255,255,0.04)",
                 boxShadow: listening ? "0 0 0 6px rgba(139,92,246,0.12)" : "none",
               }}
             >
               <img src={getMicIcon()} alt="Mic" style={styles.iconMain} />
             </button>
 
-            <button onClick={() => sendMessage()} style={{ ...styles.sendBtn, opacity: loading ? 0.7 : 1 }}>
+            <button
+              onClick={() => sendMessage()}
+              style={{ ...styles.sendBtn, opacity: loading ? 0.75 : 1 }}
+            >
               <img src="/send.png" alt="Send" style={styles.iconSend} />
             </button>
           </div>
         </div>
       </div>
-
     </div>
   );
 };
@@ -1020,96 +1070,215 @@ const styles = {
     height: "100vh",
     display: "flex",
     flexDirection: "column",
-    background: "radial-gradient(circle at top, #172033 0%, #0b1020 52%, #090d18 100%)",
-    color: "#fff",
-    position: "relative",
     overflow: "hidden",
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
+    color: "#fff",
+    background:
+      "radial-gradient(circle at top, #1b2440 0%, #0b1020 55%, #090d18 100%)",
+    fontFamily:
+      "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
+    position: "relative",
   },
+  topbar: {
+    height: 74,
+    padding: "0 18px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottom: "1px solid rgba(255,255,255,0.08)",
+    background: "rgba(15, 20, 36, 0.72)",
+    backdropFilter: "blur(14px)",
+    flexShrink: 0,
+  },
+  brandBlock: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    minWidth: 0,
+  },
+  brandBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    display: "grid",
+    placeItems: "center",
+    background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+    fontWeight: 800,
+    boxShadow: "0 10px 22px rgba(99,102,241,0.30)",
+    flexShrink: 0,
+  },
+  brandTitle: {
+    fontSize: 18,
+    fontWeight: 800,
+    lineHeight: 1.1,
+  },
+  brandSub: {
+    marginTop: 2,
+    fontSize: 12,
+    color: "rgba(255,255,255,0.68)",
+  },
+  topbarRight: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
+  modePill: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    padding: "8px 12px",
+    borderRadius: 999,
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    fontSize: 12,
+    fontWeight: 700,
+    color: "rgba(255,255,255,0.88)",
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: "50%",
+    background: "#22c55e",
+    boxShadow: "0 0 0 5px rgba(34,197,94,0.12)",
+  },
+  topbarIconBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: "50%",
+    border: "none",
+    cursor: "pointer",
+    background: "rgba(255,255,255,0.06)",
+    display: "grid",
+    placeItems: "center",
+  },
+  topbarIcon: {
+    width: 18,
+    height: 18,
+  },
+
   main: {
     flex: 1,
     display: "flex",
-    flexDirection: "column",
-    padding: "20px",
-    boxSizing: "border-box",
+    justifyContent: "center",
     overflow: "hidden",
     minHeight: 0,
   },
-  hero: {
-    width: "100%",
-    flex: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center",
-    padding: "24px",
-  },
-  heroText: {
-    maxWidth: 760,
-    marginTop: 0,
-  },
-  heroTitle: {
-    fontSize: "clamp(28px, 4vw, 48px)",
-    fontWeight: 800,
-    lineHeight: 1.08,
-    letterSpacing: "-0.04em",
-    marginBottom: 12,
-  },
-  heroSub: {
-    fontSize: "clamp(14px, 1.5vw, 18px)",
-    color: "rgba(255,255,255,0.72)",
-    lineHeight: 1.6,
-  },
   chatArea: {
     width: "min(1120px, 100%)",
-    flex: 1,
+    padding: "18px 16px 150px",
     overflowY: "auto",
-    padding: "16px 8px 140px",
     display: "flex",
     flexDirection: "column",
-    gap: 12,
+    gap: 14,
     boxSizing: "border-box",
-    alignItems: "center",
-    margin: "0 auto",
     minHeight: 0,
   },
+  emptyState: {
+    flex: 1,
+    display: "grid",
+    placeItems: "center",
+    minHeight: "calc(100vh - 250px)",
+  },
+  emptyCard: {
+    width: "min(780px, 100%)",
+    padding: 28,
+    borderRadius: 28,
+    background: "rgba(15, 20, 36, 0.68)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    boxShadow: "0 18px 40px rgba(0,0,0,0.22)",
+    backdropFilter: "blur(16px)",
+    textAlign: "center",
+  },
+  heroTitle: {
+    fontSize: "clamp(30px, 4vw, 52px)",
+    fontWeight: 800,
+    lineHeight: 1.05,
+    letterSpacing: "-0.04em",
+  },
+  heroSub: {
+    marginTop: 12,
+    color: "rgba(255,255,255,0.74)",
+    fontSize: 16,
+    lineHeight: 1.7,
+    maxWidth: 640,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  promptGrid: {
+    marginTop: 22,
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gap: 12,
+  },
+  promptBtn: {
+    padding: "14px 14px",
+    borderRadius: 16,
+    border: "1px solid rgba(255,255,255,0.08)",
+    background: "rgba(255,255,255,0.05)",
+    color: "#fff",
+    cursor: "pointer",
+    textAlign: "left",
+    fontWeight: 600,
+    lineHeight: 1.45,
+  },
+
   messageRow: {
     display: "flex",
     width: "100%",
   },
+  messageStack: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    width: "fit-content",
+    maxWidth: "100%",
+  },
+  messageMeta: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    fontSize: 12,
+    color: "rgba(255,255,255,0.66)",
+  },
+  senderName: {
+    fontWeight: 700,
+  },
+  senderDot: {
+    width: 5,
+    height: 5,
+    borderRadius: "50%",
+    background: "rgba(255,255,255,0.35)",
+  },
   bubble: {
-    padding: 12,
-    borderRadius: 18,
+    padding: 14,
+    borderRadius: 20,
     wordBreak: "break-word",
     boxSizing: "border-box",
     maxWidth: "100%",
-    backdropFilter: "blur(12px)",
     border,
     boxShadow: "0 12px 30px rgba(0,0,0,0.16)",
+    backdropFilter: "blur(12px)",
   },
-  userBubble: { background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)" },
-  botBubble: { background: glass },
-  modeChip: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    fontSize: 11,
-    padding: "4px 10px",
-    borderRadius: 999,
-    background: "rgba(255,255,255,0.12)",
-    color: "rgba(255,255,255,0.88)",
-    marginBottom: 10,
-    width: "fit-content",
+  userBubble: {
+    background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
   },
+  botBubble: {
+    background: glass,
+  },
+
   cardWrap: {
-    width: 520,
+    width: 540,
     maxWidth: "100%",
     overflow: "hidden",
-    background: "rgba(255,255,255,0.96)",
+    background: "rgba(255,255,255,0.97)",
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 18,
     boxSizing: "border-box",
-    color: "#111",
+    color: "#111827",
+  },
+  cardList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 12,
   },
   infoCard: {
     display: "flex",
@@ -1117,27 +1286,47 @@ const styles = {
     gap: 10,
     background: "#fff",
     borderRadius: 16,
-    padding: 0,
-    color: "#111",
+    color: "#111827",
   },
-  stack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 12,
+  cardTitle: {
+    fontWeight: 800,
+    fontSize: 18,
+    lineHeight: 1.3,
   },
-  cardTitle: { fontWeight: 800, fontSize: 18, lineHeight: 1.3 },
-  cardBody: { fontSize: 14, color: "#4b5563", lineHeight: 1.6 },
+  cardBody: {
+    fontSize: 14,
+    color: "#4b5563",
+    lineHeight: 1.6,
+  },
   link: {
     display: "inline-block",
     textDecoration: "none",
     color: "#4f46e5",
     fontWeight: 700,
-    marginTop: 2,
   },
-  mediaLarge: { width: "100%", height: 220, objectFit: "cover", borderRadius: 14 },
-  mediaSmall: { width: "100%", maxWidth: 260, height: "auto", display: "block", borderRadius: 14 },
-  emptyState: { color: "#64748b", fontSize: 14 },
-  typing: { color: "rgba(255,255,255,0.75)", paddingLeft: 8 },
+  mediaLarge: {
+    width: "100%",
+    height: 220,
+    objectFit: "cover",
+    borderRadius: 14,
+  },
+  mediaSmall: {
+    width: "100%",
+    maxWidth: 260,
+    height: "auto",
+    display: "block",
+    borderRadius: 14,
+  },
+  emptyText: {
+    color: "#64748b",
+    fontSize: 14,
+  },
+  typing: {
+    color: "rgba(255,255,255,0.72)",
+    paddingLeft: 8,
+    fontSize: 14,
+  },
+
   bottomDock: {
     width: "100%",
     position: "fixed",
@@ -1147,15 +1336,12 @@ const styles = {
     padding: "0 10px 10px",
     boxSizing: "border-box",
     display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: 10,
-    background: "linear-gradient(to top, #090d18 72%, transparent)",
+    justifyContent: "center",
+    background: "linear-gradient(to top, #090d18 68%, transparent)",
   },
   composerWrap: {
-    width: "min(980px, 100%)",
+    width: "min(1020px, 100%)",
     position: "relative",
-    flexShrink: 0,
   },
   menuPanel: {
     position: "absolute",
@@ -1165,12 +1351,11 @@ const styles = {
     padding: 10,
     borderRadius: 20,
     background: "rgba(15, 20, 36, 0.96)",
-    border,
+    border: "1px solid rgba(255,255,255,0.10)",
     boxShadow: "0 18px 40px rgba(0,0,0,0.4)",
     backdropFilter: "blur(18px)",
     display: "grid",
     gap: 8,
-    zIndex: 30,
   },
   menuItem: {
     width: "100%",
@@ -1178,12 +1363,18 @@ const styles = {
     border: "none",
     borderRadius: 14,
     padding: "10px 12px",
-    background: "transparent",
     color: "#fff",
     cursor: "pointer",
   },
-  menuItemLabel: { fontSize: 14, fontWeight: 700, marginBottom: 3 },
-  menuItemHint: { fontSize: 12, color: "rgba(255,255,255,0.65)" },
+  menuItemLabel: {
+    fontSize: 14,
+    fontWeight: 700,
+    marginBottom: 3,
+  },
+  menuItemHint: {
+    fontSize: 12,
+    color: "rgba(255,255,255,0.65)",
+  },
   composer: {
     width: "100%",
     minHeight: 76,
@@ -1214,16 +1405,6 @@ const styles = {
   iconMain: { width: 20, height: 20 },
   iconSend: { width: 18, height: 18 },
   iconTiny: { width: 10, height: 10 },
-  modePill: {
-    padding: "8px 12px",
-    borderRadius: 999,
-    background: "rgba(139,92,246,0.18)",
-    border: "1px solid rgba(139,92,246,0.25)",
-    color: "#e9d5ff",
-    fontSize: 12,
-    fontWeight: 700,
-    whiteSpace: "nowrap",
-  },
   input: {
     flex: 1,
     height: 48,
@@ -1250,6 +1431,7 @@ const styles = {
     flexShrink: 0,
     boxShadow: "0 10px 22px rgba(99,102,241,0.32)",
   },
+
   messageActions: {
     display: "flex",
     gap: 8,
@@ -1263,7 +1445,6 @@ const styles = {
     border: "none",
     borderRadius: 10,
     background: "rgba(255,255,255,0.10)",
-    color: "inherit",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
