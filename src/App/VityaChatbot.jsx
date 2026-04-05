@@ -735,11 +735,12 @@ const Chatbot = () => {
 
     try {
       if (type === "download_link" && msg.content) {
-        const filename = msg.fileName || "presentation.pptx";
-        await downloadBlobFromUrl(msg.content, filename);
-        return;
-      }
+          const fileUrl = `${API_BASE_URL}${msg.content}`;
 
+          window.open(fileUrl, "_blank");
+
+          return;
+        }
       if (CHAT_TYPES.has(type)) {
         await downloadChartPNG(index, msg);
         return;
