@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import {
   BarChart,
@@ -46,6 +46,7 @@ const CHAT_TYPES = new Set([
 const MEDIA_TYPES = new Set(["image", "qr", "barcode"]);
 const COLORS = ["#8b5cf6", "#22c55e", "#f59e0b", "#f97316", "#ef4444", "#38bdf8"];
 const CHART_HEIGHT = 240;
+const BASE_URL = "https://mother-8599.onrender.com";
 
 const MODES = [
   { key: "chat", label: "Chat", hint: "Default mode" },
@@ -56,7 +57,7 @@ const MODES = [
 
 const QUICK_PROMPTS = [
   "Explain this in simple words",
-  "Create a React dashboard UI",
+  "Generate a bar chart for sales data",
   "Show latest AI news",
   "Search Wikipedia: Alan Turing",
 ];
@@ -658,6 +659,10 @@ const Chatbot = () => {
 
     if (type === "text") return msg.content || msg.text || msg.reply || "";
 
+    if (type === "download_link") {
+      return msg.text || msg.content || "Presentation ready";
+    }
+
     if (type === "chat") {
       const data = msg.content ?? msg.reply ?? msg.text ?? "";
       if (typeof data === "string") return data;
@@ -703,6 +708,7 @@ const Chatbot = () => {
     const text = getMessageText(msg);
     if (!text) return "";
     if (type === "news" || type === "wiki") return text;
+    if (type === "download_link") return "Presentation is ready. Click to download.";
     if (CHAT_TYPES.has(type)) return "Chart response received.";
     if (MEDIA_TYPES.has(type)) return "Media response received.";
     return text;
@@ -728,6 +734,11 @@ const Chatbot = () => {
 
   const handleDownloadMessage = (msg, index) => {
     const type = (msg.type || "").toLowerCase().trim();
+
+    if (type === "download_link" && msg.content) {
+      window.open(msg.content, "_blank", "noopener,noreferrer");
+      return;
+    }
 
     if (CHAT_TYPES.has(type)) return downloadChartPNG(index, msg);
 
@@ -766,7 +777,7 @@ const Chatbot = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("https://mother-8599.onrender.com/api/chat", {
+      const res = await fetch(`${BASE_URL}/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -795,6 +806,23 @@ const Chatbot = () => {
         data = await res.json();
       } catch {
         data = {};
+      }
+
+      if (data?.type === "file" && data?.content?.download_url) {
+        const fileUrl = `${BASE_URL}${data.content.download_url}`;
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "bot",
+            type: "download_link",
+            text: `✅ Presentation ready: ${data.content.title || "Untitled Presentation"}\n📄 Slides: ${data.content.slides ?? 0}\n⬇️ Click to download`,
+            content: fileUrl,
+            fileName: data.content.file_name || "presentation.pptx",
+          },
+        ]);
+
+        return;
       }
 
       const payload =
@@ -929,7 +957,31 @@ const Chatbot = () => {
                         ...(isUser ? styles.userBubble : styles.botBubble),
                       }}
                     >
-                      {type === "news" ? (
+                      {msg.type === "download_link" ? (
+                        <div style={styles.downloadCard}>
+                          <div style={styles.downloadTitle}>
+                            {msg.text?.split("\n")[0] || "✅ Presentation ready"}
+                          </div>
+
+                          <div style={styles.downloadMeta}>
+                            {(msg.text || "")
+                              .split("\n")
+                              .slice(1)
+                              .map((line, idx) => (
+                                <div key={idx}>{line}</div>
+                              ))}
+                          </div>
+
+                          <a
+                            href={msg.content}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={styles.downloadLink}
+                          >
+                            ⬇️ Download PPT
+                          </a>
+                        </div>
+                      ) : type === "news" ? (
                         <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
                           {renderNews(msg)}
                         </div>
@@ -957,7 +1009,9 @@ const Chatbot = () => {
                           {chartElement || <div style={styles.emptyText}>No chart data</div>}
                         </div>
                       ) : (
-                        <span>{typeof msg.text === "string" ? msg.text : JSON.stringify(msg.text)}</span>
+                        <span style={{ whiteSpace: "pre-wrap" }}>
+                          {typeof msg.text === "string" ? msg.text : JSON.stringify(msg.text)}
+                        </span>
                       )}
                     </div>
 
@@ -1046,10 +1100,7 @@ const Chatbot = () => {
               <img src={getMicIcon()} alt="Mic" style={styles.iconMain} />
             </button>
 
-            <button
-              onClick={() => sendMessage()}
-              style={{ ...styles.sendBtn, opacity: loading ? 0.75 : 1 }}
-            >
+            <button onClick={() => sendMessage()} style={{ ...styles.sendBtn, opacity: loading ? 0.75 : 1 }}>
               <img src="/send.png" alt="Send" style={styles.iconSend} />
             </button>
           </div>
@@ -1072,10 +1123,8 @@ const styles = {
     flexDirection: "column",
     overflow: "hidden",
     color: "#fff",
-    background:
-      "radial-gradient(circle at top, #1b2440 0%, #0b1020 55%, #090d18 100%)",
-    fontFamily:
-      "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
+    background: "radial-gradient(circle at top, #1b2440 0%, #0b1020 55%, #090d18 100%)",
+    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
     position: "relative",
   },
   topbar: {
@@ -1461,5 +1510,41 @@ const styles = {
   heatCell: {
     height: 30,
     borderRadius: 6,
+  },
+
+  downloadCard: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+    padding: 16,
+    borderRadius: 16,
+    background: "#fff",
+    color: "#111827",
+    minWidth: 260,
+    boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
+  },
+  downloadTitle: {
+    fontSize: 16,
+    fontWeight: 800,
+    lineHeight: 1.4,
+    whiteSpace: "pre-line",
+  },
+  downloadMeta: {
+    fontSize: 13,
+    color: "#4b5563",
+    lineHeight: 1.6,
+    whiteSpace: "pre-line",
+  },
+  downloadLink: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "fit-content",
+    padding: "10px 14px",
+    borderRadius: 12,
+    background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+    color: "#fff",
+    textDecoration: "none",
+    fontWeight: 700,
   },
 };

@@ -5,23 +5,36 @@ import Dashboard from "./App/Dashboard";
 
 import "./App.css";
 
-// ✅ Protect routes
+// ✅ Protected Route Component
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" replace />;
+
+  // 🔒 If no token → redirect to login
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
 };
 
 function App() {
+  const token = localStorage.getItem("token");
+
   return (
     <Router>
       <Routes>
 
-        {/* ✅ Default route */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        {/* ✅ Smart default route */}
+        <Route
+          path="/"
+          element={
+            token ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
+          }
+        />
 
         {/* ✅ Public routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={token ? <Navigate to="/dashboard" /> : <Login />} />
+        <Route path="/register" element={token ? <Navigate to="/dashboard" /> : <Register />} />
 
         {/* ✅ Protected routes */}
         <Route
@@ -42,8 +55,11 @@ function App() {
           }
         />
 
-        {/* ✅ Optional fallback */}
-        <Route path="*" element={<Navigate to="/login" />} />
+        {/* ✅ Fallback route */}
+        <Route
+          path="*"
+          element={<Navigate to={token ? "/dashboard" : "/login"} replace />}
+        />
 
       </Routes>
     </Router>
