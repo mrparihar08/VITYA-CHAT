@@ -31,6 +31,12 @@ const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL ||
   "https://mother-8599.onrender.com";
 
+  const buildFileUrl = (pathOrUrl) => {
+  if (!pathOrUrl) return "";
+  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+  return `${API_BASE_URL}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
+};
+
 const CHAT_TYPES = new Set([
   "bar",
   "chart",
@@ -422,17 +428,6 @@ const Chatbot = () => {
       setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "PDF downloaded ✅" }]);
       return true;
     }
-
-    if (
-      lower.includes("application/vnd.openxmlformats-officedocument.presentationml.presentation") ||
-      lower.includes("presentationml.presentation") ||
-      lower.includes("powerpoint")
-    ) {
-      await downloadBlobFromResponse(res, "chat_data.pptx");
-      setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "PPTX downloaded ✅" }]);
-      return true;
-    }
-
     return false;
   };
 
@@ -731,149 +726,220 @@ const Chatbot = () => {
   };
 
   const handleDownloadMessage = async (msg, index) => {
-    const type = (msg?.type || "").toLowerCase().trim();
+      const type = (msg?.type || "").toLowerCase().trim();
 
-    try {
-      if (type === "download_link" && msg.content) {
-          const fileUrl = `${API_BASE_URL}${msg.content}`;
+      try {
+        if (type === "download_link" && msg.content) {
+          const fileUrl =
+            msg.content.startsWith("http")
+              ? msg.content
+              : `${API_BASE_URL}${msg.content}`;
 
-          window.open(fileUrl, "_blank");
+          window.open(fileUrl, "_blank", "noopener,noreferrer");
+          return;
+        }
+
+        if (CHAT_TYPES.has(type)) {
+          await downloadChartPNG(index, msg);
+          return;
+        }
+
+        if (MEDIA_TYPES.has(type)) {
+          const raw = msg.content ?? msg.text ?? "";
+          const src =
+            typeof raw === "string" && raw.startsWith("data:")
+              ? raw
+              : `data:image/png;base64,${raw}`;
+
+          const link = document.createElement("a");
+          link.href = src;
+          link.download = `${type || "media"}_${index + 1}.png`;
+          link.click();
+          return;
+        }
+
+        const text = getMessageText(msg);
+        if (text) downloadTextFile(text, `${type || "message"}_${index + 1}.txt`);
+      } catch (err) {
+        console.error(err);
+        alert("Download failed");
+      }
+    };
+
+  const sendMessage = async (explicitText = null) => {
+      const messageToSend = (explicitText ?? input).trim();
+      if (!messageToSend || loading) return;
+
+      if (!token) {
+        alert("Please login again.");
+        return;
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "user",
+          type: "text",
+          text: messageToSend,
+          mode,
+        },
+      ]);
+
+      setLoading(true);
+
+      try {
+        // PPT / file mode: direct generate endpoint
+        if (mode === "file") {
+          const res = await fetch(`${API_BASE_URL}/generate`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              prompt: messageToSend,
+              template_name: null,
+              include_title_slide: true,
+              allow_bullets: true,
+              allow_paragraph: true,
+              allow_chart: true,
+              allow_image: true,
+              allow_section_slide: true,
+              allow_table: true,
+              background_theme: "light",
+              smart_mode: true,
+              slide_types: null,
+            }),
+          });
+
+          if (res.status === 401) {
+            alert("Session expired. Please login again.");
+            return;
+          }
+
+          if (!res.ok) {
+            const errText = await res.text().catch(() => "");
+            throw new Error(errText || `Request failed: ${res.status}`);
+          }
+
+          const data = await res.json().catch(() => ({}));
+
+          const downloadUrl = buildFileUrl(data.download_url || data?.content?.download_url);
+          const fileName = data.file_name || data?.content?.file_name || "presentation.pptx";
+
+          if (!downloadUrl) {
+            throw new Error("No download URL returned from backend");
+          }
+
+          setMessages((prev) => [
+            ...prev,
+            {
+              sender: "bot",
+              type: "download_link",
+              text: `✅ Presentation ready: ${data.title || "Untitled Presentation"}\n📄 Slides: ${data.slides ?? data?.content?.slides ?? 0}\n⬇️ Click to download`,
+              content: downloadUrl,
+              fileName,
+            },
+          ]);
+
+          try {
+            await downloadBlobFromUrl(downloadUrl, fileName);
+          } catch (err) {
+            console.error("Auto-download failed:", err);
+          }
 
           return;
         }
-      if (CHAT_TYPES.has(type)) {
-        await downloadChartPNG(index, msg);
-        return;
-      }
 
-      if (MEDIA_TYPES.has(type)) {
-        const raw = msg.content ?? msg.text ?? "";
-        const src = typeof raw === "string" && raw.startsWith("data:") ? raw : `data:image/png;base64,${raw}`;
-        const link = document.createElement("a");
-        link.href = src;
-        link.download = `${type || "media"}_${index + 1}.png`;
-        link.click();
-        return;
-      }
-
-      const text = getMessageText(msg);
-      if (text) downloadTextFile(text, `${type || "message"}_${index + 1}.txt`);
-    } catch (err) {
-      console.error(err);
-      alert("Download failed");
-    }
-  };
-
-  const sendMessage = async (explicitText = null) => {
-    const messageToSend = (explicitText ?? input).trim();
-    if (!messageToSend || loading) return;
-
-    if (!token) {
-      alert("Please login again.");
-      return;
-    }
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        sender: "user",
-        type: "text",
-        text: messageToSend,
-        mode,
-      },
-    ]);
-    setLoading(true);
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          message: messageToSend,
-          mode,
-          requestType: mode,
-        }),
-      });
-
-      if (res.status === 401) {
-        alert("Session expired. Please login again.");
-        return;
-      }
-
-      if (!res.ok) {
-        const errText = await res.text().catch(() => "");
-        throw new Error(errText || `Request failed: ${res.status}`);
-      }
-
-      const contentType = res.headers.get("content-type") || "";
-      const isFile = await handleFileResponse(res, contentType);
-      if (isFile) return;
-
-      let data = {};
-      try {
-        data = await res.json();
-      } catch {
-        data = {};
-      }
-
-      if (data?.type === "file" && data?.content?.download_url) {
-        const fileUrl = `${API_BASE_URL}${data.content.download_url}`;
-        const fileName = data.content.file_name || "presentation.pptx";
-
-        setMessages((prev) => [
-          ...prev,
-          {
-            sender: "bot",
-            type: "download_link",
-            text: `✅ Presentation ready: ${data.content.title || "Untitled Presentation"}\n📄 Slides: ${data.content.slides ?? 0}\n⬇️ Click to download`,
-            content: fileUrl,
-            fileName,
+        // Normal chat/news/wiki flow
+        const res = await fetch(`${API_BASE_URL}/api/chat`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-        ]);
+          body: JSON.stringify({
+            message: messageToSend,
+            mode,
+            requestType: mode,
+          }),
+        });
 
-        // Auto-download but keep the card as fallback
-        try {
-          await downloadBlobFromUrl(fileUrl, fileName);
-        } catch (err) {
-          console.error("Auto-download failed:", err);
+        if (res.status === 401) {
+          alert("Session expired. Please login again.");
+          return;
         }
-        return;
+
+        if (!res.ok) {
+          const errText = await res.text().catch(() => "");
+          throw new Error(errText || `Request failed: ${res.status}`);
+        }
+
+        const contentType = res.headers.get("content-type") || "";
+        const isFile = await handleFileResponse(res, contentType);
+        if (isFile) return;
+
+        let data = {};
+        try {
+          data = await res.json();
+        } catch {
+          data = {};
+        }
+
+        if (data?.type === "file" && data?.content?.download_url) {
+          const fileUrl = buildFileUrl(data.content.download_url);
+          const fileName = data.content.file_name || "presentation.pptx";
+
+          setMessages((prev) => [
+            ...prev,
+            {
+              sender: "bot",
+              type: "download_link",
+              text: `✅ Presentation ready: ${data.content.title || "Untitled Presentation"}\n📄 Slides: ${data.content.slides ?? 0}\n⬇️ Click to download`,
+              content: fileUrl,
+              fileName,
+            },
+          ]);
+
+          try {
+            await downloadBlobFromUrl(fileUrl, fileName);
+          } catch (err) {
+            console.error("Auto-download failed:", err);
+          }
+          return;
+        }
+
+        const payload =
+          data?.content ??
+          data?.data ??
+          data?.reply ??
+          data?.result ??
+          data?.message ??
+          data?.payload ??
+          null;
+
+        const normalizedPayload = data?.type === "wiki" ? normalizeWikiData(payload) : payload;
+
+        const botMessage = {
+          sender: "bot",
+          type: data?.type || (mode === "wiki" ? "wiki" : mode === "news" ? "news" : "text"),
+          text: typeof normalizedPayload === "string" ? normalizedPayload : "",
+          content: normalizedPayload,
+        };
+
+        setMessages((prev) => [...prev, botMessage].slice(-50));
+
+        if (explicitText !== null && getSpeakText(botMessage)) {
+          setTimeout(() => speak(getSpeakText(botMessage)), 250);
+        }
+      } catch (error) {
+        console.error(error);
+        setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "Server error ❌" }]);
+      } finally {
+        setLoading(false);
+        setInput("");
       }
-
-      const payload =
-        data?.content ??
-        data?.data ??
-        data?.reply ??
-        data?.result ??
-        data?.message ??
-        data?.payload ??
-        null;
-
-      const normalizedPayload = data?.type === "wiki" ? normalizeWikiData(payload) : payload;
-
-      const botMessage = {
-        sender: "bot",
-        type: data?.type || (mode === "wiki" ? "wiki" : mode === "news" ? "news" : "text"),
-        text: typeof normalizedPayload === "string" ? normalizedPayload : "",
-        content: normalizedPayload,
-      };
-
-      setMessages((prev) => [...prev, botMessage].slice(-50));
-
-      if (explicitText !== null && getSpeakText(botMessage)) {
-        setTimeout(() => speak(getSpeakText(botMessage)), 250);
-      }
-    } catch (error) {
-      console.error(error);
-      setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "Server error ❌" }]);
-    } finally {
-      setLoading(false);
-      setInput("");
-    }
-  };
+    };
 
   const placeholderMap = {
     chat: "Type your message...",
