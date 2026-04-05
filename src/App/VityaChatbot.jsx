@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import {
   BarChart,
@@ -26,6 +26,11 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+const API_BASE_URL =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_BASE_URL) ||
+  process.env.REACT_APP_API_BASE_URL ||
+  "https://mother-8599.onrender.com";
+
 const CHAT_TYPES = new Set([
   "bar",
   "chart",
@@ -46,7 +51,6 @@ const CHAT_TYPES = new Set([
 const MEDIA_TYPES = new Set(["image", "qr", "barcode"]);
 const COLORS = ["#8b5cf6", "#22c55e", "#f59e0b", "#f97316", "#ef4444", "#38bdf8"];
 const CHART_HEIGHT = 240;
-const BASE_URL = "https://mother-8599.onrender.com";
 
 const MODES = [
   { key: "chat", label: "Chat", hint: "Default mode" },
@@ -80,12 +84,6 @@ const safeJSON = (value) => {
   return value;
 };
 
-const formatMonth = (dateStr) => {
-  const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString("en-IN", { month: "short", year: "numeric" });
-};
-
 const normalizeWikiData = (value) => {
   const parsed = safeJSON(value);
   const data = typeof parsed === "string" ? safeJSON(parsed) : parsed;
@@ -103,6 +101,12 @@ const normalizeWikiData = (value) => {
       "",
     url: data.url || data.pageUrl || data.content_urls?.desktop?.page || "",
   };
+};
+
+const formatMonth = (dateStr) => {
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString("en-IN", { month: "short", year: "numeric" });
 };
 
 const normalizeMultiLineData = (data) => {
@@ -158,6 +162,64 @@ const findArrayDeep = (value, depth = 0) => {
   return null;
 };
 
+const getMessageText = (msg) => {
+  const type = (msg?.type || "").toLowerCase().trim();
+  const raw = msg?.content ?? msg?.text ?? msg?.data ?? "";
+
+  if (type === "text") return msg?.content || msg?.text || msg?.reply || "";
+  if (type === "download_link") return msg?.text || "Presentation ready";
+
+  if (type === "chat") {
+    const data = msg?.content ?? msg?.reply ?? msg?.text ?? "";
+    if (typeof data === "string") return data;
+    if (data && typeof data === "object") return data.content || data.reply || JSON.stringify(data, null, 2);
+    return "";
+  }
+
+  if (type === "news") {
+    const parsed = Array.isArray(raw) ? raw : safeJSON(raw);
+    const data = Array.isArray(parsed) ? parsed : parsed?.articles || [];
+    if (!data.length) return "News response";
+    return data
+      .map((item, index) => {
+        const title = item?.title ? `Title: ${item.title}` : `News item ${index + 1}`;
+        const desc = item?.description ? `Description: ${item.description}` : "";
+        const url = item?.url ? `Link: ${item.url}` : "";
+        return [title, desc, url].filter(Boolean).join("\n");
+      })
+      .join("\n\n");
+  }
+
+  if (type === "wiki") {
+    const data = normalizeWikiData(raw);
+    if (!data.title && !data.summary && !data.url) return "Wikipedia response";
+    return [
+      data.title ? `Title: ${data.title}` : "",
+      data.summary ? `Summary: ${data.summary}` : "",
+      data.url ? `Link: ${data.url}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+  }
+
+  if (MEDIA_TYPES.has(type)) return "Media message";
+  if (CHAT_TYPES.has(type)) return typeof raw === "string" ? raw : JSON.stringify(raw, null, 2);
+  if (typeof raw === "string") return raw;
+  if (raw && typeof raw === "object") return JSON.stringify(raw, null, 2);
+  return "";
+};
+
+const getSpeakText = (msg) => {
+  const type = (msg?.type || "").toLowerCase().trim();
+  const text = getMessageText(msg);
+  if (!text) return "";
+  if (type === "news" || type === "wiki") return text;
+  if (type === "download_link") return "Presentation is ready. Click to download.";
+  if (CHAT_TYPES.has(type)) return "Chart response received.";
+  if (MEDIA_TYPES.has(type)) return "Media response received.";
+  return text;
+};
+
 const Chatbot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -167,7 +229,7 @@ const Chatbot = () => {
   const [plusOpen, setPlusOpen] = useState(false);
   const [mode, setMode] = useState("chat");
 
-  const token = localStorage.getItem("token");
+  const token = useMemo(() => localStorage.getItem("token"), []);
   const bottomRef = useRef(null);
   const recognitionRef = useRef(null);
   const isSpeakingRef = useRef(false);
@@ -195,10 +257,14 @@ const Chatbot = () => {
       document.removeEventListener("mousedown", onDocClick);
       try {
         recognitionRef.current?.stop();
-      } catch {}
+      } catch {
+        // ignore
+      }
       try {
         window.speechSynthesis?.cancel();
-      } catch {}
+      } catch {
+        // ignore
+      }
     };
   }, []);
 
@@ -210,7 +276,9 @@ const Chatbot = () => {
     if (!text || !window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined") return;
     try {
       window.speechSynthesis.cancel();
-    } catch {}
+    } catch {
+      // ignore
+    }
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "en-IN";
@@ -220,33 +288,26 @@ const Chatbot = () => {
     window.speechSynthesis.speak(utterance);
   };
 
-  const preprocessVoice = (text) =>
-    (text || "")
-      .toLowerCase()
-      .replace(/\b(rupees|rs|rupee)\b/g, "")
-      .trim();
-
   const stopRecognition = () => {
     const recognition = recognitionRef.current;
     if (!recognition) return;
     forceStopRef.current = true;
     try {
       recognition.stop();
-    } catch {}
+    } catch {
+      // ignore
+    }
     setListening(false);
   };
 
   const startListening = () => {
     const recognition = recognitionRef.current;
     if (!recognition) {
-      alert("Voice not supported");
+      alert("Voice not supported in this browser");
       return;
     }
     if (!voiceEnabled) return;
-    if (listening) {
-      stopRecognition();
-      return;
-    }
+    if (listening) return stopRecognition();
     if (isSpeakingRef.current) return;
 
     forceStopRef.current = false;
@@ -259,7 +320,7 @@ const Chatbot = () => {
         return;
       }
       setListening(false);
-      sendMessage(preprocessVoice(speechText));
+      sendMessage(speechText.toLowerCase().replace(/\b(rupees|rs|rupee)\b/g, "").trim());
     };
 
     recognition.onerror = () => setListening(false);
@@ -284,7 +345,9 @@ const Chatbot = () => {
         stopRecognition();
         try {
           window.speechSynthesis?.cancel();
-        } catch {}
+        } catch {
+          // ignore
+        }
       }
       return next;
     });
@@ -305,35 +368,41 @@ const Chatbot = () => {
     startListening();
   };
 
-  const downloadBlob = async (res, filename) => {
-    const blob = await res.blob();
-    const fileUrl = window.URL.createObjectURL(blob);
+  const createDownloadLink = (blob, filename) => {
+    const objectUrl = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = fileUrl;
+    a.href = objectUrl;
     a.download = filename;
     document.body.appendChild(a);
     a.click();
     a.remove();
-    setTimeout(() => window.URL.revokeObjectURL(fileUrl), 1000);
+    setTimeout(() => window.URL.revokeObjectURL(objectUrl), 1000);
+  };
+
+  const downloadBlobFromResponse = async (res, filename) => {
+    const blob = await res.blob();
+    createDownloadLink(blob, filename);
+  };
+
+  const downloadBlobFromUrl = async (url, filename) => {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+    await downloadBlobFromResponse(res, filename);
   };
 
   const downloadTextFile = (text, filename) => {
     const blob = new Blob([text || ""], { type: "text/plain;charset=utf-8" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+    createDownloadLink(blob, filename);
   };
 
   const handleFileResponse = async (res, contentType) => {
     const lower = (contentType || "").toLowerCase();
 
     if (lower.includes("text/csv")) {
-      await downloadBlob(res, "chat_data.csv");
+      await downloadBlobFromResponse(res, "chat_data.csv");
       setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "CSV downloaded ✅" }]);
       return true;
     }
@@ -343,13 +412,13 @@ const Chatbot = () => {
       lower.includes("wordprocessingml.document") ||
       lower.includes("application/msword")
     ) {
-      await downloadBlob(res, "chat_data.docx");
+      await downloadBlobFromResponse(res, "chat_data.docx");
       setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "DOCX downloaded ✅" }]);
       return true;
     }
 
     if (lower.includes("application/pdf")) {
-      await downloadBlob(res, "chat_data.pdf");
+      await downloadBlobFromResponse(res, "chat_data.pdf");
       setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "PDF downloaded ✅" }]);
       return true;
     }
@@ -359,7 +428,7 @@ const Chatbot = () => {
       lower.includes("presentationml.presentation") ||
       lower.includes("powerpoint")
     ) {
-      await downloadBlob(res, "chat_data.pptx");
+      await downloadBlobFromResponse(res, "chat_data.pptx");
       setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "PPTX downloaded ✅" }]);
       return true;
     }
@@ -390,6 +459,16 @@ const Chatbot = () => {
     else if (first.y !== undefined && type === "scatter") yKey = "y";
 
     return { xKey, yKey };
+  };
+
+  const downloadChartPNG = async (index, msg) => {
+    const element = chartRefs.current[index];
+    if (!element) return;
+    const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
+    const link = document.createElement("a");
+    link.download = `${msg.type || "chart"}_${index + 1}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
   };
 
   const renderNews = (msg) => {
@@ -459,16 +538,6 @@ const Chatbot = () => {
         ) : null}
       </div>
     );
-  };
-
-  const downloadChartPNG = async (index, msg) => {
-    const element = chartRefs.current[index];
-    if (!element) return;
-    const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
-    const link = document.createElement("a");
-    link.download = `${msg.type || "chart"}_${index + 1}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
   };
 
   const renderChart = (msg) => {
@@ -646,75 +715,9 @@ const Chatbot = () => {
     }
   };
 
-  const getMediaSrc = (msg) => {
-    const raw = msg.content ?? msg.text ?? "";
-    if (typeof raw !== "string" || !raw) return "";
-    if (raw.startsWith("data:image/")) return raw;
-    return `data:image/png;base64,${raw}`;
-  };
-
-  const getMessageText = (msg) => {
-    const type = (msg.type || "").toLowerCase().trim();
-    const raw = msg.content ?? msg.text ?? msg.data ?? "";
-
-    if (type === "text") return msg.content || msg.text || msg.reply || "";
-
-    if (type === "download_link") {
-      return msg.text || msg.content || "Presentation ready";
-    }
-
-    if (type === "chat") {
-      const data = msg.content ?? msg.reply ?? msg.text ?? "";
-      if (typeof data === "string") return data;
-      if (data && typeof data === "object") return data.content || data.reply || JSON.stringify(data, null, 2);
-      return "";
-    }
-
-    if (type === "news") {
-      const parsed = Array.isArray(raw) ? raw : safeJSON(raw);
-      const data = Array.isArray(parsed) ? parsed : parsed?.articles || [];
-      if (!data.length) return "News response";
-      return data
-        .map((item, index) => {
-          const title = item?.title ? `Title: ${item.title}` : `News item ${index + 1}`;
-          const desc = item?.description ? `Description: ${item.description}` : "";
-          const url = item?.url ? `Link: ${item.url}` : "";
-          return [title, desc, url].filter(Boolean).join("\n");
-        })
-        .join("\n\n");
-    }
-
-    if (type === "wiki") {
-      const data = normalizeWikiData(raw);
-      if (!data.title && !data.summary && !data.url) return "Wikipedia response";
-      return [
-        data.title ? `Title: ${data.title}` : "",
-        data.summary ? `Summary: ${data.summary}` : "",
-        data.url ? `Link: ${data.url}` : "",
-      ]
-        .filter(Boolean)
-        .join("\n\n");
-    }
-
-    if (MEDIA_TYPES.has(type)) return "Media message";
-    if (CHAT_TYPES.has(type)) return typeof raw === "string" ? raw : JSON.stringify(raw, null, 2);
-    if (typeof raw === "string") return raw;
-    if (raw && typeof raw === "object") return JSON.stringify(raw, null, 2);
-    return "";
-  };
-
-  const getSpeakText = (msg) => {
-    const type = (msg.type || "").toLowerCase().trim();
+  const handleCopyMessage = async (msg) => {
     const text = getMessageText(msg);
-    if (!text) return "";
-    if (type === "news" || type === "wiki") return text;
-    if (type === "download_link") return "Presentation is ready. Click to download.";
-    if (CHAT_TYPES.has(type)) return "Chart response received.";
-    if (MEDIA_TYPES.has(type)) return "Media response received.";
-    return text;
-  };
-
-  const copyToClipboard = async (text) => {
+    if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
     } catch (err) {
@@ -722,38 +725,42 @@ const Chatbot = () => {
     }
   };
 
-  const handleCopyMessage = async (msg) => {
-    const text = getMessageText(msg);
-    if (text) await copyToClipboard(text);
-  };
-
   const handleSpeakMessage = (msg) => {
     const text = getSpeakText(msg);
     if (text) speak(text);
   };
 
-  const handleDownloadMessage = (msg, index) => {
-    const type = (msg.type || "").toLowerCase().trim();
+  const handleDownloadMessage = async (msg, index) => {
+    const type = (msg?.type || "").toLowerCase().trim();
 
-    if (type === "download_link" && msg.content) {
-      window.open(msg.content, "_blank", "noopener,noreferrer");
-      return;
+    try {
+      if (type === "download_link" && msg.content) {
+        const filename = msg.fileName || "presentation.pptx";
+        await downloadBlobFromUrl(msg.content, filename);
+        return;
+      }
+
+      if (CHAT_TYPES.has(type)) {
+        await downloadChartPNG(index, msg);
+        return;
+      }
+
+      if (MEDIA_TYPES.has(type)) {
+        const raw = msg.content ?? msg.text ?? "";
+        const src = typeof raw === "string" && raw.startsWith("data:") ? raw : `data:image/png;base64,${raw}`;
+        const link = document.createElement("a");
+        link.href = src;
+        link.download = `${type || "media"}_${index + 1}.png`;
+        link.click();
+        return;
+      }
+
+      const text = getMessageText(msg);
+      if (text) downloadTextFile(text, `${type || "message"}_${index + 1}.txt`);
+    } catch (err) {
+      console.error(err);
+      alert("Download failed");
     }
-
-    if (CHAT_TYPES.has(type)) return downloadChartPNG(index, msg);
-
-    if (MEDIA_TYPES.has(type)) {
-      const src = getMediaSrc(msg);
-      if (!src) return;
-      const link = document.createElement("a");
-      link.href = src;
-      link.download = `${type || "media"}_${index + 1}.png`;
-      link.click();
-      return;
-    }
-
-    const text = getMessageText(msg);
-    if (text) downloadTextFile(text, `${type || "message"}_${index + 1}.txt`);
   };
 
   const sendMessage = async (explicitText = null) => {
@@ -777,7 +784,7 @@ const Chatbot = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${BASE_URL}/api/chat`, {
+      const res = await fetch(`${API_BASE_URL}/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -795,7 +802,10 @@ const Chatbot = () => {
         return;
       }
 
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        throw new Error(errText || `Request failed: ${res.status}`);
+      }
 
       const contentType = res.headers.get("content-type") || "";
       const isFile = await handleFileResponse(res, contentType);
@@ -809,7 +819,8 @@ const Chatbot = () => {
       }
 
       if (data?.type === "file" && data?.content?.download_url) {
-        const fileUrl = `${BASE_URL}${data.content.download_url}`;
+        const fileUrl = `${API_BASE_URL}${data.content.download_url}`;
+        const fileName = data.content.file_name || "presentation.pptx";
 
         setMessages((prev) => [
           ...prev,
@@ -818,10 +829,16 @@ const Chatbot = () => {
             type: "download_link",
             text: `✅ Presentation ready: ${data.content.title || "Untitled Presentation"}\n📄 Slides: ${data.content.slides ?? 0}\n⬇️ Click to download`,
             content: fileUrl,
-            fileName: data.content.file_name || "presentation.pptx",
+            fileName,
           },
         ]);
 
+        // Auto-download but keep the card as fallback
+        try {
+          await downloadBlobFromUrl(fileUrl, fileName);
+        } catch (err) {
+          console.error("Auto-download failed:", err);
+        }
         return;
       }
 
@@ -972,14 +989,13 @@ const Chatbot = () => {
                               ))}
                           </div>
 
-                          <a
-                            href={msg.content}
-                            target="_blank"
-                            rel="noreferrer"
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadMessage(msg, i)}
                             style={styles.downloadLink}
                           >
                             ⬇️ Download PPT
-                          </a>
+                          </button>
                         </div>
                       ) : type === "news" ? (
                         <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
@@ -991,18 +1007,22 @@ const Chatbot = () => {
                         </div>
                       ) : MEDIA_TYPES.has(type) ? (
                         <div style={styles.stack}>
-                          {getMediaSrc(msg) ? (
-                            <img
-                              src={getMediaSrc(msg)}
-                              alt={type}
-                              style={styles.mediaSmall}
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                              }}
-                            />
-                          ) : (
-                            <div style={styles.emptyText}>Invalid media data</div>
-                          )}
+                          {(() => {
+                            const raw = msg.content ?? msg.text ?? "";
+                            const src = typeof raw === "string" && raw.startsWith("data:") ? raw : `data:image/png;base64,${raw}`;
+                            return src ? (
+                              <img
+                                src={src}
+                                alt={type}
+                                style={styles.mediaSmall}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <div style={styles.emptyText}>Invalid media data</div>
+                            );
+                          })()}
                         </div>
                       ) : CHAT_TYPES.has(type) ? (
                         <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
@@ -1138,12 +1158,7 @@ const styles = {
     backdropFilter: "blur(14px)",
     flexShrink: 0,
   },
-  brandBlock: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    minWidth: 0,
-  },
+  brandBlock: { display: "flex", alignItems: "center", gap: 12, minWidth: 0 },
   brandBadge: {
     width: 40,
     height: 40,
@@ -1155,21 +1170,9 @@ const styles = {
     boxShadow: "0 10px 22px rgba(99,102,241,0.30)",
     flexShrink: 0,
   },
-  brandTitle: {
-    fontSize: 18,
-    fontWeight: 800,
-    lineHeight: 1.1,
-  },
-  brandSub: {
-    marginTop: 2,
-    fontSize: 12,
-    color: "rgba(255,255,255,0.68)",
-  },
-  topbarRight: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-  },
+  brandTitle: { fontSize: 18, fontWeight: 800, lineHeight: 1.1 },
+  brandSub: { marginTop: 2, fontSize: 12, color: "rgba(255,255,255,0.68)" },
+  topbarRight: { display: "flex", alignItems: "center", gap: 10 },
   modePill: {
     display: "inline-flex",
     alignItems: "center",
@@ -1199,18 +1202,8 @@ const styles = {
     display: "grid",
     placeItems: "center",
   },
-  topbarIcon: {
-    width: 18,
-    height: 18,
-  },
-
-  main: {
-    flex: 1,
-    display: "flex",
-    justifyContent: "center",
-    overflow: "hidden",
-    minHeight: 0,
-  },
+  topbarIcon: { width: 18, height: 18 },
+  main: { flex: 1, display: "flex", justifyContent: "center", overflow: "hidden", minHeight: 0 },
   chatArea: {
     width: "min(1120px, 100%)",
     padding: "18px 16px 170px",
@@ -1221,12 +1214,7 @@ const styles = {
     boxSizing: "border-box",
     minHeight: 0,
   },
-  emptyState: {
-    flex: 1,
-    display: "grid",
-    placeItems: "center",
-    minHeight: "calc(100vh - 250px)",
-  },
+  emptyState: { flex: 1, display: "grid", placeItems: "center", minHeight: "calc(100vh - 250px)" },
   emptyCard: {
     width: "min(780px, 100%)",
     padding: 28,
@@ -1252,12 +1240,7 @@ const styles = {
     marginLeft: "auto",
     marginRight: "auto",
   },
-  promptGrid: {
-    marginTop: 22,
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-    gap: 12,
-  },
+  promptGrid: { marginTop: 22, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 },
   promptBtn: {
     padding: "14px 14px",
     borderRadius: 16,
@@ -1269,34 +1252,11 @@ const styles = {
     fontWeight: 600,
     lineHeight: 1.45,
   },
-
-  messageRow: {
-    display: "flex",
-    width: "100%",
-  },
-  messageStack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    width: "fit-content",
-    maxWidth: "100%",
-  },
-  messageMeta: {
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    fontSize: 12,
-    color: "rgba(255,255,255,0.66)",
-  },
-  senderName: {
-    fontWeight: 700,
-  },
-  senderDot: {
-    width: 5,
-    height: 5,
-    borderRadius: "50%",
-    background: "rgba(255,255,255,0.35)",
-  },
+  messageRow: { display: "flex", width: "100%" },
+  messageStack: { display: "flex", flexDirection: "column", gap: 8, width: "fit-content", maxWidth: "100%" },
+  messageMeta: { display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "rgba(255,255,255,0.66)" },
+  senderName: { fontWeight: 700 },
+  senderDot: { width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.35)" },
   bubble: {
     padding: 14,
     borderRadius: 20,
@@ -1307,13 +1267,8 @@ const styles = {
     boxShadow: "0 12px 30px rgba(0,0,0,0.16)",
     backdropFilter: "blur(12px)",
   },
-  userBubble: {
-    background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
-  },
-  botBubble: {
-    background: glass,
-  },
-
+  userBubble: { background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)" },
+  botBubble: { background: glass },
   cardWrap: {
     width: 540,
     maxWidth: "100%",
@@ -1324,58 +1279,15 @@ const styles = {
     boxSizing: "border-box",
     color: "#111827",
   },
-  cardList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 12,
-  },
-  infoCard: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-    background: "#fff",
-    borderRadius: 16,
-    color: "#111827",
-  },
-  cardTitle: {
-    fontWeight: 800,
-    fontSize: 18,
-    lineHeight: 1.3,
-  },
-  cardBody: {
-    fontSize: 14,
-    color: "#4b5563",
-    lineHeight: 1.6,
-  },
-  link: {
-    display: "inline-block",
-    textDecoration: "none",
-    color: "#4f46e5",
-    fontWeight: 700,
-  },
-  mediaLarge: {
-    width: "100%",
-    height: 220,
-    objectFit: "cover",
-    borderRadius: 14,
-  },
-  mediaSmall: {
-    width: "100%",
-    maxWidth: 260,
-    height: "auto",
-    display: "block",
-    borderRadius: 14,
-  },
-  emptyText: {
-    color: "#64748b",
-    fontSize: 14,
-  },
-  typing: {
-    color: "rgba(255,255,255,0.72)",
-    paddingLeft: 8,
-    fontSize: 14,
-  },
-
+  cardList: { display: "flex", flexDirection: "column", gap: 12 },
+  infoCard: { display: "flex", flexDirection: "column", gap: 10, background: "#fff", borderRadius: 16, color: "#111827" },
+  cardTitle: { fontWeight: 800, fontSize: 18, lineHeight: 1.3 },
+  cardBody: { fontSize: 14, color: "#4b5563", lineHeight: 1.6 },
+  link: { display: "inline-block", textDecoration: "none", color: "#4f46e5", fontWeight: 700 },
+  mediaLarge: { width: "100%", height: 220, objectFit: "cover", borderRadius: 14 },
+  mediaSmall: { width: "100%", maxWidth: 260, height: "auto", display: "block", borderRadius: 14 },
+  emptyText: { color: "#64748b", fontSize: 14 },
+  typing: { color: "rgba(255,255,255,0.72)", paddingLeft: 8, fontSize: 14 },
   bottomDock: {
     width: "calc(100% - var(--sidebar-width, 0px))",
     position: "fixed",
@@ -1388,11 +1300,7 @@ const styles = {
     justifyContent: "center",
     background: "linear-gradient(to top, #090d18 68%, transparent)",
   },
-  composerWrap: {
-    width: "min(1020px, 100%)",
-    position: "relative",
-    maxWidth: "100%",
-  },
+  composerWrap: { width: "min(1020px, 100%)", position: "relative", maxWidth: "100%" },
   menuPanel: {
     position: "absolute",
     left: 0,
@@ -1407,24 +1315,9 @@ const styles = {
     display: "grid",
     gap: 8,
   },
-  menuItem: {
-    width: "100%",
-    textAlign: "left",
-    border: "none",
-    borderRadius: 14,
-    padding: "10px 12px",
-    color: "#fff",
-    cursor: "pointer",
-  },
-  menuItemLabel: {
-    fontSize: 14,
-    fontWeight: 700,
-    marginBottom: 3,
-  },
-  menuItemHint: {
-    fontSize: 12,
-    color: "rgba(255,255,255,0.65)",
-  },
+  menuItem: { width: "100%", textAlign: "left", border: "none", borderRadius: 14, padding: "10px 12px", color: "#fff", cursor: "pointer" },
+  menuItemLabel: { fontSize: 14, fontWeight: 700, marginBottom: 3 },
+  menuItemHint: { fontSize: 12, color: "rgba(255,255,255,0.65)" },
   composer: {
     width: "100%",
     minHeight: 76,
@@ -1481,14 +1374,7 @@ const styles = {
     flexShrink: 0,
     boxShadow: "0 10px 22px rgba(99,102,241,0.32)",
   },
-
-  messageActions: {
-    display: "flex",
-    gap: 8,
-    flexWrap: "wrap",
-    alignItems: "center",
-    marginTop: 2,
-  },
+  messageActions: { display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 2 },
   actionBtn: {
     width: 32,
     height: 32,
@@ -1500,18 +1386,8 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
   },
-  heatmapGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-    gap: 4,
-    width: "100%",
-    boxSizing: "border-box",
-  },
-  heatCell: {
-    height: 30,
-    borderRadius: 6,
-  },
-
+  heatmapGrid: { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 4, width: "100%", boxSizing: "border-box" },
+  heatCell: { height: 30, borderRadius: 6 },
   downloadCard: {
     display: "flex",
     flexDirection: "column",
@@ -1523,18 +1399,8 @@ const styles = {
     minWidth: 260,
     boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
   },
-  downloadTitle: {
-    fontSize: 16,
-    fontWeight: 800,
-    lineHeight: 1.4,
-    whiteSpace: "pre-line",
-  },
-  downloadMeta: {
-    fontSize: 13,
-    color: "#4b5563",
-    lineHeight: 1.6,
-    whiteSpace: "pre-line",
-  },
+  downloadTitle: { fontSize: 16, fontWeight: 800, lineHeight: 1.4, whiteSpace: "pre-line" },
+  downloadMeta: { fontSize: 13, color: "#4b5563", lineHeight: 1.6, whiteSpace: "pre-line" },
   downloadLink: {
     display: "inline-flex",
     alignItems: "center",
@@ -1542,9 +1408,11 @@ const styles = {
     width: "fit-content",
     padding: "10px 14px",
     borderRadius: 12,
+    border: "none",
     background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
     color: "#fff",
     textDecoration: "none",
     fontWeight: 700,
+    cursor: "pointer",
   },
 };
