@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import {
   BarChart,
@@ -31,12 +31,6 @@ const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL ||
   "https://mother-8599.onrender.com";
 
-  const buildFileUrl = (pathOrUrl) => {
-  if (!pathOrUrl) return "";
-  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
-  return `${API_BASE_URL}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
-};
-
 const CHAT_TYPES = new Set([
   "bar",
   "chart",
@@ -62,7 +56,7 @@ const MODES = [
   { key: "chat", label: "Chat", hint: "Default mode" },
   { key: "news", label: "News", hint: "Latest updates" },
   { key: "wiki", label: "Wikipedia", hint: "Search knowledge" },
-  { key: "file", label: "Create File", hint: "Generate file output" },
+  { key: "file", label: "Create File", hint: "Generate PPT output" },
 ];
 
 const QUICK_PROMPTS = [
@@ -71,6 +65,25 @@ const QUICK_PROMPTS = [
   "Show latest AI news",
   "Search Wikipedia: Alan Turing",
 ];
+
+const PPT_DEFAULTS = {
+  include_title_slide: true,
+  allow_bullets: true,
+  allow_paragraph: true,
+  allow_chart: true,
+  allow_image: true,
+  allow_section_slide: true,
+  allow_table: true,
+  smart_mode: true,
+};
+
+const isHttpUrl = (value) => /^https?:\/\//i.test(value || "");
+
+const buildFileUrl = (pathOrUrl) => {
+  if (!pathOrUrl) return "";
+  if (isHttpUrl(pathOrUrl)) return pathOrUrl;
+  return `${API_BASE_URL}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
+};
 
 const safeJSON = (value) => {
   if (typeof value !== "string") return value;
@@ -168,6 +181,40 @@ const findArrayDeep = (value, depth = 0) => {
   return null;
 };
 
+const readResponse = async (res) => {
+  const text = await res.text();
+  const contentType = res.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      throw new Error(`Invalid JSON from server:\n${text}`);
+    }
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
+  }
+};
+
+const buildPptPayload = (prompt, templateName, backgroundTheme, slideTypesRaw) => {
+  const slideTypes = (slideTypesRaw || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  return {
+    prompt: prompt.trim(),
+    template_name: templateName.trim() || null,
+    ...PPT_DEFAULTS,
+    background_theme: backgroundTheme,
+    slide_types: slideTypes.length ? slideTypes : null,
+  };
+};
+
 const getMessageText = (msg) => {
   const type = (msg?.type || "").toLowerCase().trim();
   const raw = msg?.content ?? msg?.text ?? msg?.data ?? "";
@@ -254,23 +301,20 @@ const Chatbot = () => {
     }
 
     const onDocClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setPlusOpen(false);
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setPlusOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", onDocClick);
-
     return () => {
       document.removeEventListener("mousedown", onDocClick);
       try {
         recognitionRef.current?.stop();
-      } catch {
-        // ignore
-      }
+      } catch {}
       try {
         window.speechSynthesis?.cancel();
-      } catch {
-        // ignore
-      }
+      } catch {}
     };
   }, []);
 
@@ -278,13 +322,12 @@ const Chatbot = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  const speak = (text) => {
+  const speak = useCallback((text) => {
     if (!text || !window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined") return;
+
     try {
       window.speechSynthesis.cancel();
-    } catch {
-      // ignore
-    }
+    } catch {}
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "en-IN";
@@ -292,21 +335,20 @@ const Chatbot = () => {
     utterance.onend = () => (isSpeakingRef.current = false);
     utterance.onerror = () => (isSpeakingRef.current = false);
     window.speechSynthesis.speak(utterance);
-  };
+  }, []);
 
-  const stopRecognition = () => {
+  const stopRecognition = useCallback(() => {
     const recognition = recognitionRef.current;
     if (!recognition) return;
+
     forceStopRef.current = true;
     try {
       recognition.stop();
-    } catch {
-      // ignore
-    }
+    } catch {}
     setListening(false);
-  };
+  }, []);
 
-  const startListening = () => {
+  const startListening = useCallback(() => {
     const recognition = recognitionRef.current;
     if (!recognition) {
       alert("Voice not supported in this browser");
@@ -341,7 +383,7 @@ const Chatbot = () => {
       setListening(false);
       console.error("Speech recognition start error:", err);
     }
-  };
+  }, [listening, voiceEnabled, stopRecognition, sendMessage]);
 
   const toggleVoiceEnabled = () => {
     setVoiceEnabled((prev) => {
@@ -351,9 +393,7 @@ const Chatbot = () => {
         stopRecognition();
         try {
           window.speechSynthesis?.cancel();
-        } catch {
-          // ignore
-        }
+        } catch {}
       }
       return next;
     });
@@ -428,12 +468,15 @@ const Chatbot = () => {
       setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "PDF downloaded ✅" }]);
       return true;
     }
+
     return false;
   };
 
   const getChartData = (msg) => {
     const raw = msg.content ?? msg.text ?? msg.data ?? null;
-    if (msg.type === "multi_line") return normalizeMultiLineData(safeJSON(raw));
+    if ((msg.type || "").toLowerCase().trim() === "multi_line") {
+      return normalizeMultiLineData(safeJSON(raw));
+    }
     return findArrayDeep(raw);
   };
 
@@ -560,6 +603,7 @@ const Chatbot = () => {
             </BarChart>
           </ResponsiveContainer>
         );
+
       case "line":
       case "line_chart":
         return (
@@ -574,6 +618,7 @@ const Chatbot = () => {
             </LineChart>
           </ResponsiveContainer>
         );
+
       case "multi_line":
         return (
           <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
@@ -588,6 +633,7 @@ const Chatbot = () => {
             </LineChart>
           </ResponsiveContainer>
         );
+
       case "pie":
       case "donut":
         return (
@@ -611,6 +657,7 @@ const Chatbot = () => {
             </PieChart>
           </ResponsiveContainer>
         );
+
       case "composed":
         return (
           <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
@@ -625,6 +672,7 @@ const Chatbot = () => {
             </ComposedChart>
           </ResponsiveContainer>
         );
+
       case "area":
         return (
           <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
@@ -637,6 +685,7 @@ const Chatbot = () => {
             </AreaChart>
           </ResponsiveContainer>
         );
+
       case "scatter":
         return (
           <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
@@ -649,6 +698,7 @@ const Chatbot = () => {
             </ScatterChart>
           </ResponsiveContainer>
         );
+
       case "stacked":
         return (
           <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
@@ -662,6 +712,7 @@ const Chatbot = () => {
             </BarChart>
           </ResponsiveContainer>
         );
+
       case "radar":
         return (
           <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
@@ -674,6 +725,7 @@ const Chatbot = () => {
             </RadarChart>
           </ResponsiveContainer>
         );
+
       case "heatmap":
         return (
           <div style={styles.heatmapGrid}>
@@ -692,6 +744,7 @@ const Chatbot = () => {
             })}
           </div>
         );
+
       case "waterfall":
         return (
           <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
@@ -705,6 +758,7 @@ const Chatbot = () => {
             </BarChart>
           </ResponsiveContainer>
         );
+
       default:
         return <div style={styles.emptyText}>No chart available</div>;
     }
@@ -726,220 +780,191 @@ const Chatbot = () => {
   };
 
   const handleDownloadMessage = async (msg, index) => {
-      const type = (msg?.type || "").toLowerCase().trim();
+    const type = (msg?.type || "").toLowerCase().trim();
 
-      try {
-        if (type === "download_link" && msg.content) {
-          const fileUrl =
-            msg.content.startsWith("http")
-              ? msg.content
-              : `${API_BASE_URL}${msg.content}`;
-
-          window.open(fileUrl, "_blank", "noopener,noreferrer");
-          return;
-        }
-
-        if (CHAT_TYPES.has(type)) {
-          await downloadChartPNG(index, msg);
-          return;
-        }
-
-        if (MEDIA_TYPES.has(type)) {
-          const raw = msg.content ?? msg.text ?? "";
-          const src =
-            typeof raw === "string" && raw.startsWith("data:")
-              ? raw
-              : `data:image/png;base64,${raw}`;
-
-          const link = document.createElement("a");
-          link.href = src;
-          link.download = `${type || "media"}_${index + 1}.png`;
-          link.click();
-          return;
-        }
-
-        const text = getMessageText(msg);
-        if (text) downloadTextFile(text, `${type || "message"}_${index + 1}.txt`);
-      } catch (err) {
-        console.error(err);
-        alert("Download failed");
-      }
-    };
-
-  const sendMessage = async (explicitText = null) => {
-      const messageToSend = (explicitText ?? input).trim();
-      if (!messageToSend || loading) return;
-
-      if (!token) {
-        alert("Please login again.");
+    try {
+      if (type === "download_link" && msg.content) {
+        const fileUrl = buildFileUrl(msg.content);
+        window.open(fileUrl, "_blank", "noopener,noreferrer");
         return;
       }
+
+      if (CHAT_TYPES.has(type)) {
+        await downloadChartPNG(index, msg);
+        return;
+      }
+
+      if (MEDIA_TYPES.has(type)) {
+        const raw = msg.content ?? msg.text ?? "";
+        const src =
+          typeof raw === "string" && raw.startsWith("data:")
+            ? raw
+            : `data:image/png;base64,${raw}`;
+
+        const link = document.createElement("a");
+        link.href = src;
+        link.download = `${type || "media"}_${index + 1}.png`;
+        link.click();
+        return;
+      }
+
+      const text = getMessageText(msg);
+      if (text) downloadTextFile(text, `${type || "message"}_${index + 1}.txt`);
+    } catch (err) {
+      console.error(err);
+      alert("Download failed");
+    }
+  };
+
+  const sendPptMessage = async (messageToSend) => {
+    const payload = buildPptPayload(messageToSend, "", "light", null);
+
+    const res = await fetch(`${API_BASE_URL}/generate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await readResponse(res);
+
+    if (!res.ok) {
+      const detail = data?.detail || data?.raw || `HTTP ${res.status}`;
+      throw new Error(detail);
+    }
+
+    const fileUrl = buildFileUrl(data.download_url || data?.content?.download_url);
+    const fileName = data.file_name || data?.content?.file_name || "presentation.pptx";
+
+    if (!fileUrl) throw new Error("No download URL returned from backend");
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender: "bot",
+        type: "download_link",
+        text: `✅ Presentation ready: ${data.title || "Untitled Presentation"}\n📄 Slides: ${
+          data.slides ?? data?.content?.slides ?? 0
+        }\n⬇️ Click to download`,
+        content: fileUrl,
+        fileName,
+      },
+    ]);
+
+    try {
+      await downloadBlobFromUrl(fileUrl, fileName);
+    } catch (err) {
+      console.error("Auto-download failed:", err);
+    }
+  };
+
+  const sendChatMessage = async (messageToSend) => {
+    const res = await fetch(`${API_BASE_URL}/api/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        message: messageToSend,
+        mode,
+        requestType: mode,
+      }),
+    });
+
+    const contentType = res.headers.get("content-type") || "";
+    const isFile = await handleFileResponse(res, contentType);
+    if (isFile) return;
+
+    const data = await readResponse(res);
+
+    if (!res.ok) {
+      const detail = data?.detail || data?.raw || `HTTP ${res.status}`;
+      throw new Error(detail);
+    }
+
+    if (data?.type === "file" && data?.content?.download_url) {
+      const fileUrl = buildFileUrl(data.content.download_url);
+      const fileName = data.content.file_name || "presentation.pptx";
 
       setMessages((prev) => [
         ...prev,
         {
-          sender: "user",
-          type: "text",
-          text: messageToSend,
-          mode,
+          sender: "bot",
+          type: "download_link",
+          text: `✅ Presentation ready: ${data.content.title || "Untitled Presentation"}\n📄 Slides: ${
+            data.content.slides ?? 0
+          }\n⬇️ Click to download`,
+          content: fileUrl,
+          fileName,
         },
       ]);
 
-      setLoading(true);
-
       try {
-        // PPT / file mode: direct generate endpoint
-        if (mode === "file") {
-          const res = await fetch(`${API_BASE_URL}/generate`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              prompt: messageToSend,
-              template_name: null,
-              include_title_slide: true,
-              allow_bullets: true,
-              allow_paragraph: true,
-              allow_chart: true,
-              allow_image: true,
-              allow_section_slide: true,
-              allow_table: true,
-              background_theme: "light",
-              smart_mode: true,
-              slide_types: null,
-            }),
-          });
-
-          if (res.status === 401) {
-            alert("Session expired. Please login again.");
-            return;
-          }
-
-          if (!res.ok) {
-            const errText = await res.text().catch(() => "");
-            throw new Error(errText || `Request failed: ${res.status}`);
-          }
-
-          const data = await res.json().catch(() => ({}));
-
-          const downloadUrl = buildFileUrl(data.download_url || data?.content?.download_url);
-          const fileName = data.file_name || data?.content?.file_name || "presentation.pptx";
-
-          if (!downloadUrl) {
-            throw new Error("No download URL returned from backend");
-          }
-
-          setMessages((prev) => [
-            ...prev,
-            {
-              sender: "bot",
-              type: "download_link",
-              text: `✅ Presentation ready: ${data.title || "Untitled Presentation"}\n📄 Slides: ${data.slides ?? data?.content?.slides ?? 0}\n⬇️ Click to download`,
-              content: downloadUrl,
-              fileName,
-            },
-          ]);
-
-          try {
-            await downloadBlobFromUrl(downloadUrl, fileName);
-          } catch (err) {
-            console.error("Auto-download failed:", err);
-          }
-
-          return;
-        }
-
-        // Normal chat/news/wiki flow
-        const res = await fetch(`${API_BASE_URL}/api/chat`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            message: messageToSend,
-            mode,
-            requestType: mode,
-          }),
-        });
-
-        if (res.status === 401) {
-          alert("Session expired. Please login again.");
-          return;
-        }
-
-        if (!res.ok) {
-          const errText = await res.text().catch(() => "");
-          throw new Error(errText || `Request failed: ${res.status}`);
-        }
-
-        const contentType = res.headers.get("content-type") || "";
-        const isFile = await handleFileResponse(res, contentType);
-        if (isFile) return;
-
-        let data = {};
-        try {
-          data = await res.json();
-        } catch {
-          data = {};
-        }
-
-        if (data?.type === "file" && data?.content?.download_url) {
-          const fileUrl = buildFileUrl(data.content.download_url);
-          const fileName = data.content.file_name || "presentation.pptx";
-
-          setMessages((prev) => [
-            ...prev,
-            {
-              sender: "bot",
-              type: "download_link",
-              text: `✅ Presentation ready: ${data.content.title || "Untitled Presentation"}\n📄 Slides: ${data.content.slides ?? 0}\n⬇️ Click to download`,
-              content: fileUrl,
-              fileName,
-            },
-          ]);
-
-          try {
-            await downloadBlobFromUrl(fileUrl, fileName);
-          } catch (err) {
-            console.error("Auto-download failed:", err);
-          }
-          return;
-        }
-
-        const payload =
-          data?.content ??
-          data?.data ??
-          data?.reply ??
-          data?.result ??
-          data?.message ??
-          data?.payload ??
-          null;
-
-        const normalizedPayload = data?.type === "wiki" ? normalizeWikiData(payload) : payload;
-
-        const botMessage = {
-          sender: "bot",
-          type: data?.type || (mode === "wiki" ? "wiki" : mode === "news" ? "news" : "text"),
-          text: typeof normalizedPayload === "string" ? normalizedPayload : "",
-          content: normalizedPayload,
-        };
-
-        setMessages((prev) => [...prev, botMessage].slice(-50));
-
-        if (explicitText !== null && getSpeakText(botMessage)) {
-          setTimeout(() => speak(getSpeakText(botMessage)), 250);
-        }
-      } catch (error) {
-        console.error(error);
-        setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "Server error ❌" }]);
-      } finally {
-        setLoading(false);
-        setInput("");
+        await downloadBlobFromUrl(fileUrl, fileName);
+      } catch (err) {
+        console.error("Auto-download failed:", err);
       }
+      return;
+    }
+
+    const payload =
+      data?.content ??
+      data?.data ??
+      data?.reply ??
+      data?.result ??
+      data?.message ??
+      data?.payload ??
+      null;
+
+    const normalizedPayload = data?.type === "wiki" ? normalizeWikiData(payload) : payload;
+
+    const botMessage = {
+      sender: "bot",
+      type: data?.type || (mode === "wiki" ? "wiki" : mode === "news" ? "news" : "text"),
+      text: typeof normalizedPayload === "string" ? normalizedPayload : "",
+      content: normalizedPayload,
     };
+
+    setMessages((prev) => [...prev, botMessage].slice(-50));
+
+    if (getSpeakText(botMessage)) {
+      setTimeout(() => speak(getSpeakText(botMessage)), 250);
+    }
+  };
+
+  const sendMessage = useCallback(async (explicitText = null) => {
+    const messageToSend = (explicitText ?? input).trim();
+    if (!messageToSend || loading) return;
+
+    if (!token) {
+      alert("Please login again.");
+      return;
+    }
+
+    setMessages((prev) => [
+      ...prev,
+      { sender: "user", type: "text", text: messageToSend, mode },
+    ]);
+
+    setLoading(true);
+
+    try {
+      if (mode === "file") {
+        await sendPptMessage(messageToSend);
+      } else {
+        await sendChatMessage(messageToSend);
+      }
+    } catch (error) {
+      console.error(error);
+      setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "Server error ❌" }]);
+    } finally {
+      setLoading(false);
+      setInput("");
+    }
+  }, [input, loading, token, mode]);
 
   const placeholderMap = {
     chat: "Type your message...",
@@ -982,11 +1007,7 @@ const Chatbot = () => {
             style={styles.topbarIconBtn}
             title={voiceEnabled ? "Voice on" : "Voice off"}
           >
-            <img
-              src={voiceEnabled ? "/mic.png" : "/mic-off.png"}
-              alt="voice"
-              style={styles.topbarIcon}
-            />
+            <img src={voiceEnabled ? "/mic.png" : "/mic-off.png"} alt="voice" style={styles.topbarIcon} />
           </button>
         </div>
       </header>
@@ -1076,7 +1097,11 @@ const Chatbot = () => {
                         <div style={styles.stack}>
                           {(() => {
                             const raw = msg.content ?? msg.text ?? "";
-                            const src = typeof raw === "string" && raw.startsWith("data:") ? raw : `data:image/png;base64,${raw}`;
+                            const src =
+                              typeof raw === "string" && raw.startsWith("data:")
+                                ? raw
+                                : `data:image/png;base64,${raw}`;
+
                             return src ? (
                               <img
                                 src={src}
@@ -1110,11 +1135,7 @@ const Chatbot = () => {
                         <button onClick={() => handleSpeakMessage(msg)} style={styles.actionBtn} title="Speak">
                           <img src="/speak.png" alt="speak" style={styles.iconTiny} />
                         </button>
-                        <button
-                          onClick={() => handleDownloadMessage(msg, i)}
-                          style={styles.actionBtn}
-                          title="Download"
-                        >
+                        <button onClick={() => handleDownloadMessage(msg, i)} style={styles.actionBtn} title="Download">
                           <img src="/downloading.png" alt="download" style={styles.iconTiny} />
                         </button>
                         <button onClick={() => alert("Add action here")} style={styles.actionBtn} title="More">
@@ -1259,6 +1280,12 @@ const styles = {
     background: "#22c55e",
     boxShadow: "0 0 0 5px rgba(34,197,94,0.12)",
   },
+  stack: {
+  display: "flex",
+  flexDirection: "column",
+  gap: 10,
+  width: "100%",
+  }, 
   topbarIconBtn: {
     width: 42,
     height: 42,
