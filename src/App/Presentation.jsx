@@ -39,6 +39,11 @@ export default function App() {
 
   const cleanBase = useCallback((url) => (url || "").trim().replace(/\/+$/, ""), []);
 
+  const showMessage = useCallback((text, type = "info") => {
+    setMessage(text);
+    setMessageType(type);
+  }, []);
+
   const readResponse = useCallback(async (res) => {
     const text = await res.text();
     try {
@@ -46,11 +51,6 @@ export default function App() {
     } catch {
       return { raw: text };
     }
-  }, []);
-
-  const showMessage = useCallback((text, type = "info") => {
-    setMessage(text);
-    setMessageType(type);
   }, []);
 
   const payload = useMemo(() => {
@@ -87,6 +87,33 @@ export default function App() {
   useEffect(() => {
     checkHealth();
   }, [checkHealth]);
+
+  const downloadFile = useCallback(async () => {
+    if (!downloadUrl) {
+      showMessage("Download link available nahi hai.", "error");
+      return;
+    }
+
+    try {
+      const res = await fetch(downloadUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = downloadFileName || "presentation.pptx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+      showMessage("Download started.", "success");
+    } catch (err) {
+      showMessage(`Download failed: ${err.message}`, "error");
+    }
+  }, [downloadUrl, downloadFileName, showMessage]);
 
   const callPlan = useCallback(async () => {
     if (!payload.prompt) {
@@ -146,9 +173,13 @@ export default function App() {
 
       setOutput(JSON.stringify(data, null, 2));
       setDownloadFileName(data.file_name || "");
-      setDownloadUrl(
-        data.download_url?.startsWith("http") ? data.download_url : `${base}${data.download_url}`
-      );
+
+      const finalUrl =
+        data.download_url?.startsWith("http")
+          ? data.download_url
+          : `${base}${data.download_url || ""}`;
+
+      setDownloadUrl(finalUrl);
       showMessage("Presentation generated.", "success");
     } catch (err) {
       setOutput(JSON.stringify({ error: err.message }, null, 2));
@@ -163,7 +194,17 @@ export default function App() {
     setDownloadUrl("");
     setDownloadFileName("");
     setMessage("");
+    setMessageType("info");
   }, []);
+
+  const copyLink = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(downloadUrl);
+      showMessage("Link copied.", "success");
+    } catch {
+      showMessage("Copy failed.", "error");
+    }
+  }, [downloadUrl, showMessage]);
 
   return (
     <div className="appShell">
@@ -384,18 +425,13 @@ export default function App() {
                     <a href={downloadUrl} target="_blank" rel="noreferrer">
                       {downloadFileName || downloadUrl}
                     </a>
+
                     <div className="btnRow">
-                      <button
-                        className="secondary"
-                        onClick={async () => {
-                          try {
-                            await navigator.clipboard.writeText(downloadUrl);
-                            showMessage("Link copied.", "success");
-                          } catch {
-                            showMessage("Copy failed.", "error");
-                          }
-                        }}
-                      >
+                      <button className="primary" onClick={downloadFile}>
+                        Download PPT
+                      </button>
+
+                      <button className="secondary" onClick={copyLink}>
                         Copy Link
                       </button>
                     </div>
