@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Chatbot from "./VityaChatbot";
+import Presentation from "./Presentation";
 import "./Dashboard.css";
 
 import NotesApp from "../components/apps/NotesApp";
@@ -85,65 +86,117 @@ const APP_REGISTRY = [
   },
 ];
 
+const getIsMobile = () =>
+  typeof window !== "undefined" ? window.innerWidth < 900 : false;
+
+const safeReadArrayLength = (key) => {
+  if (typeof window === "undefined") return 0;
+
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return 0;
+
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.length : 0;
+  } catch {
+    return 0;
+  }
+};
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="contentCard">
+          <h2>Something went wrong</h2>
+          <p>The app failed to load. Please try again.</p>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("chat");
   const [activeApp, setActiveApp] = useState(null);
   const [searchText, setSearchText] = useState("");
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
-  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 900);
+  const [isMobile, setIsMobile] = useState(getIsMobile());
+  const [sidebarOpen, setSidebarOpen] = useState(() => !getIsMobile());
+
+  const prevIsMobileRef = useRef(getIsMobile());
 
   const user = useMemo(() => {
+    if (typeof window === "undefined") return {};
+
     try {
-      const storedUser = localStorage.getItem("user");
+      const storedUser = window.localStorage.getItem("user");
       return storedUser ? JSON.parse(storedUser) : {};
     } catch {
       return {};
     }
   }, []);
 
+  const analyticsData = useMemo(
+    () => ({
+      notesCount: safeReadArrayLength("notes"),
+      tasksCount: safeReadArrayLength("tasks"),
+      chatsCount: safeReadArrayLength("chats"),
+    }),
+    []
+  );
+
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 900;
+      const mobile = getIsMobile();
       setIsMobile(mobile);
-      setSidebarOpen(!mobile);
+
+      if (mobile !== prevIsMobileRef.current) {
+        setSidebarOpen(!mobile);
+        prevIsMobileRef.current = mobile;
+      }
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const closeSidebarOnMobile = useCallback(() => {
-    if (window.innerWidth < 900) {
-      setSidebarOpen(false);
-    }
-  }, []);
-
-  const toggleSidebar = useCallback(() => {
-    setSidebarOpen((prev) => !prev);
-  }, []);
+  const closeSidebarIfMobile = useCallback(() => {
+    if (isMobile) setSidebarOpen(false);
+  }, [isMobile]);
 
   const handleTabClick = useCallback(
     (tab) => {
       if (tab === "profile") {
         navigate("/profile");
-        closeSidebarOnMobile();
+        closeSidebarIfMobile();
         return;
       }
 
       setActiveTab(tab);
       setActiveApp(null);
-      closeSidebarOnMobile();
+      closeSidebarIfMobile();
     },
-    [navigate, closeSidebarOnMobile]
+    [navigate, closeSidebarIfMobile]
   );
 
   const handleNewChat = useCallback(() => {
     setActiveTab("chat");
     setActiveApp(null);
-    closeSidebarOnMobile();
-  }, [closeSidebarOnMobile]);
+    closeSidebarIfMobile();
+  }, [closeSidebarIfMobile]);
 
   const filteredApps = useMemo(() => {
     const q = searchText.trim().toLowerCase();
@@ -156,18 +209,22 @@ const Dashboard = () => {
     );
   }, [searchText]);
 
-  const openApp = useCallback((app) => {
-    if (app.type === "external") {
-      window.open(app.url, "_blank", "noopener,noreferrer");
-      return;
-    }
+  const openApp = useCallback(
+    (app) => {
+      if (app.type === "external") {
+        window.open(app.url, "_blank", "noopener,noreferrer");
+      } else {
+        setActiveTab("apps");
+        setActiveApp(app.id);
+      }
 
-    setActiveTab("apps");
-    setActiveApp(app.id);
-  }, []);
+      closeSidebarIfMobile();
+    },
+    [closeSidebarIfMobile]
+  );
 
   const currentApp = useMemo(
-    () => APP_REGISTRY.find((app) => app.id === activeApp),
+    () => APP_REGISTRY.find((app) => app.id === activeApp) || null,
     [activeApp]
   );
 
@@ -210,11 +267,13 @@ const Dashboard = () => {
         </div>
 
         <div className="miniAppContent">
-          {currentApp.id === "analytics" ? (
-            <AppComponent notesCount={0} tasksCount={0} chatsCount={0} />
-          ) : (
-            <AppComponent />
-          )}
+          <ErrorBoundary>
+            {currentApp.id === "analytics" ? (
+              <AppComponent {...analyticsData} />
+            ) : (
+              <AppComponent />
+            )}
+          </ErrorBoundary>
         </div>
       </div>
     );
@@ -269,6 +328,14 @@ const Dashboard = () => {
             Chat
           </button>
           <button
+            className={`navItem ${
+              activeTab === "presentation" ? "active" : ""
+            }`}
+            onClick={() => handleTabClick("presentation")}
+          >
+            Presentation
+          </button>
+          <button
             className={`navItem ${activeTab === "apps" ? "active" : ""}`}
             onClick={() => handleTabClick("apps")}
           >
@@ -288,7 +355,12 @@ const Dashboard = () => {
           </button>
         </nav>
 
-        <div className="sidebarProfile" onClick={() => handleTabClick("profile")}>
+        <div
+          className="sidebarProfile"
+          onClick={() => handleTabClick("profile")}
+          role="button"
+          tabIndex={0}
+        >
           <img
             src={user?.avatar || "/profile.png"}
             alt="Profile"
@@ -304,7 +376,11 @@ const Dashboard = () => {
       <div className="mainWrap">
         <header className="topbar">
           {isMobile && (
-            <button className="menuBtn" onClick={toggleSidebar} aria-label="Open sidebar">
+            <button
+              className="menuBtn"
+              onClick={() => setSidebarOpen((prev) => !prev)}
+              aria-label="Open sidebar"
+            >
               ☰
             </button>
           )}
@@ -314,7 +390,11 @@ const Dashboard = () => {
             <p>Welcome back, {user?.name || "User"}</p>
           </div>
 
-          <button className="profileMiniBtn" onClick={() => navigate("/profile")}>
+          <button
+            className="profileMiniBtn"
+            onClick={() => navigate("/profile")}
+            aria-label="Open profile"
+          >
             <img src={user?.avatar || "/profile.png"} alt="Profile" />
           </button>
         </header>
@@ -323,6 +403,12 @@ const Dashboard = () => {
           {activeTab === "chat" && (
             <section className="chatShell">
               <Chatbot />
+            </section>
+          )}
+
+          {activeTab === "presentation" && (
+            <section className="contentCard">
+              <Presentation />
             </section>
           )}
 
