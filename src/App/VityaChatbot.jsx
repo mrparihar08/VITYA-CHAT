@@ -26,11 +26,31 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const API_BASE_URL =
-  (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_BASE_URL) ||
-  process.env.REACT_APP_API_BASE_URL ||
-  "https://mother-8599.onrender.com";
+/* -------------------------------------------------------
+   Safe env / base URL
+------------------------------------------------------- */
+const getApiBaseUrl = () => {
+  const viteUrl =
+    typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_API_URL;
 
+  const craUrl =
+    typeof process !== "undefined" &&
+    process.env &&
+    process.env.REACT_APP_API_URL;
+
+  const fallback = "https://mother-8599.onrender.com";
+  const url = viteUrl || craUrl || fallback;
+
+  return url.endsWith("/") ? url.slice(0, -1) : url;
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+/* -------------------------------------------------------
+   Constants
+------------------------------------------------------- */
 const CHAT_TYPES = new Set([
   "bar",
   "chart",
@@ -77,6 +97,9 @@ const PPT_DEFAULTS = {
   smart_mode: true,
 };
 
+/* -------------------------------------------------------
+   Helpers
+------------------------------------------------------- */
 const isHttpUrl = (value) => /^https?:\/\//i.test(value || "");
 
 const buildFileUrl = (pathOrUrl) => {
@@ -273,6 +296,9 @@ const getSpeakText = (msg) => {
   return text;
 };
 
+/* -------------------------------------------------------
+   Component
+------------------------------------------------------- */
 const Chatbot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -282,7 +308,14 @@ const Chatbot = () => {
   const [plusOpen, setPlusOpen] = useState(false);
   const [mode, setMode] = useState("chat");
 
-  const token = useMemo(() => localStorage.getItem("token"), []);
+  const token = useMemo(() => {
+    try {
+      return localStorage.getItem("token") || "";
+    } catch {
+      return "";
+    }
+  }, []);
+
   const bottomRef = useRef(null);
   const recognitionRef = useRef(null);
   const isSpeakingRef = useRef(false);
@@ -307,6 +340,7 @@ const Chatbot = () => {
     };
 
     document.addEventListener("mousedown", onDocClick);
+
     return () => {
       document.removeEventListener("mousedown", onDocClick);
       try {
@@ -348,73 +382,7 @@ const Chatbot = () => {
     setListening(false);
   }, []);
 
-  const startListening = useCallback(() => {
-    const recognition = recognitionRef.current;
-    if (!recognition) {
-      alert("Voice not supported in this browser");
-      return;
-    }
-    if (!voiceEnabled) return;
-    if (listening) return stopRecognition();
-    if (isSpeakingRef.current) return;
-
-    forceStopRef.current = false;
-    setListening(true);
-
-    recognition.onresult = (event) => {
-      const speechText = event?.results?.[0]?.[0]?.transcript;
-      if (!speechText) {
-        setListening(false);
-        return;
-      }
-      setListening(false);
-      sendMessage(speechText.toLowerCase().replace(/\b(rupees|rs|rupee)\b/g, "").trim());
-    };
-
-    recognition.onerror = () => setListening(false);
-    recognition.onend = () => {
-      if (forceStopRef.current) return;
-      setListening(false);
-    };
-
-    try {
-      recognition.start();
-    } catch (err) {
-      setListening(false);
-      console.error("Speech recognition start error:", err);
-    }
-  }, [listening, voiceEnabled, stopRecognition, sendMessage]);
-
-  const toggleVoiceEnabled = () => {
-    setVoiceEnabled((prev) => {
-      const next = !prev;
-      if (!next) {
-        forceStopRef.current = true;
-        stopRecognition();
-        try {
-          window.speechSynthesis?.cancel();
-        } catch {}
-      }
-      return next;
-    });
-  };
-
-  const getMicIcon = () => {
-    if (listening) return "/speak.png";
-    if (!voiceEnabled) return "/mic-off.png";
-    return "/mic.png";
-  };
-
-  const handleMicClick = () => {
-    if (!voiceEnabled) {
-      setVoiceEnabled(true);
-      setTimeout(startListening, 50);
-      return;
-    }
-    startListening();
-  };
-
-  const createDownloadLink = (blob, filename) => {
+  const createDownloadLink = useCallback((blob, filename) => {
     const objectUrl = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = objectUrl;
@@ -423,64 +391,76 @@ const Chatbot = () => {
     a.click();
     a.remove();
     setTimeout(() => window.URL.revokeObjectURL(objectUrl), 1000);
-  };
+  }, []);
 
-  const downloadBlobFromResponse = async (res, filename) => {
-    const blob = await res.blob();
-    createDownloadLink(blob, filename);
-  };
+  const downloadBlobFromResponse = useCallback(
+    async (res, filename) => {
+      const blob = await res.blob();
+      createDownloadLink(blob, filename);
+    },
+    [createDownloadLink]
+  );
 
-  const downloadBlobFromUrl = async (url, filename) => {
-    const res = await fetch(url, {
-      method: "GET",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-    if (!res.ok) throw new Error(`Download failed: ${res.status}`);
-    await downloadBlobFromResponse(res, filename);
-  };
+  const downloadBlobFromUrl = useCallback(
+    async (url, filename) => {
+      const res = await fetch(url, {
+        method: "GET",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+      await downloadBlobFromResponse(res, filename);
+    },
+    [token, downloadBlobFromResponse]
+  );
 
-  const downloadTextFile = (text, filename) => {
-    const blob = new Blob([text || ""], { type: "text/plain;charset=utf-8" });
-    createDownloadLink(blob, filename);
-  };
+  const downloadTextFile = useCallback(
+    (text, filename) => {
+      const blob = new Blob([text || ""], { type: "text/plain;charset=utf-8" });
+      createDownloadLink(blob, filename);
+    },
+    [createDownloadLink]
+  );
 
-  const handleFileResponse = async (res, contentType) => {
-    const lower = (contentType || "").toLowerCase();
+  const handleFileResponse = useCallback(
+    async (res, contentType) => {
+      const lower = (contentType || "").toLowerCase();
 
-    if (lower.includes("text/csv")) {
-      await downloadBlobFromResponse(res, "chat_data.csv");
-      setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "CSV downloaded ✅" }]);
-      return true;
-    }
+      if (lower.includes("text/csv")) {
+        await downloadBlobFromResponse(res, "chat_data.csv");
+        setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "CSV downloaded ✅" }]);
+        return true;
+      }
 
-    if (
-      lower.includes("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
-      lower.includes("wordprocessingml.document") ||
-      lower.includes("application/msword")
-    ) {
-      await downloadBlobFromResponse(res, "chat_data.docx");
-      setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "DOCX downloaded ✅" }]);
-      return true;
-    }
+      if (
+        lower.includes("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
+        lower.includes("wordprocessingml.document") ||
+        lower.includes("application/msword")
+      ) {
+        await downloadBlobFromResponse(res, "chat_data.docx");
+        setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "DOCX downloaded ✅" }]);
+        return true;
+      }
 
-    if (lower.includes("application/pdf")) {
-      await downloadBlobFromResponse(res, "chat_data.pdf");
-      setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "PDF downloaded ✅" }]);
-      return true;
-    }
+      if (lower.includes("application/pdf")) {
+        await downloadBlobFromResponse(res, "chat_data.pdf");
+        setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "PDF downloaded ✅" }]);
+        return true;
+      }
 
-    return false;
-  };
+      return false;
+    },
+    [downloadBlobFromResponse]
+  );
 
-  const getChartData = (msg) => {
+  const getChartData = useCallback((msg) => {
     const raw = msg.content ?? msg.text ?? msg.data ?? null;
     if ((msg.type || "").toLowerCase().trim() === "multi_line") {
       return normalizeMultiLineData(safeJSON(raw));
     }
     return findArrayDeep(raw);
-  };
+  }, []);
 
-  const getKeys = (data, type) => {
+  const getKeys = useCallback((data, type) => {
     const first = data?.[0] || {};
     let xKey = "category";
     if (first.category !== undefined) xKey = "category";
@@ -497,9 +477,9 @@ const Chatbot = () => {
     else if (first.y !== undefined && type === "scatter") yKey = "y";
 
     return { xKey, yKey };
-  };
+  }, []);
 
-  const downloadChartPNG = async (index, msg) => {
+  const downloadChartPNG = useCallback(async (index, msg) => {
     const element = chartRefs.current[index];
     if (!element) return;
     const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
@@ -507,9 +487,9 @@ const Chatbot = () => {
     link.download = `${msg.type || "chart"}_${index + 1}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
-  };
+  }, []);
 
-  const renderNews = (msg) => {
+  const renderNews = useCallback((msg) => {
     const raw = msg.content ?? msg.text ?? [];
     let data = [];
 
@@ -547,9 +527,9 @@ const Chatbot = () => {
         ))}
       </div>
     );
-  };
+  }, []);
 
-  const renderWiki = (msg) => {
+  const renderWiki = useCallback((msg) => {
     const data = normalizeWikiData(msg.content ?? msg.text ?? msg.data ?? {});
     if (!data.title && !data.summary && !data.url && !data.image) {
       return <div style={styles.emptyText}>No Wikipedia data available</div>;
@@ -576,193 +556,196 @@ const Chatbot = () => {
         ) : null}
       </div>
     );
-  };
+  }, []);
 
-  const renderChart = (msg) => {
-    const type = (msg.type || "").toLowerCase().trim();
-    const data = getChartData(msg);
+  const renderChart = useCallback(
+    (msg) => {
+      const type = (msg.type || "").toLowerCase().trim();
+      const data = getChartData(msg);
 
-    if (!data || !Array.isArray(data) || data.length === 0) {
-      return <div style={styles.emptyText}>No chart data</div>;
-    }
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        return <div style={styles.emptyText}>No chart data</div>;
+      }
 
-    const { xKey, yKey } = getKeys(data, type);
+      const { xKey, yKey } = getKeys(data, type);
 
-    switch (type) {
-      case "bar":
-      case "chart":
-        return (
-          <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-            <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey={xKey} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey={yKey} fill="#8b5cf6" />
-            </BarChart>
-          </ResponsiveContainer>
-        );
+      switch (type) {
+        case "bar":
+        case "chart":
+          return (
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey={xKey} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey={yKey} fill="#8b5cf6" />
+              </BarChart>
+            </ResponsiveContainer>
+          );
 
-      case "line":
-      case "line_chart":
-        return (
-          <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-            <LineChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey={xKey} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey={yKey} stroke="#8b5cf6" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        );
+        case "line":
+        case "line_chart":
+          return (
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <LineChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey={xKey} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey={yKey} stroke="#8b5cf6" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          );
 
-      case "multi_line":
-        return (
-          <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-            <LineChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="income" stroke="#22c55e" strokeWidth={2} />
-              <Line type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        );
+        case "multi_line":
+          return (
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <LineChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="income" stroke="#22c55e" strokeWidth={2} />
+                <Line type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          );
 
-      case "pie":
-      case "donut":
-        return (
-          <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-            <PieChart>
-              <Pie
-                data={data}
-                dataKey={yKey}
-                nameKey={xKey}
-                cx="50%"
-                cy="50%"
-                innerRadius={type === "donut" ? 50 : 0}
-                outerRadius={80}
-              >
-                {data.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        );
+        case "pie":
+        case "donut":
+          return (
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <PieChart>
+                <Pie
+                  data={data}
+                  dataKey={yKey}
+                  nameKey={xKey}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={type === "donut" ? 50 : 0}
+                  outerRadius={80}
+                >
+                  {data.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          );
 
-      case "composed":
-        return (
-          <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-            <ComposedChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey={xKey} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey={yKey} fill="#8b5cf6" />
-              <Line type="monotone" dataKey={yKey} stroke="#f59e0b" />
-            </ComposedChart>
-          </ResponsiveContainer>
-        );
+        case "composed":
+          return (
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ComposedChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey={xKey} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey={yKey} fill="#8b5cf6" />
+                <Line type="monotone" dataKey={yKey} stroke="#f59e0b" />
+              </ComposedChart>
+            </ResponsiveContainer>
+          );
 
-      case "area":
-        return (
-          <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-            <AreaChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey={xKey} />
-              <YAxis />
-              <Tooltip />
-              <Area type="monotone" dataKey={yKey} fill="#8b5cf6" stroke="#8b5cf6" />
-            </AreaChart>
-          </ResponsiveContainer>
-        );
+        case "area":
+          return (
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <AreaChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey={xKey} />
+                <YAxis />
+                <Tooltip />
+                <Area type="monotone" dataKey={yKey} fill="#8b5cf6" stroke="#8b5cf6" />
+              </AreaChart>
+            </ResponsiveContainer>
+          );
 
-      case "scatter":
-        return (
-          <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-            <ScatterChart margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-              <CartesianGrid />
-              <XAxis dataKey={xKey} type="number" />
-              <YAxis dataKey={yKey} type="number" />
-              <Tooltip />
-              <Scatter data={data} fill="#8b5cf6" />
-            </ScatterChart>
-          </ResponsiveContainer>
-        );
+        case "scatter":
+          return (
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ScatterChart margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                <CartesianGrid />
+                <XAxis dataKey={xKey} type="number" />
+                <YAxis dataKey={yKey} type="number" />
+                <Tooltip />
+                <Scatter data={data} fill="#8b5cf6" />
+              </ScatterChart>
+            </ResponsiveContainer>
+          );
 
-      case "stacked":
-        return (
-          <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-            <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey={xKey} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey={yKey} stackId="a" fill="#8b5cf6" />
-            </BarChart>
-          </ResponsiveContainer>
-        );
+        case "stacked":
+          return (
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey={xKey} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey={yKey} stackId="a" fill="#8b5cf6" />
+              </BarChart>
+            </ResponsiveContainer>
+          );
 
-      case "radar":
-        return (
-          <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-            <RadarChart data={data}>
-              <PolarGrid />
-              <PolarAngleAxis dataKey={xKey} />
-              <PolarRadiusAxis />
-              <Tooltip />
-              <Radar dataKey={yKey} fill="#8b5cf6" stroke="#8b5cf6" />
-            </RadarChart>
-          </ResponsiveContainer>
-        );
+        case "radar":
+          return (
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <RadarChart data={data}>
+                <PolarGrid />
+                <PolarAngleAxis dataKey={xKey} />
+                <PolarRadiusAxis />
+                <Tooltip />
+                <Radar dataKey={yKey} fill="#8b5cf6" stroke="#8b5cf6" />
+              </RadarChart>
+            </ResponsiveContainer>
+          );
 
-      case "heatmap":
-        return (
-          <div style={styles.heatmapGrid}>
-            {data.map((item, i) => {
-              const value = item.amount ?? item.value ?? item.count ?? 0;
-              return (
-                <div
-                  key={i}
-                  style={{
-                    ...styles.heatCell,
-                    background: `rgba(139,92,246, ${Math.min(Number(value) / 1000 || 0, 1)})`,
-                  }}
-                  title={`${item.category || item.name || item.month || i}: ${value}`}
-                />
-              );
-            })}
-          </div>
-        );
+        case "heatmap":
+          return (
+            <div style={styles.heatmapGrid}>
+              {data.map((item, i) => {
+                const value = item.amount ?? item.value ?? item.count ?? 0;
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      ...styles.heatCell,
+                      background: `rgba(139,92,246, ${Math.min(Number(value) / 1000 || 0, 1)})`,
+                    }}
+                    title={`${item.category || item.name || item.month || i}: ${value}`}
+                  />
+                );
+              })}
+            </div>
+          );
 
-      case "waterfall":
-        return (
-          <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-            <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey={xKey} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey={yKey} fill="#8b5cf6" />
-            </BarChart>
-          </ResponsiveContainer>
-        );
+        case "waterfall":
+          return (
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey={xKey} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey={yKey} fill="#8b5cf6" />
+              </BarChart>
+            </ResponsiveContainer>
+          );
 
-      default:
-        return <div style={styles.emptyText}>No chart available</div>;
-    }
-  };
+        default:
+          return <div style={styles.emptyText}>No chart available</div>;
+      }
+    },
+    [getChartData, getKeys]
+  );
 
   const handleCopyMessage = async (msg) => {
     const text = getMessageText(msg);
@@ -816,33 +799,37 @@ const Chatbot = () => {
     }
   };
 
-  const sendPptMessage = async (messageToSend) => {
-    const payload = buildPptPayload(messageToSend, "", "light", null);
+  const sendPptMessage = useCallback(
+    async (messageToSend) => {
+      const payload = buildPptPayload(messageToSend, "", "light", null);
 
-    const res = await fetch(`${API_BASE_URL}/generate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
+      const res = await fetch(`${API_BASE_URL}/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await readResponse(res);
+      const data = await readResponse(res);
 
-    if (!res.ok) {
-      const detail = data?.detail || data?.raw || `HTTP ${res.status}`;
-      throw new Error(detail);
-    }
+      if (res.status === 401) {
+        alert("Session expired. Please login again.");
+        return null;
+      }
 
-    const fileUrl = buildFileUrl(data.download_url || data?.content?.download_url);
-    const fileName = data.file_name || data?.content?.file_name || "presentation.pptx";
+      if (!res.ok) {
+        const detail = data?.detail || data?.raw || `HTTP ${res.status}`;
+        throw new Error(detail);
+      }
 
-    if (!fileUrl) throw new Error("No download URL returned from backend");
+      const fileUrl = buildFileUrl(data.download_url || data?.content?.download_url);
+      const fileName = data.file_name || data?.content?.file_name || "presentation.pptx";
 
-    setMessages((prev) => [
-      ...prev,
-      {
+      if (!fileUrl) throw new Error("No download URL returned from backend");
+
+      const botMessage = {
         sender: "bot",
         type: "download_link",
         text: `✅ Presentation ready: ${data.title || "Untitled Presentation"}\n📄 Slides: ${
@@ -850,48 +837,57 @@ const Chatbot = () => {
         }\n⬇️ Click to download`,
         content: fileUrl,
         fileName,
-      },
-    ]);
+      };
 
-    try {
-      await downloadBlobFromUrl(fileUrl, fileName);
-    } catch (err) {
-      console.error("Auto-download failed:", err);
-    }
-  };
+      setMessages((prev) => [...prev, botMessage]);
 
-  const sendChatMessage = async (messageToSend) => {
-    const res = await fetch(`${API_BASE_URL}/api/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        message: messageToSend,
-        mode,
-        requestType: mode,
-      }),
-    });
+      try {
+        await downloadBlobFromUrl(fileUrl, fileName);
+      } catch (err) {
+        console.error("Auto-download failed:", err);
+      }
 
-    const contentType = res.headers.get("content-type") || "";
-    const isFile = await handleFileResponse(res, contentType);
-    if (isFile) return;
+      return botMessage;
+    },
+    [token, downloadBlobFromUrl]
+  );
 
-    const data = await readResponse(res);
+  const sendChatMessage = useCallback(
+    async (messageToSend) => {
+      const res = await fetch(`${API_BASE_URL}/api/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          message: messageToSend,
+          mode,
+          requestType: mode,
+        }),
+      });
 
-    if (!res.ok) {
-      const detail = data?.detail || data?.raw || `HTTP ${res.status}`;
-      throw new Error(detail);
-    }
+      const contentType = res.headers.get("content-type") || "";
+      const isFile = await handleFileResponse(res, contentType);
+      if (isFile) return null;
 
-    if (data?.type === "file" && data?.content?.download_url) {
-      const fileUrl = buildFileUrl(data.content.download_url);
-      const fileName = data.content.file_name || "presentation.pptx";
+      const data = await readResponse(res);
 
-      setMessages((prev) => [
-        ...prev,
-        {
+      if (res.status === 401) {
+        alert("Session expired. Please login again.");
+        return null;
+      }
+
+      if (!res.ok) {
+        const detail = data?.detail || data?.raw || `HTTP ${res.status}`;
+        throw new Error(detail);
+      }
+
+      if (data?.type === "file" && data?.content?.download_url) {
+        const fileUrl = buildFileUrl(data.content.download_url);
+        const fileName = data.content.file_name || "presentation.pptx";
+
+        const botMessage = {
           sender: "bot",
           type: "download_link",
           text: `✅ Presentation ready: ${data.content.title || "Untitled Presentation"}\n📄 Slides: ${
@@ -899,72 +895,158 @@ const Chatbot = () => {
           }\n⬇️ Click to download`,
           content: fileUrl,
           fileName,
-        },
+        };
+
+        setMessages((prev) => [...prev, botMessage]);
+
+        try {
+          await downloadBlobFromUrl(fileUrl, fileName);
+        } catch (err) {
+          console.error("Auto-download failed:", err);
+        }
+
+        return botMessage;
+      }
+
+      const payload =
+        data?.content ??
+        data?.data ??
+        data?.reply ??
+        data?.result ??
+        data?.message ??
+        data?.payload ??
+        null;
+
+      const normalizedPayload = data?.type === "wiki" ? normalizeWikiData(payload) : payload;
+
+      const botMessage = {
+        sender: "bot",
+        type: data?.type || (mode === "wiki" ? "wiki" : mode === "news" ? "news" : "text"),
+        text: typeof normalizedPayload === "string" ? normalizedPayload : "",
+        content: normalizedPayload,
+      };
+
+      setMessages((prev) => [...prev, botMessage].slice(-50));
+      return botMessage;
+    },
+    [token, mode, handleFileResponse, downloadBlobFromUrl]
+  );
+
+  const sendMessage = useCallback(
+    async (explicitText = null, options = {}) => {
+      const messageToSend = (explicitText ?? input).trim();
+      const isVoiceInput = options?.source === "voice";
+
+      if (!messageToSend || loading) return;
+
+      if (!token) {
+        alert("Please login again.");
+        return;
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        { sender: "user", type: "text", text: messageToSend, mode },
       ]);
 
+      setLoading(true);
+
       try {
-        await downloadBlobFromUrl(fileUrl, fileName);
-      } catch (err) {
-        console.error("Auto-download failed:", err);
+        let botMessage = null;
+
+        if (mode === "file") {
+          botMessage = await sendPptMessage(messageToSend);
+        } else {
+          botMessage = await sendChatMessage(messageToSend);
+        }
+
+        if (isVoiceInput && botMessage) {
+          const speakText = getSpeakText(botMessage);
+          if (speakText) {
+            setTimeout(() => speak(speakText), 250);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "Server error ❌" }]);
+      } finally {
+        setLoading(false);
+        setInput("");
       }
+    },
+    [input, loading, token, mode, sendPptMessage, sendChatMessage, speak]
+  );
+
+  const startListening = useCallback(() => {
+    const recognition = recognitionRef.current;
+
+    if (!recognition) {
+      alert("Voice not supported in this browser");
       return;
     }
+    if (!voiceEnabled) return;
+    if (listening) return stopRecognition();
+    if (isSpeakingRef.current) return;
 
-    const payload =
-      data?.content ??
-      data?.data ??
-      data?.reply ??
-      data?.result ??
-      data?.message ??
-      data?.payload ??
-      null;
+    forceStopRef.current = false;
+    setListening(true);
 
-    const normalizedPayload = data?.type === "wiki" ? normalizeWikiData(payload) : payload;
+    recognition.onresult = (event) => {
+      const speechText = event?.results?.[0]?.[0]?.transcript;
+      if (!speechText) {
+        setListening(false);
+        return;
+      }
 
-    const botMessage = {
-      sender: "bot",
-      type: data?.type || (mode === "wiki" ? "wiki" : mode === "news" ? "news" : "text"),
-      text: typeof normalizedPayload === "string" ? normalizedPayload : "",
-      content: normalizedPayload,
+      setListening(false);
+      sendMessage(
+        speechText.toLowerCase().replace(/\b(rupees|rs|rupee)\b/g, "").trim(),
+        { source: "voice" }
+      );
     };
 
-    setMessages((prev) => [...prev, botMessage].slice(-50));
-
-    if (getSpeakText(botMessage)) {
-      setTimeout(() => speak(getSpeakText(botMessage)), 250);
-    }
-  };
-
-  const sendMessage = useCallback(async (explicitText = null) => {
-    const messageToSend = (explicitText ?? input).trim();
-    if (!messageToSend || loading) return;
-
-    if (!token) {
-      alert("Please login again.");
-      return;
-    }
-
-    setMessages((prev) => [
-      ...prev,
-      { sender: "user", type: "text", text: messageToSend, mode },
-    ]);
-
-    setLoading(true);
+    recognition.onerror = () => setListening(false);
+    recognition.onend = () => {
+      if (forceStopRef.current) return;
+      setListening(false);
+    };
 
     try {
-      if (mode === "file") {
-        await sendPptMessage(messageToSend);
-      } else {
-        await sendChatMessage(messageToSend);
-      }
-    } catch (error) {
-      console.error(error);
-      setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "Server error ❌" }]);
-    } finally {
-      setLoading(false);
-      setInput("");
+      recognition.start();
+    } catch (err) {
+      setListening(false);
+      console.error("Speech recognition start error:", err);
     }
-  }, [input, loading, token, mode]);
+  }, [listening, voiceEnabled, stopRecognition, sendMessage]);
+
+  const toggleVoiceEnabled = () => {
+    setVoiceEnabled((prev) => {
+      const next = !prev;
+      if (!next) {
+        forceStopRef.current = true;
+        stopRecognition();
+        try {
+          window.speechSynthesis?.cancel();
+        } catch {}
+      }
+      return next;
+    });
+  };
+
+  const getMicIcon = () => {
+    if (listening) return "/speak.png";
+    if (!voiceEnabled) return "/mic-off.png";
+    return "/mic.png";
+  };
+
+  const handleMicClick = () => {
+    if (!voiceEnabled) {
+      setVoiceEnabled(true);
+      setTimeout(startListening, 50);
+      return;
+    }
+    startListening();
+  };
 
   const placeholderMap = {
     chat: "Type your message...",
@@ -1220,6 +1302,9 @@ const Chatbot = () => {
 
 export default Chatbot;
 
+/* -------------------------------------------------------
+   Styles
+------------------------------------------------------- */
 const glass = "rgba(18, 24, 40, 0.72)";
 const border = "1px solid rgba(255,255,255,0.10)";
 
@@ -1281,11 +1366,11 @@ const styles = {
     boxShadow: "0 0 0 5px rgba(34,197,94,0.12)",
   },
   stack: {
-  display: "flex",
-  flexDirection: "column",
-  gap: 10,
-  width: "100%",
-  }, 
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+    width: "100%",
+  },
   topbarIconBtn: {
     width: 42,
     height: 42,
