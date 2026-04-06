@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 
-const API_URL = process.env.REACT_APP_API_URL || "https://vitya-ai-qlbn.onrender.com";
+const API_URL = process.env.REACT_APP_API_URL || "https://mother-8599.onrender.com";
 
 const getAuthHeaders = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
