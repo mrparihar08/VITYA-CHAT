@@ -15,6 +15,16 @@ function Toggle({ label, checked, onChange }) {
   );
 }
 
+function cleanBase(url) {
+  return (url || "").trim().replace(/\/+$/, "");
+}
+
+function joinUrl(base, path) {
+  if (!path) return "";
+  if (/^https?:\/\//i.test(path)) return path;
+  return new URL(path, `${cleanBase(base)}/`).toString();
+}
+
 export default function App() {
   const [prompt, setPrompt] = useState("");
   const [templateName, setTemplateName] = useState("");
@@ -37,7 +47,8 @@ export default function App() {
     smart_mode: true,
   });
 
-  const cleanBase = useCallback((url) => (url || "").trim().replace(/\/+$/, ""), []);
+  const apiRoot = useMemo(() => cleanBase(API_URL), []);
+  const apiBase = useMemo(() => `${apiRoot}/api/presentation`, [apiRoot]);
 
   const showMessage = useCallback((text, type = "info") => {
     setMessage(text);
@@ -74,46 +85,17 @@ export default function App() {
 
   const checkHealth = useCallback(async () => {
     try {
-      const base = cleanBase(API_URL);
-      const res = await fetch(`${base}/health`);
+      const res = await fetch(`${apiBase}/health`);
       const data = await readResponse(res);
-
       setHealth(res.ok && data?.status === "ok" ? "Backend healthy" : "Backend responded");
     } catch {
       setHealth("Backend not reachable");
     }
-  }, [cleanBase, readResponse]);
+  }, [apiBase, readResponse]);
 
   useEffect(() => {
     checkHealth();
   }, [checkHealth]);
-
-  const downloadFile = useCallback(async () => {
-    if (!downloadUrl) {
-      showMessage("Download link available nahi hai.", "error");
-      return;
-    }
-
-    try {
-      const res = await fetch(downloadUrl);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-
-      a.href = url;
-      a.download = downloadFileName || "presentation.pptx";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-
-      window.URL.revokeObjectURL(url);
-      showMessage("Download started.", "success");
-    } catch (err) {
-      showMessage(`Download failed: ${err.message}`, "error");
-    }
-  }, [downloadUrl, downloadFileName, showMessage]);
 
   const callPlan = useCallback(async () => {
     if (!payload.prompt) {
@@ -125,8 +107,7 @@ export default function App() {
     showMessage("Plan generate ho raha hai...", "info");
 
     try {
-      const base = cleanBase(API_URL);
-      const res = await fetch(`${base}/plan`, {
+      const res = await fetch(`${apiBase}/plan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -146,7 +127,7 @@ export default function App() {
     } finally {
       setLoadingPlan(false);
     }
-  }, [payload, readResponse, cleanBase, showMessage]);
+  }, [payload, readResponse, apiBase, showMessage]);
 
   const callGenerate = useCallback(async () => {
     if (!payload.prompt) {
@@ -158,8 +139,7 @@ export default function App() {
     showMessage("Presentation generate ho rahi hai...", "info");
 
     try {
-      const base = cleanBase(API_URL);
-      const res = await fetch(`${base}/generate`, {
+      const res = await fetch(`${apiBase}/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -174,12 +154,13 @@ export default function App() {
       setOutput(JSON.stringify(data, null, 2));
       setDownloadFileName(data.file_name || "");
 
-      const finalUrl =
-        data.download_url?.startsWith("http")
-          ? data.download_url
-          : `${base}${data.download_url || ""}`;
-
+      // Works whether backend returns:
+      // 1) "/api/presentation/download/file.pptx"
+      // 2) "/download/file.pptx"
+      // 3) "https://..."
+      const finalUrl = joinUrl(apiRoot, data.download_url || "");
       setDownloadUrl(finalUrl);
+
       showMessage("Presentation generated.", "success");
     } catch (err) {
       setOutput(JSON.stringify({ error: err.message }, null, 2));
@@ -187,7 +168,43 @@ export default function App() {
     } finally {
       setLoadingGenerate(false);
     }
-  }, [payload, readResponse, cleanBase, showMessage]);
+  }, [payload, readResponse, apiRoot, apiBase, showMessage]);
+
+  const downloadFile = useCallback(() => {
+    if (!downloadUrl) {
+      showMessage("Download link available nahi hai.", "error");
+      return;
+    }
+
+    try {
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.rel = "noopener noreferrer";
+      a.target = "_blank";
+      a.download = downloadFileName || "presentation.pptx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      showMessage("Download started.", "success");
+    } catch (err) {
+      showMessage(`Download failed: ${err.message}`, "error");
+    }
+  }, [downloadUrl, downloadFileName, showMessage]);
+
+  const copyLink = useCallback(async () => {
+    if (!downloadUrl) {
+      showMessage("Copy karne ke liye link nahi hai.", "error");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(downloadUrl);
+      showMessage("Link copied.", "success");
+    } catch {
+      showMessage("Copy failed.", "error");
+    }
+  }, [downloadUrl, showMessage]);
 
   const clearOutput = useCallback(() => {
     setOutput("{}");
@@ -196,15 +213,6 @@ export default function App() {
     setMessage("");
     setMessageType("info");
   }, []);
-
-  const copyLink = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(downloadUrl);
-      showMessage("Link copied.", "success");
-    } catch {
-      showMessage("Copy failed.", "error");
-    }
-  }, [downloadUrl, showMessage]);
 
   return (
     <div className="appShell">
@@ -219,23 +227,36 @@ export default function App() {
         .appShell { min-height: 100vh; padding: 20px; }
         .wrap { max-width: 1240px; margin: 0 auto; }
         .hero {
-          display: flex; justify-content: space-between; gap: 12px; align-items: flex-start;
-          padding: 18px 20px; border: 1px solid rgba(255,255,255,.08);
-          border-radius: 18px; background: rgba(17,26,46,.92); margin-bottom: 18px;
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          align-items: flex-start;
+          padding: 18px 20px;
+          border: 1px solid rgba(255,255,255,.08);
+          border-radius: 18px;
+          background: rgba(17,26,46,.92);
+          margin-bottom: 18px;
         }
         .hero h1 { margin: 0 0 6px; font-size: 26px; }
         .hero p { margin: 0; color: #9fb0d0; line-height: 1.5; font-size: 14px; }
         .status {
-          padding: 10px 14px; border-radius: 999px; background: rgba(255,255,255,.05);
-          border: 1px solid rgba(255,255,255,.08); color: #9fb0d0; white-space: nowrap;
+          padding: 10px 14px;
+          border-radius: 999px;
+          background: rgba(255,255,255,.05);
+          border: 1px solid rgba(255,255,255,.08);
+          color: #9fb0d0;
+          white-space: nowrap;
         }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
         .card {
-          border: 1px solid rgba(255,255,255,.08); border-radius: 18px;
-          background: rgba(17,26,46,.92); overflow: hidden;
+          border: 1px solid rgba(255,255,255,.08);
+          border-radius: 18px;
+          background: rgba(17,26,46,.92);
+          overflow: hidden;
         }
         .cardHead {
-          padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,.08);
+          padding: 14px 18px;
+          border-bottom: 1px solid rgba(255,255,255,.08);
           background: rgba(255,255,255,.03);
         }
         .cardHead h2 { margin: 0; font-size: 16px; }
@@ -243,40 +264,74 @@ export default function App() {
         .field { margin-bottom: 14px; }
         label { display: block; margin-bottom: 7px; color: #9fb0d0; font-size: 13px; }
         input, textarea, select {
-          width: 100%; padding: 12px 14px; border-radius: 12px;
-          border: 1px solid rgba(255,255,255,.08); background: rgba(22,33,58,.95);
-          color: #e8eefc; outline: none; font: inherit;
+          width: 100%;
+          padding: 12px 14px;
+          border-radius: 12px;
+          border: 1px solid rgba(255,255,255,.08);
+          background: rgba(22,33,58,.95);
+          color: #e8eefc;
+          outline: none;
+          font: inherit;
         }
         textarea { min-height: 220px; resize: vertical; line-height: 1.55; }
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .toggleRow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .toggle {
-          display: flex; gap: 10px; align-items: center; padding: 10px 12px;
-          border-radius: 12px; border: 1px solid rgba(255,255,255,.08);
-          background: rgba(255,255,255,.03); font-size: 14px; cursor: pointer;
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          padding: 10px 12px;
+          border-radius: 12px;
+          border: 1px solid rgba(255,255,255,.08);
+          background: rgba(255,255,255,.03);
+          font-size: 14px;
+          cursor: pointer;
         }
         .toggle input { width: 16px; height: 16px; accent-color: #4f8cff; }
         .toggleOn { border-color: rgba(79,140,255,.25); background: rgba(79,140,255,.08); }
         .btnRow { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
         button {
-          border: none; cursor: pointer; padding: 12px 16px; border-radius: 12px;
-          font: inherit; font-weight: 700;
+          border: none;
+          cursor: pointer;
+          padding: 12px 16px;
+          border-radius: 12px;
+          font: inherit;
+          font-weight: 700;
         }
         .primary { background: #4f8cff; color: white; }
-        .secondary { background: rgba(255,255,255,.06); color: #e8eefc; border: 1px solid rgba(255,255,255,.08); }
-        .danger { background: rgba(255,107,107,.18); color: #ffdede; border: 1px solid rgba(255,107,107,.25); }
+        .secondary {
+          background: rgba(255,255,255,.06);
+          color: #e8eefc;
+          border: 1px solid rgba(255,255,255,.08);
+        }
+        .danger {
+          background: rgba(255,107,107,.18);
+          color: #ffdede;
+          border: 1px solid rgba(255,107,107,.25);
+        }
         .toast {
-          margin-top: 14px; padding: 12px 14px; border-radius: 12px;
-          border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.04);
-          min-height: 48px; white-space: pre-wrap;
+          margin-top: 14px;
+          padding: 12px 14px;
+          border-radius: 12px;
+          border: 1px solid rgba(255,255,255,.08);
+          background: rgba(255,255,255,.04);
+          min-height: 48px;
+          white-space: pre-wrap;
         }
         .toast.info { color: #d7e6ff; }
         .toast.success { color: #bff7ef; }
         .toast.error { color: #ffd1d1; }
         pre {
-          margin: 0; padding: 16px; border-radius: 12px; background: #08101d;
-          border: 1px solid rgba(255,255,255,.08); overflow: auto; max-height: 600px;
-          white-space: pre-wrap; word-break: break-word; line-height: 1.55;
+          margin: 0;
+          padding: 16px;
+          border-radius: 12px;
+          background: #08101d;
+          border: 1px solid rgba(255,255,255,.08);
+          overflow: auto;
+          max-height: 600px;
+          white-space: pre-wrap;
+          word-break: break-word;
+          line-height: 1.55;
         }
         .downloadBox { display: grid; gap: 10px; }
         a { color: #8ec5ff; text-decoration: none; word-break: break-all; }
@@ -430,7 +485,6 @@ export default function App() {
                       <button className="primary" onClick={downloadFile}>
                         Download PPT
                       </button>
-
                       <button className="secondary" onClick={copyLink}>
                         Copy Link
                       </button>
