@@ -145,6 +145,24 @@ const normalizeWikiData = (value) => {
   };
 };
 
+const normalizeNewsData = (raw) => {
+  if (Array.isArray(raw)) return raw;
+
+  const parsed = safeJSON(raw);
+
+  if (Array.isArray(parsed)) return parsed;
+
+  if (parsed && typeof parsed === "object") {
+    if (Array.isArray(parsed.articles)) return parsed.articles;
+    if (Array.isArray(parsed.content)) return parsed.content;
+    if (Array.isArray(parsed.data)) return parsed.data;
+    if (Array.isArray(parsed.results)) return parsed.results;
+    if (Array.isArray(parsed.news)) return parsed.news;
+  }
+
+  return [];
+};
+
 const formatMonth = (dateStr) => {
   const d = new Date(dateStr);
   if (Number.isNaN(d.getTime())) return dateStr;
@@ -230,8 +248,8 @@ const buildPptPayload = (prompt, templateName, backgroundTheme, slideTypesRaw) =
     .filter(Boolean);
 
   return {
-    prompt: prompt.trim(),
-    template_name: templateName.trim() || null,
+    prompt: (prompt || "").trim(),
+    template_name: (templateName || "").trim() || null,
     ...PPT_DEFAULTS,
     background_theme: backgroundTheme,
     slide_types: slideTypes.length ? slideTypes : null,
@@ -248,15 +266,19 @@ const getMessageText = (msg) => {
   if (type === "chat") {
     const data = msg?.content ?? msg?.reply ?? msg?.text ?? "";
     if (typeof data === "string") return data;
-    if (data && typeof data === "object") return data.content || data.reply || JSON.stringify(data, null, 2);
+    if (data && typeof data === "object") {
+      return data.content || data.reply || JSON.stringify(data, null, 2);
+    }
     return "";
   }
 
   if (type === "news") {
-    const parsed = Array.isArray(raw) ? raw : safeJSON(raw);
-    const data = Array.isArray(parsed) ? parsed : parsed?.articles || [];
+    const data = normalizeNewsData(raw);
+
     if (!data.length) return "News response";
+
     return data
+      .slice(0, 5)
       .map((item, index) => {
         const title = item?.title ? `Title: ${item.title}` : `News item ${index + 1}`;
         const desc = item?.description ? `Description: ${item.description}` : "";
@@ -289,7 +311,17 @@ const getSpeakText = (msg) => {
   const type = (msg?.type || "").toLowerCase().trim();
   const text = getMessageText(msg);
   if (!text) return "";
-  if (type === "news" || type === "wiki") return text;
+
+  if (type === "news") {
+    const data = normalizeNewsData(msg?.content ?? msg?.text ?? msg?.data ?? []);
+    if (!data.length) return "No news available.";
+    return data
+      .slice(0, 3)
+      .map((item, i) => `${i + 1}. ${item?.title || "Untitled news"}`)
+      .join(". ");
+  }
+
+  if (type === "wiki") return text;
   if (type === "download_link") return "Presentation is ready. Click to download.";
   if (CHAT_TYPES.has(type)) return "Chart response received.";
   if (MEDIA_TYPES.has(type)) return "Media response received.";
@@ -490,15 +522,8 @@ const Chatbot = () => {
   }, []);
 
   const renderNews = useCallback((msg) => {
-    const raw = msg.content ?? msg.text ?? [];
-    let data = [];
-
-    if (Array.isArray(raw)) data = raw;
-    else {
-      const parsed = safeJSON(raw);
-      if (Array.isArray(parsed)) data = parsed;
-      else if (parsed?.articles && Array.isArray(parsed.articles)) data = parsed.articles;
-    }
+    const raw = msg.content ?? msg.text ?? msg.data ?? [];
+    const data = normalizeNewsData(raw);
 
     if (!data.length) return <div style={styles.emptyText}>No news available</div>;
 
@@ -917,7 +942,15 @@ const Chatbot = () => {
         data?.payload ??
         null;
 
-      const normalizedPayload = data?.type === "wiki" ? normalizeWikiData(payload) : payload;
+      let normalizedPayload = payload;
+
+      if (data?.type === "wiki") {
+        normalizedPayload = normalizeWikiData(payload);
+      }
+
+      if (data?.type === "news") {
+        normalizedPayload = normalizeNewsData(payload);
+      }
 
       const botMessage = {
         sender: "bot",
@@ -1307,7 +1340,6 @@ export default Chatbot;
 ------------------------------------------------------- */
 const glass = "rgba(18, 24, 40, 0.72)";
 const border = "1px solid rgba(255,255,255,0.10)";
-
 const styles = {
   page: {
     width: "100%",
@@ -1578,6 +1610,7 @@ const styles = {
     minWidth: 260,
     boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
   },
+  
   downloadTitle: { fontSize: 16, fontWeight: 800, lineHeight: 1.4, whiteSpace: "pre-line" },
   downloadMeta: { fontSize: 13, color: "#4b5563", lineHeight: 1.6, whiteSpace: "pre-line" },
   downloadLink: {
