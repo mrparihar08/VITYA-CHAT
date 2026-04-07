@@ -1,6 +1,35 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-const API_URL = process.env.REACT_APP_API_URL || "https://mother-8599.onrender.com";
+const DEFAULT_API_URL = "https://mother-8599.onrender.com";
+const API_URL = process.env.REACT_APP_API_URL || DEFAULT_API_URL;
+
+function cleanBase(url) {
+  return (url || "").trim().replace(/\/+$/, "");
+}
+
+function joinUrl(base, path) {
+  if (!path) return "";
+  if (/^https?:\/\//i.test(path)) return path;
+  return new URL(path.replace(/^\/+/, ""), `${cleanBase(base)}/`).toString();
+}
+
+function formatApiError(data, status) {
+  if (typeof data?.detail === "string") return data.detail;
+  if (data?.detail && typeof data.detail === "object") {
+    return data.detail.message || JSON.stringify(data.detail);
+  }
+  if (typeof data?.raw === "string") return data.raw;
+  return `HTTP ${status}`;
+}
+
+function makeTimeoutSignal(ms = 60000) {
+  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+    return AbortSignal.timeout(ms);
+  }
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), ms);
+  return controller.signal;
+}
 
 function Toggle({ label, checked, onChange }) {
   return (
@@ -15,17 +44,10 @@ function Toggle({ label, checked, onChange }) {
   );
 }
 
-function cleanBase(url) {
-  return (url || "").trim().replace(/\/+$/, "");
-}
-
-function joinUrl(base, path) {
-  if (!path) return "";
-  if (/^https?:\/\//i.test(path)) return path;
-  return new URL(path, `${cleanBase(base)}/`).toString();
-}
-
 export default function App() {
+  const apiRoot = useMemo(() => cleanBase(API_URL), []);
+  const apiBase = useMemo(() => `${apiRoot}/api/presentation`, [apiRoot]);
+
   const [prompt, setPrompt] = useState("");
   const [templateName, setTemplateName] = useState("");
   const [backgroundTheme, setBackgroundTheme] = useState("light");
@@ -35,20 +57,20 @@ export default function App() {
   const [downloadFileName, setDownloadFileName] = useState("");
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("info");
+  const [health, setHealth] = useState("Checking backend...");
   const [loadingPlan, setLoadingPlan] = useState(false);
   const [loadingGenerate, setLoadingGenerate] = useState(false);
-  const [health, setHealth] = useState("Checking backend...");
 
   const [options, setOptions] = useState({
     include_title_slide: true,
     allow_bullets: true,
+    allow_paragraph: true,
     allow_chart: true,
     allow_image: true,
+    allow_section_slide: true,
+    allow_table: true,
     smart_mode: true,
   });
-
-  const apiRoot = useMemo(() => cleanBase(API_URL), []);
-  const apiBase = useMemo(() => `${apiRoot}/api/presentation`, [apiRoot]);
 
   const showMessage = useCallback((text, type = "info") => {
     setMessage(text);
@@ -75,8 +97,11 @@ export default function App() {
       template_name: templateName.trim() || null,
       include_title_slide: options.include_title_slide,
       allow_bullets: options.allow_bullets,
+      allow_paragraph: options.allow_paragraph,
       allow_chart: options.allow_chart,
       allow_image: options.allow_image,
+      allow_section_slide: options.allow_section_slide,
+      allow_table: options.allow_table,
       background_theme: backgroundTheme,
       smart_mode: options.smart_mode,
       slide_types: types.length ? types : null,
@@ -95,6 +120,8 @@ export default function App() {
 
   useEffect(() => {
     checkHealth();
+    const interval = setInterval(checkHealth, 15000);
+    return () => clearInterval(interval);
   }, [checkHealth]);
 
   const callPlan = useCallback(async () => {
@@ -111,19 +138,18 @@ export default function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        signal: makeTimeoutSignal(60000),
       });
 
       const data = await readResponse(res);
-
-      if (!res.ok) {
-        throw new Error(data?.detail || data?.raw || `HTTP ${res.status}`);
-      }
+      if (!res.ok) throw new Error(formatApiError(data, res.status));
 
       setOutput(JSON.stringify(data, null, 2));
       showMessage("Plan ready.", "success");
     } catch (err) {
-      setOutput(JSON.stringify({ error: err.message }, null, 2));
-      showMessage(`Plan failed: ${err.message}`, "error");
+      const errorMessage = err?.name === "AbortError" ? "Request timed out" : err?.message || "Unknown error";
+      setOutput(JSON.stringify({ error: errorMessage }, null, 2));
+      showMessage(`Plan failed: ${errorMessage}`, "error");
     } finally {
       setLoadingPlan(false);
     }
@@ -143,54 +169,56 @@ export default function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        signal: makeTimeoutSignal(60000),
       });
 
       const data = await readResponse(res);
-
-      if (!res.ok) {
-        throw new Error(data?.detail || data?.raw || `HTTP ${res.status}`);
-      }
+      if (!res.ok) throw new Error(formatApiError(data, res.status));
 
       setOutput(JSON.stringify(data, null, 2));
-      setDownloadFileName(data.file_name || "");
+      setDownloadFileName(data.file_name || "presentation.pptx");
+      setDownloadUrl(data.download_url || "");
 
-      // Works whether backend returns:
-      // 1) "/api/presentation/download/file.pptx"
-      // 2) "/download/file.pptx"
-      // 3) "https://..."
-      const finalUrl = joinUrl(apiRoot, data.download_url || "");
-      setDownloadUrl(finalUrl);
+      if (data.download_url) {
+        const url = joinUrl(apiRoot, data.download_url);
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
 
       showMessage("Presentation generated.", "success");
     } catch (err) {
-      setOutput(JSON.stringify({ error: err.message }, null, 2));
-      showMessage(`Generate failed: ${err.message}`, "error");
+      const errorMessage = err?.name === "AbortError" ? "Request timed out" : err?.message || "Unknown error";
+      setOutput(JSON.stringify({ error: errorMessage }, null, 2));
+      showMessage(`Generate failed: ${errorMessage}`, "error");
     } finally {
       setLoadingGenerate(false);
     }
-  }, [payload, readResponse, apiRoot, apiBase, showMessage]);
+  }, [payload, readResponse, apiBase, apiRoot, showMessage]);
 
-  const downloadFile = useCallback(() => {
+  const downloadFile = useCallback(async () => {
     if (!downloadUrl) {
       showMessage("Download link available nahi hai.", "error");
       return;
     }
 
     try {
+      const absoluteUrl = joinUrl(apiRoot, downloadUrl);
+      const res = await fetch(absoluteUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = downloadUrl;
-      a.rel = "noopener noreferrer";
-      a.target = "_blank";
+      a.href = objectUrl;
       a.download = downloadFileName || "presentation.pptx";
       document.body.appendChild(a);
       a.click();
       a.remove();
-
+      URL.revokeObjectURL(objectUrl);
       showMessage("Download started.", "success");
     } catch (err) {
-      showMessage(`Download failed: ${err.message}`, "error");
+      showMessage(`Download failed: ${err?.message || "Unknown error"}`, "error");
     }
-  }, [downloadUrl, downloadFileName, showMessage]);
+  }, [downloadUrl, downloadFileName, apiRoot, showMessage]);
 
   const copyLink = useCallback(async () => {
     if (!downloadUrl) {
@@ -199,12 +227,13 @@ export default function App() {
     }
 
     try {
-      await navigator.clipboard.writeText(downloadUrl);
+      const absoluteUrl = joinUrl(apiRoot, downloadUrl);
+      await navigator.clipboard.writeText(absoluteUrl);
       showMessage("Link copied.", "success");
     } catch {
       showMessage("Copy failed.", "error");
     }
-  }, [downloadUrl, showMessage]);
+  }, [downloadUrl, apiRoot, showMessage]);
 
   const clearOutput = useCallback(() => {
     setOutput("{}");
@@ -298,6 +327,7 @@ export default function App() {
           font: inherit;
           font-weight: 700;
         }
+        button:disabled { opacity: .65; cursor: not-allowed; }
         .primary { background: #4f8cff; color: white; }
         .secondary {
           background: rgba(255,255,255,.06);
@@ -403,56 +433,21 @@ export default function App() {
               </div>
 
               <div className="toggleRow">
-                <Toggle
-                  label="Title slide"
-                  checked={options.include_title_slide}
-                  onChange={(checked) =>
-                    setOptions((prev) => ({ ...prev, include_title_slide: checked }))
-                  }
-                />
-                <Toggle
-                  label="Bullets"
-                  checked={options.allow_bullets}
-                  onChange={(checked) =>
-                    setOptions((prev) => ({ ...prev, allow_bullets: checked }))
-                  }
-                />
-                <Toggle
-                  label="Charts"
-                  checked={options.allow_chart}
-                  onChange={(checked) =>
-                    setOptions((prev) => ({ ...prev, allow_chart: checked }))
-                  }
-                />
-                <Toggle
-                  label="Images"
-                  checked={options.allow_image}
-                  onChange={(checked) =>
-                    setOptions((prev) => ({ ...prev, allow_image: checked }))
-                  }
-                />
-                <Toggle
-                  label="Smart mode"
-                  checked={options.smart_mode}
-                  onChange={(checked) =>
-                    setOptions((prev) => ({ ...prev, smart_mode: checked }))
-                  }
-                />
+                <Toggle label="Title slide" checked={options.include_title_slide} onChange={(checked) => setOptions((p) => ({ ...p, include_title_slide: checked }))} />
+                <Toggle label="Bullets" checked={options.allow_bullets} onChange={(checked) => setOptions((p) => ({ ...p, allow_bullets: checked }))} />
+                <Toggle label="Paragraph" checked={options.allow_paragraph} onChange={(checked) => setOptions((p) => ({ ...p, allow_paragraph: checked }))} />
+                <Toggle label="Charts" checked={options.allow_chart} onChange={(checked) => setOptions((p) => ({ ...p, allow_chart: checked }))} />
+                <Toggle label="Images" checked={options.allow_image} onChange={(checked) => setOptions((p) => ({ ...p, allow_image: checked }))} />
+                <Toggle label="Section slide" checked={options.allow_section_slide} onChange={(checked) => setOptions((p) => ({ ...p, allow_section_slide: checked }))} />
+                <Toggle label="Table" checked={options.allow_table} onChange={(checked) => setOptions((p) => ({ ...p, allow_table: checked }))} />
+                <Toggle label="Smart mode" checked={options.smart_mode} onChange={(checked) => setOptions((p) => ({ ...p, smart_mode: checked }))} />
               </div>
 
               <div className="btnRow">
-                <button
-                  className="secondary"
-                  onClick={callPlan}
-                  disabled={loadingPlan || loadingGenerate}
-                >
+                <button className="secondary" onClick={callPlan} disabled={loadingPlan || loadingGenerate}>
                   {loadingPlan ? "Planning..." : "Preview Plan"}
                 </button>
-                <button
-                  className="primary"
-                  onClick={callGenerate}
-                  disabled={loadingPlan || loadingGenerate}
-                >
+                <button className="primary" onClick={callGenerate} disabled={loadingPlan || loadingGenerate}>
                   {loadingGenerate ? "Generating..." : "Generate PPT"}
                 </button>
                 <button className="danger" onClick={clearOutput}>
@@ -477,7 +472,7 @@ export default function App() {
                 <div className="muted">Download link</div>
                 {downloadUrl ? (
                   <>
-                    <a href={downloadUrl} target="_blank" rel="noreferrer">
+                    <a href={joinUrl(apiRoot, downloadUrl)} target="_blank" rel="noreferrer">
                       {downloadFileName || downloadUrl}
                     </a>
 
