@@ -1,1060 +1,1034 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
-const DEFAULT_API_URL = "https://mother-8599.onrender.com";
-const API_URL = process.env.REACT_APP_API_URL || DEFAULT_API_URL;
+const DEFAULT_API_BASE = "https://mother-8599.onrender.com/api/presentation";
 
-/* -------------------------------------------------------
-   Styles
-------------------------------------------------------- */
-const styles = {
-  page: {
-    width: "100%",
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
-    color: "#fff",
-    background:
-      "radial-gradient(circle at top, #1b2440 0%, #0b1020 55%, #090d18 100%)",
-    fontFamily:
-      "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
-    position: "relative",
-  },
-  topbar: {
-    height: 74,
-    padding: "0 18px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottom: "1px solid rgba(255,255,255,0.08)",
-    background: "rgba(15, 20, 36, 0.72)",
-    backdropFilter: "blur(14px)",
-    flexShrink: 0,
-    gap: 12,
-  },
-  brandBlock: { display: "flex", alignItems: "center", gap: 12, minWidth: 0 },
-  brandBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 14,
-    display: "grid",
-    placeItems: "center",
-    background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
-    fontWeight: 800,
-    boxShadow: "0 10px 22px rgba(99,102,241,0.30)",
-    flexShrink: 0,
-  },
-  brandTitle: { fontSize: 18, fontWeight: 800, lineHeight: 1.1 },
-  brandSub: { marginTop: 2, fontSize: 12, color: "rgba(255,255,255,0.68)" },
-  topbarRight: { display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" },
-  modePill: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    padding: "8px 12px",
-    borderRadius: 999,
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    fontSize: 12,
-    fontWeight: 700,
-    color: "rgba(255,255,255,0.88)",
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: "50%",
-    background: "#22c55e",
-    boxShadow: "0 0 0 5px rgba(34,197,94,0.12)",
-  },
-  main: {
-    flex: 1,
-    display: "flex",
-    justifyContent: "center",
-    overflow: "hidden",
-    minHeight: 0,
-  },
-  contentGrid: {
-    width: "min(1280px, 100%)",
-    display: "grid",
-    gridTemplateColumns: "1.05fr 0.95fr",
-    gap: 16,
-    padding: 16,
-    minHeight: 0,
-    boxSizing: "border-box",
-  },
-  panel: {
-    minHeight: 0,
-    borderRadius: 28,
-    background: "rgba(15, 20, 36, 0.68)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    boxShadow: "0 18px 40px rgba(0,0,0,0.22)",
-    backdropFilter: "blur(16px)",
-    overflow: "hidden",
-  },
-  panelHead: {
-    padding: "16px 18px",
-    borderBottom: "1px solid rgba(255,255,255,0.08)",
-    background: "rgba(255,255,255,0.03)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  panelTitle: { fontSize: 16, fontWeight: 800, margin: 0 },
-  panelSub: { marginTop: 4, fontSize: 12, color: "rgba(255,255,255,0.66)" },
-  panelBody: {
-    padding: 16,
-    overflowY: "auto",
-    maxHeight: "calc(100vh - 150px)",
-    boxSizing: "border-box",
-  },
-  emptyState: {
-    display: "grid",
-    placeItems: "center",
-    minHeight: "calc(100vh - 250px)",
-  },
-  emptyCard: {
-    width: "min(780px, 100%)",
-    padding: 28,
-    borderRadius: 28,
-    background: "rgba(15, 20, 36, 0.68)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    boxShadow: "0 18px 40px rgba(0,0,0,0.22)",
-    backdropFilter: "blur(16px)",
-    textAlign: "center",
-  },
-  heroTitle: {
-    fontSize: "clamp(30px, 4vw, 52px)",
-    fontWeight: 800,
-    lineHeight: 1.05,
-    letterSpacing: "-0.04em",
-    margin: 0,
-  },
-  heroSub: {
-    marginTop: 12,
-    color: "rgba(255,255,255,0.74)",
-    fontSize: 16,
-    lineHeight: 1.7,
-    maxWidth: 680,
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
-  promptGrid: {
-    marginTop: 22,
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-    gap: 12,
-  },
-  promptBtn: {
-    padding: "14px 14px",
-    borderRadius: 16,
-    border: "1px solid rgba(255,255,255,0.08)",
-    background: "rgba(255,255,255,0.05)",
-    color: "#fff",
-    cursor: "pointer",
-    textAlign: "left",
-    fontWeight: 600,
-    lineHeight: 1.45,
-  },
-  form: { display: "grid", gap: 14 },
-  field: { display: "grid", gap: 7 },
-  label: {
-    fontSize: 13,
-    color: "rgba(255,255,255,0.72)",
-    fontWeight: 700,
-  },
-  input: {
-    width: "100%",
-    padding: "12px 14px",
-    borderRadius: 14,
-    border: "1px solid rgba(255,255,255,0.08)",
-    background: "rgba(255,255,255,0.05)",
-    color: "#fff",
-    outline: "none",
-    font: "inherit",
-    boxSizing: "border-box",
-  },
-  textarea: {
-    width: "100%",
-    minHeight: 180,
-    resize: "vertical",
-    padding: "12px 14px",
-    borderRadius: 18,
-    border: "1px solid rgba(255,255,255,0.08)",
-    background: "rgba(255,255,255,0.05)",
-    color: "#fff",
-    outline: "none",
-    font: "inherit",
-    lineHeight: 1.6,
-    boxSizing: "border-box",
-  },
-  row2: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 12,
-  },
-  row3: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: 12,
-  },
-  toggleGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-    gap: 10,
-  },
-  toggle: {
-    display: "flex",
-    gap: 10,
-    alignItems: "center",
-    padding: "10px 12px",
-    borderRadius: 14,
-    border: "1px solid rgba(255,255,255,0.08)",
-    background: "rgba(255,255,255,0.04)",
-    fontSize: 13,
-    cursor: "pointer",
-    userSelect: "none",
-  },
-  toggleOn: {
-    border: "1px solid rgba(147,197,253,0.35)",
-    background: "rgba(59,130,246,0.10)",
-  },
-  btnRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 10,
-    marginTop: 6,
-  },
-  btn: {
-    border: "none",
-    cursor: "pointer",
-    padding: "12px 16px",
-    borderRadius: 14,
-    font: "inherit",
-    fontWeight: 800,
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-  },
-  primary: {
-    background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
-    color: "#fff",
-  },
-  secondary: {
-    background: "rgba(255,255,255,0.06)",
-    color: "#fff",
-    border: "1px solid rgba(255,255,255,0.08)",
-  },
-  danger: {
-    background: "rgba(239,68,68,0.14)",
-    color: "#ffdede",
-    border: "1px solid rgba(239,68,68,0.22)",
-  },
-  successBox: {
-    marginTop: 12,
-    padding: 12,
-    borderRadius: 14,
-    background: "rgba(34,197,94,0.10)",
-    border: "1px solid rgba(34,197,94,0.18)",
-    color: "#d9ffe9",
-    fontSize: 13,
-    lineHeight: 1.6,
-  },
-  errorBox: {
-    marginTop: 12,
-    padding: 12,
-    borderRadius: 14,
-    background: "rgba(239,68,68,0.10)",
-    border: "1px solid rgba(239,68,68,0.18)",
-    color: "#ffd8d8",
-    fontSize: 13,
-    lineHeight: 1.6,
-  },
-  infoBox: {
-    marginTop: 12,
-    padding: 12,
-    borderRadius: 14,
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    color: "rgba(255,255,255,0.80)",
-    fontSize: 13,
-    lineHeight: 1.6,
-  },
-  pre: {
-    margin: 0,
-    padding: 16,
-    borderRadius: 18,
-    background: "rgba(5, 9, 18, 0.72)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    overflow: "auto",
-    whiteSpace: "pre-wrap",
-    wordBreak: "break-word",
-    lineHeight: 1.6,
-    fontSize: 12,
-  },
-  downloadBox: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-  },
-  downloadCard: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-    padding: 16,
-    borderRadius: 16,
-    background: "#fff",
-    color: "#111827",
-    minWidth: 260,
-    boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
-  },
-  downloadTitle: {
-    fontSize: 16,
-    fontWeight: 800,
-    lineHeight: 1.4,
-    whiteSpace: "pre-line",
-  },
-  downloadMeta: {
-    fontSize: 13,
-    color: "#4b5563",
-    lineHeight: 1.6,
-    whiteSpace: "pre-line",
-    wordBreak: "break-word",
-  },
-  cardList: {
-    display: "grid",
-    gap: 12,
-  },
-  summaryCard: {
-    borderRadius: 16,
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    padding: 14,
-  },
-  summaryTitle: { fontSize: 12, color: "rgba(255,255,255,0.60)", marginBottom: 6 },
-  summaryValue: { fontSize: 14, fontWeight: 700 },
-  chipsRow: {
-    display: "flex",
-    gap: 8,
-    flexWrap: "wrap",
-    marginTop: 10,
-  },
-  chip: {
-    padding: "7px 10px",
-    borderRadius: 999,
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    fontSize: 12,
-    color: "rgba(255,255,255,0.82)",
-  },
-  responsiveHint: {
-    fontSize: 12,
-    color: "rgba(255,255,255,0.62)",
-  },
-};
-
-function cleanBase(url) {
+function cleanBaseUrl(url) {
   return (url || "").trim().replace(/\/+$/, "");
 }
 
+function isAbsoluteUrl(url) {
+  return /^https?:\/\//i.test(String(url || "").trim());
+}
+
 function joinUrl(base, path) {
-  if (!path) return "";
-  if (/^https?:\/\//i.test(path)) return path;
-  return new URL(path.replace(/^\/+/, ""), `${cleanBase(base)}/`).toString();
+  const b = cleanBaseUrl(base);
+  const p = String(path || "").trim();
+  if (!p) return b;
+  if (isAbsoluteUrl(p)) return p;
+  if (p.startsWith("/")) return `${b}${p}`;
+  return `${b}/${p}`;
 }
 
-function formatApiError(data, status) {
-  if (typeof data?.detail === "string") return data.detail;
-  if (data?.detail && typeof data.detail === "object") {
-    return data.detail.message || JSON.stringify(data.detail);
-  }
-  if (typeof data?.raw === "string") return data.raw;
-  return `HTTP ${status}`;
+function safeArray(value) {
+  return Array.isArray(value) ? value : [];
 }
 
-function makeTimeoutSignal(ms = 60000) {
-  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
-    return AbortSignal.timeout(ms);
+async function readResponse(res) {
+  const text = await res.text();
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    return { detail: text || "Invalid server response" };
   }
-  const controller = new AbortController();
-  setTimeout(() => controller.abort(), ms);
-  return controller.signal;
 }
 
 function Toggle({ label, checked, onChange }) {
   return (
-    <label style={{ ...styles.toggle, ...(checked ? styles.toggleOn : null) }}>
+    <label className="toggle-row">
+      <span>{label}</span>
       <input
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        style={{ width: 16, height: 16, accentColor: "#8b5cf6" }}
       />
-      <span>{label}</span>
     </label>
   );
 }
 
-function SectionTitle({ title, subtitle, right }) {
+function normalizeTypeList(plugins) {
+  return safeArray(plugins)
+    .map((p) => p?.type)
+    .filter(Boolean)
+    .sort()
+    .join("|");
+}
+
+function resolveMixedLayout(plugins) {
+  const signature = normalizeTypeList(plugins);
+
+  if (signature === "bullets|paragraph") return "vertical";
+  if (signature === "image|paragraph") return "split";
+  if (signature === "bullets|image") return "split";
+  if (signature === "chart|paragraph") return "split";
+  if (signature === "bullets|chart") return "split";
+  if (signature === "paragraph|table") return "split";
+  return "grid";
+}
+
+function boxToStyle(box) {
+  if (!box) return {};
+  return {
+    position: "absolute",
+    left: `${Number(box.left || 0) * 100}%`,
+    top: `${Number(box.top || 0) * 100}%`,
+    width: `${Number(box.width || 0) * 100}%`,
+    height: `${Number(box.height || 0) * 100}%`,
+  };
+}
+
+function getPluginLabel(type) {
+  if (type === "text") return "Title block";
+  if (type === "paragraph") return "Paragraph";
+  if (type === "bullets") return "Bullets";
+  if (type === "chart") return "Chart";
+  if (type === "image") return "Image";
+  if (type === "table") return "Table";
+  if (type === "notes") return "Notes";
+  return type || "Content";
+}
+
+function PluginContent({ plugin }) {
+  const type = plugin?.type;
+  const data = plugin?.data || {};
+
+  if (type === "text") {
+    return (
+      <>
+        <strong>{getPluginLabel(type)}</strong>
+        <div>{data?.title || ""}</div>
+        {data?.subtitle ? <div className="muted">{data.subtitle}</div> : null}
+      </>
+    );
+  }
+
+  if (type === "paragraph") {
+    return (
+      <>
+        <strong>{getPluginLabel(type)}</strong>
+        <div className="muted clamp-text">{data?.text || ""}</div>
+      </>
+    );
+  }
+
+  if (type === "bullets") {
+    const points = safeArray(data?.points);
+    return (
+      <>
+        <strong>{getPluginLabel(type)}</strong>
+        <ul>
+          {points.slice(0, 6).map((point, idx) => (
+            <li key={idx}>{String(point)}</li>
+          ))}
+        </ul>
+      </>
+    );
+  }
+
+  if (type === "chart") {
+    return (
+      <>
+        <strong>{getPluginLabel(type)}</strong>
+        <div className="muted">Type: {data?.chart_type || "column"}</div>
+        <div className="muted">Series: {data?.series_name || "Usage"}</div>
+      </>
+    );
+  }
+
+  if (type === "image") {
+    return (
+      <>
+        <strong>{getPluginLabel(type)}</strong>
+        <div className="muted break-word">{data?.path || ""}</div>
+        {data?.caption ? <div className="muted">{data.caption}</div> : null}
+      </>
+    );
+  }
+
+  if (type === "table") {
+    return (
+      <>
+        <strong>{getPluginLabel(type)}</strong>
+        <div className="muted">{safeArray(data?.headers).length} columns</div>
+        <div className="muted">{safeArray(data?.rows).length} rows</div>
+      </>
+    );
+  }
+
+  if (type === "notes") {
+    return (
+      <>
+        <strong>{getPluginLabel(type)}</strong>
+        <div className="muted clamp-text">{data?.notes || ""}</div>
+      </>
+    );
+  }
+
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "start",
-        justifyContent: "space-between",
-        gap: 12,
-      }}
-    >
-      <div>
-        <h2 style={styles.panelTitle}>{title}</h2>
-        {subtitle ? <div style={styles.panelSub}>{subtitle}</div> : null}
+    <>
+      <strong>{getPluginLabel(type)}</strong>
+      <div className="muted">Unsupported plugin</div>
+    </>
+  );
+}
+
+function SlidePreview({ slide, index }) {
+  const title = slide?.title || `Slide ${index + 1}`;
+  const layout = slide?.layout || "title_content";
+  const plugins = safeArray(slide?.plugins);
+  const isMixed = layout === "mixed_content_slide" || plugins.length >= 2;
+  const mixedMode = resolveMixedLayout(plugins);
+
+  return (
+    <div className="slide-card">
+      <div className="slide-card-header">
+        <div>
+          <div className="slide-index">Slide {index + 1}</div>
+          <h3>{title}</h3>
+        </div>
+        <div className="badge-group">
+          <span className="badge">{layout}</span>
+          {isMixed ? <span className="badge accent">mixed: {mixedMode}</span> : null}
+        </div>
       </div>
-      {right}
+
+      <div className="slide-preview-stage">
+        <div className="slide-canvas">
+          {plugins.map((plugin, i) => {
+            const box = plugin?.data?.box;
+            const hasBox = box && typeof box === "object";
+            const pluginType = plugin?.type || `plugin-${i}`;
+
+            return (
+              <div
+                key={`${pluginType}-${i}`}
+                className={`canvas-block canvas-${pluginType}`}
+                style={hasBox ? boxToStyle(box) : undefined}
+              >
+                <PluginContent plugin={plugin} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="slide-card-body">
+        {!plugins.length ? (
+          <div className="empty-inline">No plugins in this slide.</div>
+        ) : (
+          plugins.map((plugin, i) => (
+            <div key={i} className={`plugin-box plugin-${plugin.type || "unknown"}`}>
+              <PluginContent plugin={plugin} />
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
 
-function SummaryCard({ label, value }) {
-  return (
-    <div style={styles.summaryCard}>
-      <div style={styles.summaryTitle}>{label}</div>
-      <div style={styles.summaryValue}>{value}</div>
-    </div>
-  );
-}
-
-export default function Presentation() {
-  const apiRoot = useMemo(() => cleanBase(API_URL), []);
-  const apiBase = useMemo(() => `${apiRoot}/api/presentation`, [apiRoot]);
-
+export default function PresentationGenerator() {
+  const [apiBase, setApiBase] = useState(DEFAULT_API_BASE);
   const [prompt, setPrompt] = useState(
-    "Data Science ke liye ek clean presentation banao with title, overview, workflow, tools, applications, challenges aur conclusion."
+    "Create a professional presentation on Data Science for students. Include overview, workflow, tools, applications, challenges, and conclusion."
   );
   const [templateName, setTemplateName] = useState("");
-  const [backgroundTheme, setBackgroundTheme] = useState("auto");
   const [contentTheme, setContentTheme] = useState("auto");
   const [visualStyle, setVisualStyle] = useState("auto");
-  const [slideTypes, setSlideTypes] = useState(
-    "title_slide, title_content, bullets_slide, chart_slide"
-  );
-  const [output, setOutput] = useState({});
-  const [downloadUrl, setDownloadUrl] = useState("");
-  const [downloadFileName, setDownloadFileName] = useState("");
-  const [message, setMessage] = useState("Ready.");
-  const [messageType, setMessageType] = useState("info");
-  const [health, setHealth] = useState("Checking backend...");
+
+  const [includeTitleSlide, setIncludeTitleSlide] = useState(true);
+  const [allowBullets, setAllowBullets] = useState(true);
+  const [allowParagraph, setAllowParagraph] = useState(true);
+  const [allowChart, setAllowChart] = useState(true);
+  const [allowImage, setAllowImage] = useState(true);
+  const [allowSectionSlide, setAllowSectionSlide] = useState(true);
+  const [allowTable, setAllowTable] = useState(true);
+  const [smartMode, setSmartMode] = useState(true);
+
+  const [slideTypes, setSlideTypes] = useState("");
   const [loadingPlan, setLoadingPlan] = useState(false);
   const [loadingGenerate, setLoadingGenerate] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState("");
+  const [error, setError] = useState("");
+  const [plan, setPlan] = useState(null);
+  const [downloadUrl, setDownloadUrl] = useState("");
+  const [fileName, setFileName] = useState("");
 
-  const [options, setOptions] = useState({
-    include_title_slide: true,
-    allow_bullets: true,
-    allow_paragraph: true,
-    allow_chart: true,
-    allow_image: true,
-    allow_section_slide: true,
-    allow_table: true,
-    smart_mode: true,
-  });
+  const previewCount = useMemo(() => safeArray(plan?.slides).length, [plan]);
 
-  const selectedSlideTypes = useMemo(() => {
-    return slideTypes
+  const themeOptions = useMemo(
+    () => [
+      "auto",
+      "light",
+      "dark",
+      "blue",
+      "green",
+      "purple",
+      "ai",
+      "data",
+      "startup",
+      "education",
+      "finance",
+      "medical",
+    ],
+    []
+  );
+
+  const styleOptions = useMemo(
+    () => ["auto", "minimal", "corporate", "academic", "modern_gradient"],
+    []
+  );
+
+  const buildPayload = () => ({
+    prompt,
+    template_name: templateName || null,
+    include_title_slide: includeTitleSlide,
+    allow_bullets: allowBullets,
+    allow_paragraph: allowParagraph,
+    allow_chart: allowChart,
+    allow_image: allowImage,
+    allow_section_slide: allowSectionSlide,
+    allow_table: allowTable,
+    background_theme: contentTheme || "auto",
+    content_theme: contentTheme || "auto",
+    visual_style: visualStyle || "auto",
+    smart_mode: smartMode,
+    slide_types: slideTypes
       .split(",")
       .map((s) => s.trim())
-      .filter(Boolean);
-  }, [slideTypes]);
+      .filter(Boolean),
+  });
 
-  const payload = useMemo(() => {
-    return {
-      prompt: prompt.trim(),
-      template_name: templateName.trim() || null,
-      include_title_slide: options.include_title_slide,
-      allow_bullets: options.allow_bullets,
-      allow_paragraph: options.allow_paragraph,
-      allow_chart: options.allow_chart,
-      allow_image: options.allow_image,
-      allow_section_slide: options.allow_section_slide,
-      allow_table: options.allow_table,
-      background_theme: backgroundTheme,
-      content_theme: contentTheme,
-      visual_style: visualStyle,
-      smart_mode: options.smart_mode,
-      slide_types: selectedSlideTypes.length ? selectedSlideTypes : null,
-    };
-  }, [
-    prompt,
-    templateName,
-    backgroundTheme,
-    contentTheme,
-    visualStyle,
-    selectedSlideTypes,
-    options,
-  ]);
-
-  const showMessage = useCallback((text, type = "info") => {
-    setMessage(text);
-    setMessageType(type);
-  }, []);
-
-  const readResponse = useCallback(async (res) => {
-    const text = await res.text();
-    try {
-      return JSON.parse(text);
-    } catch {
-      return { raw: text };
-    }
-  }, []);
-
-  const checkHealth = useCallback(async () => {
-    try {
-      const res = await fetch(`${apiBase}/health`);
-      const data = await readResponse(res);
-      setHealth(res.ok && data?.status === "ok" ? "Backend healthy" : "Backend responded");
-    } catch {
-      setHealth("Backend not reachable");
-    }
-  }, [apiBase, readResponse]);
-
-  useEffect(() => {
-    checkHealth();
-    const interval = setInterval(checkHealth, 15000);
-    return () => clearInterval(interval);
-  }, [checkHealth]);
-
-  useEffect(() => {
-    if (!message) return;
-    const t = setTimeout(() => setMessage(""), 3500);
-    return () => clearTimeout(t);
-  }, [message]);
-
-  const applyOutput = useCallback((data) => {
-    setOutput(data || {});
-    setLastUpdated(new Date().toLocaleString());
-  }, []);
-
-  const callPlan = useCallback(async () => {
-    if (!payload.prompt) {
-      showMessage("Prompt likho pehle.", "error");
-      return;
-    }
-
+  const fetchPlan = async () => {
+    setError("");
     setLoadingPlan(true);
-    showMessage("Plan generate ho raha hai...", "info");
+    setDownloadUrl("");
+    setFileName("");
 
     try {
-      const res = await fetch(`${apiBase}/plan`, {
+      const res = await fetch(joinUrl(apiBase, "/plan"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: makeTimeoutSignal(60000),
+        body: JSON.stringify(buildPayload()),
       });
 
       const data = await readResponse(res);
-      if (!res.ok) throw new Error(formatApiError(data, res.status));
-
-      applyOutput(data);
-      showMessage("Plan ready.", "success");
+      if (!res.ok) throw new Error(data?.detail || "Failed to preview plan");
+      setPlan(data);
     } catch (err) {
-      const errorMessage =
-        err?.name === "AbortError" ? "Request timed out" : err?.message || "Unknown error";
-      applyOutput({ error: errorMessage });
-      showMessage(`Plan failed: ${errorMessage}`, "error");
+      setError(err?.message || "Something went wrong");
     } finally {
       setLoadingPlan(false);
     }
-  }, [payload, readResponse, apiBase, showMessage, applyOutput]);
+  };
 
-  const callGenerate = useCallback(async () => {
-    if (!payload.prompt) {
-      showMessage("Prompt likho pehle.", "error");
-      return;
-    }
-
+  const generatePpt = async () => {
+    setError("");
     setLoadingGenerate(true);
-    showMessage("Presentation generate ho rahi hai...", "info");
+    setDownloadUrl("");
+    setFileName("");
 
     try {
-      const res = await fetch(`${apiBase}/generate`, {
+      const res = await fetch(joinUrl(apiBase, "/generate"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: makeTimeoutSignal(60000),
+        body: JSON.stringify(buildPayload()),
       });
 
       const data = await readResponse(res);
-      if (!res.ok) throw new Error(formatApiError(data, res.status));
+      if (!res.ok) throw new Error(data?.detail || "Failed to generate presentation");
 
-      applyOutput(data);
-      setDownloadFileName(data.file_name || "presentation.pptx");
-      setDownloadUrl(data.download_url || "");
-      showMessage("Presentation generated.", "success");
+      setFileName(data.file_name || "presentation.pptx");
+      setDownloadUrl(data.download_url ? joinUrl(apiBase, data.download_url) : "");
 
-      if (data.download_url) {
-        const url = joinUrl(apiRoot, data.download_url);
-        window.open(url, "_blank", "noopener,noreferrer");
+      if (!plan) {
+        await fetchPlan();
       }
     } catch (err) {
-      const errorMessage =
-        err?.name === "AbortError" ? "Request timed out" : err?.message || "Unknown error";
-      applyOutput({ error: errorMessage });
-      showMessage(`Generate failed: ${errorMessage}`, "error");
+      setError(err?.message || "Something went wrong");
     } finally {
       setLoadingGenerate(false);
     }
-  }, [payload, readResponse, apiBase, apiRoot, showMessage, applyOutput]);
-
-  const downloadFile = useCallback(async () => {
-    if (!downloadUrl) {
-      showMessage("Download link available nahi hai.", "error");
-      return;
-    }
-
-    try {
-      const absoluteUrl = joinUrl(apiRoot, downloadUrl);
-      const res = await fetch(absoluteUrl);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const blob = await res.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = objectUrl;
-      a.download = downloadFileName || "presentation.pptx";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(objectUrl);
-      showMessage("Download started.", "success");
-    } catch (err) {
-      showMessage(`Download failed: ${err?.message || "Unknown error"}`, "error");
-    }
-  }, [downloadUrl, downloadFileName, apiRoot, showMessage]);
-
-  const copyLink = useCallback(async () => {
-    if (!downloadUrl) {
-      showMessage("Copy karne ke liye link nahi hai.", "error");
-      return;
-    }
-
-    try {
-      const absoluteUrl = joinUrl(apiRoot, downloadUrl);
-      await navigator.clipboard.writeText(absoluteUrl);
-      showMessage("Link copied.", "success");
-    } catch {
-      showMessage("Copy failed.", "error");
-    }
-  }, [downloadUrl, apiRoot, showMessage]);
-
-  const clearOutput = useCallback(() => {
-    setOutput({});
-    setDownloadUrl("");
-    setDownloadFileName("");
-    setMessage("");
-    setMessageType("info");
-  }, []);
-
-  const promptHints = [
-    "Data Science presentation",
-    "AI startup pitch deck",
-    "Marketing strategy with charts",
-    "Student seminar on cloud computing",
-  ];
-
-  const isAllSlideTypesSelected =
-    selectedSlideTypes.length === 7 &&
-    [
-      "title_slide",
-      "title_content",
-      "bullets_slide",
-      "chart_slide",
-      "image_slide",
-      "section_slide",
-      "table_slide",
-    ].every((x) => selectedSlideTypes.includes(x));
-
-  const hasOutput = Object.keys(output || {}).length > 0;
+  };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.topbar}>
-        <div style={styles.brandBlock}>
-          <div style={styles.brandBadge}>P</div>
-          <div style={{ minWidth: 0 }}>
-            <div style={styles.brandTitle}>Presentation Generator</div>
-            <div style={styles.brandSub}>Backend-aware React dashboard</div>
-          </div>
-        </div>
+    <>
+      <style>{`
+  :root {
+    --bg-0: #090d18;
+    --bg-1: #0b1020;
+    --bg-2: #11182a;
+    --panel: rgba(15, 20, 36, 0.78);
+    --panel-2: rgba(18, 24, 40, 0.72);
+    --line: rgba(255, 255, 255, 0.10);
+    --line-soft: rgba(255, 255, 255, 0.08);
+    --text: #ffffff;
+    --muted: rgba(255, 255, 255, 0.68);
+    --muted-2: rgba(255, 255, 255, 0.52);
+    --accent: #8b5cf6;
+    --accent-2: #6366f1;
+    --accent-soft: rgba(139, 92, 246, 0.16);
+    --chip: rgba(255, 255, 255, 0.06);
+    --shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
+    --shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.20);
+    --radius-xl: 28px;
+    --radius-lg: 22px;
+    --radius-md: 16px;
+  }
 
-        <div style={styles.topbarRight}>
-          <div style={styles.modePill}>
-            <span style={styles.statusDot} />
-            {health}
-          </div>
-          <div style={styles.modePill}>API: {apiBase}</div>
-          {lastUpdated ? <div style={styles.modePill}>Updated: {lastUpdated}</div> : null}
-        </div>
-      </div>
+  * {
+    box-sizing: border-box;
+  }
 
-      <div style={styles.main}>
-        <div style={styles.contentGrid}>
-          <div style={styles.panel}>
-            <div style={styles.panelHead}>
-              <SectionTitle
-                title="Controls"
-                subtitle="Prompt, themes, and slide rules yahin se set karo."
-                right={<div style={styles.modePill}>{selectedSlideTypes.length} layouts</div>}
-              />
-            </div>
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
 
-            <div style={styles.panelBody}>
-              <div style={styles.form}>
-                <div style={styles.field}>
-                  <label style={styles.label}>Prompt</label>
-                  <textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Presentation ka prompt likho..."
-                    style={styles.textarea}
+  body {
+    margin: 0;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle at top, #1b2440 0%, #0b1020 48%, var(--bg-0) 100%);
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  .app-shell {
+    min-height: 100vh;
+    padding: 18px;
+    color: var(--text);
+  }
+
+  .container {
+    max-width: 1460px;
+    margin: 0 auto;
+    display: grid;
+    gap: 18px;
+    grid-template-columns: 1.03fr 0.97fr;
+    align-items: start;
+  }
+
+  .left-panel,
+  .right-panel {
+    min-width: 0;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .panel {
+    padding: 24px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.52);
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    margin: 0 0 20px;
+    font-size: 32px;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  .field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.90);
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.04);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder {
+    color: rgba(255, 255, 255, 0.38);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus {
+    border-color: rgba(139, 92, 246, 0.75);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .grid-2 {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .toggle-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 18px 0;
+  }
+
+  .toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.92);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .toggle-row input {
+    width: 18px;
+    height: 18px;
+    accent-color: #8b5cf6;
+    flex-shrink: 0;
+  }
+
+  .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    padding: 12px 18px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.16s ease, opacity 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn.primary {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    color: #ffffff;
+    box-shadow: 0 12px 28px rgba(99, 102, 241, 0.26);
+  }
+
+  .btn.primary:hover {
+    box-shadow: 0 16px 34px rgba(99, 102, 241, 0.34);
+  }
+
+  .btn.secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .btn:disabled {
+    opacity: 0.62;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .error-box {
+    border: 1px solid rgba(248, 113, 113, 0.30);
+    background: rgba(127, 29, 29, 0.30);
+    color: #fecaca;
+    border-radius: 16px;
+    padding: 12px 14px;
+    font-size: 14px;
+    margin-top: 12px;
+    backdrop-filter: blur(14px);
+  }
+
+  .scroll-area {
+    max-height: 78vh;
+    overflow: auto;
+    padding-right: 6px;
+    margin-top: 16px;
+  }
+
+  .scroll-area::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .scroll-area::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+  }
+
+  .slide-card {
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .slide-card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .slide-card-header h3 {
+    margin: 4px 0 0;
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  .slide-index {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.52);
+  }
+
+  .badge-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
+  }
+
+  .badge.accent {
+    background: rgba(139, 92, 246, 0.18);
+    color: #d8b4fe;
+    border-color: rgba(139, 92, 246, 0.24);
+  }
+
+  .slide-preview-stage {
+    margin-top: 14px;
+  }
+
+  .slide-canvas {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    background:
+      radial-gradient(circle at top left, rgba(139, 92, 246, 0.14), transparent 40%),
+      linear-gradient(180deg, #111827, #0b1020);
+    overflow: hidden;
+  }
+
+  .canvas-block {
+    position: absolute;
+    border-radius: 14px;
+    padding: 10px 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(15, 20, 36, 0.86);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+    font-size: 12px;
+    color: #ffffff;
+    backdrop-filter: blur(10px);
+  }
+
+  .canvas-text,
+  .canvas-paragraph {
+    background: rgba(30, 41, 59, 0.88);
+  }
+
+  .canvas-bullets {
+    background: rgba(20, 83, 45, 0.80);
+  }
+
+  .canvas-image {
+    background: rgba(120, 53, 15, 0.82);
+  }
+
+  .canvas-chart {
+    background: rgba(88, 28, 135, 0.82);
+  }
+
+  .canvas-table {
+    background: rgba(8, 47, 73, 0.82);
+  }
+
+  .canvas-block strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: #ffffff;
+  }
+
+  .canvas-block ul {
+    margin: 0;
+    padding-left: 16px;
+  }
+
+  .canvas-block li {
+    margin-bottom: 3px;
+  }
+
+  .slide-card-body {
+    margin-top: 14px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .plugin-box {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid var(--line);
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  .plugin-box strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #ffffff;
+  }
+
+  .plugin-box ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .plugin-paragraph {
+    background: rgba(79, 70, 229, 0.14);
+  }
+
+  .plugin-bullets {
+    background: rgba(34, 197, 94, 0.12);
+  }
+
+  .plugin-image {
+    background: rgba(245, 158, 11, 0.14);
+  }
+
+  .plugin-chart {
+    background: rgba(236, 72, 153, 0.12);
+  }
+
+  .plugin-table {
+    background: rgba(34, 211, 238, 0.12);
+  }
+
+  .plugin-notes {
+    background: rgba(168, 85, 247, 0.12);
+  }
+
+  .muted {
+    color: rgba(255, 255, 255, 0.66);
+    font-size: 14px;
+  }
+
+  .clamp-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .break-word {
+    word-break: break-word;
+  }
+
+  .empty-state,
+  .empty-inline {
+    border: 1px dashed rgba(255, 255, 255, 0.18);
+    border-radius: 18px;
+    padding: 28px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .empty-inline {
+    padding: 18px;
+  }
+
+  .footer-note {
+    max-width: 1460px;
+    margin: 16px auto 0;
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--panel-2);
+    color: rgba(255, 255, 255, 0.66);
+    font-size: 14px;
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .footer-note strong {
+    color: #ffffff;
+  }
+
+  @media (max-width: 1100px) {
+    .container {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .app-shell {
+      padding: 12px;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .grid-2,
+    .toggle-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .button-row {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 26px;
+    }
+
+    h2 {
+      font-size: 22px;
+    }
+
+    .slide-card-header {
+      flex-direction: column;
+    }
+
+    .badge-group {
+      justify-content: flex-start;
+    }
+  }
+`}</style>
+
+      <div className="app-shell">
+        <div className="container">
+          <div className="left-panel">
+            <div className="panel card">
+              <div className="section-title">Prompt to PPT Generator</div>
+              <h1>Create better presentations from one prompt</h1>
+
+              <div className="field">
+                <label>API Base URL</label>
+                <input
+                  value={apiBase}
+                  onChange={(e) => setApiBase(e.target.value)}
+                  placeholder="https://your-api.com/api/presentation"
+                />
+              </div>
+
+              <div className="field">
+                <label>Prompt</label>
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  rows={8}
+                  placeholder="Write your presentation prompt here..."
+                />
+              </div>
+
+              <div className="grid-2">
+                <div className="field">
+                  <label>Template name / path</label>
+                  <input
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    placeholder="optional"
                   />
                 </div>
 
-                <div style={styles.chipsRow}>
-                  {promptHints.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => setPrompt(item)}
-                      style={styles.chip}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-
-                <div style={styles.row2}>
-                  <div style={styles.field}>
-                    <label style={styles.label}>Template Name</label>
-                    <input
-                      value={templateName}
-                      onChange={(e) => setTemplateName(e.target.value)}
-                      placeholder="./templates/base_template.pptx"
-                      style={styles.input}
-                    />
-                  </div>
-                  <div style={styles.field}>
-                    <label style={styles.label}>Slide Types</label>
-                    <label style={{ ...styles.toggle, width: "fit-content" }}>
-                      <input
-                        type="checkbox"
-                        checked={isAllSlideTypesSelected}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSlideTypes(
-                              "title_slide, title_content, bullets_slide, chart_slide, image_slide, section_slide, table_slide"
-                            );
-                          } else {
-                            setSlideTypes("");
-                          }
-                        }}
-                        style={{ width: 16, height: 16, accentColor: "#8b5cf6" }}
-                      />
-                      <span>Select all</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div style={styles.field}>
-                  <label style={styles.label}>Slide Types (comma-separated)</label>
+                <div className="field">
+                  <label>Allowed slide types</label>
                   <input
                     value={slideTypes}
                     onChange={(e) => setSlideTypes(e.target.value)}
                     placeholder="title_slide, bullets_slide, chart_slide"
-                    style={styles.input}
                   />
                 </div>
+              </div>
 
-                <div style={styles.row3}>
-                  <div style={styles.field}>
-                    <label style={styles.label}>Background Theme</label>
-                    <select
-                      value={backgroundTheme}
-                      onChange={(e) => setBackgroundTheme(e.target.value)}
-                      style={styles.input}
-                    >
-                      <option value="auto">auto</option>
-                      <option value="light">light</option>
-                      <option value="dark">dark</option>
-                      <option value="blue">blue</option>
-                      <option value="green">green</option>
-                      <option value="purple">purple</option>
-                      <option value="ai">ai</option>
-                      <option value="cyber">cyber</option>
-                      <option value="cloud">cloud</option>
-                      <option value="data">data</option>
-                      <option value="finance">finance</option>
-                      <option value="education">education</option>
-                      <option value="startup">startup</option>
-                    </select>
-                  </div>
-                  <div style={styles.field}>
-                    <label style={styles.label}>Content Theme</label>
-                    <select
-                      value={contentTheme}
-                      onChange={(e) => setContentTheme(e.target.value)}
-                      style={styles.input}
-                    >
-                      <option value="auto">auto</option>
-                      <option value="light">light</option>
-                      <option value="dark">dark</option>
-                      <option value="blue">blue</option>
-                      <option value="green">green</option>
-                      <option value="purple">purple</option>
-                      <option value="ai">ai</option>
-                      <option value="cyber">cyber</option>
-                      <option value="cloud">cloud</option>
-                      <option value="data">data</option>
-                      <option value="finance">finance</option>
-                      <option value="education">education</option>
-                      <option value="startup">startup</option>
-                    </select>
-                  </div>
-                  <div style={styles.field}>
-                    <label style={styles.label}>Visual Style</label>
-                    <select
-                      value={visualStyle}
-                      onChange={(e) => setVisualStyle(e.target.value)}
-                      style={styles.input}
-                    >
-                      <option value="auto">auto</option>
-                      <option value="minimal">minimal</option>
-                      <option value="corporate">corporate</option>
-                      <option value="academic">academic</option>
-                      <option value="modern_gradient">modern_gradient</option>
-                    </select>
-                  </div>
+              <div className="grid-2">
+                <div className="field">
+                  <label>Content theme</label>
+                  <select value={contentTheme} onChange={(e) => setContentTheme(e.target.value)}>
+                    {themeOptions.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                <div>
-                  <label style={styles.label}>Feature Flags</label>
-                  <div style={styles.toggleGrid}>
-                    <Toggle
-                      label="Title slide"
-                      checked={options.include_title_slide}
-                      onChange={(checked) =>
-                        setOptions((p) => ({ ...p, include_title_slide: checked }))
-                      }
-                    />
-                    <Toggle
-                      label="Bullets"
-                      checked={options.allow_bullets}
-                      onChange={(checked) =>
-                        setOptions((p) => ({ ...p, allow_bullets: checked }))
-                      }
-                    />
-                    <Toggle
-                      label="Paragraph"
-                      checked={options.allow_paragraph}
-                      onChange={(checked) =>
-                        setOptions((p) => ({ ...p, allow_paragraph: checked }))
-                      }
-                    />
-                    <Toggle
-                      label="Charts"
-                      checked={options.allow_chart}
-                      onChange={(checked) =>
-                        setOptions((p) => ({ ...p, allow_chart: checked }))
-                      }
-                    />
-                    <Toggle
-                      label="Images"
-                      checked={options.allow_image}
-                      onChange={(checked) =>
-                        setOptions((p) => ({ ...p, allow_image: checked }))
-                      }
-                    />
-                    <Toggle
-                      label="Section slide"
-                      checked={options.allow_section_slide}
-                      onChange={(checked) =>
-                        setOptions((p) => ({ ...p, allow_section_slide: checked }))
-                      }
-                    />
-                    <Toggle
-                      label="Tables"
-                      checked={options.allow_table}
-                      onChange={(checked) =>
-                        setOptions((p) => ({ ...p, allow_table: checked }))
-                      }
-                    />
-                    <Toggle
-                      label="Smart mode"
-                      checked={options.smart_mode}
-                      onChange={(checked) =>
-                        setOptions((p) => ({ ...p, smart_mode: checked }))
-                      }
-                    />
-                  </div>
+                <div className="field">
+                  <label>Visual style</label>
+                  <select value={visualStyle} onChange={(e) => setVisualStyle(e.target.value)}>
+                    {styleOptions.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+              </div>
 
-                <div style={styles.btnRow}>
-                  <button
-                    onClick={callPlan}
-                    disabled={loadingPlan || loadingGenerate}
-                    style={{
-                      ...styles.btn,
-                      ...styles.secondary,
-                      opacity: loadingPlan || loadingGenerate ? 0.65 : 1,
-                    }}
-                  >
-                    {loadingPlan ? "⏳" : "🧾"} {loadingPlan ? "Planning..." : "Preview Plan"}
-                  </button>
+              <div className="toggle-grid">
+                <Toggle label="Include title slide" checked={includeTitleSlide} onChange={setIncludeTitleSlide} />
+                <Toggle label="Allow bullets" checked={allowBullets} onChange={setAllowBullets} />
+                <Toggle label="Allow paragraph" checked={allowParagraph} onChange={setAllowParagraph} />
+                <Toggle label="Allow chart" checked={allowChart} onChange={setAllowChart} />
+                <Toggle label="Allow image" checked={allowImage} onChange={setAllowImage} />
+                <Toggle label="Allow section slide" checked={allowSectionSlide} onChange={setAllowSectionSlide} />
+                <Toggle label="Allow table" checked={allowTable} onChange={setAllowTable} />
+                <Toggle label="Smart mode" checked={smartMode} onChange={setSmartMode} />
+              </div>
 
-                  <button
-                    onClick={callGenerate}
-                    disabled={loadingPlan || loadingGenerate}
-                    style={{
-                      ...styles.btn,
-                      ...styles.primary,
-                      opacity: loadingPlan || loadingGenerate ? 0.65 : 1,
-                    }}
-                  >
-                    {loadingGenerate ? "⏳" : "✨"} {loadingGenerate ? "Generating..." : "Generate PPT"}
-                  </button>
+              {error ? <div className="error-box">{error}</div> : null}
 
-                  <button onClick={clearOutput} style={{ ...styles.btn, ...styles.danger }}>
-                    🧹 Clear Output
-                  </button>
-                </div>
-
-                <div
-                  style={
-                    messageType === "success"
-                      ? styles.successBox
-                      : messageType === "error"
-                      ? styles.errorBox
-                      : styles.infoBox
-                  }
+              <div className="button-row">
+                <button
+                  className="btn primary"
+                  onClick={fetchPlan}
+                  disabled={loadingPlan || loadingGenerate}
                 >
-                  {message || "Ready."}
-                </div>
+                  {loadingPlan ? "Loading..." : "Preview Plan"}
+                </button>
 
-                <div style={styles.responsiveHint}>
-                  Backend compatible fields are included: theme, visual style, slide types, and all
-                  feature flags.
-                </div>
+                <button
+                  className="btn primary"
+                  onClick={generatePpt}
+                  disabled={loadingPlan || loadingGenerate}
+                >
+                  {loadingGenerate ? "Generating..." : "Generate PPT"}
+                </button>
+
+                {downloadUrl ? (
+                  <a className="btn secondary" href={downloadUrl} target="_blank" rel="noreferrer">
+                    Download {fileName || "PPT"}
+                  </a>
+                ) : null}
               </div>
             </div>
           </div>
 
-          <div style={{ display: "grid", gap: 16, minHeight: 0 }}>
-            <div style={styles.panel}>
-              <div style={styles.panelHead}>
-                <SectionTitle
-                  title="Output"
-                  subtitle="Plan ya generate response yahan dikhega."
-                />
+          <div className="right-panel">
+            <div className="panel card">
+              <div className="section-title">Preview</div>
+              <h2>Plan and slides</h2>
+              <div className="muted">
+                {plan?.title ? `Deck title: ${plan.title}` : "No plan loaded yet."}
+                {previewCount ? ` · ${previewCount} slides` : ""}
               </div>
-              <div style={styles.panelBody}>
-                {hasOutput ? (
-                  <pre style={styles.pre}>{JSON.stringify(output, null, 2)}</pre>
+
+              <div className="scroll-area">
+                {plan?.slides?.length ? (
+                  plan.slides.map((slide, index) => (
+                    <SlidePreview
+                      key={`${index}-${slide?.title || "slide"}`}
+                      slide={slide}
+                      index={index}
+                    />
+                  ))
                 ) : (
-                  <div style={styles.emptyState}>
-                    <div style={styles.emptyCard}>
-                      <h1 style={styles.heroTitle}>Build a slide deck in one click</h1>
-                      <p style={styles.heroSub}>
-                        Prompt daalo, plan preview karo, aur backend se ready-made PPT generate
-                        karo. Theme, visual style, slide types, aur smart split sab supported hai.
-                      </p>
-                      <div style={styles.promptGrid}>
-                        {promptHints.map((hint) => (
-                          <button
-                            key={hint}
-                            type="button"
-                            onClick={() => setPrompt(hint)}
-                            style={styles.promptBtn}
-                          >
-                            {hint}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                  <div className="empty-state">
+                    Click <strong>Preview Plan</strong> to see slide structure.
                   </div>
                 )}
-              </div>
-            </div>
-
-            <div style={styles.panel}>
-              <div style={styles.panelHead}>
-                <SectionTitle
-                  title="Download"
-                  subtitle="Generate hone ke baad link yahan aayega."
-                />
-              </div>
-              <div style={styles.panelBody}>
-                {downloadUrl ? (
-                  <div style={styles.downloadBox}>
-                    <div style={styles.downloadCard}>
-                      <div style={styles.downloadTitle}>File name</div>
-                      <div style={styles.downloadMeta}>
-                        {downloadFileName || "presentation.pptx"}
-                      </div>
-
-                      <div style={styles.downloadTitle}>Download URL</div>
-                      <div style={styles.downloadMeta}>{joinUrl(apiRoot, downloadUrl)}</div>
-
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 4 }}>
-                        <button onClick={downloadFile} style={{ ...styles.btn, ...styles.primary }}>
-                          ⬇️ Download PPT
-                        </button>
-                        <button onClick={copyLink} style={{ ...styles.btn, ...styles.secondary }}>
-                          📋 Copy Link
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div style={styles.emptyState}>
-                    <div style={styles.emptyCard}>
-                      <h1 style={{ ...styles.heroTitle, fontSize: "clamp(22px, 3vw, 34px)" }}>
-                        No download yet
-                      </h1>
-                      <p style={styles.heroSub}>
-                        PPT generate karoge to file name aur download link automatically show ho
-                        jayega.
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div style={styles.panel}>
-              <div style={styles.panelHead}>
-                <SectionTitle title="Quick summary" subtitle="Current configuration snapshot." />
-              </div>
-              <div style={styles.panelBody}>
-                <div style={styles.cardList}>
-                  <SummaryCard label="Title slide" value={String(options.include_title_slide)} />
-                  <SummaryCard label="Bullets" value={String(options.allow_bullets)} />
-                  <SummaryCard label="Paragraph" value={String(options.allow_paragraph)} />
-                  <SummaryCard label="Charts" value={String(options.allow_chart)} />
-                  <SummaryCard label="Images" value={String(options.allow_image)} />
-                  <SummaryCard
-                    label="Section slide"
-                    value={String(options.allow_section_slide)}
-                  />
-                  <SummaryCard label="Table" value={String(options.allow_table)} />
-                  <SummaryCard label="Smart mode" value={String(options.smart_mode)} />
-                  <SummaryCard
-                    label="Slide types selected"
-                    value={selectedSlideTypes.length ? String(selectedSlideTypes.length) : "auto"}
-                  />
-                </div>
               </div>
             </div>
           </div>
         </div>
+
+        <div className="footer-note">
+          Tip: use a short, specific prompt for better output. Example:{" "}
+          <strong>
+            “Create an 10-slide presentation on Data Science for college students with workflow,
+            tools, use cases, challenges, and conclusion.”
+          </strong>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
