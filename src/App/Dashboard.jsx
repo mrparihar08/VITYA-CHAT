@@ -84,6 +84,14 @@ const APP_REGISTRY = [
     type: "external",
     url: "https://calendar.google.com/",
   },
+  {
+    id: "vitya-expense",
+    name: "Vitya.Expense",
+    desc: "Open Expense web",
+    icon: "v",
+    type: "external",
+    url: "https://vitya-expense.onrender.com",
+  },
 ];
 
 const getIsMobile = () =>

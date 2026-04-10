@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 
-const DEFAULT_API_BASE = "https://mother-8599.onrender.com/api/presentation";
-
+const API_URL = process.env.REACT_APP_API_URL || "https://mother-8599.onrender.com";
+const DEFAULT_API_BASE = `${API_URL}/api/presentation`;
 function cleanBaseUrl(url) {
   return (url || "").trim().replace(/\/+$/, "");
 }
