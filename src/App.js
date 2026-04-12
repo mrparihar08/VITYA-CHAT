@@ -1,20 +1,25 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
-import { Register, Login, Profile } from "./App/ProfilePage";
+import {
+  Register,
+  Login,
+  Profile,
+  ProfileEdit,
+  ForgotPassword,
+  ResetPassword,
+} from "./App/ProfilePage";
+
 import Dashboard from "./App/Dashboard";
-
 import "./App.css";
 
-// ✅ Protected Route Component
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
-
-  // 🔒 If no token → redirect to login
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
+  return token ? children : <Navigate to="/login" replace />;
 };
 
 function App() {
@@ -23,20 +28,34 @@ function App() {
   return (
     <Router>
       <Routes>
-
-        {/* ✅ Smart default route */}
         <Route
           path="/"
           element={
-            token ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
+            token ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
 
-        {/* ✅ Public routes */}
-        <Route path="/login" element={token ? <Navigate to="/dashboard" /> : <Login />} />
-        <Route path="/register" element={token ? <Navigate to="/dashboard" /> : <Register />} />
+        <Route
+          path="/login"
+          element={token ? <Navigate to="/dashboard" replace /> : <Login />}
+        />
+        <Route
+          path="/register"
+          element={token ? <Navigate to="/dashboard" replace /> : <Register />}
+        />
+        <Route
+          path="/forgot-password"
+          element={token ? <Navigate to="/dashboard" replace /> : <ForgotPassword />}
+        />
+        <Route
+          path="/reset-password"
+          element={token ? <Navigate to="/dashboard" replace /> : <ResetPassword />}
+        />
 
-        {/* ✅ Protected routes */}
         <Route
           path="/dashboard"
           element={
@@ -45,7 +64,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/profile"
           element={
@@ -54,13 +72,19 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/profile/edit"
+          element={
+            <PrivateRoute>
+              <ProfileEdit />
+            </PrivateRoute>
+          }
+        />
 
-        {/* ✅ Fallback route */}
         <Route
           path="*"
           element={<Navigate to={token ? "/dashboard" : "/login"} replace />}
         />
-
       </Routes>
     </Router>
   );

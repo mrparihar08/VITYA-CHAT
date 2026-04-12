@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import Chatbot from "./VityaChatbot";
 import Presentation from "./Presentation";
+import  Profile  from "./ProfilePage";
 import "./Dashboard.css";
 
 import NotesApp from "../components/apps/NotesApp";
@@ -417,6 +418,11 @@ const Dashboard = () => {
           {activeTab === "presentation" && (
             <section className="contentCard">
               <Presentation />
+            </section>
+          )}
+          {activeTab === "profile" && (
+            <section className="contentCard">
+              <Profile />
             </section>
           )}
 

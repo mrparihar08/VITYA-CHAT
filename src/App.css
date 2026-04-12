@@ -607,3 +607,11 @@ button {
     width: min(260px, calc(100vw - 20px));
   }
 }
+html, body, #root {
+  height: auto;
+  min-height: 100%;
+  overflow-y: auto;
+}
+body {
+  margin: 0;
+}
