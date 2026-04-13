@@ -11,7 +11,7 @@ const API_URL =
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 20000,
+  timeout: 1200000,
 });
 
 const getAuthHeaders = (token) => ({
