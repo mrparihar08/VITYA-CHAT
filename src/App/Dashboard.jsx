@@ -93,6 +93,38 @@ const APP_REGISTRY = [
     type: "external",
     url: "https://vitya-expense.onrender.com",
   },
+  {
+    id: "Security-vitya",
+    name: "Vitya Tourist Security",
+    desc: "Open Tourist Security Web",
+    icon: "S",
+    type: "external",
+    url: "https://security-vitya.onrender.com",
+  },
+  {
+    id: "vitya-admin-dashboard",
+    name: "Vitya.admin",
+    desc: "Open Admin Dashboard",
+    icon: "A",
+    type: "external",
+    url: "https://admin-vitya.onrender.com",
+  },
+  {
+    id: "vitya-tourist-travel-assistant",
+    name: "Vitya.assistant",
+    desc: "Open Travel Assistant web",
+    icon: "T",
+    type: "external",
+    url: "https://tourist-vitya.onrender.com",
+  },
+  {
+    id: "vitya-monitor",
+    name: "Vitya",
+    desc: "Open Monitor web",
+    icon: "M",
+    type: "external",
+    url: "https://monitor-vitya.onrender.com",
+  },
 ];
 
 const getIsMobile = () =>
