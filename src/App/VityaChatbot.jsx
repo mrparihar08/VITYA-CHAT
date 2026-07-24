@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
+import QUICK_PROMPTS from "../components/data/quickPrompts";
+import { getRandomPrompts } from "../components/utils/randomPrompt";
 import {
   BarChart,
   Bar,
@@ -79,12 +81,6 @@ const MODES = [
   { key: "file", label: "Create File", hint: "Generate PPT output" },
 ];
 
-const QUICK_PROMPTS = [
-  "Explain this in simple words",
-  "Generate a bar chart for sales data",
-  "Show latest AI news",
-  "Search Wikipedia: Alan Turing",
-];
 
 const PPT_DEFAULTS = {
   include_title_slide: true,
@@ -339,7 +335,9 @@ const Chatbot = () => {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [plusOpen, setPlusOpen] = useState(false);
   const [mode, setMode] = useState("chat");
-
+  const [randomPrompts] = useState(
+  () => getRandomPrompts(QUICK_PROMPTS, 4)
+);
   const token = useMemo(() => {
     try {
       return localStorage.getItem("token") || "";
@@ -1138,7 +1136,7 @@ const Chatbot = () => {
                 </div>
 
                 <div style={styles.promptGrid}>
-                  {QUICK_PROMPTS.map((item) => (
+                  {randomPrompts.map((item) => (
                     <button key={item} style={styles.promptBtn} onClick={() => sendMessage(item)}>
                       {item}
                     </button>
