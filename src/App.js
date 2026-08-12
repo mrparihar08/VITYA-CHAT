@@ -1,3 +1,5 @@
+import React, { useState } from "react";
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -17,21 +19,51 @@ import {
 import Dashboard from "./App/Dashboard";
 import "./App.css";
 
+// ==============================
+// PRIVATE ROUTE
+// ==============================
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" replace />;
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
 };
 
-function App() {
+// ==============================
+// PUBLIC ROUTE
+// ==============================
+const PublicRoute = ({ children }) => {
   const token = localStorage.getItem("token");
+
+  if (token) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+// ==============================
+// APP
+// ==============================
+function App() {
+  // Force re-render when authentication changes
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem("token")
+  );
 
   return (
     <Router>
       <Routes>
+        {/* ==============================
+            HOME
+        ============================== */}
         <Route
           path="/"
           element={
-            token ? (
+            isAuthenticated ? (
               <Navigate to="/dashboard" replace />
             ) : (
               <Navigate to="/login" replace />
@@ -39,23 +71,57 @@ function App() {
           }
         />
 
+        {/* ==============================
+            LOGIN
+        ============================== */}
         <Route
           path="/login"
-          element={token ? <Navigate to="/dashboard" replace /> : <Login />}
-        />
-        <Route
-          path="/register"
-          element={token ? <Navigate to="/dashboard" replace /> : <Register />}
-        />
-        <Route
-          path="/forgot-password"
-          element={token ? <Navigate to="/dashboard" replace /> : <ForgotPassword />}
-        />
-        <Route
-          path="/reset-password"
-          element={token ? <Navigate to="/dashboard" replace /> : <ResetPassword />}
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
         />
 
+        {/* ==============================
+            REGISTER
+        ============================== */}
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
+
+        {/* ==============================
+            FORGOT PASSWORD
+        ============================== */}
+        <Route
+          path="/forgot-password"
+          element={
+            <PublicRoute>
+              <ForgotPassword />
+            </PublicRoute>
+          }
+        />
+
+        {/* ==============================
+            RESET PASSWORD
+        ============================== */}
+        <Route
+          path="/reset-password"
+          element={
+            <PublicRoute>
+              <ResetPassword />
+            </PublicRoute>
+          }
+        />
+
+        {/* ==============================
+            DASHBOARD
+        ============================== */}
         <Route
           path="/dashboard"
           element={
@@ -64,6 +130,10 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        {/* ==============================
+            PROFILE
+        ============================== */}
         <Route
           path="/profile"
           element={
@@ -72,6 +142,10 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        {/* ==============================
+            PROFILE EDIT
+        ============================== */}
         <Route
           path="/profile/edit"
           element={
@@ -81,9 +155,21 @@ function App() {
           }
         />
 
+        {/* ==============================
+            404
+        ============================== */}
         <Route
           path="*"
-          element={<Navigate to={token ? "/dashboard" : "/login"} replace />}
+          element={
+            <Navigate
+              to={
+                isAuthenticated
+                  ? "/dashboard"
+                  : "/login"
+              }
+              replace
+            />
+          }
         />
       </Routes>
     </Router>
