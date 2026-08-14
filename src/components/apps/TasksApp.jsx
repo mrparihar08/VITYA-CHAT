@@ -1,9 +1,5 @@
-import React, { useEffect, useState } from "react";
-
-const API_URL =
-  process.env.REACT_APP_API_URL || "https://mother-8599.onrender.com";
-
-const API_BASE = `${API_URL}/api`;
+import React, { useCallback, useEffect, useState } from "react";
+import { api, handleApiError } from "../../services/api";
 
 const TasksApp = () => {
   const [task, setTask] = useState("");
@@ -14,57 +10,33 @@ const TasksApp = () => {
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
 
-  // Get JWT token
-  const getToken = () => {
-    return localStorage.getItem("token");
-  };
-
-  // Common headers
-  const getAuthHeaders = () => {
-    const token = getToken();
-
-    return {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    };
-  };
+  const getToken = () => localStorage.getItem("token");
 
   // =========================
   // FETCH TASKS
   // =========================
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       const token = getToken();
-
       if (!token) {
         setMessage("Please login first");
         return;
       }
 
-      const res = await fetch(`${API_BASE}/tasks/`, {
-        method: "GET",
-        headers: getAuthHeaders(),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || "Failed to load tasks");
-      }
-
-      setTasks(data);
+      const res = await api.get("/api/tasks/");
+      setTasks(res.data);
       setMessage("");
     } catch (err) {
-      setMessage(err.message || "Failed to load tasks");
+      setMessage(handleApiError(err) || "Failed to load tasks");
     }
-  };
+  }, []);
 
   // =========================
   // LOAD TASKS
   // =========================
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [fetchTasks]);
 
   // =========================
   // ADD TASK
@@ -75,9 +47,7 @@ const TasksApp = () => {
       return;
     }
 
-    const token = getToken();
-
-    if (!token) {
+    if (!getToken()) {
       setMessage("Please login first");
       return;
     }
@@ -86,26 +56,15 @@ const TasksApp = () => {
     setMessage("");
 
     try {
-      const res = await fetch(`${API_BASE}/tasks/`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          title: task.trim(),
-        }),
+      await api.post("/api/tasks/", {
+        title: task.trim(),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || "Failed to add task");
-      }
 
       setTask("");
       setMessage("Task added successfully");
-
       await fetchTasks();
     } catch (err) {
-      setMessage(err.message || "Failed to add task");
+      setMessage(handleApiError(err) || "Failed to add task");
     } finally {
       setLoading(false);
     }
@@ -115,30 +74,17 @@ const TasksApp = () => {
   // DELETE TASK
   // =========================
   const removeTask = async (id) => {
-    const token = getToken();
-
-    if (!token) {
+    if (!getToken()) {
       setMessage("Please login first");
       return;
     }
 
     try {
-      const res = await fetch(`${API_BASE}/tasks/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || "Failed to delete task");
-      }
-
+      await api.delete(`/api/tasks/${id}`);
       setMessage("Task deleted successfully");
-
       await fetchTasks();
     } catch (err) {
-      setMessage(err.message || "Failed to delete task");
+      setMessage(handleApiError(err) || "Failed to delete task");
     }
   };
 
@@ -168,9 +114,7 @@ const TasksApp = () => {
       return;
     }
 
-    const token = getToken();
-
-    if (!token) {
+    if (!getToken()) {
       setMessage("Please login first");
       return;
     }
@@ -179,27 +123,16 @@ const TasksApp = () => {
     setMessage("");
 
     try {
-      const res = await fetch(`${API_BASE}/tasks/${id}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          title: editText.trim(),
-        }),
+      await api.put(`/api/tasks/${id}`, {
+        title: editText.trim(),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || "Failed to update task");
-      }
 
       setEditingId(null);
       setEditText("");
       setMessage("Task updated successfully");
-
       await fetchTasks();
     } catch (err) {
-      setMessage(err.message || "Failed to update task");
+      setMessage(handleApiError(err) || "Failed to update task");
     } finally {
       setLoading(false);
     }

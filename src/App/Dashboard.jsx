@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Chatbot from "./VityaChatbot";
+import ChatHistory from "../components/chatbot/ChatHistory";
 import Presentation from "./Presentation";
-import  Profile  from "./ProfilePage";
+import { API_BASE_URL } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import "./Dashboard.css";
 
 import NotesApp from "../components/apps/NotesApp";
@@ -176,19 +178,12 @@ const Dashboard = () => {
   const [searchText, setSearchText] = useState("");
   const [isMobile, setIsMobile] = useState(getIsMobile());
   const [sidebarOpen, setSidebarOpen] = useState(() => !getIsMobile());
+  const [activeConversationId, setActiveConversationId] = useState(null);
+  const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
 
   const prevIsMobileRef = useRef(getIsMobile());
-
-  const user = useMemo(() => {
-    if (typeof window === "undefined") return {};
-
-    try {
-      const storedUser = window.localStorage.getItem("user");
-      return storedUser ? JSON.parse(storedUser) : {};
-    } catch {
-      return {};
-    }
-  }, []);
+  const { user: authUser } = useAuth();
+  const user = authUser || {};
 
   const analyticsData = useMemo(
     () => ({
@@ -233,11 +228,28 @@ const Dashboard = () => {
     [navigate, closeSidebarIfMobile]
   );
 
-  const handleNewChat = useCallback(() => {
+  const handleNewChat = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/api/chat/new`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await response.json();
+      setActiveConversationId(response.ok ? data.conversation_id : null);
+    } catch {
+      setActiveConversationId(null);
+    }
     setActiveTab("chat");
     setActiveApp(null);
     closeSidebarIfMobile();
   }, [closeSidebarIfMobile]);
+
+  const openConversation = useCallback((conversationId) => {
+    setActiveConversationId(conversationId);
+    setActiveTab("chat");
+    setHistoryRefreshKey((value) => value + 1);
+  }, []);
 
   const filteredApps = useMemo(() => {
     const q = searchText.trim().toLowerCase();
@@ -443,7 +455,11 @@ const Dashboard = () => {
         <main className={`content ${activeTab === "chat" ? "contentChat" : ""}`}>
           {activeTab === "chat" && (
             <section className="chatShell">
-              <Chatbot />
+              <Chatbot
+                conversationId={activeConversationId}
+                onConversationChange={setActiveConversationId}
+                onConversationUpdated={() => setHistoryRefreshKey((value) => value + 1)}
+              />
             </section>
           )}
 
@@ -452,16 +468,13 @@ const Dashboard = () => {
               <Presentation />
             </section>
           )}
-          {activeTab === "profile" && (
-            <section className="contentCard">
-              <Profile />
-            </section>
-          )}
 
           {activeTab === "history" && (
             <section className="contentCard">
-              <h2>History</h2>
-              <p>Your previous chats will appear here.</p>
+              <ChatHistory
+                onOpenConversation={openConversation}
+                refreshKey={historyRefreshKey}
+              />
             </section>
           )}
 
@@ -495,13 +508,6 @@ const Dashboard = () => {
               )}
 
               {activeApp && renderAppPanel()}
-            </section>
-          )}
-
-          {activeTab === "profile" && (
-            <section className="contentCard">
-              <h2>Profile</h2>
-              <p>Redirecting to profile…</p>
             </section>
           )}
         </main>

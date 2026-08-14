@@ -1,0 +1,68 @@
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.auth-layout button:hover,
+.page-shell button:hover {
+  transform: translateY(-1px);
+}
+
+.auth-layout button:active,
+.page-shell button:active {
+  transform: translateY(0);
+}
+
+.auth-layout button:disabled,
+.page-shell button:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.auth-layout input:disabled,
+.auth-layout textarea:disabled,
+.page-shell input:disabled,
+.page-shell textarea:disabled {
+  opacity: 0.86;
+  cursor: not-allowed;
+}
+
+.auth-layout input::placeholder,
+.auth-layout textarea::placeholder,
+.page-shell input::placeholder,
+.page-shell textarea::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.auth-layout input:focus,
+.auth-layout textarea:focus,
+.page-shell input:focus,
+.page-shell textarea:focus {
+  border-color: rgba(139, 92, 246, 0.8) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+}
+
+@media (max-width: 960px) {
+  .auth-layout,
+  .profile-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .field-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .page-shell-card {
+    border-radius: 22px !important;
+  }
+}

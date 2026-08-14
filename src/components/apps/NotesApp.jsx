@@ -1,9 +1,5 @@
-import React, { useEffect, useState } from "react";
-
-const API_URL =
-  process.env.REACT_APP_API_URL || "https://mother-8599.onrender.com";
-
-const API_BASE = `${API_URL}/api`;
+import React, { useCallback, useEffect, useState } from "react";
+import { api, handleApiError } from "../../services/api";
 
 const NotesApp = () => {
   const [note, setNote] = useState("");
@@ -14,61 +10,33 @@ const NotesApp = () => {
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
 
-  // =========================
-  // GET TOKEN
-  // =========================
-  const getToken = () => {
-    return localStorage.getItem("token");
-  };
-
-  // =========================
-  // AUTH HEADERS
-  // =========================
-  const getAuthHeaders = () => {
-    const token = getToken();
-
-    return {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    };
-  };
+  const getToken = () => localStorage.getItem("token");
 
   // =========================
   // FETCH NOTES
   // =========================
-  const fetchNotes = async () => {
+  const fetchNotes = useCallback(async () => {
     try {
       const token = getToken();
-
       if (!token) {
         setMessage("Please login first");
         return;
       }
 
-      const res = await fetch(`${API_BASE}/notes/`, {
-        method: "GET",
-        headers: getAuthHeaders(),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || "Failed to load notes");
-      }
-
-      setNotes(data);
+      const res = await api.get("/api/notes/");
+      setNotes(res.data);
       setMessage("");
     } catch (err) {
-      setMessage(err.message || "Failed to load notes");
+      setMessage(handleApiError(err) || "Failed to load notes");
     }
-  };
+  }, []);
 
   // =========================
   // LOAD NOTES
   // =========================
   useEffect(() => {
     fetchNotes();
-  }, []);
+  }, [fetchNotes]);
 
   // =========================
   // SAVE NOTE
@@ -79,9 +47,7 @@ const NotesApp = () => {
       return;
     }
 
-    const token = getToken();
-
-    if (!token) {
+    if (!getToken()) {
       setMessage("Please login first");
       return;
     }
@@ -90,28 +56,15 @@ const NotesApp = () => {
     setMessage("");
 
     try {
-      const res = await fetch(`${API_BASE}/notes/`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          content: note.trim(),
-        }),
+      await api.post("/api/notes/", {
+        content: note.trim(),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(
-          data.detail || "Failed to save note"
-        );
-      }
 
       setNote("");
       setMessage("Note saved successfully");
-
       await fetchNotes();
     } catch (err) {
-      setMessage(err.message || "Failed to save note");
+      setMessage(handleApiError(err) || "Failed to save note");
     } finally {
       setLoading(false);
     }
@@ -121,32 +74,17 @@ const NotesApp = () => {
   // DELETE NOTE
   // =========================
   const handleDelete = async (id) => {
-    const token = getToken();
-
-    if (!token) {
+    if (!getToken()) {
       setMessage("Please login first");
       return;
     }
 
     try {
-      const res = await fetch(`${API_BASE}/notes/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(
-          data.detail || "Failed to delete note"
-        );
-      }
-
+      await api.delete(`/api/notes/${id}`);
       setMessage("Note deleted");
-
       await fetchNotes();
     } catch (err) {
-      setMessage(err.message || "Failed to delete note");
+      setMessage(handleApiError(err) || "Failed to delete note");
     }
   };
 
@@ -176,9 +114,7 @@ const NotesApp = () => {
       return;
     }
 
-    const token = getToken();
-
-    if (!token) {
+    if (!getToken()) {
       setMessage("Please login first");
       return;
     }
@@ -187,29 +123,16 @@ const NotesApp = () => {
     setMessage("");
 
     try {
-      const res = await fetch(`${API_BASE}/notes/${id}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          content: editText.trim(),
-        }),
+      await api.put(`/api/notes/${id}`, {
+        content: editText.trim(),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(
-          data.detail || "Failed to update note"
-        );
-      }
 
       setEditingId(null);
       setEditText("");
       setMessage("Note updated successfully");
-
       await fetchNotes();
     } catch (err) {
-      setMessage(err.message || "Failed to update note");
+      setMessage(handleApiError(err) || "Failed to update note");
     } finally {
       setLoading(false);
     }

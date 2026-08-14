@@ -2,53 +2,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import html2canvas from "html2canvas";
 import QUICK_PROMPTS from "../components/data/quickPrompts";
 import { getRandomPrompts } from "../components/utils/randomPrompt";
-import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  AreaChart,
-  Area,
-  CartesianGrid,
-  ComposedChart,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ScatterChart,
-  Scatter,
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  ResponsiveContainer,
-} from "recharts";
-
-/* -------------------------------------------------------
-   Safe env / base URL
-------------------------------------------------------- */
-const getApiBaseUrl = () => {
-  const viteUrl =
-    typeof import.meta !== "undefined" &&
-    import.meta.env &&
-    import.meta.env.VITE_API_URL;
-
-  const craUrl =
-    typeof process !== "undefined" &&
-    process.env &&
-    process.env.REACT_APP_API_URL;
-
-  const fallback = "https://mother-8599.onrender.com";
-  const url = viteUrl || craUrl || fallback;
-
-  return url.endsWith("/") ? url.slice(0, -1) : url;
-};
-
-const API_BASE_URL = getApiBaseUrl();
+import ChatCharts from "../components/chatbot/ChatCharts";
+import ChatInput from "../components/chatbot/ChatInput";
+import { API_BASE_URL } from "../services/api";
 
 /* -------------------------------------------------------
    Constants
@@ -71,8 +27,6 @@ const CHAT_TYPES = new Set([
 ]);
 
 const MEDIA_TYPES = new Set(["image", "qr", "barcode"]);
-const COLORS = ["#8b5cf6", "#22c55e", "#f59e0b", "#f97316", "#ef4444", "#38bdf8"];
-const CHART_HEIGHT = 240;
 
 const MODES = [
   { key: "chat", label: "Chat", hint: "Default mode" },
@@ -159,64 +113,8 @@ const normalizeNewsData = (raw) => {
   return [];
 };
 
-const formatMonth = (dateStr) => {
-  const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString("en-IN", { month: "short", year: "numeric" });
-};
 
-const normalizeMultiLineData = (data) => {
-  if (!data || typeof data !== "object" || Array.isArray(data)) return data;
 
-  const incomeData = data.income || [];
-  const expenseData = data.expense || [];
-  const merged = {};
-
-  incomeData.forEach((i) => {
-    merged[i.month] = {
-      month: formatMonth(i.month),
-      income: i.amount ?? 0,
-      expense: 0,
-    };
-  });
-
-  expenseData.forEach((e) => {
-    if (merged[e.month]) {
-      merged[e.month].expense = e.amount ?? 0;
-    } else {
-      merged[e.month] = {
-        month: formatMonth(e.month),
-        income: 0,
-        expense: e.amount ?? 0,
-      };
-    }
-  });
-
-  return Object.values(merged);
-};
-
-const findArrayDeep = (value, depth = 0) => {
-  if (depth > 4 || value == null) return null;
-  if (Array.isArray(value)) return value;
-
-  const parsed = safeJSON(value);
-  if (Array.isArray(parsed)) return parsed;
-
-  if (parsed && typeof parsed === "object") {
-    const preferredKeys = ["data", "items", "rows", "result", "content", "reply", "payload", "chartData"];
-    for (const key of preferredKeys) {
-      const found = findArrayDeep(parsed[key], depth + 1);
-      if (found) return found;
-    }
-
-    for (const val of Object.values(parsed)) {
-      const found = findArrayDeep(val, depth + 1);
-      if (found) return found;
-    }
-  }
-
-  return null;
-};
 
 const readResponse = async (res) => {
   const text = await res.text();
@@ -327,7 +225,7 @@ const getSpeakText = (msg) => {
 /* -------------------------------------------------------
    Component
 ------------------------------------------------------- */
-const Chatbot = () => {
+const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -352,6 +250,40 @@ const Chatbot = () => {
   const chartRefs = useRef({});
   const forceStopRef = useRef(false);
   const menuRef = useRef(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadConversation = async () => {
+      if (!conversationId) {
+        setMessages([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/chat/history?conversation_id=${conversationId}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (!response.ok) throw new Error("Unable to load conversation");
+        const data = await response.json();
+        if (cancelled) return;
+        setMessages((data.messages || []).map((message) => ({
+          sender: message.role === "user" ? "user" : "bot",
+          type: "text",
+          text: message.content || "",
+          content: message.content || "",
+        })));
+      } catch (error) {
+        if (!cancelled) {
+          console.error(error);
+          setMessages([]);
+        }
+      }
+    };
+
+    loadConversation();
+    return () => { cancelled = true; };
+  }, [conversationId, token]);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -482,32 +414,7 @@ const Chatbot = () => {
     [downloadBlobFromResponse]
   );
 
-  const getChartData = useCallback((msg) => {
-    const raw = msg.content ?? msg.text ?? msg.data ?? null;
-    if ((msg.type || "").toLowerCase().trim() === "multi_line") {
-      return normalizeMultiLineData(safeJSON(raw));
-    }
-    return findArrayDeep(raw);
-  }, []);
 
-  const getKeys = useCallback((data, type) => {
-    const first = data?.[0] || {};
-    let xKey = "category";
-    if (first.category !== undefined) xKey = "category";
-    else if (first.month !== undefined) xKey = "month";
-    else if (first.name !== undefined) xKey = "name";
-    else if (first.label !== undefined) xKey = "label";
-    else if (first.title !== undefined) xKey = "title";
-    else if (first.x !== undefined && type === "scatter") xKey = "x";
-
-    let yKey = "amount";
-    if (first.amount !== undefined) yKey = "amount";
-    else if (first.value !== undefined) yKey = "value";
-    else if (first.count !== undefined) yKey = "count";
-    else if (first.y !== undefined && type === "scatter") yKey = "y";
-
-    return { xKey, yKey };
-  }, []);
 
   const downloadChartPNG = useCallback(async (index, msg) => {
     const element = chartRefs.current[index];
@@ -582,192 +489,8 @@ const Chatbot = () => {
   }, []);
 
   const renderChart = useCallback(
-    (msg) => {
-      const type = (msg.type || "").toLowerCase().trim();
-      const data = getChartData(msg);
-
-      if (!data || !Array.isArray(data) || data.length === 0) {
-        return <div style={styles.emptyText}>No chart data</div>;
-      }
-
-      const { xKey, yKey } = getKeys(data, type);
-
-      switch (type) {
-        case "bar":
-        case "chart":
-          return (
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-              <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={xKey} />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey={yKey} fill="#8b5cf6" />
-              </BarChart>
-            </ResponsiveContainer>
-          );
-
-        case "line":
-        case "line_chart":
-          return (
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-              <LineChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={xKey} />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey={yKey} stroke="#8b5cf6" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          );
-
-        case "multi_line":
-          return (
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-              <LineChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="income" stroke="#22c55e" strokeWidth={2} />
-                <Line type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          );
-
-        case "pie":
-        case "donut":
-          return (
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-              <PieChart>
-                <Pie
-                  data={data}
-                  dataKey={yKey}
-                  nameKey={xKey}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={type === "donut" ? 50 : 0}
-                  outerRadius={80}
-                >
-                  {data.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          );
-
-        case "composed":
-          return (
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-              <ComposedChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={xKey} />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey={yKey} fill="#8b5cf6" />
-                <Line type="monotone" dataKey={yKey} stroke="#f59e0b" />
-              </ComposedChart>
-            </ResponsiveContainer>
-          );
-
-        case "area":
-          return (
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-              <AreaChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={xKey} />
-                <YAxis />
-                <Tooltip />
-                <Area type="monotone" dataKey={yKey} fill="#8b5cf6" stroke="#8b5cf6" />
-              </AreaChart>
-            </ResponsiveContainer>
-          );
-
-        case "scatter":
-          return (
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-              <ScatterChart margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                <CartesianGrid />
-                <XAxis dataKey={xKey} type="number" />
-                <YAxis dataKey={yKey} type="number" />
-                <Tooltip />
-                <Scatter data={data} fill="#8b5cf6" />
-              </ScatterChart>
-            </ResponsiveContainer>
-          );
-
-        case "stacked":
-          return (
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-              <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={xKey} />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey={yKey} stackId="a" fill="#8b5cf6" />
-              </BarChart>
-            </ResponsiveContainer>
-          );
-
-        case "radar":
-          return (
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-              <RadarChart data={data}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey={xKey} />
-                <PolarRadiusAxis />
-                <Tooltip />
-                <Radar dataKey={yKey} fill="#8b5cf6" stroke="#8b5cf6" />
-              </RadarChart>
-            </ResponsiveContainer>
-          );
-
-        case "heatmap":
-          return (
-            <div style={styles.heatmapGrid}>
-              {data.map((item, i) => {
-                const value = item.amount ?? item.value ?? item.count ?? 0;
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      ...styles.heatCell,
-                      background: `rgba(139,92,246, ${Math.min(Number(value) / 1000 || 0, 1)})`,
-                    }}
-                    title={`${item.category || item.name || item.month || i}: ${value}`}
-                  />
-                );
-              })}
-            </div>
-          );
-
-        case "waterfall":
-          return (
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-              <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={xKey} />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey={yKey} fill="#8b5cf6" />
-              </BarChart>
-            </ResponsiveContainer>
-          );
-
-        default:
-          return <div style={styles.emptyText}>No chart available</div>;
-      }
-    },
-    [getChartData, getKeys]
+    (msg) => <ChatCharts msg={msg} />,
+    []
   );
 
   const handleCopyMessage = async (msg) => {
@@ -887,6 +610,7 @@ const Chatbot = () => {
           message: messageToSend,
           mode,
           requestType: mode,
+          conversation_id: conversationId || undefined,
         }),
       });
 
@@ -958,9 +682,11 @@ const Chatbot = () => {
       };
 
       setMessages((prev) => [...prev, botMessage].slice(-50));
+      if (data?.conversation_id) onConversationChange?.(data.conversation_id);
+      onConversationUpdated?.();
       return botMessage;
     },
-    [token, mode, handleFileResponse, downloadBlobFromUrl]
+    [token, mode, conversationId, handleFileResponse, downloadBlobFromUrl, onConversationChange, onConversationUpdated]
   );
 
   const sendMessage = useCallback(
@@ -1079,12 +805,6 @@ const Chatbot = () => {
     startListening();
   };
 
-  const placeholderMap = {
-    chat: "Type your message...",
-    news: "Ask for news, e.g. latest AI news",
-    wiki: "Search Wikipedia, e.g. Alan Turing",
-    file: "Describe the file you want to create...",
-  };
 
   const openMode = (nextMode) => {
     setMode(nextMode);
@@ -1267,66 +987,21 @@ const Chatbot = () => {
         </div>
       </main>
 
-      <div style={styles.bottomDock}>
-        <div style={styles.composerWrap} ref={menuRef}>
-          {plusOpen && (
-            <div style={styles.menuPanel}>
-              {MODES.map((item) => (
-                <button
-                  key={item.key}
-                  onClick={() => openMode(item.key)}
-                  style={{
-                    ...styles.menuItem,
-                    background: mode === item.key ? "rgba(139,92,246,0.16)" : "transparent",
-                  }}
-                >
-                  <div style={styles.menuItemLabel}>{item.label}</div>
-                  <div style={styles.menuItemHint}>{item.hint}</div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div style={styles.composer}>
-            <button onClick={() => setPlusOpen((v) => !v)} style={styles.iconBtn} title="More actions">
-              <img src="/plus.png" alt="Plus" style={styles.iconMain} />
-            </button>
-
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={placeholderMap[mode]}
-              style={styles.input}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-            />
-
-            <button
-              onClick={handleMicClick}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                toggleVoiceEnabled();
-              }}
-              title="Click to talk. Right-click to turn voice on/off."
-              style={{
-                ...styles.iconBtn,
-                background: listening ? "rgba(139,92,246,0.18)" : "rgba(255,255,255,0.04)",
-                boxShadow: listening ? "0 0 0 6px rgba(139,92,246,0.12)" : "none",
-              }}
-            >
-              <img src={getMicIcon()} alt="Mic" style={styles.iconMain} />
-            </button>
-
-            <button onClick={() => sendMessage()} style={{ ...styles.sendBtn, opacity: loading ? 0.75 : 1 }}>
-              <img src="/send.png" alt="Send" style={styles.iconSend} />
-            </button>
-          </div>
-        </div>
-      </div>
+      <ChatInput
+        input={input}
+        setInput={setInput}
+        sendMessage={sendMessage}
+        loading={loading}
+        listening={listening}
+        mode={mode}
+        openMode={openMode}
+        plusOpen={plusOpen}
+        setPlusOpen={setPlusOpen}
+        handleMicClick={handleMicClick}
+        toggleVoiceEnabled={toggleVoiceEnabled}
+        getMicIcon={getMicIcon}
+        menuRef={menuRef}
+      />
     </div>
   );
 };

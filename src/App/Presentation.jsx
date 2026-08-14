@@ -1,7 +1,15 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { API_BASE_URL, getAuthHeaders } from "../services/api";
 
-const API_URL = process.env.REACT_APP_API_URL || "https://mother-8599.onrender.com";
-const DEFAULT_API_BASE = `${API_URL}/api/presentation`;
+const DEFAULT_API_BASE = `${API_BASE_URL}/api/presentation`;
+const PPT_TEMPLATES = [
+  { id: "minimal", name: "Minimal", description: "Clean, distraction-free slides", theme: "light", style: "minimal" },
+  { id: "corporate", name: "Corporate", description: "Polished for meetings and reports", theme: "blue", style: "corporate" },
+  { id: "education", name: "Education", description: "Clear visuals for learning", theme: "education", style: "academic" },
+  { id: "startup", name: "Startup pitch", description: "Bold for ideas and demos", theme: "startup", style: "modern_gradient" },
+  { id: "finance", name: "Finance", description: "Data-led business storytelling", theme: "finance", style: "corporate" },
+  { id: "dark", name: "Dark gradient", description: "Modern, high-contrast visuals", theme: "dark", style: "modern_gradient" },
+];
 function cleanBaseUrl(url) {
   return (url || "").trim().replace(/\/+$/, "");
 }
@@ -17,6 +25,14 @@ function joinUrl(base, path) {
   if (isAbsoluteUrl(p)) return p;
   if (p.startsWith("/")) return `${b}${p}`;
   return `${b}/${p}`;
+}
+
+function resolveDownloadUrl(path) {
+  if (!path) return "";
+  if (isAbsoluteUrl(path)) return path;
+  return path.startsWith("/")
+    ? `${API_BASE_URL}${path}`
+    : joinUrl(DEFAULT_API_BASE, path);
 }
 
 function safeArray(value) {
@@ -227,13 +243,20 @@ function SlidePreview({ slide, index }) {
 }
 
 export default function PresentationGenerator() {
-  const [apiBase, setApiBase] = useState(DEFAULT_API_BASE);
   const [prompt, setPrompt] = useState(
     "Create a professional presentation on Data Science for students. Include overview, workflow, tools, applications, challenges, and conclusion."
   );
   const [templateName, setTemplateName] = useState("");
-  const [contentTheme, setContentTheme] = useState("auto");
-  const [visualStyle, setVisualStyle] = useState("auto");
+  const [selectedTemplate, setSelectedTemplate] = useState("corporate");
+  const [slideCount, setSlideCount] = useState(8);
+  const [audience, setAudience] = useState("Students");
+  const [tone, setTone] = useState("Clear and professional");
+  const [language, setLanguage] = useState("English");
+  const [includeCitations, setIncludeCitations] = useState(false);
+  const [includeSpeakerNotes, setIncludeSpeakerNotes] = useState(false);
+  const [useGemini, setUseGemini] = useState(true);
+  const contentTheme = "auto";
+  const visualStyle = "auto";
 
   const [includeTitleSlide, setIncludeTitleSlide] = useState(true);
   const [allowBullets, setAllowBullets] = useState(true);
@@ -251,35 +274,59 @@ export default function PresentationGenerator() {
   const [plan, setPlan] = useState(null);
   const [downloadUrl, setDownloadUrl] = useState("");
   const [fileName, setFileName] = useState("");
+  const [generatedMeta, setGeneratedMeta] = useState(null);
+  const [serviceStatus, setServiceStatus] = useState("checking");
 
   const previewCount = useMemo(() => safeArray(plan?.slides).length, [plan]);
 
-  const themeOptions = useMemo(
-    () => [
-      "auto",
-      "light",
-      "dark",
-      "blue",
-      "green",
-      "purple",
-      "ai",
-      "data",
-      "startup",
-      "education",
-      "finance",
-      "medical",
-    ],
-    []
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const checkService = async () => {
+      try {
+        const response = await fetch(joinUrl(DEFAULT_API_BASE, "/health"), {
+          signal: controller.signal,
+        });
+        setServiceStatus(response.ok ? "ready" : "unavailable");
+      } catch (err) {
+        if (err.name !== "AbortError") setServiceStatus("unavailable");
+      }
+    };
+
+    checkService();
+    return () => controller.abort();
+  }, []);
+
+  const selectedTemplateConfig = useMemo(
+    () => PPT_TEMPLATES.find((template) => template.id === selectedTemplate) || PPT_TEMPLATES[0],
+    [selectedTemplate]
   );
 
-  const styleOptions = useMemo(
-    () => ["auto", "minimal", "corporate", "academic", "modern_gradient"],
-    []
-  );
+  const buildPrompt = () => {
+    const requirements = [
+      `Create approximately ${slideCount} slides.`,
+      `Target audience: ${audience}.`,
+      `Tone: ${tone}.`,
+      `Language: ${language}.`,
+      includeCitations && "Include source citations where facts, statistics, or claims are used.",
+      includeSpeakerNotes && "Include concise speaker notes for every slide.",
+    ].filter(Boolean);
 
-  const buildPayload = () => ({
-    prompt,
+    return `${prompt.trim()}\n\nPresentation requirements:\n${requirements
+      .map((item) => `- ${item}`)
+      .join("\n")}`;
+  };
+
+  const buildPayload = ({ includePlan = false } = {}) => ({
+    prompt: buildPrompt(),
     template_name: templateName || null,
+    slide_count: slideCount,
+    audience: audience.trim() || null,
+    tone: tone.trim() || null,
+    language: language.trim() || "English",
+    include_citations: includeCitations,
+    include_speaker_notes: includeSpeakerNotes,
+    use_gemini: useGemini,
     include_title_slide: includeTitleSlide,
     allow_bullets: allowBullets,
     allow_paragraph: allowParagraph,
@@ -287,26 +334,34 @@ export default function PresentationGenerator() {
     allow_image: allowImage,
     allow_section_slide: allowSectionSlide,
     allow_table: allowTable,
-    background_theme: contentTheme || "auto",
-    content_theme: contentTheme || "auto",
-    visual_style: visualStyle || "auto",
+    background_theme: contentTheme === "auto" ? selectedTemplateConfig.theme : contentTheme,
+    content_theme: contentTheme === "auto" ? selectedTemplateConfig.theme : contentTheme,
+    visual_style: visualStyle === "auto" ? selectedTemplateConfig.style : visualStyle,
     smart_mode: smartMode,
     slide_types: slideTypes
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean),
+    // When a preview has been approved, send its exact slide specification so
+    // the backend can render that plan instead of creating a second one.
+    plan: includePlan && plan ? { title: plan.title, slides: plan.slides } : undefined,
   });
 
   const fetchPlan = async () => {
+    if (!prompt.trim()) {
+      setError("Please describe the presentation you want to create.");
+      return;
+    }
+
     setError("");
     setLoadingPlan(true);
     setDownloadUrl("");
     setFileName("");
 
     try {
-      const res = await fetch(joinUrl(apiBase, "/plan"), {
+      const res = await fetch(joinUrl(DEFAULT_API_BASE, "/plan"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify(buildPayload()),
       });
 
@@ -321,23 +376,35 @@ export default function PresentationGenerator() {
   };
 
   const generatePpt = async () => {
+    if (!prompt.trim()) {
+      setError("Please describe the presentation you want to create.");
+      return;
+    }
+
     setError("");
     setLoadingGenerate(true);
     setDownloadUrl("");
     setFileName("");
+    setGeneratedMeta(null);
 
     try {
-      const res = await fetch(joinUrl(apiBase, "/generate"), {
+      const res = await fetch(joinUrl(DEFAULT_API_BASE, "/generate"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildPayload()),
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify(buildPayload({ includePlan: true })),
       });
 
       const data = await readResponse(res);
       if (!res.ok) throw new Error(data?.detail || "Failed to generate presentation");
 
       setFileName(data.file_name || "presentation.pptx");
-      setDownloadUrl(data.download_url ? joinUrl(apiBase, data.download_url) : "");
+      setDownloadUrl(resolveDownloadUrl(data.download_url));
+      setGeneratedMeta({
+        title: data.title || plan?.title || "Your presentation is ready",
+        slides: data.slides || data.slide_count || previewCount || slideCount,
+        theme: contentTheme === "auto" ? selectedTemplateConfig.name : contentTheme,
+        jobId: data.job_id || "",
+      });
 
       if (!plan) {
         await fetchPlan();
@@ -504,6 +571,60 @@ export default function PresentationGenerator() {
     gap: 12px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .template-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0 0 16px;
+  }
+
+  .template-card {
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .template-card.active {
+    border-color: rgba(139, 92, 246, 0.8);
+    background: rgba(139, 92, 246, 0.16);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+  }
+
+  .template-name { display: block; font-size: 14px; font-weight: 800; }
+  .template-description { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+
+  .success-box {
+    margin-top: 14px;
+    padding: 14px;
+    border: 1px solid rgba(74, 222, 128, 0.28);
+    border-radius: 16px;
+    background: rgba(34, 197, 94, 0.10);
+    color: #dcfce7;
+  }
+
+  .success-box strong { display: block; margin-bottom: 5px; }
+
+  .service-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 16px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .service-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #fbbf24; }
+  .service-status.ready::before { background: #4ade80; }
+  .service-status.unavailable::before { background: #f87171; }
 
   .toggle-grid {
     display: grid;
@@ -854,7 +975,8 @@ export default function PresentationGenerator() {
     }
 
     .grid-2,
-    .toggle-grid {
+    .toggle-grid,
+    .template-grid {
       grid-template-columns: 1fr;
     }
 
@@ -890,18 +1012,16 @@ export default function PresentationGenerator() {
             <div className="panel card">
               <div className="section-title">Prompt to PPT Generator</div>
               <h1>Create better presentations from one prompt</h1>
-
-              <div className="field">
-                <label>API Base URL</label>
-                <input
-                  value={apiBase}
-                  onChange={(e) => setApiBase(e.target.value)}
-                  placeholder="https://your-api.com/api/presentation"
-                />
+              <div className={`service-status ${serviceStatus}`}>
+                {serviceStatus === "ready"
+                  ? "Presentation service ready"
+                  : serviceStatus === "unavailable"
+                    ? "Presentation service unavailable"
+                    : "Checking presentation service…"}
               </div>
 
               <div className="field">
-                <label>Prompt</label>
+                <label>What should this presentation explain?</label>
                 <textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
@@ -912,45 +1032,46 @@ export default function PresentationGenerator() {
 
               <div className="grid-2">
                 <div className="field">
-                  <label>Template name / path</label>
-                  <input
-                    value={templateName}
-                    onChange={(e) => setTemplateName(e.target.value)}
-                    placeholder="optional"
-                  />
+                  <label>Number of slides</label>
+                  <input type="number" min="3" max="30" value={slideCount} onChange={(e) => setSlideCount(Math.max(3, Math.min(30, Number(e.target.value) || 3)))} />
                 </div>
 
                 <div className="field">
-                  <label>Allowed slide types</label>
+                  <label>Target audience</label>
                   <input
-                    value={slideTypes}
-                    onChange={(e) => setSlideTypes(e.target.value)}
-                    placeholder="title_slide, bullets_slide, chart_slide"
+                    value={audience}
+                    onChange={(e) => setAudience(e.target.value)}
+                    placeholder="e.g. investors, school students"
                   />
                 </div>
               </div>
 
               <div className="grid-2">
                 <div className="field">
-                  <label>Content theme</label>
-                  <select value={contentTheme} onChange={(e) => setContentTheme(e.target.value)}>
-                    {themeOptions.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
+                  <label>Tone</label>
+                  <input value={tone} onChange={(e) => setTone(e.target.value)} placeholder="e.g. convincing and concise" />
                 </div>
 
                 <div className="field">
-                  <label>Visual style</label>
-                  <select value={visualStyle} onChange={(e) => setVisualStyle(e.target.value)}>
-                    {styleOptions.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
+                  <label>Language</label>
+                  <input value={language} onChange={(e) => setLanguage(e.target.value)} placeholder="English" />
+                </div>
+              </div>
+
+              <div className="field">
+                <label>Choose a visual template</label>
+                <div className="template-grid">
+                  {PPT_TEMPLATES.map((template) => (
+                    <button
+                      type="button"
+                      key={template.id}
+                      className={`template-card ${selectedTemplate === template.id ? "active" : ""}`}
+                      onClick={() => setSelectedTemplate(template.id)}
+                    >
+                      <span className="template-name">{template.name}</span>
+                      <span className="template-description">{template.description}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -963,7 +1084,24 @@ export default function PresentationGenerator() {
                 <Toggle label="Allow section slide" checked={allowSectionSlide} onChange={setAllowSectionSlide} />
                 <Toggle label="Allow table" checked={allowTable} onChange={setAllowTable} />
                 <Toggle label="Smart mode" checked={smartMode} onChange={setSmartMode} />
+                <Toggle label="Include citations" checked={includeCitations} onChange={setIncludeCitations} />
+                <Toggle label="Speaker notes" checked={includeSpeakerNotes} onChange={setIncludeSpeakerNotes} />
+                <Toggle label="Use Gemini AI" checked={useGemini} onChange={setUseGemini} />
               </div>
+
+              <details className="field">
+                <summary>Advanced options</summary>
+                <div className="grid-2" style={{ marginTop: 12 }}>
+                  <div className="field">
+                    <label>Template file / path</label>
+                    <input value={templateName} onChange={(e) => setTemplateName(e.target.value)} placeholder="optional" />
+                  </div>
+                  <div className="field">
+                    <label>Allowed slide types</label>
+                    <input value={slideTypes} onChange={(e) => setSlideTypes(e.target.value)} placeholder="title_slide, chart_slide" />
+                  </div>
+                </div>
+              </details>
 
               {error ? <div className="error-box">{error}</div> : null}
 
@@ -990,6 +1128,14 @@ export default function PresentationGenerator() {
                   </a>
                 ) : null}
               </div>
+
+              {generatedMeta ? (
+                <div className="success-box">
+                  <strong>{generatedMeta.title}</strong>
+                  {generatedMeta.slides} slides · {generatedMeta.theme} template · Ready to download
+                  {generatedMeta.jobId ? <div className="muted">Job ID: {generatedMeta.jobId}</div> : null}
+                </div>
+              ) : null}
             </div>
           </div>
 
