@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Chatbot from "./VityaChatbot";
 import ChatHistory from "../components/chatbot/ChatHistory";
 import Presentation from "./Presentation";
-import { API_BASE_URL } from "../services/api";
+import { API_BASE_URL, resolveAssetUrl } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import "./Dashboard.css";
 
@@ -184,6 +184,11 @@ const Dashboard = () => {
   const prevIsMobileRef = useRef(getIsMobile());
   const { user: authUser } = useAuth();
   const user = authUser || {};
+
+  const userInitial = (user?.name || user?.username || "U").charAt(0).toUpperCase();
+  const defaultAvatar = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%236366f1'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-size='45' font-weight='bold' font-family='sans-serif'>${userInitial}</text></svg>`;
+  const rawPic = user?.profile_pic || user?.avatar;
+  const profilePicSrc = rawPic ? resolveAssetUrl(rawPic) : defaultAvatar;
 
   const analyticsData = useMemo(
     () => ({
@@ -415,9 +420,13 @@ const Dashboard = () => {
           tabIndex={0}
         >
           <img
-            src={user?.avatar || "/profile.png"}
+            src={profilePicSrc}
             alt="Profile"
             className="profileImg"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = defaultAvatar;
+            }}
           />
           <div className="profileInfo">
             <div className="profileName">{user?.name || "Profile"}</div>
@@ -448,7 +457,14 @@ const Dashboard = () => {
             onClick={() => navigate("/profile")}
             aria-label="Open profile"
           >
-            <img src={user?.avatar || "/profile.png"} alt="Profile" />
+            <img
+              src={profilePicSrc}
+              alt="Profile"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = defaultAvatar;
+              }}
+            />
           </button>
         </header>
 
