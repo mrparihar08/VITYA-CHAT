@@ -35,7 +35,6 @@ const MODES = [
   { key: "file", label: "Create File", hint: "Generate PPT output" },
 ];
 
-
 const PPT_DEFAULTS = {
   include_title_slide: true,
   allow_bullets: true,
@@ -112,9 +111,6 @@ const normalizeNewsData = (raw) => {
 
   return [];
 };
-
-
-
 
 const readResponse = async (res) => {
   const text = await res.text();
@@ -234,8 +230,9 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
   const [plusOpen, setPlusOpen] = useState(false);
   const [mode, setMode] = useState("chat");
   const [randomPrompts] = useState(
-  () => getRandomPrompts(QUICK_PROMPTS, 4)
-);
+    () => getRandomPrompts(QUICK_PROMPTS, 4)
+  );
+
   const token = useMemo(() => {
     try {
       return localStorage.getItem("token") || "";
@@ -413,8 +410,6 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
     },
     [downloadBlobFromResponse]
   );
-
-
 
   const downloadChartPNG = useCallback(async (index, msg) => {
     const element = chartRefs.current[index];
@@ -804,7 +799,6 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
     }
     startListening();
   };
-
 
   const openMode = (nextMode) => {
     setMode(nextMode);
@@ -1283,7 +1277,6 @@ const styles = {
     minWidth: 260,
     boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
   },
-  
   downloadTitle: { fontSize: 16, fontWeight: 800, lineHeight: 1.4, whiteSpace: "pre-line" },
   downloadMeta: { fontSize: 13, color: "#4b5563", lineHeight: 1.6, whiteSpace: "pre-line" },
   downloadLink: {
