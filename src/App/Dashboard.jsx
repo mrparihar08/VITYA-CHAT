@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Chatbot from "./VityaChatbot";
 import ChatHistory from "../components/chatbot/ChatHistory";
 import Presentation from "./Presentation";
@@ -172,13 +172,48 @@ class ErrorBoundary extends React.Component {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState("chat");
-  const [activeApp, setActiveApp] = useState(null);
+  const getInitialTab = () => {
+    const fromUrl = searchParams.get("tab");
+    if (fromUrl) return fromUrl;
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("vitya_activeTab") || "chat";
+    }
+    return "chat";
+  };
+
+  const getInitialApp = (initialTab) => {
+    if (initialTab === "apps") {
+      const fromUrl = searchParams.get("app");
+      if (fromUrl) return fromUrl;
+      if (typeof window !== "undefined") {
+        return localStorage.getItem("vitya_activeApp") || null;
+      }
+    }
+    return null;
+  };
+
+  const getInitialConvId = (initialTab) => {
+    if (initialTab === "chat") {
+      const fromUrl = searchParams.get("c");
+      if (fromUrl) return fromUrl;
+      if (typeof window !== "undefined") {
+        return localStorage.getItem("vitya_activeConversationId") || null;
+      }
+    }
+    return null;
+  };
+
+  const [activeTab, setActiveTabState] = useState(getInitialTab);
+  const [activeApp, setActiveAppState] = useState(() => getInitialApp(getInitialTab()));
+  const [activeConversationId, setActiveConversationIdState] = useState(() =>
+    getInitialConvId(getInitialTab())
+  );
+
   const [searchText, setSearchText] = useState("");
   const [isMobile, setIsMobile] = useState(getIsMobile());
   const [sidebarOpen, setSidebarOpen] = useState(() => !getIsMobile());
-  const [activeConversationId, setActiveConversationId] = useState(null);
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
 
   const prevIsMobileRef = useRef(getIsMobile());
@@ -189,6 +224,67 @@ const Dashboard = () => {
   const defaultAvatar = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%236366f1'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-size='45' font-weight='bold' font-family='sans-serif'>${userInitial}</text></svg>`;
   const rawPic = user?.profile_pic || user?.avatar;
   const profilePicSrc = rawPic ? resolveAssetUrl(rawPic) : defaultAvatar;
+
+  const updateNavigationState = useCallback(
+    (newTab, newApp = null, newConvId = null) => {
+      setActiveTabState(newTab);
+      setActiveAppState(newApp);
+      setActiveConversationIdState(newConvId);
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("vitya_activeTab", newTab);
+        if (newApp) {
+          localStorage.setItem("vitya_activeApp", newApp);
+        } else {
+          localStorage.removeItem("vitya_activeApp");
+        }
+        if (newConvId) {
+          localStorage.setItem("vitya_activeConversationId", newConvId);
+        } else {
+          localStorage.removeItem("vitya_activeConversationId");
+        }
+      }
+
+      const params = new URLSearchParams();
+      if (newTab && newTab !== "chat") params.set("tab", newTab);
+      if (newTab === "apps" && newApp) params.set("app", newApp);
+      if (newTab === "chat" && newConvId) params.set("c", newConvId);
+
+      setSearchParams(params, { replace: true });
+    },
+    [setSearchParams]
+  );
+
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    const appParam = searchParams.get("app");
+    const cParam = searchParams.get("c");
+
+    const tab =
+      tabParam ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem("vitya_activeTab")
+        : null) ||
+      "chat";
+    const app =
+      tab === "apps"
+        ? appParam ||
+          (typeof window !== "undefined"
+            ? localStorage.getItem("vitya_activeApp")
+            : null)
+        : null;
+    const c =
+      tab === "chat"
+        ? cParam ||
+          (typeof window !== "undefined"
+            ? localStorage.getItem("vitya_activeConversationId")
+            : null)
+        : null;
+
+    setActiveTabState(tab);
+    setActiveAppState(app);
+    setActiveConversationIdState(c);
+  }, [searchParams]);
 
   const analyticsData = useMemo(
     () => ({
@@ -226,14 +322,15 @@ const Dashboard = () => {
         return;
       }
 
-      setActiveTab(tab);
-      setActiveApp(null);
+      const convId = tab === "chat" ? activeConversationId : null;
+      updateNavigationState(tab, null, convId);
       closeSidebarIfMobile();
     },
-    [navigate, closeSidebarIfMobile]
+    [navigate, closeSidebarIfMobile, activeConversationId, updateNavigationState]
   );
 
   const handleNewChat = useCallback(async () => {
+    let newId = null;
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_BASE_URL}/api/chat/new`, {
@@ -241,20 +338,21 @@ const Dashboard = () => {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const data = await response.json();
-      setActiveConversationId(response.ok ? data.conversation_id : null);
+      newId = response.ok ? data.conversation_id : null;
     } catch {
-      setActiveConversationId(null);
+      newId = null;
     }
-    setActiveTab("chat");
-    setActiveApp(null);
+    updateNavigationState("chat", null, newId);
     closeSidebarIfMobile();
-  }, [closeSidebarIfMobile]);
+  }, [closeSidebarIfMobile, updateNavigationState]);
 
-  const openConversation = useCallback((conversationId) => {
-    setActiveConversationId(conversationId);
-    setActiveTab("chat");
-    setHistoryRefreshKey((value) => value + 1);
-  }, []);
+  const openConversation = useCallback(
+    (conversationId) => {
+      updateNavigationState("chat", null, conversationId);
+      setHistoryRefreshKey((value) => value + 1);
+    },
+    [updateNavigationState]
+  );
 
   const filteredApps = useMemo(() => {
     const q = searchText.trim().toLowerCase();
@@ -272,13 +370,12 @@ const Dashboard = () => {
       if (app.type === "external") {
         window.open(app.url, "_blank", "noopener,noreferrer");
       } else {
-        setActiveTab("apps");
-        setActiveApp(app.id);
+        updateNavigationState("apps", app.id, null);
       }
 
       closeSidebarIfMobile();
     },
-    [closeSidebarIfMobile]
+    [closeSidebarIfMobile, updateNavigationState]
   );
 
   const currentApp = useMemo(
@@ -293,7 +390,7 @@ const Dashboard = () => {
       return (
         <div className="appPanel">
           <div className="panelHeader">
-            <button className="backBtn" onClick={() => setActiveApp(null)}>
+            <button className="backBtn" onClick={() => updateNavigationState("apps", null, null)}>
               ← Back
             </button>
             <h2>{currentApp.name}</h2>
@@ -317,7 +414,7 @@ const Dashboard = () => {
     return (
       <div className="appPanel">
         <div className="panelHeader">
-          <button className="backBtn" onClick={() => setActiveApp(null)}>
+          <button className="backBtn" onClick={() => updateNavigationState("apps", null, null)}>
             ← Back
           </button>
           <h2>{currentApp.name}</h2>
@@ -473,7 +570,7 @@ const Dashboard = () => {
             <section className="chatShell">
               <Chatbot
                 conversationId={activeConversationId}
-                onConversationChange={setActiveConversationId}
+                onConversationChange={(id) => updateNavigationState("chat", null, id)}
                 onConversationUpdated={() => setHistoryRefreshKey((value) => value + 1)}
               />
             </section>

@@ -78,6 +78,84 @@ export function VisualChartPreview({ data }) {
   );
 }
 
+function FeatureFormattingBar({ pluginData, onChangeField }) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
+        gap: 6,
+        background: "rgba(255,255,255,0.03)",
+        padding: "6px 8px",
+        borderRadius: "6px",
+        border: "1px solid rgba(255,255,255,0.08)",
+        marginTop: 6,
+      }}
+    >
+      <div>
+        <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Font Size (Pt):</label>
+        <input
+          type="number"
+          min="10"
+          max="60"
+          value={pluginData?.font_size || 14}
+          onChange={(e) => onChangeField("font_size", Number(e.target.value))}
+          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+        />
+      </div>
+      <div>
+        <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Align:</label>
+        <select
+          value={pluginData?.alignment || pluginData?.align || "left"}
+          onChange={(e) => {
+            onChangeField("alignment", e.target.value);
+            onChangeField("align", e.target.value);
+          }}
+          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+        >
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+          <option value="justify">Justify</option>
+        </select>
+      </div>
+      <div>
+        <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Top (in):</label>
+        <input
+          type="number"
+          step="0.1"
+          value={pluginData?.top ?? ""}
+          onChange={(e) => onChangeField("top", e.target.value ? Number(e.target.value) : "")}
+          placeholder="Auto"
+          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+        />
+      </div>
+      <div>
+        <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Left (in):</label>
+        <input
+          type="number"
+          step="0.1"
+          value={pluginData?.left ?? ""}
+          onChange={(e) => onChangeField("left", e.target.value ? Number(e.target.value) : "")}
+          placeholder="Auto"
+          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+        />
+      </div>
+      <div>
+        <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Width (in):</label>
+        <input
+          type="number"
+          step="0.1"
+          value={pluginData?.width ?? ""}
+          onChange={(e) => onChangeField("width", e.target.value ? Number(e.target.value) : "")}
+          placeholder="Auto"
+          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function PresentationEditor({
   plan,
   activeSlideIndex,
@@ -119,6 +197,26 @@ export default function PresentationEditor({
 }) {
   const activeSlide = plan?.slides?.[activeSlideIndex];
   const presenterSlide = plan?.slides?.[presenterSlideIndex];
+
+  // Helper to dynamically fetch exact topic-matched HD Unsplash image via backend API
+  const handleAutoUnsplashFetch = async (pIdx, query) => {
+    const searchTopic = query || activeSlide?.title || "presentation visual";
+    try {
+      const res = await fetch(`http://localhost:8000/api/presentation/unsplash/search?query=${encodeURIComponent(searchTopic)}`);
+      const data = await res.json();
+      if (data?.url) {
+        handlePluginTextChange(activeSlideIndex, pIdx, "url", data.url);
+        handlePluginTextChange(activeSlideIndex, pIdx, "path", data.url);
+        return;
+      }
+    } catch (err) {
+      console.warn("Unsplash API fetch failed, using fallback topic search", err);
+    }
+
+    const fallbackUrl = `https://source.unsplash.com/featured/1000x600/?${encodeURIComponent(searchTopic)}`;
+    handlePluginTextChange(activeSlideIndex, pIdx, "url", fallbackUrl);
+    handlePluginTextChange(activeSlideIndex, pIdx, "path", fallbackUrl);
+  };
 
   return (
     <>
@@ -281,17 +379,21 @@ export default function PresentationEditor({
                   {safeArray(activeSlide.plugins).map((p, pIdx) => (
                     <div key={pIdx}>
                       {p.type === "subtitle" ? (
-                        <h3 style={{ fontSize: 18, color: "#c084fc", margin: "4px 0" }}>{p.data?.text}</h3>
+                        <h3 style={{ fontSize: p.data?.font_size || 18, textAlign: p.data?.alignment || "left", color: "#c084fc", margin: "4px 0" }}>
+                          {p.data?.text}
+                        </h3>
                       ) : null}
 
                       {p.type === "paragraph" ? (
-                        <p style={{ fontSize: 14, lineHeight: 1.5, opacity: 0.9 }}>{p.data?.text}</p>
+                        <p style={{ fontSize: p.data?.font_size || 14, textAlign: p.data?.alignment || "left", lineHeight: 1.5, opacity: 0.9 }}>
+                          {p.data?.text}
+                        </p>
                       ) : null}
 
                       {p.type === "bullets" ? (
-                        <ul style={{ paddingLeft: 20, margin: "4px 0" }}>
+                        <ul style={{ paddingLeft: 20, margin: "4px 0", textAlign: p.data?.alignment || "left" }}>
                           {safeArray(p.data?.points).map((pt, bIdx) => (
-                            <li key={bIdx} style={{ fontSize: 14, marginBottom: 4 }}>{pt}</li>
+                            <li key={bIdx} style={{ fontSize: p.data?.font_size || 14, marginBottom: 4 }}>{pt}</li>
                           ))}
                         </ul>
                       ) : null}
@@ -301,10 +403,10 @@ export default function PresentationEditor({
                       ) : null}
 
                       {p.type === "image" ? (
-                        <div style={{ textAlign: p.data?.align || "center", margin: "8px 0" }}>
-                          {p.data?.url ? (
+                        <div style={{ textAlign: p.data?.align || p.data?.alignment || "center", margin: "8px 0" }}>
+                          {p.data?.url || p.data?.path ? (
                             <img
-                              src={p.data.url}
+                              src={p.data.url || p.data.path}
                               alt="Slide media"
                               style={{ maxHeight: 180, borderRadius: 10, border: "1px solid rgba(255,255,255,0.2)" }}
                             />
@@ -317,7 +419,7 @@ export default function PresentationEditor({
 
                       {p.type === "stat" ? (
                         <div style={{ display: "flex", alignItems: "baseline", gap: 10, margin: "8px 0" }}>
-                          <span style={{ fontSize: 36, fontWeight: 900, color: "#c084fc" }}>{p.data?.number}</span>
+                          <span style={{ fontSize: p.data?.font_size || 36, fontWeight: 900, color: "#c084fc" }}>{p.data?.number}</span>
                           <span style={{ fontSize: 14, fontWeight: 600, opacity: 0.85 }}>{p.data?.label}</span>
                         </div>
                       ) : null}
@@ -389,13 +491,19 @@ export default function PresentationEditor({
 
                     {/* SUBTITLE */}
                     {plugin.type === "subtitle" ? (
-                      <input
-                        type="text"
-                        value={plugin.data?.text || ""}
-                        onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value)}
-                        placeholder="Enter section subtitle text..."
-                        style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
-                      />
+                      <div>
+                        <input
+                          type="text"
+                          value={plugin.data?.text || ""}
+                          onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value)}
+                          placeholder="Enter section subtitle text..."
+                          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
+                        />
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                        />
+                      </div>
                     ) : null}
 
                     {/* CHART PLUGIN EDITOR */}
@@ -444,6 +552,10 @@ export default function PresentationEditor({
                             style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
                           />
                         </div>
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                        />
                       </div>
                     ) : null}
 
@@ -451,39 +563,44 @@ export default function PresentationEditor({
                     {plugin.type === "image" ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                         <div>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Image URL:</label>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+                            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Image URL / Path:</label>
+                            <button
+                              type="button"
+                              className="btn-ui primary sm"
+                              style={{ fontSize: 10, padding: "2px 8px" }}
+                              onClick={() => handleAutoUnsplashFetch(pIdx, plugin.data?.caption)}
+                            >
+                              ⚡ Auto Unsplash Image
+                            </button>
+                          </div>
                           <input
                             type="text"
-                            value={plugin.data?.url || ""}
-                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "url", e.target.value)}
+                            value={plugin.data?.url || plugin.data?.path || ""}
+                            onChange={(e) => {
+                              handlePluginTextChange(activeSlideIndex, pIdx, "url", e.target.value);
+                              handlePluginTextChange(activeSlideIndex, pIdx, "path", e.target.value);
+                            }}
                             placeholder="https://images.unsplash.com/..."
                             style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
                           />
                         </div>
-                        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 8 }}>
-                          <div>
-                            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Image Caption / Title:</label>
-                            <input
-                              type="text"
-                              value={plugin.data?.caption || ""}
-                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "caption", e.target.value)}
-                              placeholder="e.g. AI Architecture Diagram"
-                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
-                            />
-                          </div>
-                          <div>
-                            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Alignment:</label>
-                            <select
-                              value={plugin.data?.align || "center"}
-                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "align", e.target.value)}
-                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
-                            >
-                              <option value="left">Left</option>
-                              <option value="center">Center</option>
-                              <option value="right">Right</option>
-                            </select>
-                          </div>
+
+                        <div>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Image Caption / Title:</label>
+                          <input
+                            type="text"
+                            value={plugin.data?.caption || ""}
+                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "caption", e.target.value)}
+                            placeholder="e.g. AI Architecture Diagram"
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                          />
                         </div>
+
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                        />
                       </div>
                     ) : null}
 
@@ -507,36 +624,52 @@ export default function PresentationEditor({
                         <button className="btn-ui secondary sm" style={{ alignSelf: "flex-start", marginTop: 4 }} onClick={() => handleAddBullet(activeSlideIndex, pIdx)}>
                           + Add Bullet Point
                         </button>
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                        />
                       </div>
                     ) : null}
 
                     {/* PARAGRAPH */}
                     {plugin.type === "paragraph" ? (
-                      <textarea
-                        value={plugin.data?.text || ""}
-                        onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value)}
-                        rows={3}
-                        placeholder="Enter paragraph text..."
-                        style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
-                      />
+                      <div>
+                        <textarea
+                          value={plugin.data?.text || ""}
+                          onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value)}
+                          rows={3}
+                          placeholder="Enter paragraph text..."
+                          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
+                        />
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                        />
+                      </div>
                     ) : null}
 
                     {/* STAT */}
                     {plugin.type === "stat" ? (
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 8 }}>
-                        <input
-                          type="text"
-                          value={plugin.data?.number || ""}
-                          onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "number", e.target.value)}
-                          placeholder="e.g. 95% or $2.5M"
-                          style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#c084fc", fontWeight: 800, fontSize: 14 }}
-                        />
-                        <input
-                          type="text"
-                          value={plugin.data?.label || ""}
-                          onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "label", e.target.value)}
-                          placeholder="e.g. Enterprise Accuracy Growth"
-                          style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
+                      <div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 8 }}>
+                          <input
+                            type="text"
+                            value={plugin.data?.number || ""}
+                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "number", e.target.value)}
+                            placeholder="e.g. 95% or $2.5M"
+                            style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#c084fc", fontWeight: 800, fontSize: 14 }}
+                          />
+                          <input
+                            type="text"
+                            value={plugin.data?.label || ""}
+                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "label", e.target.value)}
+                            placeholder="e.g. Enterprise Accuracy Growth"
+                            style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
+                          />
+                        </div>
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
                         />
                       </div>
                     ) : null}
@@ -651,27 +784,27 @@ export default function PresentationEditor({
               {safeArray(presenterSlide.plugins).map((plugin, pIdx) => (
                 <div key={pIdx} style={{ fontSize: 22, lineHeight: 1.6, marginBottom: 14 }}>
                   {plugin.type === "subtitle" ? (
-                    <h3 style={{ fontSize: 24, color: "#c084fc" }}>{plugin.data?.text}</h3>
+                    <h3 style={{ fontSize: plugin.data?.font_size || 24, textAlign: plugin.data?.alignment || "left", color: "#c084fc" }}>{plugin.data?.text}</h3>
                   ) : null}
-                  {plugin.type === "paragraph" ? <p>{plugin.data?.text}</p> : null}
+                  {plugin.type === "paragraph" ? <p style={{ fontSize: plugin.data?.font_size || 22, textAlign: plugin.data?.alignment || "left" }}>{plugin.data?.text}</p> : null}
                   {plugin.type === "bullets" ? (
-                    <ul style={{ paddingLeft: 24 }}>
+                    <ul style={{ paddingLeft: 24, textAlign: plugin.data?.alignment || "left" }}>
                       {safeArray(plugin.data?.points).map((pt, bIdx) => (
-                        <li key={bIdx}>{pt}</li>
+                        <li key={bIdx} style={{ fontSize: plugin.data?.font_size || 22 }}>{pt}</li>
                       ))}
                     </ul>
                   ) : null}
                   {plugin.type === "chart" ? (
                     <VisualChartPreview data={plugin.data} />
                   ) : null}
-                  {plugin.type === "image" && plugin.data?.url ? (
-                    <div style={{ textAlign: plugin.data?.align || "center" }}>
-                      <img src={plugin.data.url} alt="slide visual" style={{ maxHeight: 240, borderRadius: 12 }} />
+                  {plugin.type === "image" && (plugin.data?.url || plugin.data?.path) ? (
+                    <div style={{ textAlign: plugin.data?.align || plugin.data?.alignment || "center" }}>
+                      <img src={plugin.data.url || plugin.data.path} alt="slide visual" style={{ maxHeight: 240, borderRadius: 12 }} />
                       {plugin.data?.caption ? <div style={{ fontSize: 14, opacity: 0.7 }}>{plugin.data.caption}</div> : null}
                     </div>
                   ) : null}
                   {plugin.type === "stat" ? (
-                    <div style={{ fontSize: 50, fontWeight: "bold", color: "#c084fc" }}>
+                    <div style={{ fontSize: plugin.data?.font_size || 50, fontWeight: "bold", color: "#c084fc" }}>
                       {plugin.data?.number} <span style={{ fontSize: 24 }}>{plugin.data?.label}</span>
                     </div>
                   ) : null}

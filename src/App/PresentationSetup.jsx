@@ -15,6 +15,7 @@ function Toggle({ label, checked, onChange }) {
         borderRadius: "8px",
         border: "1px solid rgba(255,255,255,0.08)",
         cursor: "pointer",
+        userSelect: "none",
       }}
     >
       <span>{label}</span>
@@ -35,6 +36,14 @@ export default function PresentationSetup({
   setSlideCount,
   audience,
   setAudience,
+  tone,
+  setTone,
+  language,
+  setLanguage,
+  contentTheme,
+  setContentTheme,
+  visualStyle,
+  setVisualStyle,
   includeCitations,
   setIncludeCitations,
   includeSpeakerNotes,
@@ -43,6 +52,14 @@ export default function PresentationSetup({
   setUseGemini,
   smartMode,
   setSmartMode,
+  allowImage,
+  setAllowImage,
+  allowChart,
+  setAllowChart,
+  allowTable,
+  setAllowTable,
+  allowParagraph,
+  setAllowParagraph,
   searchQuery,
   setSearchQuery,
   selectedCategory,
@@ -75,8 +92,8 @@ export default function PresentationSetup({
       </form>
 
       {/* CATEGORY CHIPS */}
-      <div className="category-chips">
-        {PPT_CATEGORIES.map((cat) => (
+      <div className="category-chips" style={{ marginBottom: "12px" }}>
+        {PPT_CATEGORIES?.map((cat) => (
           <button
             type="button"
             key={cat.id}
@@ -89,8 +106,8 @@ export default function PresentationSetup({
       </div>
 
       {/* SEARCH RESULTS DROPDOWN */}
-      {searchResults.length > 0 ? (
-        <div className="search-results-container">
+      {searchResults?.length > 0 ? (
+        <div className="search-results-container" style={{ marginBottom: "12px" }}>
           <div style={{ fontSize: 11, color: "var(--accent)", fontWeight: "bold" }}>
             Matching Topics ({searchResults.length}):
           </div>
@@ -117,44 +134,123 @@ export default function PresentationSetup({
       ) : null}
 
       {/* PROMPT INPUT */}
-      <div className="field-group">
-        <label>Presentation Topic / AI Prompt</label>
+      <div className="field-group" style={{ marginBottom: "12px" }}>
+        <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: "block" }}>
+          Presentation Topic / AI Prompt
+        </label>
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           rows={4}
-          placeholder="Describe your presentation topic or instructions..."
+          placeholder="Describe your presentation topic, key points, or instructions..."
         />
       </div>
 
-      {/* SLIDE COUNT & AUDIENCE */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+      {/* SLIDE COUNT, AUDIENCE, TONE & LANGUAGE */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
         <div className="field-group">
-          <label>Slide Count</label>
+          <label style={{ fontSize: 11 }}>Slide Count (3-30)</label>
           <input
             type="number"
             min="3"
             max="30"
             value={slideCount}
-            onChange={(e) => setSlideCount(Number(e.target.value))}
+            onChange={(e) => setSlideCount?.(Number(e.target.value))}
           />
         </div>
+
         <div className="field-group">
-          <label>Audience</label>
+          <label style={{ fontSize: 11 }}>Target Audience</label>
           <input
-            value={audience}
-            onChange={(e) => setAudience(e.target.value)}
+            value={audience || ""}
+            onChange={(e) => setAudience?.(e.target.value)}
             placeholder="e.g. Students & Professionals"
           />
         </div>
+
+        <div className="field-group">
+          <label style={{ fontSize: 11 }}>Tone of Voice</label>
+          <select
+            className="select-input"
+            value={tone || "Professional"}
+            onChange={(e) => setTone?.(e.target.value)}
+            style={{ width: "100%", padding: "8px", borderRadius: "6px" }}
+          >
+            <option value="Professional">Professional & Clean</option>
+            <option value="Inspiring">Inspiring & Energetic</option>
+            <option value="Educational">Educational & Detailed</option>
+            <option value="Formal">Formal & Executive</option>
+          </select>
+        </div>
+
+        <div className="field-group">
+          <label style={{ fontSize: 11 }}>Output Language</label>
+          <select
+            className="select-input"
+            value={language || "English"}
+            onChange={(e) => setLanguage?.(e.target.value)}
+            style={{ width: "100%", padding: "8px", borderRadius: "6px" }}
+          >
+            <option value="English">English</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Hinglish">Hinglish</option>
+            <option value="Spanish">Spanish</option>
+            <option value="French">French</option>
+            <option value="German">German</option>
+          </select>
+        </div>
       </div>
 
-      {/* TOGGLES GRID */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, margin: "14px 0" }}>
+      {/* THEME & VISUAL STYLE SELECTION */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+        <div className="field-group">
+          <label style={{ fontSize: 11 }}>Color Theme</label>
+          <select
+            className="select-input"
+            value={contentTheme || "auto"}
+            onChange={(e) => setContentTheme?.(e.target.value)}
+            style={{ width: "100%", padding: "8px", borderRadius: "6px" }}
+          >
+            <option value="auto">✨ Auto Detect</option>
+            <option value="dark">🌙 Midnight Dark</option>
+            <option value="light">☀️ Clean Light</option>
+            <option value="emerald">🌿 Emerald Tech</option>
+            <option value="startup">🔥 Startup Fire</option>
+            <option value="finance">💰 Finance Gold</option>
+            <option value="medical">🏥 Medical Care</option>
+          </select>
+        </div>
+
+        <div className="field-group">
+          <label style={{ fontSize: 11 }}>Visual Style</label>
+          <select
+            className="select-input"
+            value={visualStyle || "minimal"}
+            onChange={(e) => setVisualStyle?.(e.target.value)}
+            style={{ width: "100%", padding: "8px", borderRadius: "6px" }}
+          >
+            <option value="minimal">Minimalist</option>
+            <option value="modern_gradient">Modern Gradient</option>
+            <option value="corporate">Corporate Clean</option>
+            <option value="academic">Academic Paper</option>
+          </select>
+        </div>
+      </div>
+
+      {/* AI & LAYOUT TOGGLES GRID */}
+      <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--accent)", marginBottom: 6 }}>
+        LAYOUT & AI FEATURES
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: "14px" }}>
         <Toggle label="Speaker Notes" checked={includeSpeakerNotes} onChange={setIncludeSpeakerNotes} />
         <Toggle label="Citations" checked={includeCitations} onChange={setIncludeCitations} />
         <Toggle label="Gemini AI" checked={useGemini} onChange={setUseGemini} />
         <Toggle label="Smart Mode" checked={smartMode} onChange={setSmartMode} />
+        <Toggle label="Auto Images (Unsplash)" checked={allowImage ?? true} onChange={setAllowImage} />
+        <Toggle label="Charts & Graphs" checked={allowChart ?? true} onChange={setAllowChart} />
+        <Toggle label="Data Tables" checked={allowTable ?? true} onChange={setAllowTable} />
+        <Toggle label="Paragraph Summaries" checked={allowParagraph ?? true} onChange={setAllowParagraph} />
       </div>
 
       {error ? <div style={{ color: "#fca5a5", fontSize: 12, marginBottom: 10 }}>{error}</div> : null}
