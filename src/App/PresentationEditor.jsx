@@ -423,6 +423,42 @@ export default function PresentationEditor({
                           <span style={{ fontSize: 14, fontWeight: 600, opacity: 0.85 }}>{p.data?.label}</span>
                         </div>
                       ) : null}
+
+                      {p.type === "diagram" ? (
+                        <div style={{ background: "rgba(192, 132, 252, 0.12)", border: "1px dashed rgba(192, 132, 252, 0.5)", borderRadius: 10, padding: 12, textAlign: "center", margin: "8px 0" }}>
+                          <div style={{ fontSize: 11, fontWeight: 800, color: "#c084fc", marginBottom: 4, letterSpacing: 0.5 }}>
+                            ⚙️ SYSTEM ARCHITECTURE & PROCESS FLOW
+                          </div>
+                          <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.5, color: "#f8fafc" }}>
+                            {p.data?.diagram || p.data?.text || "[Input] ➔ [Process] ➔ [Output]"}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {p.type === "table" ? (
+                        <div style={{ overflowX: "auto", margin: "8px 0" }}>
+                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, background: "rgba(0,0,0,0.35)", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)" }}>
+                            {safeArray(p.data?.headers).length > 0 && (
+                              <thead>
+                                <tr style={{ background: "rgba(192, 132, 252, 0.25)" }}>
+                                  {p.data.headers.map((h, hIdx) => (
+                                    <th key={hIdx} style={{ padding: "6px 10px", textAlign: "left", borderBottom: "1px solid rgba(255,255,255,0.15)", fontWeight: 700, color: "#c084fc" }}>{h}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                            )}
+                            <tbody>
+                              {safeArray(p.data?.rows).map((row, rIdx) => (
+                                <tr key={rIdx} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                                  {safeArray(row).map((cell, cIdx) => (
+                                    <td key={cIdx} style={{ padding: "6px 10px", opacity: 0.9 }}>{cell}</td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : null}
                     </div>
                   ))}
                 </div>
@@ -479,6 +515,8 @@ export default function PresentationEditor({
                         {plugin.type === "bullets" && "• Bullet Points Block"}
                         {plugin.type === "paragraph" && "📄 Paragraph Block"}
                         {plugin.type === "stat" && "📊 Key Metric / Stat"}
+                        {plugin.type === "diagram" && "⚙️ Diagram Flow Block"}
+                        {plugin.type === "table" && "📋 Comparison Table Block"}
                         {plugin.type === "notes" && "🗣️ Speaker Notes"}
                       </span>
                       <button
@@ -499,6 +537,57 @@ export default function PresentationEditor({
                           placeholder="Enter section subtitle text..."
                           style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
                         />
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                        />
+                      </div>
+                    ) : null}
+
+                    {/* DIAGRAM */}
+                    {plugin.type === "diagram" ? (
+                      <div>
+                        <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Diagram Workflow (use ➔ to separate steps):</label>
+                        <input
+                          type="text"
+                          value={plugin.data?.diagram || plugin.data?.text || ""}
+                          onChange={(e) => {
+                            handlePluginTextChange(activeSlideIndex, pIdx, "diagram", e.target.value);
+                            handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value);
+                          }}
+                          placeholder="[Input] ➔ [Processing] ➔ [Model] ➔ [Output]"
+                          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
+                        />
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                        />
+                      </div>
+                    ) : null}
+
+                    {/* TABLE */}
+                    {plugin.type === "table" ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        <div>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Table Title:</label>
+                          <input
+                            type="text"
+                            value={plugin.data?.title || ""}
+                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "title", e.target.value)}
+                            placeholder="Feature Comparison Matrix"
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Headers (comma separated):</label>
+                          <input
+                            type="text"
+                            value={safeArray(plugin.data?.headers).join(", ")}
+                            onChange={(e) => handleChartDataChange(activeSlideIndex, pIdx, "headers", e.target.value)}
+                            placeholder="Criterion, Solution A, Solution B"
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
+                          />
+                        </div>
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
@@ -709,6 +798,12 @@ export default function PresentationEditor({
                   </button>
                   <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "stat")}>
                     📈 + Stat Metric
+                  </button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "diagram")}>
+                    ⚙️ + Diagram Flow
+                  </button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "table")}>
+                    📋 + Data Table
                   </button>
                   <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "notes")}>
                     🗣️ + Speaker Notes

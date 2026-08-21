@@ -150,6 +150,23 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
             data: { notes },
           });
         }
+      } else if (p.type === "diagram") {
+        const diagramText = String(p.data?.diagram || p.data?.text || "").trim();
+        if (diagramText) {
+          plugins.push({
+            type: "diagram",
+            data: { diagram: diagramText },
+          });
+        }
+      } else if (p.type === "table") {
+        plugins.push({
+          type: "table",
+          data: {
+            title: String(p.data?.title || "Table").trim(),
+            headers: safeArray(p.data?.headers),
+            rows: safeArray(p.data?.rows),
+          },
+        });
       } else if (p.type === "text") {
         const text = String(p.data?.text || "").trim();
         if (text) {
@@ -627,6 +644,18 @@ export default function PresentationGenerator() {
         newPlugin.data = { number: "95%", label: "Key Metric / Growth Rate" };
       } else if (pluginType === "notes") {
         newPlugin.data = { notes: "Speaker notes for presentation..." };
+      } else if (pluginType === "diagram") {
+        newPlugin.data = { diagram: "[Input Data] ➔ [Processing Engine] ➔ [Model Inference] ➔ [Output Analytics]" };
+      } else if (pluginType === "table") {
+        newPlugin.data = {
+          title: "Feature Comparison Matrix",
+          headers: ["Criterion", "Option A", "Option B"],
+          rows: [
+            ["Performance", "High (99.9% Uptime)", "Standard"],
+            ["Cost Tier", "Enterprise", "Pay-as-you-go"],
+            ["Security", "Advanced Encryption", "Standard OAuth"]
+          ]
+        };
       }
 
       plugins.push(newPlugin);

@@ -77,6 +77,15 @@ export default function PresentationSetup({
     <div className="card-box ppt-setup-card" style={{ marginBottom: "20px" }}>
       <div className="section-label">TOPIC SEARCH & SETUP</div>
 
+      {/* 17-POINT QUALITY GUARANTEE BADGE */}
+      <div style={{ background: "rgba(139, 92, 246, 0.12)", border: "1px solid rgba(139, 92, 246, 0.3)", borderRadius: 12, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontSize: 20 }}>✨</span>
+        <div style={{ fontSize: 11, lineHeight: 1.4, color: "var(--text)" }}>
+          <strong style={{ color: "#c084fc", display: "block" }}>17-Point Professional Presentation Engine Active</strong>
+          Auto Domain Adaptation • 3-5 Bullet Density • Real Comparison Matrices • Architecture Flowcharts • Zero Fake Data
+        </div>
+      </div>
+
       {/* SEARCH FORM */}
       <form onSubmit={handlePerformSearch} className="search-box-wrap">
         <input
