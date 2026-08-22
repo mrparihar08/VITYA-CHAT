@@ -615,3 +615,171 @@ html, body, #root {
 body {
   margin: 0;
 }
+
+/* Presentation Setup & Editor Responsive CSS (Consistent Top Horizontal Layout) */
+.editor-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.slide-navigation-bar {
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.slide-horizontal-carousel {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 2px 10px 2px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  box-sizing: border-box;
+}
+
+.slide-horizontal-carousel::-webkit-scrollbar {
+  height: 6px;
+}
+
+.slide-horizontal-carousel::-webkit-scrollbar-thumb {
+  background: rgba(192, 132, 252, 0.4);
+  border-radius: 4px;
+}
+
+.slide-tab-item {
+  flex: 1 1 calc(50% - 6px);
+  min-width: 240px;
+  box-sizing: border-box;
+  scroll-snap-align: start;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.slide-tab-item:hover, .slide-tab-item.active {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: #c084fc;
+}
+
+.slide-tab-number {
+  font-size: 10px;
+  font-weight: 800;
+  color: #c084fc;
+  text-transform: uppercase;
+}
+
+.slide-tab-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.feature-block-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.feature-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: 12px;
+  color: #c084fc;
+}
+
+.add-feature-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
+  margin-top: 12px;
+}
+
+.btn-ui {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.btn-ui.primary {
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
+}
+
+.btn-ui.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.btn-ui.danger {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.btn-ui.sm {
+  padding: 4px 10px;
+  font-size: 11px;
+  border-radius: 6px;
+}
+
+.presenter-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(9, 13, 24, 0.96);
+  backdrop-filter: blur(16px);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+@media (max-width: 600px) {
+  .slide-tab-item {
+    flex: 0 0 100%;
+    min-width: 100%;
+  }
+
+  .presenter-overlay {
+    padding: 14px !important;
+  }
+
+  .presenter-canvas {
+    padding: 16px !important;
+  }
+}

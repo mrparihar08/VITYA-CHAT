@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 
 export const BACKGROUND_PRESETS = [
   { id: "dark_gradient", name: "Midnight Purple", bg: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #31104b 100%)", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#31104b" },
@@ -78,80 +78,95 @@ export function VisualChartPreview({ data }) {
   );
 }
 
-function FeatureFormattingBar({ pluginData, onChangeField }) {
+function FeatureFormattingBar({ pluginData, onChangeField, onRefineText }) {
   return (
     <div
       style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
         gap: 6,
         background: "rgba(255,255,255,0.03)",
         padding: "6px 8px",
         borderRadius: "6px",
         border: "1px solid rgba(255,255,255,0.08)",
         marginTop: 6,
+        flexWrap: "wrap",
       }}
     >
-      <div>
-        <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Font Size (Pt):</label>
-        <input
-          type="number"
-          min="10"
-          max="60"
-          value={pluginData?.font_size || 14}
-          onChange={(e) => onChangeField("font_size", Number(e.target.value))}
-          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
-        />
+      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <div>
+          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Font Size (Pt):</label>
+          <input
+            type="number"
+            min="10"
+            max="60"
+            value={pluginData?.font_size || 14}
+            onChange={(e) => onChangeField("font_size", Number(e.target.value))}
+            style={{ width: "60px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+          />
+        </div>
+        <div>
+          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Align:</label>
+          <select
+            value={pluginData?.alignment || pluginData?.align || "left"}
+            onChange={(e) => {
+              onChangeField("alignment", e.target.value);
+              onChangeField("align", e.target.value);
+            }}
+            style={{ width: "70px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+          >
+            <option value="left">Left</option>
+            <option value="center">Center</option>
+            <option value="right">Right</option>
+            <option value="justify">Justify</option>
+          </select>
+        </div>
+        <div>
+          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Top (in):</label>
+          <input
+            type="number"
+            step="0.1"
+            value={pluginData?.top ?? ""}
+            onChange={(e) => onChangeField("top", e.target.value ? Number(e.target.value) : "")}
+            placeholder="Auto"
+            style={{ width: "55px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+          />
+        </div>
+        <div>
+          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Left (in):</label>
+          <input
+            type="number"
+            step="0.1"
+            value={pluginData?.left ?? ""}
+            onChange={(e) => onChangeField("left", e.target.value ? Number(e.target.value) : "")}
+            placeholder="Auto"
+            style={{ width: "55px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+          />
+        </div>
+        <div>
+          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Width (in):</label>
+          <input
+            type="number"
+            step="0.1"
+            value={pluginData?.width ?? ""}
+            onChange={(e) => onChangeField("width", e.target.value ? Number(e.target.value) : "")}
+            placeholder="Auto"
+            style={{ width: "55px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+          />
+        </div>
       </div>
-      <div>
-        <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Align:</label>
-        <select
-          value={pluginData?.alignment || pluginData?.align || "left"}
-          onChange={(e) => {
-            onChangeField("alignment", e.target.value);
-            onChangeField("align", e.target.value);
-          }}
-          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+
+      {onRefineText ? (
+        <button
+          type="button"
+          onClick={onRefineText}
+          className="btn-ui primary sm"
+          style={{ fontSize: 10, padding: "4px 10px", background: "linear-gradient(135deg, #8b5cf6, #ec4899)", border: "none", borderRadius: 6, cursor: "pointer" }}
         >
-          <option value="left">Left</option>
-          <option value="center">Center</option>
-          <option value="right">Right</option>
-          <option value="justify">Justify</option>
-        </select>
-      </div>
-      <div>
-        <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Top (in):</label>
-        <input
-          type="number"
-          step="0.1"
-          value={pluginData?.top ?? ""}
-          onChange={(e) => onChangeField("top", e.target.value ? Number(e.target.value) : "")}
-          placeholder="Auto"
-          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
-        />
-      </div>
-      <div>
-        <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Left (in):</label>
-        <input
-          type="number"
-          step="0.1"
-          value={pluginData?.left ?? ""}
-          onChange={(e) => onChangeField("left", e.target.value ? Number(e.target.value) : "")}
-          placeholder="Auto"
-          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
-        />
-      </div>
-      <div>
-        <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Width (in):</label>
-        <input
-          type="number"
-          step="0.1"
-          value={pluginData?.width ?? ""}
-          onChange={(e) => onChangeField("width", e.target.value ? Number(e.target.value) : "")}
-          placeholder="Auto"
-          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
-        />
-      </div>
+          ✨ AI Polish & Refine
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -198,6 +213,18 @@ export default function PresentationEditor({
   const activeSlide = plan?.slides?.[activeSlideIndex];
   const presenterSlide = plan?.slides?.[presenterSlideIndex];
 
+  const carouselRef = useRef(null);
+
+  const scrollCarousel = (direction) => {
+    if (carouselRef.current) {
+      const scrollAmount = carouselRef.current.clientWidth * 0.8;
+      carouselRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   // Helper to dynamically fetch exact topic-matched HD Unsplash image via backend API
   const handleAutoUnsplashFetch = async (pIdx, query) => {
     const searchTopic = query || activeSlide?.title || "presentation visual";
@@ -216,6 +243,36 @@ export default function PresentationEditor({
     const fallbackUrl = `https://source.unsplash.com/featured/1000x600/?${encodeURIComponent(searchTopic)}`;
     handlePluginTextChange(activeSlideIndex, pIdx, "url", fallbackUrl);
     handlePluginTextChange(activeSlideIndex, pIdx, "path", fallbackUrl);
+  };
+
+  // Helper to use Gemini AI to refine, polish, or convert slide content into punchy bullets
+  const handleAIRefine = async (pIdx, action = "bullets") => {
+    const plugin = activeSlide?.plugins?.[pIdx];
+    if (!plugin) return;
+    const currentText = plugin.data?.text || safeArray(plugin.data?.points).join("\n") || plugin.data?.diagram || "";
+    if (!currentText) return;
+
+    try {
+      const res = await fetch("http://localhost:8000/api/presentation/refine-slide", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: currentText, action }),
+      });
+      const data = await res.json();
+      if (data?.refined_text) {
+        if (plugin.type === "bullets") {
+          const newPoints = data.refined_text.split("\n").map(s => s.replace(/^[•\-\*\d\.]+\s*/, "").trim()).filter(Boolean);
+          handlePluginTextChange(activeSlideIndex, pIdx, "points", newPoints);
+        } else {
+          handlePluginTextChange(activeSlideIndex, pIdx, "text", data.refined_text);
+          if (plugin.type === "diagram") {
+            handlePluginTextChange(activeSlideIndex, pIdx, "diagram", data.refined_text);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("AI Refine API call failed", err);
+    }
   };
 
   return (
@@ -251,65 +308,82 @@ export default function PresentationEditor({
           />
         </div>
 
-        <div className="editor-workspace">
-          {/* INDIVIDUAL SLIDE SELECTION SIDEBAR */}
-          <div className="slide-list-panel">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-              <span style={{ fontSize: 12, fontWeight: "bold", color: "#c084fc" }}>
-                Slides ({plan?.slides?.length || 0})
-              </span>
-              <button className="btn-ui primary sm" onClick={handleAddSlide}>
-                + New Slide
-              </button>
-            </div>
-
-            {safeArray(plan?.slides).map((slideItem, idx) => (
-              <div
-                key={idx}
-                className={`slide-tab-item ${activeSlideIndex === idx ? "active" : ""}`}
-                onClick={() => setActiveSlideIndex(idx)}
-              >
-                <div className="slide-tab-number">Slide {idx + 1}</div>
-                <div className="slide-tab-title">{slideItem.title || "Untitled Slide"}</div>
-                {slideItem.subtitle ? (
-                  <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {slideItem.subtitle}
-                  </div>
-                ) : null}
-
-                {/* REORDER / DELETE CONTROLS */}
-                <div style={{ display: "flex", gap: 4, marginTop: 8 }} onClick={(e) => e.stopPropagation()}>
-                  <button
-                    className="btn-ui secondary sm"
-                    onClick={() => handleMoveSlide(idx, -1)}
-                    disabled={idx === 0}
-                    title="Move Slide Up"
-                  >
-                    ↑ Up
+        <div className="editor-workspace" style={{ display: "flex", flexDirection: "column", width: "100%", gap: 16 }}>
+          {/* HORIZONTAL SLIDE SELECTION CAROUSEL BAR (ALWAYS FULL-WIDTH ON TOP) */}
+          <div className="slide-navigation-bar" style={{ background: "rgba(15, 23, 42, 0.4)", border: "1px solid var(--panel-border)", borderRadius: 14, padding: 12, marginBottom: 16, overflow: "hidden", width: "100%", boxSizing: "border-box" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "#c084fc", letterSpacing: 0.5 }}>
+                  🖼️ Presentation Slides ({plan?.slides?.length || 0})
+                </span>
+                <div style={{ display: "flex", gap: 4 }}>
+                  <button className="btn-ui secondary sm" onClick={() => scrollCarousel("left")} title="Scroll Left (2 Slides)" style={{ padding: "3px 8px" }}>
+                    ◀
                   </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    onClick={() => handleMoveSlide(idx, 1)}
-                    disabled={idx === (plan?.slides?.length || 0) - 1}
-                    title="Move Slide Down"
-                  >
-                    ↓ Down
-                  </button>
-                  <button
-                    className="btn-ui danger sm"
-                    onClick={() => handleDeleteSlide(idx)}
-                    title="Delete Slide"
-                  >
-                    🗑️
+                  <button className="btn-ui secondary sm" onClick={() => scrollCarousel("right")} title="Scroll Right (2 Slides)" style={{ padding: "3px 8px" }}>
+                    ▶
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
+              <button className="btn-ui primary sm" onClick={handleAddSlide} style={{ flexShrink: 0, padding: "5px 12px" }}>
+                + Add New Slide
+              </button>
+            </div>
 
-          {/* SELECTED SLIDE FEATURE INSPECTOR & CANVAS PREVIEW */}
+            <div className="slide-horizontal-carousel" ref={carouselRef}>
+              {safeArray(plan?.slides).map((slideItem, idx) => (
+                <div
+                  key={idx}
+                  className={`slide-tab-item ${activeSlideIndex === idx ? "active" : ""}`}
+                  onClick={() => setActiveSlideIndex(idx)}
+                >
+                  <div>
+                    <div className="slide-tab-number">Slide {idx + 1}</div>
+                    <div className="slide-tab-title">{slideItem.title || "Untitled Slide"}</div>
+                    {slideItem.subtitle ? (
+                      <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {slideItem.subtitle}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {/* REORDER / DELETE CONTROLS */}
+                  <div style={{ display: "flex", gap: 4, marginTop: 10, width: "100%" }} onClick={(e) => e.stopPropagation()}>
+                    <button
+                      className="btn-ui secondary sm"
+                      onClick={() => handleMoveSlide(idx, -1)}
+                      disabled={idx === 0}
+                      title="Move Left"
+                      style={{ flex: 1, padding: "3px 6px", fontSize: 10, whiteSpace: "nowrap" }}
+                    >
+                      ← Left
+                    </button>
+                    <button
+                      className="btn-ui secondary sm"
+                      onClick={() => handleMoveSlide(idx, 1)}
+                      disabled={idx === (plan?.slides?.length || 0) - 1}
+                      title="Move Right"
+                      style={{ flex: 1, padding: "3px 6px", fontSize: 10, whiteSpace: "nowrap" }}
+                    >
+                      Right →
+                    </button>
+                    <button
+                      className="btn-ui danger sm"
+                      onClick={() => handleDeleteSlide(idx)}
+                      title="Delete Slide"
+                      style={{ padding: "3px 8px", fontSize: 11 }}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+           
+          {/* SELECTED SLIDE FEATURE INSPECTOR & CANVAS PREVIEW (ALWAYS BELOW SLIDE CAROUSEL) */}
           {activeSlide ? (
-            <div className="feature-inspector-container">
+            <div className="feature-inspector-container" style={{ display: "flex", flexDirection: "column", width: "100%", gap: 16 }}>
               {/* TOP SLIDE TOOLBAR & CUSTOM COLOR PICKER */}
               <div style={{ display: "flex", flexDirection: "column", gap: 10, background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 12, border: "1px solid var(--panel-border)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -328,12 +402,23 @@ export default function PresentationEditor({
                     </select>
                   </div>
 
-                  <div style={{ display: "flex", gap: 6 }}>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                    {downloadUrl ? (
+                      <a
+                        className="btn-ui primary sm"
+                        href={downloadUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ background: "linear-gradient(135deg, #10b981, #059669)", border: "none" }}
+                      >
+                        Download
+                      </a>
+                    ) : null}
                     <button className="btn-ui secondary sm" onClick={() => handleDuplicateSlide(activeSlideIndex)}>
-                      📋 Duplicate Slide
+                      📋Duplicate Slide
                     </button>
                     <button className="btn-ui danger sm" onClick={() => handleDeleteSlide(activeSlideIndex)}>
-                      🗑️ Delete Slide
+                      🗑️
                     </button>
                   </div>
                 </div>
@@ -356,7 +441,7 @@ export default function PresentationEditor({
                   </div>
                 )}
               </div>
-
+              
               {/* 16:9 LIVE CANVAS DISPLAY */}
               <div
                 className="slide-canvas-box"
@@ -373,7 +458,7 @@ export default function PresentationEditor({
                     <div style={{ fontSize: 15, opacity: 0.8, fontWeight: 600 }}>{activeSlide.subtitle}</div>
                   ) : null}
                 </div>
-
+                
                 {/* LIVE PLUGINS CONTENT */}
                 <div style={{ flex: 1, overflowY: "auto", margin: "16px 0", display: "flex", flexDirection: "column", gap: 10 }}>
                   {safeArray(activeSlide.plugins).map((p, pIdx) => (
@@ -425,14 +510,94 @@ export default function PresentationEditor({
                       ) : null}
 
                       {p.type === "diagram" ? (
-                        <div style={{ background: "rgba(192, 132, 252, 0.12)", border: "1px dashed rgba(192, 132, 252, 0.5)", borderRadius: 10, padding: 12, textAlign: "center", margin: "8px 0" }}>
-                          <div style={{ fontSize: 11, fontWeight: 800, color: "#c084fc", marginBottom: 4, letterSpacing: 0.5 }}>
-                            ⚙️ SYSTEM ARCHITECTURE & PROCESS FLOW
-                          </div>
-                          <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.5, color: "#f8fafc" }}>
-                            {p.data?.diagram || p.data?.text || "[Input] ➔ [Process] ➔ [Output]"}
-                          </div>
-                        </div>
+                        (() => {
+                          const diagType = String(p.data?.diagram_type || "flowchart").toLowerCase();
+                          const textRaw = p.data?.diagram || p.data?.text || "[Input] ➔ [Processing] ➔ [Output]";
+                          const steps = textRaw.split(/➔|->|→/).map(s => s.trim()).filter(Boolean);
+                          
+                          const headers = {
+                            flowchart: "🔄 PROCESS & WORKFLOW DIAGRAM",
+                            architecture: "🏛️ SYSTEM ARCHITECTURE STACK",
+                            timeline: "📅 TIMELINE & ROADMAP MILESTONES",
+                            io_cards: "📥 INPUT  │  ⚙️ PROCESSING  │  📤 OUTPUT",
+                            mindmap: "🧠 CONCEPT & CATEGORY MAP",
+                          };
+                          const headerTitle = headers[diagType] || "⚙️ SYSTEM ARCHITECTURE & PROCESS FLOW";
+
+                          return (
+                            <div style={{ background: "rgba(192, 132, 252, 0.12)", border: "1px dashed rgba(192, 132, 252, 0.5)", borderRadius: 10, padding: 12, textAlign: p.data?.alignment || "center", margin: "8px 0" }}>
+                              <div style={{ fontSize: 11, fontWeight: 800, color: "#c084fc", marginBottom: 8, letterSpacing: 0.5 }}>
+                                {headerTitle}
+                              </div>
+                              
+                              {diagType === "flowchart" && (
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
+                                  {steps.map((step, sIdx) => (
+                                    <React.Fragment key={sIdx}>
+                                      <div style={{ background: "rgba(0,0,0,0.4)", border: "1px solid #c084fc", borderRadius: 6, padding: "6px 12px", fontSize: p.data?.font_size || 12, fontWeight: 700, color: "#fff" }}>
+                                        {step}
+                                      </div>
+                                      {sIdx < steps.length - 1 && <span style={{ color: "#c084fc", fontSize: 16 }}>➔</span>}
+                                    </React.Fragment>
+                                  ))}
+                                </div>
+                              )}
+
+                              {diagType === "architecture" && (
+                                <div style={{ display: "flex", flexDirection: "column", gap: 6, maxWidth: "85%", margin: "0 auto" }}>
+                                  {steps.map((step, sIdx) => (
+                                    <div key={sIdx} style={{ background: "rgba(192, 132, 252, 0.2)", border: "1px solid #c084fc", borderRadius: 6, padding: "6px 12px", fontSize: p.data?.font_size || 12, fontWeight: 700, textAlign: "center", color: "#fff" }}>
+                                      Layer {sIdx + 1}: {step}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {diagType === "timeline" && (
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, overflowX: "auto", padding: "4px 0" }}>
+                                  {steps.map((step, sIdx) => (
+                                    <div key={sIdx} style={{ flex: 1, background: "rgba(0,0,0,0.4)", borderTop: "3px solid #c084fc", borderRadius: "0 0 6px 6px", padding: 8, fontSize: p.data?.font_size || 12, textAlign: "center", color: "#fff" }}>
+                                      <div style={{ fontSize: 10, color: "#c084fc", fontWeight: 800 }}>PHASE {sIdx + 1}</div>
+                                      <div style={{ fontWeight: 600 }}>{step}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {diagType === "io_cards" && (
+                                <div style={{ display: "grid", gridTemplateColumns: steps.length === 3 ? "1fr 1fr 1fr" : "repeat(auto-fit, minmax(100px, 1fr))", gap: 8 }}>
+                                  {steps.map((step, sIdx) => {
+                                    const colLabels = ["INPUT", "PROCESS", "OUTPUT"];
+                                    return (
+                                      <div key={sIdx} style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 8, textAlign: "center" }}>
+                                        <div style={{ fontSize: 10, fontWeight: 800, color: "#c084fc", marginBottom: 2 }}>
+                                          {colLabels[sIdx] || `STEP ${sIdx + 1}`}
+                                        </div>
+                                        <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 600 }}>{step}</div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                              {diagType === "mindmap" && (
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                                  <div style={{ background: "#c084fc", color: "#000", fontWeight: 800, padding: "4px 14px", borderRadius: 20, fontSize: 12 }}>
+                                    {steps[0] || "Core Concept"}
+                                  </div>
+                                  {steps.length > 1 && <div style={{ width: 2, height: 12, background: "#c084fc" }} />}
+                                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+                                    {steps.slice(1).map((subStep, sIdx) => (
+                                      <div key={sIdx} style={{ background: "rgba(0,0,0,0.4)", border: "1px solid #c084fc", borderRadius: 12, padding: "4px 10px", fontSize: p.data?.font_size || 12, color: "#fff" }}>
+                                        {subStep}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()
                       ) : null}
 
                       {p.type === "table" ? (
@@ -462,7 +627,7 @@ export default function PresentationEditor({
                     </div>
                   ))}
                 </div>
-
+                
                 {/* SPEAKER NOTES DISPLAY */}
                 {activeSlide.plugins?.find((p) => p.type === "notes") ? (
                   <div style={{ background: "rgba(0,0,0,0.3)", padding: 8, borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.8)" }}>
@@ -470,7 +635,39 @@ export default function PresentationEditor({
                   </div>
                 ) : null}
               </div>
-
+               {/* ADD FEATURE TOOLBAR */}
+                <div className="add-feature-bar">
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)", width: "100%", marginBottom: 4 }}>
+                    ➕ Add Feature Element to Slide {activeSlideIndex + 1}:
+                  </span>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "subtitle")}>
+                    📝 + Subtitle
+                  </button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "chart")}>
+                    📊 + Chart Block
+                  </button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "image")}>
+                    🖼️ + Image Block
+                  </button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "bullets")}>
+                    • + Bullet Points
+                  </button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "paragraph")}>
+                    📄 + Paragraph
+                  </button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "stat")}>
+                    📈 + Stat Metric
+                  </button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "diagram")}>
+                    ⚙️ + Diagram Flow
+                  </button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "table")}>
+                    📋 + Data Table
+                  </button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "notes")}>
+                    🗣️ + Speaker Notes
+                  </button>
+                </div>
               {/* SLIDE BASIC PROPERTIES */}
               <div className="card-box" style={{ background: "rgba(0,0,0,0.3)" }}>
                 <div style={{ fontWeight: 800, fontSize: 13, color: "#c084fc", marginBottom: 10 }}>
@@ -498,7 +695,7 @@ export default function PresentationEditor({
                   </div>
                 </div>
               </div>
-
+               
               {/* EDITABLE FEATURE BLOCKS LIST */}
               <div>
                 <div style={{ fontWeight: 800, fontSize: 13, color: "#c084fc", marginBottom: 10 }}>
@@ -540,27 +737,47 @@ export default function PresentationEditor({
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                          onRefineText={() => handleAIRefine(pIdx, "headline")}
                         />
                       </div>
                     ) : null}
 
-                    {/* DIAGRAM */}
+                    {/* DIAGRAM FEATURE BLOCK EDITOR */}
                     {plugin.type === "diagram" ? (
-                      <div>
-                        <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Diagram Workflow (use ➔ to separate steps):</label>
-                        <input
-                          type="text"
-                          value={plugin.data?.diagram || plugin.data?.text || ""}
-                          onChange={(e) => {
-                            handlePluginTextChange(activeSlideIndex, pIdx, "diagram", e.target.value);
-                            handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value);
-                          }}
-                          placeholder="[Input] ➔ [Processing] ➔ [Model] ➔ [Output]"
-                          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
-                        />
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        <div>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Diagram Style / Type:</label>
+                          <select
+                            value={plugin.data?.diagram_type || "flowchart"}
+                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "diagram_type", e.target.value)}
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
+                          >
+                            <option value="flowchart">🔄 Flowchart (Process Flow)</option>
+                            <option value="architecture">🏛️ Architecture Stack (Multi-Tier)</option>
+                            <option value="timeline">📅 Timeline Roadmap (Milestones)</option>
+                            <option value="io_cards">📥 Input/Output Cards (3-Column)</option>
+                            <option value="mindmap">🧠 Mindmap (Category Tree)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Diagram Workflow Text (use ➔ to separate steps):</label>
+                          <input
+                            type="text"
+                            value={plugin.data?.diagram || plugin.data?.text || ""}
+                            onChange={(e) => {
+                              handlePluginTextChange(activeSlideIndex, pIdx, "diagram", e.target.value);
+                              handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value);
+                            }}
+                            placeholder="[Input] ➔ [Processing] ➔ [Model] ➔ [Output]"
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
+                          />
+                        </div>
+
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                          onRefineText={() => handleAIRefine(pIdx, "bullets")}
                         />
                       </div>
                     ) : null}
@@ -716,6 +933,7 @@ export default function PresentationEditor({
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                          onRefineText={() => handleAIRefine(pIdx, "bullets")}
                         />
                       </div>
                     ) : null}
@@ -733,6 +951,7 @@ export default function PresentationEditor({
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                          onRefineText={() => handleAIRefine(pIdx, "summarize")}
                         />
                       </div>
                     ) : null}
@@ -776,63 +995,8 @@ export default function PresentationEditor({
                   </div>
                 ))}
 
-                {/* ADD FEATURE TOOLBAR */}
-                <div className="add-feature-bar">
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)", width: "100%", marginBottom: 4 }}>
-                    ➕ Add Feature Element to Slide {activeSlideIndex + 1}:
-                  </span>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "subtitle")}>
-                    📝 + Subtitle
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "chart")}>
-                    📊 + Chart Block
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "image")}>
-                    🖼️ + Image Block
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "bullets")}>
-                    • + Bullet Points
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "paragraph")}>
-                    📄 + Paragraph
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "stat")}>
-                    📈 + Stat Metric
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "diagram")}>
-                    ⚙️ + Diagram Flow
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "table")}>
-                    📋 + Data Table
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "notes")}>
-                    🗣️ + Speaker Notes
-                  </button>
-                </div>
+               
               </div>
-
-              {/* DOWNLOAD SUCCESS BANNER */}
-              {downloadUrl ? (
-                <div className="success-banner" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <strong style={{ fontSize: 15, display: "block", color: "#86efac" }}>
-                      🎉 {generatedMeta?.title || "Presentation Deck Ready!"}
-                    </strong>
-                    <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
-                      Compiled directly from your custom edited slides!
-                    </div>
-                  </div>
-                  <a
-                    className="btn-ui primary"
-                    href={downloadUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ whiteSpace: "nowrap", flexShrink: 0, padding: "10px 20px" }}
-                  >
-                    📥 Download File ({(exportFormat || "pptx").toUpperCase()})
-                  </a>
-                </div>
-              ) : null}
             </div>
           ) : null}
         </div>
@@ -847,12 +1011,29 @@ export default function PresentationEditor({
             </div>
             <div style={{ display: "flex", gap: 10 }}>
               <button
+                className="btn-ui primary sm"
+                onClick={() => {
+                  const noteText = presenterSlide.plugins?.find((p) => p.type === "notes")?.data?.notes || presenterSlide.title;
+                  if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                    const utt = new SpeechSynthesisUtterance(noteText);
+                    window.speechSynthesis.speak(utt);
+                  }
+                }}
+                style={{ background: "linear-gradient(135deg, #10b981, #06b6d4)", border: "none" }}
+              >
+                🗣️ Play AI Voiceover
+              </button>
+              <button
                 className="btn-ui secondary sm"
                 onClick={() => setShowPresenterNotes(!showPresenterNotes)}
               >
                 {showPresenterNotes ? "Hide Notes" : "Show Notes"}
               </button>
-              <button className="btn-ui danger sm" onClick={stopPresentationMode}>
+              <button className="btn-ui danger sm" onClick={() => {
+                if (window.speechSynthesis) window.speechSynthesis.cancel();
+                stopPresentationMode();
+              }}>
                 ✕ Exit (Esc)
               </button>
             </div>

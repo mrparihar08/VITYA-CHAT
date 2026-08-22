@@ -58,49 +58,22 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
       }
     : undefined;
 
-  const validLayouts = [
-    "title_slide",
-    "title_content",
-    "mixed_content_slide",
-    "chart_slide",
-    "image_slide",
-    "bullets_slide",
-    "section_slide",
-    "table_slide",
-  ];
-
   const slides = safeArray(rawPlan.slides).map((slide, idx) => {
     const slideTitle = (slide.title || `Slide ${idx + 1}`).trim();
     let slideSubtitle = (slide.subtitle || "").trim();
-
-    let layout = validLayouts.includes(slide.layout) ? slide.layout : "title_content";
-    if (idx === 0 && (!slide.layout || slide.layout === "title_content")) {
-      layout = "title_slide";
-    }
+    let layout = slide.layout || "title_content";
 
     const plugins = [];
 
     safeArray(slide.plugins).forEach((p) => {
       if (!p || !p.type) return;
 
-      if (p.type === "subtitle") {
-        const subTxt = String(p.data?.text || "").trim();
-        if (!slideSubtitle && subTxt) {
-          slideSubtitle = subTxt;
-        } else if (subTxt) {
-          plugins.push({
-            type: "text",
-            data: { text: subTxt },
-          });
-        }
-      } else if (p.type === "bullets") {
-        const points = safeArray(p.data?.points)
-          .map((pt) => String(pt).trim())
-          .filter(Boolean);
+      if (p.type === "bullets") {
+        const points = safeArray(p.data?.points).map((pt) => String(pt).trim()).filter(Boolean);
         if (points.length > 0) {
           plugins.push({
             type: "bullets",
-            data: { points },
+            data: { ...p.data, points }, // ✅ Preserves font_size, alignment, top, left!
           });
         }
       } else if (p.type === "paragraph") {
@@ -108,38 +81,52 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
         if (text) {
           plugins.push({
             type: "paragraph",
-            data: { text },
+            data: { ...p.data, text }, // ✅ Preserves font_size, alignment!
           });
         }
-      } else if (p.type === "stat") {
-        const num = String(p.data?.number || "").trim();
-        const lbl = String(p.data?.label || "").trim();
-        const combinedText = [num, lbl].filter(Boolean).join(" - ");
-        if (combinedText) {
+      } else if (p.type === "subtitle" || p.type === "text") {
+        const text = String(p.data?.text || "").trim();
+        if (text) {
           plugins.push({
             type: "text",
-            data: { text: combinedText },
+            data: { ...p.data, text }, // ✅ Preserves font_size!
           });
         }
       } else if (p.type === "chart") {
         plugins.push({
           type: "chart",
           data: {
+            ...p.data,
             chart_type: p.data?.chart_type || "bar",
             title: String(p.data?.title || "Metrics").trim(),
             labels: safeArray(p.data?.labels),
             values: safeArray(p.data?.values).map(Number),
           },
         });
+      } else if (p.type === "diagram") {
+        const diagramText = String(p.data?.diagram || p.data?.text || "").trim();
+        if (diagramText) {
+          plugins.push({
+            type: "diagram",
+            data: { ...p.data, diagram: diagramText, diagram_type: p.data?.diagram_type || "flowchart" },
+          });
+        }
+      } else if (p.type === "table") {
+        plugins.push({
+          type: "table",
+          data: {
+            ...p.data,
+            title: String(p.data?.title || "Table").trim(),
+            headers: safeArray(p.data?.headers),
+            rows: safeArray(p.data?.rows),
+          },
+        });
       } else if (p.type === "image") {
-        const url = String(p.data?.url || "").trim();
+        const url = String(p.data?.url || p.data?.path || "").trim();
         if (url) {
           plugins.push({
             type: "image",
-            data: {
-              url,
-              caption: String(p.data?.caption || "").trim(),
-            },
+            data: { ...p.data, url, path: url, caption: String(p.data?.caption || "").trim() },
           });
         }
       } else if (p.type === "notes") {
@@ -147,43 +134,13 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
         if (notes) {
           plugins.push({
             type: "notes",
-            data: { notes },
-          });
-        }
-      } else if (p.type === "diagram") {
-        const diagramText = String(p.data?.diagram || p.data?.text || "").trim();
-        if (diagramText) {
-          plugins.push({
-            type: "diagram",
-            data: { diagram: diagramText },
-          });
-        }
-      } else if (p.type === "table") {
-        plugins.push({
-          type: "table",
-          data: {
-            title: String(p.data?.title || "Table").trim(),
-            headers: safeArray(p.data?.headers),
-            rows: safeArray(p.data?.rows),
-          },
-        });
-      } else if (p.type === "text") {
-        const text = String(p.data?.text || "").trim();
-        if (text) {
-          plugins.push({
-            type: "text",
-            data: { text },
+            data: { ...p.data, notes },
           });
         }
       }
     });
 
-    return {
-      layout,
-      title: slideTitle,
-      subtitle: slideSubtitle || undefined,
-      plugins,
-    };
+    return { layout, title: slideTitle, subtitle: slideSubtitle || undefined, plugins };
   });
 
   return { title, theme, slides };

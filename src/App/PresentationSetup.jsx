@@ -81,8 +81,8 @@ export default function PresentationSetup({
       <div style={{ background: "rgba(139, 92, 246, 0.12)", border: "1px solid rgba(139, 92, 246, 0.3)", borderRadius: 12, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
         <span style={{ fontSize: 20 }}>✨</span>
         <div style={{ fontSize: 11, lineHeight: 1.4, color: "var(--text)" }}>
-          <strong style={{ color: "#c084fc", display: "block" }}>17-Point Professional Presentation Engine Active</strong>
-          Auto Domain Adaptation • 3-5 Bullet Density • Real Comparison Matrices • Architecture Flowcharts • Zero Fake Data
+          <strong style={{ color: "#c084fc", display: "block" }}>17-Point Professional Widescreen Engine Active</strong>
+          Auto Domain Adaptation • 3-5 Bullet Density • Real Comparison Matrices • 5 Diagram Flowcharts • Zero Fake Data
         </div>
       </div>
 
