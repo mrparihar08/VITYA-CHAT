@@ -210,38 +210,44 @@ export default function PresentationSetup({
         </div>
       </div>
 
-      {/* THEME & VISUAL STYLE SELECTION */}
+      {/* THEME & VISUAL DESIGN SELECTION */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
         <div className="field-group">
-          <label style={{ fontSize: 11 }}>Color Theme</label>
+          <label style={{ fontSize: 11, fontWeight: "bold", color: "#c084fc" }}>🎨 Design & Color Theme</label>
           <select
             className="select-input"
             value={contentTheme || "auto"}
             onChange={(e) => setContentTheme?.(e.target.value)}
-            style={{ width: "100%", padding: "8px", borderRadius: "6px" }}
+            style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "rgba(0,0,0,0.4)", color: "#fff", border: "1px solid var(--panel-border)" }}
           >
-            <option value="auto">✨ Auto Detect</option>
-            <option value="dark">🌙 Midnight Dark</option>
-            <option value="light">☀️ Clean Light</option>
-            <option value="emerald">🌿 Emerald Tech</option>
-            <option value="startup">🔥 Startup Fire</option>
-            <option value="finance">💰 Finance Gold</option>
-            <option value="medical">🏥 Medical Care</option>
+            <option value="auto">✨ Auto Detect (AI Smart Match)</option>
+            <option value="dark">🌌 Midnight Purple</option>
+            <option value="ocean_blue">🌊 Ocean Breeze</option>
+            <option value="emerald">🌲 Emerald Forest</option>
+            <option value="cyberpunk_neon">⚡ Cyberpunk Neon</option>
+            <option value="wall_street">💵 Wall Street Finance</option>
+            <option value="executive_gold">🏆 Executive Gold</option>
+            <option value="velvet_rose">🌹 Velvet Rose</option>
+            <option value="slate">🪨 Executive Slate</option>
+            <option value="light">☀️ Minimal Light</option>
+            <option value="titanium_white">🏛️ Titanium White</option>
+            <option value="sunset_glow">🌅 Sunset Glow</option>
           </select>
         </div>
 
         <div className="field-group">
-          <label style={{ fontSize: 11 }}>Visual Style</label>
+          <label style={{ fontSize: 11, fontWeight: "bold", color: "#c084fc" }}>🖌️ Visual Layout Style</label>
           <select
             className="select-input"
             value={visualStyle || "minimal"}
             onChange={(e) => setVisualStyle?.(e.target.value)}
-            style={{ width: "100%", padding: "8px", borderRadius: "6px" }}
+            style={{ width: "100%", padding: "8px", borderRadius: "6px", background: "rgba(0,0,0,0.4)", color: "#fff", border: "1px solid var(--panel-border)" }}
           >
-            <option value="minimal">Minimalist</option>
-            <option value="modern_gradient">Modern Gradient</option>
-            <option value="corporate">Corporate Clean</option>
-            <option value="academic">Academic Paper</option>
+            <option value="minimal">Minimalist Clean</option>
+            <option value="modern_gradient">Modern Glassmorphism Gradient</option>
+            <option value="corporate">Corporate Executive</option>
+            <option value="academic">Academic Paper & Research</option>
+            <option value="cyber">Cyberpunk Dark Neon</option>
           </select>
         </div>
       </div>

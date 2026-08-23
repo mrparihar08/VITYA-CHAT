@@ -167,15 +167,70 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
       }
     });
 
-    return { layout, title: slideTitle, subtitle: slideSubtitle || undefined, plugins };
+    return {
+      layout,
+      title: slideTitle,
+      subtitle: slideSubtitle || undefined,
+      title_color: slide.title_color,
+      title_font_size: slide.title_font_size,
+      title_bold: slide.title_bold,
+      title_align: slide.title_align,
+      subtitle_color: slide.subtitle_color,
+      subtitle_font_size: slide.subtitle_font_size,
+      subtitle_align: slide.subtitle_align,
+      plugins,
+    };
   });
 
   return { title, theme, slides };
 }
 
+const STORAGE_KEY_PLAN = "vitya_ppt_saved_plan_v2";
+const STORAGE_KEY_STEP = "vitya_ppt_saved_step_v2";
+const STORAGE_KEY_BG = "vitya_ppt_saved_bg_v2";
+const STORAGE_KEY_CUSTOM_BG1 = "vitya_ppt_saved_custom_bg1_v2";
+const STORAGE_KEY_CUSTOM_BG2 = "vitya_ppt_saved_custom_bg2_v2";
+const STORAGE_KEY_CUSTOM_TEXT = "vitya_ppt_saved_custom_text_v2";
+const STORAGE_KEY_SLIDE_INDEX = "vitya_ppt_saved_slide_index_v2";
+
+const DEFAULT_PLAN = {
+  title: "Artificial Intelligence & Future Tech",
+  slides: [
+    {
+      title: "Introduction to Artificial Intelligence",
+      subtitle: "Key Concepts, Applications & Overview",
+      layout: "title_content",
+      plugins: [
+        { type: "subtitle", data: { text: "Understanding Modern AI & Machine Intelligence" } },
+        { type: "paragraph", data: { text: "Artificial Intelligence refers to the simulation of human intelligence in machines programmed to think and learn." } },
+        { type: "bullets", data: { points: ["Machine Learning & Deep Learning", "Natural Language Processing (NLP)", "Computer Vision & Autonomous Systems"] } },
+        { type: "notes", data: { notes: "Welcome the audience and explain the foundational goal of AI." } }
+      ]
+    },
+    {
+      title: "Core Pillars & Performance Metrics",
+      subtitle: "How AI Systems Scale",
+      layout: "chart_slide",
+      plugins: [
+        { type: "subtitle", data: { text: "Data Science & Growth Analytics" } },
+        { type: "chart", data: { chart_type: "column", title: "Enterprise AI Adoption Rate", labels: ["2023", "2024", "2025", "2026"], values: [45, 62, 80, 95] } },
+        { type: "stat", data: { number: "95%", label: "Projected 2026 Adoption" } },
+        { type: "notes", data: { notes: "Highlight key statistical growth and industry relevance." } }
+      ]
+    }
+  ]
+};
+
 export default function PresentationGenerator() {
-  // Page Step State: 1 = Setup, 2 = Slide Editor
-  const [currentStep, setCurrentStep] = useState(1);
+  // Page Step State: 1 = Setup, 2 = Slide Editor (Restored from localStorage)
+  const [currentStep, setCurrentStep] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_STEP);
+      return saved ? Number(saved) : 1;
+    } catch {
+      return 1;
+    }
+  });
 
   const [prompt, setPrompt] = useState(
     "Create a professional presentation on Artificial Intelligence and Machine Learning."
@@ -208,45 +263,98 @@ export default function PresentationGenerator() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Custom Color Theme State 🎨
-  const [selectedBgPreset, setSelectedBgPreset] = useState("dark_gradient");
-  const [customBgColor1, setCustomBgColor1] = useState("#1e1b4b");
-  const [customBgColor2, setCustomBgColor2] = useState("#0f172a");
-  const [customTextColor, setCustomTextColor] = useState("#ffffff");
+  // Custom Color Theme State 🎨 (Restored from localStorage)
+  const [selectedBgPreset, setSelectedBgPreset] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY_BG) || "dark_gradient";
+    } catch {
+      return "dark_gradient";
+    }
+  });
+
+  const [customBgColor1, setCustomBgColor1] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY_CUSTOM_BG1) || "#1e1b4b";
+    } catch {
+      return "#1e1b4b";
+    }
+  });
+
+  const [customBgColor2, setCustomBgColor2] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY_CUSTOM_BG2) || "#0f172a";
+    } catch {
+      return "#0f172a";
+    }
+  });
+
+  const [customTextColor, setCustomTextColor] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY_CUSTOM_TEXT) || "#ffffff";
+    } catch {
+      return "#ffffff";
+    }
+  });
 
   // Export Format State 📑
   const [exportFormat, setExportFormat] = useState("pptx"); // 'pptx' | 'pdf'
 
-  // Initial Plan State
-  const [plan, setPlan] = useState({
-    title: "Artificial Intelligence & Future Tech",
-    slides: [
-      {
-        title: "Introduction to Artificial Intelligence",
-        subtitle: "Key Concepts, Applications & Overview",
-        layout: "title_content",
-        plugins: [
-          { type: "subtitle", data: { text: "Understanding Modern AI & Machine Intelligence" } },
-          { type: "paragraph", data: { text: "Artificial Intelligence refers to the simulation of human intelligence in machines programmed to think and learn." } },
-          { type: "bullets", data: { points: ["Machine Learning & Deep Learning", "Natural Language Processing (NLP)", "Computer Vision & Autonomous Systems"] } },
-          { type: "notes", data: { notes: "Welcome the audience and explain the foundational goal of AI." } }
-        ]
-      },
-      {
-        title: "Core Pillars & Performance Metrics",
-        subtitle: "How AI Systems Scale",
-        layout: "chart_slide",
-        plugins: [
-          { type: "subtitle", data: { text: "Data Science & Growth Analytics" } },
-          { type: "chart", data: { chart_type: "bar", title: "Enterprise AI Adoption Rate", labels: ["2023", "2024", "2025", "2026"], values: [45, 62, 80, 95] } },
-          { type: "stat", data: { number: "95%", label: "Projected 2026 Adoption" } },
-          { type: "notes", data: { notes: "Highlight key statistical growth and industry relevance." } }
-        ]
+  // Presentation Plan State (Restored from localStorage on page refresh)
+  const [plan, setPlan] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_PLAN);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && Array.isArray(parsed.slides) && parsed.slides.length > 0) {
+          return parsed;
+        }
       }
-    ]
+    } catch (e) {
+      console.warn("Failed to load saved presentation plan from localStorage", e);
+    }
+    return DEFAULT_PLAN;
   });
 
-  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_SLIDE_INDEX);
+      return saved ? Number(saved) : 0;
+    } catch {
+      return 0;
+    }
+  });
+
+  // AUTO-SAVE PRESENTATION DECK TO LOCALSTORAGE ON EVERY EDIT
+  useEffect(() => {
+    try {
+      if (plan) {
+        localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(plan));
+      }
+      localStorage.setItem(STORAGE_KEY_STEP, String(currentStep));
+      localStorage.setItem(STORAGE_KEY_SLIDE_INDEX, String(activeSlideIndex));
+      localStorage.setItem(STORAGE_KEY_BG, selectedBgPreset);
+      localStorage.setItem(STORAGE_KEY_CUSTOM_BG1, customBgColor1);
+      localStorage.setItem(STORAGE_KEY_CUSTOM_BG2, customBgColor2);
+      localStorage.setItem(STORAGE_KEY_CUSTOM_TEXT, customTextColor);
+    } catch (e) {
+      console.warn("Failed to persist presentation deck to localStorage", e);
+    }
+  }, [plan, currentStep, activeSlideIndex, selectedBgPreset, customBgColor1, customBgColor2, customTextColor]);
+
+  const handleResetPlanToDefault = () => {
+    if (window.confirm("Start a new presentation deck? (Current draft will be reset)")) {
+      try {
+        localStorage.removeItem(STORAGE_KEY_PLAN);
+        localStorage.removeItem(STORAGE_KEY_STEP);
+        localStorage.removeItem(STORAGE_KEY_SLIDE_INDEX);
+      } catch (e) {
+        console.warn("LocalStorage clear error", e);
+      }
+      setPlan(DEFAULT_PLAN);
+      setActiveSlideIndex(0);
+      setCurrentStep(1);
+    }
+  };
   const [loadingPlan, setLoadingPlan] = useState(false);
   const [loadingGenerate, setLoadingGenerate] = useState(false);
   const [error, setError] = useState("");
@@ -494,6 +602,15 @@ export default function PresentationGenerator() {
     });
   };
 
+  const handleSlidePropertyChange = (index, key, value) => {
+    setPlan((prev) => {
+      if (!prev) return prev;
+      const slides = [...prev.slides];
+      slides[index] = { ...slides[index], [key]: value };
+      return { ...prev, slides };
+    });
+  };
+
   const handleAddSlide = () => {
     setPlan((prev) => {
       const count = (prev?.slides?.length || 0) + 1;
@@ -589,8 +706,10 @@ export default function PresentationGenerator() {
       const plugin = { ...plugins[pluginIndex] };
       const data = { ...plugin.data };
 
-      if (field === "labels") {
-        data.labels = rawInput.split(",").map((s) => s.trim());
+      if (field === "labels" || field === "categories") {
+        const parsed = rawInput.split(",").map((s) => s.trim());
+        data.labels = parsed;
+        data.categories = parsed;
       } else if (field === "values") {
         data.values = rawInput.split(",").map((s) => Number(s.trim()) || 0);
       } else {
@@ -1023,21 +1142,23 @@ export default function PresentationGenerator() {
         .presenter-overlay {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
-          background: #000;
+          background: #090d1a;
           z-index: 9999;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          padding: 30px;
+          padding: 20px;
         }
         .presenter-canvas {
           flex: 1;
           display: flex;
           flex-direction: column;
+          align-items: center;
           justify-content: center;
-          max-width: 1200px;
-          margin: 0 auto;
           width: 100%;
+          max-width: 1280px;
+          margin: 0 auto;
+          overflow: hidden;
         }
 
         .success-banner {
@@ -1078,6 +1199,14 @@ export default function PresentationGenerator() {
                 onClick={() => setCurrentStep(2)}
               >
                 Slide Editor {plan?.slides?.length ? `(${plan.slides.length})` : ""}
+              </button>
+              <button
+                className="btn-ui secondary sm"
+                onClick={handleResetPlanToDefault}
+                title="Start a fresh presentation deck"
+                style={{ fontSize: 11, padding: "4px 8px" }}
+              >
+                ✨ + New Deck
               </button>
             </div>
 
@@ -1176,6 +1305,7 @@ export default function PresentationGenerator() {
             handleDeckTitleChange={handleDeckTitleChange}
             handleSlideTitleChange={handleSlideTitleChange}
             handleSlideSubtitleChange={handleSlideSubtitleChange}
+            handleSlidePropertyChange={handleSlidePropertyChange}
             handleAddSlide={handleAddSlide}
             handleDuplicateSlide={handleDuplicateSlide}
             handleDeleteSlide={handleDeleteSlide}

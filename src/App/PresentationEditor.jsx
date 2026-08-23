@@ -2,12 +2,17 @@ import React, { useRef, useState, useEffect } from "react";
 import { downloadFileAsBlob } from "./Presentation";
 
 export const BACKGROUND_PRESETS = [
-  { id: "dark_gradient", name: "Midnight Purple", bg: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #31104b 100%)", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#31104b" },
-  { id: "ocean_blue", name: "Ocean Breeze", bg: "linear-gradient(135deg, #06101e 0%, #0b2545 50%, #134074 100%)", text: "#ffffff", accent: "#38bdf8", solid_bg: "#06101e", bg_start: "#06101e", bg_end: "#134074" },
-  { id: "emerald_dark", name: "Emerald Forest", bg: "linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%)", text: "#ffffff", accent: "#34d399", solid_bg: "#022c22", bg_start: "#022c22", bg_end: "#047857" },
-  { id: "executive_slate", name: "Executive Slate", bg: "linear-gradient(135deg, #18181b 0%, #27272a 50%, #3f3f46 100%)", text: "#ffffff", accent: "#a1a1aa", solid_bg: "#18181b", bg_start: "#18181b", bg_end: "#3f3f46" },
-  { id: "clean_light", name: "Minimal Light", bg: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)", text: "#0f172a", accent: "#2563eb", solid_bg: "#f8fafc", bg_start: "#f8fafc", bg_end: "#e2e8f0" },
-  { id: "sunset_glow", name: "Sunset Glow", bg: "linear-gradient(135deg, #2a0813 0%, #4c0519 50%, #881337 100%)", text: "#ffffff", accent: "#fb7185", solid_bg: "#2a0813", bg_start: "#2a0813", bg_end: "#881337" },
+  { id: "dark_gradient", name: "🌌 Midnight Purple", bg: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #31104b 100%)", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#31104b" },
+  { id: "ocean_blue", name: "🌊 Ocean Breeze", bg: "linear-gradient(135deg, #06101e 0%, #0b2545 50%, #134074 100%)", text: "#ffffff", accent: "#38bdf8", solid_bg: "#06101e", bg_start: "#06101e", bg_end: "#134074" },
+  { id: "emerald_dark", name: "🌲 Emerald Forest", bg: "linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%)", text: "#ffffff", accent: "#34d399", solid_bg: "#022c22", bg_start: "#022c22", bg_end: "#047857" },
+  { id: "cyberpunk_neon", name: "⚡ Cyberpunk Neon", bg: "linear-gradient(135deg, #09090b 0%, #2e1065 50%, #581c87 100%)", text: "#ffffff", accent: "#f43f5e", solid_bg: "#09090b", bg_start: "#09090b", bg_end: "#581c87" },
+  { id: "wall_street", name: "💵 Wall Street Finance", bg: "linear-gradient(135deg, #022c22 0%, #0f172a 50%, #1e293b 100%)", text: "#ffffff", accent: "#10b981", solid_bg: "#022c22", bg_start: "#022c22", bg_end: "#1e293b" },
+  { id: "executive_gold", name: "🏆 Executive Gold", bg: "linear-gradient(135deg, #1c1917 0%, #451a03 50%, #78350f 100%)", text: "#ffffff", accent: "#f59e0b", solid_bg: "#1c1917", bg_start: "#1c1917", bg_end: "#78350f" },
+  { id: "velvet_rose", name: "🌹 Velvet Rose", bg: "linear-gradient(135deg, #2a0813 0%, #4c0519 50%, #881337 100%)", text: "#ffffff", accent: "#fb7185", solid_bg: "#2a0813", bg_start: "#2a0813", bg_end: "#881337" },
+  { id: "executive_slate", name: "🪨 Executive Slate", bg: "linear-gradient(135deg, #18181b 0%, #27272a 50%, #3f3f46 100%)", text: "#ffffff", accent: "#a1a1aa", solid_bg: "#18181b", bg_start: "#18181b", bg_end: "#3f3f46" },
+  { id: "clean_light", name: "☀️ Minimal Light", bg: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)", text: "#0f172a", accent: "#2563eb", solid_bg: "#f8fafc", bg_start: "#f8fafc", bg_end: "#e2e8f0" },
+  { id: "titanium_white", name: "🏛️ Titanium White", bg: "linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #f4f4f5 100%)", text: "#18181b", accent: "#4f46e5", solid_bg: "#ffffff", bg_start: "#ffffff", bg_end: "#f4f4f5" },
+  { id: "sunset_glow", name: "🌅 Sunset Glow", bg: "linear-gradient(135deg, #2e1065 0%, #701a75 50%, #9f1239 100%)", text: "#ffffff", accent: "#fb7185", solid_bg: "#2e1065", bg_start: "#2e1065", bg_end: "#9f1239" },
   { id: "custom", name: "🎨 Custom Palette", bg: "custom", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#1e1b4b", bg_end: "#0f172a" },
 ];
 
@@ -16,13 +21,13 @@ function safeArray(value) {
 }
 
 export function VisualChartPreview({ data }) {
-  const chartType = data?.chart_type || "bar";
+  const chartType = (data?.chart_type || "column").toLowerCase();
   const title = data?.title || "Data Metrics Overview";
-  const labels = safeArray(data?.labels).length ? data.labels : ["Q1", "Q2", "Q3", "Q4"];
-  const values = safeArray(data?.values).length ? data.values.map(Number) : [45, 70, 92, 65];
-  const maxVal = Math.max(...values, 100);
+  const rawLabels = safeArray(data?.labels).length ? data.labels : (safeArray(data?.categories).length ? data.categories : ["Phase 1", "Phase 2", "Phase 3", "Phase 4"]);
+  const rawValues = safeArray(data?.values).length ? data.values.map(Number) : [25, 55, 80, 110];
+  const maxVal = Math.max(...rawValues, 10);
 
-  const colors = ["#8b5cf6", "#06b6d4", "#ec4899", "#10b981", "#f59e0b"];
+  const colors = ["#8b5cf6", "#06b6d4", "#ec4899", "#10b981", "#f59e0b", "#3b82f6"];
 
   return (
     <div style={{ background: "rgba(0,0,0,0.35)", padding: "14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.15)", margin: "10px 0" }}>
@@ -30,10 +35,10 @@ export function VisualChartPreview({ data }) {
         📊 {title} <span style={{ fontSize: "11px", opacity: 0.7 }}>({chartType.toUpperCase()} CHART)</span>
       </div>
 
-      {chartType === "bar" && (
+      {(chartType === "column" || chartType === "bar") && (
         <div style={{ display: "flex", alignItems: "flex-end", gap: "12px", height: "120px", padding: "10px 0 0" }}>
-          {labels.map((lbl, idx) => {
-            const val = values[idx] || 0;
+          {rawLabels.map((lbl, idx) => {
+            const val = rawValues[idx] || 0;
             const heightPct = Math.min(100, Math.max(15, (val / maxVal) * 100));
             return (
               <div key={idx} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end" }}>
@@ -54,6 +59,46 @@ export function VisualChartPreview({ data }) {
         </div>
       )}
 
+      {chartType === "bar_horizontal" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "6px 0" }}>
+          {rawLabels.map((lbl, idx) => {
+            const val = rawValues[idx] || 0;
+            const widthPct = Math.min(100, Math.max(10, (val / maxVal) * 100));
+            return (
+              <div key={idx} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ fontSize: "10px", width: "75px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", opacity: 0.9 }}>{lbl}</div>
+                <div style={{ flex: 1, background: "rgba(255,255,255,0.06)", borderRadius: "4px", height: "16px", overflow: "hidden" }}>
+                  <div style={{ width: `${widthPct}%`, height: "100%", background: colors[idx % colors.length], borderRadius: "4px" }} />
+                </div>
+                <div style={{ fontSize: "10px", fontWeight: "bold", width: "35px" }}>{val}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {(chartType === "line" || chartType === "area" || chartType === "trend") && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px", padding: "6px 0" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", height: "80px", position: "relative" }}>
+            {rawLabels.map((lbl, idx) => {
+              const val = rawValues[idx] || 0;
+              const heightPct = Math.min(100, Math.max(15, (val / maxVal) * 100));
+              return (
+                <div key={idx} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end" }}>
+                  <span style={{ fontSize: "9px", fontWeight: "bold", color: "#c084fc", marginBottom: "4px" }}>{val}</span>
+                  <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#c084fc", marginBottom: `${heightPct * 0.6}%` }} />
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.15)", paddingTop: "4px" }}>
+            {rawLabels.map((lbl, idx) => (
+              <span key={idx} style={{ fontSize: "10px", opacity: 0.8 }}>{lbl}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {chartType === "pie" && (
         <div style={{ display: "flex", alignItems: "center", gap: "16px", padding: "10px 0" }}>
           <div
@@ -66,10 +111,40 @@ export function VisualChartPreview({ data }) {
             }}
           />
           <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            {labels.map((lbl, idx) => (
+            {rawLabels.map((lbl, idx) => (
               <div key={idx} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px" }}>
                 <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: colors[idx % colors.length] }} />
-                <span>{lbl}: <strong>{values[idx] || 0}</strong></span>
+                <span>{lbl}: <strong>{rawValues[idx] || 0}</strong></span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {(chartType === "donut" || chartType === "doughnut") && (
+        <div style={{ display: "flex", alignItems: "center", gap: "16px", padding: "10px 0" }}>
+          <div
+            style={{
+              width: "90px",
+              height: "90px",
+              borderRadius: "50%",
+              background: `radial-gradient(circle, rgba(15,23,42,1) 40%, transparent 41%), conic-gradient(#8b5cf6 0% 35%, #06b6d4 35% 65%, #ec4899 65% 100%)`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "10px",
+              fontWeight: "bold",
+              color: "#c084fc",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.4)",
+            }}
+          >
+            🍩 {rawValues.reduce((a, b) => a + b, 0)}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            {rawLabels.map((lbl, idx) => (
+              <div key={idx} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px" }}>
+                <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: colors[idx % colors.length] }} />
+                <span>{lbl}: <strong>{rawValues[idx] || 0}</strong></span>
               </div>
             ))}
           </div>
@@ -105,6 +180,18 @@ function FeatureFormattingBar({ pluginData, onChangeField, onRefineText }) {
             value={pluginData?.font_size || 14}
             onChange={(e) => onChangeField("font_size", Number(e.target.value))}
             style={{ width: "60px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+          />
+        </div>
+        <div>
+          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Font Color:</label>
+          <input
+            type="color"
+            value={pluginData?.font_color || pluginData?.color || "#ffffff"}
+            onChange={(e) => {
+              onChangeField("font_color", e.target.value);
+              onChangeField("color", e.target.value);
+            }}
+            style={{ border: "none", width: "24px", height: "24px", borderRadius: 4, cursor: "pointer", background: "none" }}
           />
         </div>
         <div>
@@ -199,6 +286,7 @@ export default function PresentationEditor({
   handleDeckTitleChange,
   handleSlideTitleChange,
   handleSlideSubtitleChange,
+  handleSlidePropertyChange,
   handleAddSlide,
   handleDuplicateSlide,
   handleDeleteSlide,
@@ -223,7 +311,27 @@ export default function PresentationEditor({
   const presenterSlide = plan?.slides?.[presenterSlideIndex];
 
   const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(false);
+  const [autoPlaySpeed, setAutoPlaySpeed] = useState(5);
   const carouselRef = useRef(null);
+
+  // Auto-Play slideshow effect for Presenter Mode ⏯️
+  useEffect(() => {
+    let interval = null;
+    if (isPresenting && autoPlay) {
+      interval = setInterval(() => {
+        setPresenterSlideIndex((prevIndex) => {
+          if (prevIndex >= (plan?.slides?.length || 1) - 1) {
+            return 0;
+          }
+          return prevIndex + 1;
+        });
+      }, autoPlaySpeed * 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPresenting, autoPlay, autoPlaySpeed, plan, setPresenterSlideIndex]);
 
   useEffect(() => {
     if (downloadUrl) {
@@ -505,11 +613,29 @@ export default function PresentationEditor({
                   <div style={{ fontSize: 11, fontWeight: "800", opacity: 0.6, letterSpacing: 1 }}>
                     SLIDE {activeSlideIndex + 1} OF {plan.slides.length}
                   </div>
-                  <h2 style={{ fontSize: 26, margin: "6px 0 4px", fontWeight: 800 }}>
+                  <h2
+                    style={{
+                      fontSize: activeSlide.title_font_size || 26,
+                      color: activeSlide.title_color || "inherit",
+                      textAlign: activeSlide.title_align || "left",
+                      fontWeight: activeSlide.title_bold === false ? 400 : 800,
+                      margin: "6px 0 4px",
+                    }}
+                  >
                     {activeSlide.title || "Slide Title"}
                   </h2>
                   {activeSlide.subtitle ? (
-                    <div style={{ fontSize: 15, opacity: 0.8, fontWeight: 600 }}>{activeSlide.subtitle}</div>
+                    <div
+                      style={{
+                        fontSize: activeSlide.subtitle_font_size || 15,
+                        color: activeSlide.subtitle_color || "inherit",
+                        textAlign: activeSlide.subtitle_align || "left",
+                        opacity: activeSlide.subtitle_color ? 1 : 0.8,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {activeSlide.subtitle}
+                    </div>
                   ) : null}
                 </div>
                 
@@ -518,19 +644,19 @@ export default function PresentationEditor({
                   {safeArray(activeSlide.plugins).map((p, pIdx) => (
                     <div key={pIdx}>
                       {p.type === "subtitle" ? (
-                        <h3 style={{ fontSize: p.data?.font_size || 18, textAlign: p.data?.alignment || "left", color: "#c084fc", margin: "4px 0" }}>
+                        <h3 style={{ fontSize: p.data?.font_size || 18, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "#c084fc", margin: "4px 0" }}>
                           {p.data?.text}
                         </h3>
                       ) : null}
 
                       {p.type === "paragraph" ? (
-                        <p style={{ fontSize: p.data?.font_size || 14, textAlign: p.data?.alignment || "left", lineHeight: 1.5, opacity: 0.9 }}>
+                        <p style={{ fontSize: p.data?.font_size || 14, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "inherit", lineHeight: 1.5, opacity: (p.data?.font_color || p.data?.color) ? 1 : 0.9 }}>
                           {p.data?.text}
                         </p>
                       ) : null}
 
                       {p.type === "bullets" ? (
-                        <ul style={{ paddingLeft: 20, margin: "4px 0", textAlign: p.data?.alignment || "left" }}>
+                        <ul style={{ paddingLeft: 20, margin: "4px 0", textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "inherit" }}>
                           {safeArray(p.data?.points).map((pt, bIdx) => (
                             <li key={bIdx} style={{ fontSize: p.data?.font_size || 14, marginBottom: 4 }}>{pt}</li>
                           ))}
@@ -656,21 +782,21 @@ export default function PresentationEditor({
 
                       {p.type === "table" ? (
                         <div style={{ overflowX: "auto", margin: "8px 0" }}>
-                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, background: "rgba(0,0,0,0.35)", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)" }}>
+                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: p.data?.cell_font_size || 11, background: "rgba(0,0,0,0.35)", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)" }}>
                             {safeArray(p.data?.headers).length > 0 && (
                               <thead>
-                                <tr style={{ background: "rgba(192, 132, 252, 0.25)" }}>
+                                <tr style={{ background: p.data?.header_bg || "rgba(192, 132, 252, 0.25)" }}>
                                   {p.data.headers.map((h, hIdx) => (
-                                    <th key={hIdx} style={{ padding: "6px 10px", textAlign: "left", borderBottom: "1px solid rgba(255,255,255,0.15)", fontWeight: 700, color: "#c084fc" }}>{h}</th>
+                                    <th key={hIdx} style={{ padding: "6px 10px", textAlign: p.data?.align || "left", borderBottom: "1px solid rgba(255,255,255,0.15)", fontWeight: 700, fontSize: p.data?.header_font_size || 12, color: p.data?.header_color || "#c084fc" }}>{h}</th>
                                   ))}
                                 </tr>
                               </thead>
                             )}
                             <tbody>
                               {safeArray(p.data?.rows).map((row, rIdx) => (
-                                <tr key={rIdx} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                                <tr key={rIdx} style={{ background: p.data?.cell_bg ? p.data.cell_bg : (rIdx % 2 === 1 ? "rgba(255,255,255,0.04)" : "transparent"), borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                                   {safeArray(row).map((cell, cIdx) => (
-                                    <td key={cIdx} style={{ padding: "6px 10px", opacity: 0.9 }}>{cell}</td>
+                                    <td key={cIdx} style={{ padding: "6px 10px", textAlign: p.data?.align || "left", color: p.data?.cell_color || "inherit", opacity: p.data?.cell_color ? 1 : 0.9 }}>{cell}</td>
                                   ))}
                                 </tr>
                               ))}
@@ -722,10 +848,10 @@ export default function PresentationEditor({
                     🗣️ + Speaker Notes
                   </button>
                 </div>
-              {/* SLIDE BASIC PROPERTIES */}
+              {/* SLIDE BASIC & FORMATTING PROPERTIES */}
               <div className="card-box" style={{ background: "rgba(0,0,0,0.3)" }}>
                 <div style={{ fontWeight: 800, fontSize: 13, color: "#c084fc", marginBottom: 10 }}>
-                  ✏️ Edit Slide {activeSlideIndex + 1} General Info:
+                  ✏️ Edit Slide {activeSlideIndex + 1} General Info & Title Styling:
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div>
@@ -746,6 +872,75 @@ export default function PresentationEditor({
                       placeholder="e.g. Overview & Key Metrics"
                       style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
                     />
+                  </div>
+                </div>
+
+                {/* TITLE & SUBTITLE FORMATTING BAR */}
+                <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginTop: 10, paddingTop: 10, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Title Color:</label>
+                    <input
+                      type="color"
+                      value={activeSlide.title_color || "#ffffff"}
+                      onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_color", e.target.value)}
+                      style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Title Size:</label>
+                    <input
+                      type="number"
+                      min="14"
+                      max="60"
+                      value={activeSlide.title_font_size || 26}
+                      onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_font_size", Number(e.target.value))}
+                      style={{ width: 50, background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Title Align:</label>
+                    <select
+                      value={activeSlide.title_align || "left"}
+                      onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_align", e.target.value)}
+                      style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+                    >
+                      <option value="left">Left</option>
+                      <option value="center">Center</option>
+                      <option value="right">Right</option>
+                    </select>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: 10 }}>
+                    <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Subtitle Color:</label>
+                    <input
+                      type="color"
+                      value={activeSlide.subtitle_color || "#94a3b8"}
+                      onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_color", e.target.value)}
+                      style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Subtitle Size:</label>
+                    <input
+                      type="number"
+                      min="10"
+                      max="36"
+                      value={activeSlide.subtitle_font_size || 15}
+                      onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_font_size", Number(e.target.value))}
+                      style={{ width: 50, background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Subtitle Align:</label>
+                    <select
+                      value={activeSlide.subtitle_align || "left"}
+                      onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_align", e.target.value)}
+                      style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+                    >
+                      <option value="left">Left</option>
+                      <option value="center">Center</option>
+                      <option value="right">Right</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -859,6 +1054,48 @@ export default function PresentationEditor({
                             style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
                           />
                         </div>
+
+                        {/* TABLE COLOR & STYLE FORMATTING BAR */}
+                        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", background: "rgba(255,255,255,0.03)", padding: "6px 10px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.08)" }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", width: "100%" }}>🎨 Table Styling & Color Customization:</span>
+                          <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                            Header BG:
+                            <input
+                              type="color"
+                              value={plugin.data?.header_bg || "#8b5cf6"}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "header_bg", e.target.value)}
+                              style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                            />
+                          </label>
+                          <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                            Header Text:
+                            <input
+                              type="color"
+                              value={plugin.data?.header_color || "#ffffff"}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "header_color", e.target.value)}
+                              style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                            />
+                          </label>
+                          <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                            Rows BG:
+                            <input
+                              type="color"
+                              value={plugin.data?.cell_bg || "#1e293b"}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "cell_bg", e.target.value)}
+                              style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                            />
+                          </label>
+                          <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                            Rows Text:
+                            <input
+                              type="color"
+                              value={plugin.data?.cell_color || "#ffffff"}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "cell_color", e.target.value)}
+                              style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                            />
+                          </label>
+                        </div>
+
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
@@ -873,12 +1110,16 @@ export default function PresentationEditor({
                           <div>
                             <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Chart Type:</label>
                             <select
-                              value={plugin.data?.chart_type || "bar"}
+                              value={plugin.data?.chart_type || "column"}
                               onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "chart_type", e.target.value)}
                               style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
                             >
-                              <option value="bar">Bar Chart</option>
-                              <option value="pie">Pie Chart</option>
+                              <option value="column">📊 Column Chart (Vertical)</option>
+                              <option value="bar_horizontal">📊 Bar Chart (Horizontal)</option>
+                              <option value="line">📈 Line Chart (Trend)</option>
+                              <option value="pie">🥧 Pie Chart (Proportion)</option>
+                              <option value="area">📉 Area Chart (Cumulative)</option>
+                              <option value="donut">🍩 Doughnut Ring Chart</option>
                             </select>
                           </div>
                           <div>
@@ -892,16 +1133,33 @@ export default function PresentationEditor({
                             />
                           </div>
                         </div>
-                        <div>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Labels (comma separated):</label>
-                          <input
-                            type="text"
-                            value={safeArray(plugin.data?.labels).join(", ")}
-                            onChange={(e) => handleChartDataChange(activeSlideIndex, pIdx, "labels", e.target.value)}
-                            placeholder="Q1, Q2, Q3, Q4"
-                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
-                          />
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                          <div>
+                            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Categories / X-Axis Labels (comma separated):</label>
+                            <input
+                              type="text"
+                              value={safeArray(plugin.data?.labels).length ? safeArray(plugin.data?.labels).join(", ") : safeArray(plugin.data?.categories).join(", ")}
+                              onChange={(e) => {
+                                handleChartDataChange(activeSlideIndex, pIdx, "labels", e.target.value);
+                                handleChartDataChange(activeSlideIndex, pIdx, "categories", e.target.value);
+                              }}
+                              placeholder="Q1, Q2, Q3, Q4"
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Series Legend Name:</label>
+                            <input
+                              type="text"
+                              value={plugin.data?.series_name || ""}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "series_name", e.target.value)}
+                              placeholder="e.g. Metric Value ($M)"
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
+                            />
+                          </div>
                         </div>
+
                         <div>
                           <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Data Values (comma separated numbers):</label>
                           <input
@@ -912,6 +1170,44 @@ export default function PresentationEditor({
                             style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
                           />
                         </div>
+
+                        {/* ADVANCED CHART DISPLAY & LEGEND CONTROLS */}
+                        <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", background: "rgba(255,255,255,0.03)", padding: "6px 10px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.08)" }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", width: "100%" }}>⚙️ Advanced Chart Display Options:</span>
+                          
+                          <label style={{ fontSize: 11, color: "#fff", display: "flex", alignItems: "center", gap: 5, cursor: "pointer" }}>
+                            <input
+                              type="checkbox"
+                              checked={plugin.data?.show_data_labels !== false}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "show_data_labels", e.target.checked)}
+                            />
+                            Show Value Labels
+                          </label>
+
+                          <label style={{ fontSize: 11, color: "#fff", display: "flex", alignItems: "center", gap: 5, cursor: "pointer" }}>
+                            <input
+                              type="checkbox"
+                              checked={plugin.data?.show_legend !== false}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "show_legend", e.target.checked)}
+                            />
+                            Show Legend
+                          </label>
+
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Legend Pos:</label>
+                            <select
+                              value={plugin.data?.legend_position || "right"}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "legend_position", e.target.value)}
+                              style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+                            >
+                              <option value="right">Right</option>
+                              <option value="top">Top</option>
+                              <option value="bottom">Bottom</option>
+                              <option value="left">Left</option>
+                            </select>
+                          </div>
+                        </div>
+
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
@@ -1059,11 +1355,35 @@ export default function PresentationEditor({
       {/* FULLSCREEN PRESENTER OVERLAY 📺 */}
       {isPresenting && presenterSlide ? (
         <div className="presenter-overlay">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ color: "#c084fc", fontWeight: "bold", fontSize: 14 }}>
-              Slide {presenterSlideIndex + 1} of {plan.slides.length} | Timer: {minutesFormatted}:{secondsFormatted}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", maxWidth: "1280px", margin: "0 auto", paddingBottom: 10 }}>
+            <div style={{ color: "#c084fc", fontWeight: "bold", fontSize: 14, display: "flex", alignItems: "center", gap: 12 }}>
+              <span>Slide {presenterSlideIndex + 1} of {plan.slides.length}</span>
+              <span style={{ opacity: 0.6 }}>│</span>
+              <span>Timer: {minutesFormatted}:{secondsFormatted}</span>
             </div>
-            <div style={{ display: "flex", gap: 10 }}>
+
+            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              {/* AUTO PLAY SLIDESHOW TOGGLE & SPEED CONTROLS */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.06)", padding: "4px 8px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.15)" }}>
+                <button
+                  className="btn-ui primary sm"
+                  onClick={() => setAutoPlay(!autoPlay)}
+                  style={{ background: autoPlay ? "linear-gradient(135deg, #ef4444, #f43f5e)" : "linear-gradient(135deg, #10b981, #059669)", border: "none", fontSize: 11, padding: "3px 10px" }}
+                >
+                  {autoPlay ? "⏸️ Pause Auto-Play" : "▶️ Auto Play"}
+                </button>
+                <select
+                  value={autoPlaySpeed}
+                  onChange={(e) => setAutoPlaySpeed(Number(e.target.value))}
+                  style={{ background: "rgba(0,0,0,0.5)", border: "1px solid var(--panel-border)", color: "#fff", borderRadius: 4, padding: "2px 4px", fontSize: 11 }}
+                >
+                  <option value={3}>3 sec / slide</option>
+                  <option value={5}>5 sec / slide</option>
+                  <option value={8}>8 sec / slide</option>
+                  <option value={10}>10 sec / slide</option>
+                </select>
+              </div>
+
               <button
                 className="btn-ui primary sm"
                 onClick={() => {
@@ -1074,18 +1394,21 @@ export default function PresentationEditor({
                     window.speechSynthesis.speak(utt);
                   }
                 }}
-                style={{ background: "linear-gradient(135deg, #10b981, #06b6d4)", border: "none" }}
+                style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)", border: "none" }}
               >
                 🗣️ Play AI Voiceover
               </button>
+
               <button
                 className="btn-ui secondary sm"
                 onClick={() => setShowPresenterNotes(!showPresenterNotes)}
               >
                 {showPresenterNotes ? "Hide Notes" : "Show Notes"}
               </button>
+
               <button className="btn-ui danger sm" onClick={() => {
                 if (window.speechSynthesis) window.speechSynthesis.cancel();
+                setAutoPlay(false);
                 stopPresentationMode();
               }}>
                 ✕ Exit (Esc)
@@ -1094,72 +1417,122 @@ export default function PresentationEditor({
           </div>
 
           <div className="presenter-canvas">
+            {/* 16:9 PERFECT ASPECT RATIO WIDESCREEN PRESENTATION CANVAS */}
             <div
               style={{
+                width: "100%",
+                maxWidth: "1150px",
+                aspectRatio: "16 / 9",
                 background: selectedBgConfig.bg,
                 color: selectedBgConfig.text,
                 borderRadius: 20,
-                padding: 60,
-                minHeight: 500,
+                padding: "36px 48px",
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "center",
+                justifyContent: "space-between",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                overflow: "hidden",
+                boxSizing: "border-box",
               }}
             >
-              <h1 style={{ fontSize: 42, margin: "0 0 10px" }}>{presenterSlide.title}</h1>
-              {presenterSlide.subtitle ? (
-                <h3 style={{ fontSize: 24, opacity: 0.8, marginBottom: 20 }}>{presenterSlide.subtitle}</h3>
-              ) : null}
-
-              {safeArray(presenterSlide.plugins).map((plugin, pIdx) => (
-                <div key={pIdx} style={{ fontSize: 22, lineHeight: 1.6, marginBottom: 14 }}>
-                  {plugin.type === "subtitle" ? (
-                    <h3 style={{ fontSize: plugin.data?.font_size || 24, textAlign: plugin.data?.alignment || "left", color: "#c084fc" }}>{plugin.data?.text}</h3>
-                  ) : null}
-                  {plugin.type === "paragraph" ? <p style={{ fontSize: plugin.data?.font_size || 22, textAlign: plugin.data?.alignment || "left" }}>{plugin.data?.text}</p> : null}
-                  {plugin.type === "bullets" ? (
-                    <ul style={{ paddingLeft: 24, textAlign: plugin.data?.alignment || "left" }}>
-                      {safeArray(plugin.data?.points).map((pt, bIdx) => (
-                        <li key={bIdx} style={{ fontSize: plugin.data?.font_size || 22 }}>{pt}</li>
-                      ))}
-                    </ul>
-                  ) : null}
-                  {plugin.type === "chart" ? (
-                    <VisualChartPreview data={plugin.data} />
-                  ) : null}
-                  {plugin.type === "image" && (plugin.data?.url || plugin.data?.path) ? (
-                    <div style={{ textAlign: plugin.data?.align || plugin.data?.alignment || "center" }}>
-                      <img src={plugin.data.url || plugin.data.path} alt="slide visual" style={{ maxHeight: 240, borderRadius: 12 }} />
-                      {plugin.data?.caption ? <div style={{ fontSize: 14, opacity: 0.7 }}>{plugin.data.caption}</div> : null}
-                    </div>
-                  ) : null}
-                  {plugin.type === "stat" ? (
-                    <div style={{ fontSize: plugin.data?.font_size || 50, fontWeight: "bold", color: "#c084fc" }}>
-                      {plugin.data?.number} <span style={{ fontSize: 24 }}>{plugin.data?.label}</span>
-                    </div>
-                  ) : null}
+              <div>
+                <div style={{ fontSize: 11, fontWeight: "800", opacity: 0.6, letterSpacing: 1 }}>
+                  SLIDE {presenterSlideIndex + 1} OF {plan.slides.length}
                 </div>
-              ))}
+                <h1
+                  style={{
+                    fontSize: presenterSlide.title_font_size ? presenterSlide.title_font_size * 1.3 : 36,
+                    color: presenterSlide.title_color || "inherit",
+                    textAlign: presenterSlide.title_align || "left",
+                    fontWeight: presenterSlide.title_bold === false ? 400 : 800,
+                    margin: "8px 0 6px",
+                  }}
+                >
+                  {presenterSlide.title}
+                </h1>
+                {presenterSlide.subtitle ? (
+                  <div
+                    style={{
+                      fontSize: presenterSlide.subtitle_font_size ? presenterSlide.subtitle_font_size * 1.2 : 20,
+                      color: presenterSlide.subtitle_color || "inherit",
+                      textAlign: presenterSlide.subtitle_align || "left",
+                      opacity: presenterSlide.subtitle_color ? 1 : 0.85,
+                      fontWeight: 600,
+                      marginBottom: 16,
+                    }}
+                  >
+                    {presenterSlide.subtitle}
+                  </div>
+                ) : null}
+              </div>
+
+              <div style={{ flex: 1, overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 12 }}>
+                {safeArray(presenterSlide.plugins).map((plugin, pIdx) => (
+                  <div key={pIdx}>
+                    {plugin.type === "subtitle" ? (
+                      <h3 style={{ fontSize: plugin.data?.font_size || 22, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "#c084fc", margin: "4px 0" }}>
+                        {plugin.data?.text}
+                      </h3>
+                    ) : null}
+
+                    {plugin.type === "paragraph" ? (
+                      <p style={{ fontSize: plugin.data?.font_size || 18, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "inherit", lineHeight: 1.5, opacity: 0.95 }}>
+                        {plugin.data?.text}
+                      </p>
+                    ) : null}
+
+                    {plugin.type === "bullets" ? (
+                      <ul style={{ paddingLeft: 24, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "inherit" }}>
+                        {safeArray(plugin.data?.points).map((pt, bIdx) => (
+                          <li key={bIdx} style={{ fontSize: plugin.data?.font_size || 18, marginBottom: 6 }}>{pt}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+
+                    {plugin.type === "chart" ? (
+                      <VisualChartPreview data={plugin.data} />
+                    ) : null}
+
+                    {plugin.type === "image" && (plugin.data?.url || plugin.data?.path) ? (
+                      <div style={{ textAlign: plugin.data?.align || plugin.data?.alignment || "center", margin: "8px 0" }}>
+                        <img src={plugin.data.url || plugin.data.path} alt="slide visual" style={{ maxHeight: 220, borderRadius: 12, border: "1px solid rgba(255,255,255,0.2)" }} />
+                        {plugin.data?.caption ? <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>{plugin.data.caption}</div> : null}
+                      </div>
+                    ) : null}
+
+                    {plugin.type === "stat" ? (
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 12, margin: "8px 0" }}>
+                        <span style={{ fontSize: plugin.data?.font_size || 48, fontWeight: 900, color: "#c084fc" }}>{plugin.data?.number}</span>
+                        <span style={{ fontSize: 18, fontWeight: 600, opacity: 0.9 }}>{plugin.data?.label}</span>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
             </div>
 
             {showPresenterNotes ? (
               <div
                 style={{
-                  marginTop: 20,
-                  background: "rgba(255,255,255,0.08)",
+                  marginTop: 12,
+                  width: "100%",
+                  maxWidth: "1150px",
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.1)",
                   borderRadius: 12,
-                  padding: 16,
+                  padding: "10px 16px",
                   color: "#e2e8f0",
-                  fontSize: 14,
+                  fontSize: 13,
                 }}
               >
                 <strong>🗣️ Presenter Notes:</strong>{" "}
-                {presenterSlide.plugins?.find((p) => p.type === "notes")?.data?.notes || "No notes for this slide."}
+                {presenterSlide.plugins?.find((p) => p.type === "notes")?.data?.notes || "No speaker notes for this slide."}
               </div>
             ) : null}
           </div>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: 16, paddingTop: 6 }}>
             <button
               className="btn-ui secondary"
               onClick={() => setPresenterSlideIndex((i) => Math.max(0, i - 1))}
