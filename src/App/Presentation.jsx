@@ -25,10 +25,33 @@ function joinUrl(base, path) {
 
 function resolveDownloadUrl(path) {
   if (!path) return "";
-  if (isAbsoluteUrl(path)) return path;
+  if (isAbsoluteUrl(path)) return path.replace(/^http:\/\//i, "https://");
   return path.startsWith("/")
     ? `${API_BASE_URL}${path}`
     : joinUrl(DEFAULT_API_BASE, path);
+}
+
+export async function downloadFileAsBlob(url, filename = "presentation.pptx") {
+  if (!url) return;
+  const targetUrl = url.replace(/^http:\/\//i, "https://");
+
+  try {
+    const res = await fetch(targetUrl);
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const blob = await res.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000);
+  } catch (err) {
+    console.warn("Blob download failed, using direct window open fallback", err);
+    window.open(targetUrl, "_blank");
+  }
 }
 
 function safeArray(value) {
@@ -68,75 +91,79 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
     safeArray(slide.plugins).forEach((p) => {
       if (!p || !p.type) return;
 
+      const pluginData = { ...(p.data || {}) };
+
       if (p.type === "bullets") {
-        const points = safeArray(p.data?.points).map((pt) => String(pt).trim()).filter(Boolean);
-        if (points.length > 0) {
-          plugins.push({
-            type: "bullets",
-            data: { ...p.data, points }, // ✅ Preserves font_size, alignment, top, left!
-          });
-        }
+        const points = safeArray(pluginData.points).map((pt) => String(pt).trim()).filter(Boolean);
+        plugins.push({
+          type: "bullets",
+          data: { ...pluginData, points: points.length ? points : ["Key takeaway point"] },
+        });
       } else if (p.type === "paragraph") {
-        const text = String(p.data?.text || "").trim();
-        if (text) {
-          plugins.push({
-            type: "paragraph",
-            data: { ...p.data, text }, // ✅ Preserves font_size, alignment!
-          });
-        }
+        plugins.push({
+          type: "paragraph",
+          data: { ...pluginData, text: String(pluginData.text || "").trim() },
+        });
       } else if (p.type === "subtitle" || p.type === "text") {
-        const text = String(p.data?.text || "").trim();
-        if (text) {
-          plugins.push({
-            type: "text",
-            data: { ...p.data, text }, // ✅ Preserves font_size!
-          });
-        }
+        plugins.push({
+          type: "text",
+          data: { ...pluginData, text: String(pluginData.text || "").trim() },
+        });
       } else if (p.type === "chart") {
         plugins.push({
           type: "chart",
           data: {
-            ...p.data,
-            chart_type: p.data?.chart_type || "bar",
-            title: String(p.data?.title || "Metrics").trim(),
-            labels: safeArray(p.data?.labels),
-            values: safeArray(p.data?.values).map(Number),
+            ...pluginData,
+            chart_type: pluginData.chart_type || "bar",
+            title: String(pluginData.title || "Metrics").trim(),
+            labels: safeArray(pluginData.labels),
+            values: safeArray(pluginData.values).map(Number),
           },
         });
       } else if (p.type === "diagram") {
-        const diagramText = String(p.data?.diagram || p.data?.text || "").trim();
-        if (diagramText) {
-          plugins.push({
-            type: "diagram",
-            data: { ...p.data, diagram: diagramText, diagram_type: p.data?.diagram_type || "flowchart" },
-          });
-        }
+        plugins.push({
+          type: "diagram",
+          data: {
+            ...pluginData,
+            diagram: String(pluginData.diagram || pluginData.text || "").trim(),
+            diagram_type: pluginData.diagram_type || "flowchart",
+          },
+        });
+      } else if (p.type === "stat" || p.type === "metric") {
+        plugins.push({
+          type: "stat",
+          data: {
+            ...pluginData,
+            number: String(pluginData.number || "100%").trim(),
+            label: String(pluginData.label || "Metric Detail").trim(),
+          },
+        });
       } else if (p.type === "table") {
         plugins.push({
           type: "table",
           data: {
-            ...p.data,
-            title: String(p.data?.title || "Table").trim(),
-            headers: safeArray(p.data?.headers),
-            rows: safeArray(p.data?.rows),
+            ...pluginData,
+            title: String(pluginData.title || "Table Overview").trim(),
+            headers: safeArray(pluginData.headers),
+            rows: safeArray(pluginData.rows),
           },
         });
       } else if (p.type === "image") {
-        const url = String(p.data?.url || p.data?.path || "").trim();
-        if (url) {
-          plugins.push({
-            type: "image",
-            data: { ...p.data, url, path: url, caption: String(p.data?.caption || "").trim() },
-          });
-        }
+        const url = String(pluginData.url || pluginData.path || "").trim();
+        plugins.push({
+          type: "image",
+          data: { ...pluginData, url, path: url, caption: String(pluginData.caption || "").trim() },
+        });
       } else if (p.type === "notes") {
-        const notes = String(p.data?.notes || "").trim();
-        if (notes) {
-          plugins.push({
-            type: "notes",
-            data: { ...p.data, notes },
-          });
-        }
+        plugins.push({
+          type: "notes",
+          data: { ...pluginData, notes: String(pluginData.notes || "").trim() },
+        });
+      } else {
+        plugins.push({
+          type: p.type,
+          data: pluginData,
+        });
       }
     });
 
@@ -155,10 +182,25 @@ export default function PresentationGenerator() {
   );
   const [slideCount, setSlideCount] = useState(6);
   const [audience, setAudience] = useState("Students & Professionals");
+  const [tone, setTone] = useState("Professional");
+  const [language, setLanguage] = useState("English");
+  const [contentTheme, setContentTheme] = useState("auto");
+  const [visualStyle, setVisualStyle] = useState("minimal");
+
   const [includeCitations, setIncludeCitations] = useState(false);
   const [includeSpeakerNotes, setIncludeSpeakerNotes] = useState(true);
   const [useGemini, setUseGemini] = useState(true);
   const [smartMode, setSmartMode] = useState(true);
+  const [allowImage, setAllowImage] = useState(true);
+  const [allowChart, setAllowChart] = useState(true);
+  const [allowTable, setAllowTable] = useState(true);
+  const [allowParagraph, setAllowParagraph] = useState(true);
+
+  // Save & Download Lifecycle State 💾
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [savedMeta, setSavedMeta] = useState(null);
 
   // Search State
   const [searchQuery, setSearchQuery] = useState("");
@@ -218,7 +260,6 @@ export default function PresentationGenerator() {
 
   // Download State
   const [downloadUrl, setDownloadUrl] = useState("");
-  const [fileName, setFileName] = useState("");
   const [generatedMeta, setGeneratedMeta] = useState(null);
 
   const previewCount = useMemo(() => safeArray(plan?.slides).length, [plan]);
@@ -294,8 +335,8 @@ export default function PresentationGenerator() {
     const requirements = [
       `Create approximately ${slideCount} slides.`,
       `Target audience: ${audience}.`,
-      `Tone: Clear and professional.`,
-      `Language: English.`,
+      `Tone: ${tone || "Professional"}.`,
+      `Language: ${language || "English"}.`,
       includeCitations && "Include source citations where facts or claims are used.",
       includeSpeakerNotes && "Include concise speaker notes for every slide.",
     ].filter(Boolean);
@@ -319,19 +360,77 @@ export default function PresentationGenerator() {
     return {
       prompt: buildPrompt(),
       export_format: exportFormat || "pptx",
-      background_theme: "dark",
-      content_theme: "dark",
-      visual_style: "minimal",
+      background_theme: selectedBgPreset || "dark",
+      content_theme: contentTheme || "dark",
+      visual_style: visualStyle || "minimal",
       slide_count: slideCount,
-      audience: audience.trim() || null,
-      tone: "Clear and professional",
-      language: "English",
+      audience: audience ? audience.trim() : null,
+      tone: tone || "Professional",
+      language: language || "English",
       include_citations: includeCitations,
       include_speaker_notes: includeSpeakerNotes,
       use_gemini: useGemini,
       smart_mode: smartMode,
+      allow_bullets: true,
+      allow_paragraph: allowParagraph,
+      allow_chart: allowChart,
+      allow_image: allowImage,
+      allow_section_slide: true,
+      allow_table: allowTable,
       plan: sanitizedPlan,
     };
+  };
+
+  // Save Presentation to Backend API 💾
+  const savePresentation = async () => {
+    const payload = buildPayload({ includePlan: true });
+
+    if (!payload.prompt || !payload.prompt.trim()) {
+      setError("Please describe the presentation you want to create.");
+      return;
+    }
+
+    setError("");
+    setSaveError("");
+    setIsSaving(true);
+
+    try {
+      const res = await fetch(joinUrl(DEFAULT_API_BASE, "/save"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await readResponse(res);
+      if (!res.ok) throw new Error(data?.detail || "Failed to save presentation");
+
+      const ext = exportFormat === "pdf" ? "pdf" : "pptx";
+      const fullUrl = resolveDownloadUrl(data.download_url);
+      setDownloadUrl(fullUrl);
+      setSavedMeta({
+        presentation_id: data.presentation_id,
+        file_name: data.file_name || `presentation.${ext}`,
+        download_url: fullUrl,
+        message: data.message || "Presentation saved successfully",
+      });
+      setGeneratedMeta({
+        title: plan?.title || "Your presentation deck",
+        slides: previewCount || slideCount,
+      });
+      setIsSaved(true);
+    } catch (err) {
+      const errMsg = err?.message || "Something went wrong saving presentation";
+      setSaveError(errMsg);
+      setError(errMsg);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const downloadSavedPresentation = async () => {
+    if (!downloadUrl) return;
+    const filename = savedMeta?.file_name || `presentation.${exportFormat || "pptx"}`;
+    await downloadFileAsBlob(downloadUrl, filename);
   };
 
   // Fetch / Preview Plan from API AND SWITCH TO SECOND PAGE (EDITOR)
@@ -342,9 +441,11 @@ export default function PresentationGenerator() {
     }
 
     setError("");
+    setSaveError("");
+    setIsSaved(false);
+    setSavedMeta(null);
     setLoadingPlan(true);
     setDownloadUrl("");
-    setFileName("");
 
     try {
       const res = await fetch(joinUrl(DEFAULT_API_BASE, "/plan"), {
@@ -367,41 +468,7 @@ export default function PresentationGenerator() {
 
   // Generate Final PPT / PDF File FROM EDITED PLAN
   const generatePpt = async () => {
-    const payload = buildPayload({ includePlan: true });
-
-    if (!payload.prompt || !payload.prompt.trim()) {
-      setError("Please describe the presentation you want to create.");
-      return;
-    }
-
-    setError("");
-    setLoadingGenerate(true);
-    setDownloadUrl("");
-    setFileName("");
-    setGeneratedMeta(null);
-
-    try {
-      const res = await fetch(joinUrl(DEFAULT_API_BASE, "/generate"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await readResponse(res);
-      if (!res.ok) throw new Error(data?.detail || "Failed to generate presentation");
-
-      const ext = exportFormat === "pdf" ? "pdf" : "pptx";
-      setFileName(data.file_name || `presentation.${ext}`);
-      setDownloadUrl(resolveDownloadUrl(data.download_url));
-      setGeneratedMeta({
-        title: data.title || plan?.title || "Your presentation is ready",
-        slides: data.slides || data.slide_count || previewCount || slideCount,
-      });
-    } catch (err) {
-      setError(err?.message || "Something went wrong generating presentation");
-    } finally {
-      setLoadingGenerate(false);
-    }
+    await savePresentation();
   };
 
   // SLIDE MANAGEMENT HANDLERS ✏️
@@ -1027,14 +1094,9 @@ export default function PresentationGenerator() {
               </select>
             </div>
 
-            {currentStep === 2 && plan?.slides?.length ? (
+            {plan?.slides?.length ? (
               <button className="btn-ui secondary" onClick={startPresentationMode}>
                 📺 Present
-              </button>
-            ) : null}
-            {currentStep === 2 && plan?.slides?.length ? (
-              <button className="btn-ui primary" onClick={generatePpt} disabled={loadingGenerate}>
-                {loadingGenerate ? `Compiling...` : `🚀 Download (${exportFormat.toUpperCase()})`}
               </button>
             ) : null}
           </div>
@@ -1050,6 +1112,14 @@ export default function PresentationGenerator() {
             setSlideCount={setSlideCount}
             audience={audience}
             setAudience={setAudience}
+            tone={tone}
+            setTone={setTone}
+            language={language}
+            setLanguage={setLanguage}
+            contentTheme={contentTheme}
+            setContentTheme={setContentTheme}
+            visualStyle={visualStyle}
+            setVisualStyle={setVisualStyle}
             includeCitations={includeCitations}
             setIncludeCitations={setIncludeCitations}
             includeSpeakerNotes={includeSpeakerNotes}
@@ -1058,6 +1128,14 @@ export default function PresentationGenerator() {
             setUseGemini={setUseGemini}
             smartMode={smartMode}
             setSmartMode={setSmartMode}
+            allowImage={allowImage}
+            setAllowImage={setAllowImage}
+            allowChart={allowChart}
+            setAllowChart={setAllowChart}
+            allowTable={allowTable}
+            setAllowTable={setAllowTable}
+            allowParagraph={allowParagraph}
+            setAllowParagraph={setAllowParagraph}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             selectedCategory={selectedCategory}
@@ -1065,8 +1143,8 @@ export default function PresentationGenerator() {
             searchResults={searchResults}
             isSearching={isSearching}
             loadingPlan={loadingPlan}
-            loadingGenerate={loadingGenerate}
-            error={error}
+            loadingGenerate={isSaving || loadingGenerate}
+            error={error || saveError}
             fetchPlan={fetchPlan}
             handlePerformSearch={handlePerformSearch}
             handleSelectTopicFromSearch={handleSelectTopicFromSearch}
@@ -1089,6 +1167,12 @@ export default function PresentationGenerator() {
             downloadUrl={downloadUrl}
             exportFormat={exportFormat}
             generatedMeta={generatedMeta}
+            isSaving={isSaving}
+            isSaved={isSaved}
+            saveError={saveError}
+            savedMeta={savedMeta}
+            savePresentation={savePresentation}
+            downloadSavedPresentation={downloadSavedPresentation}
             handleDeckTitleChange={handleDeckTitleChange}
             handleSlideTitleChange={handleSlideTitleChange}
             handleSlideSubtitleChange={handleSlideSubtitleChange}

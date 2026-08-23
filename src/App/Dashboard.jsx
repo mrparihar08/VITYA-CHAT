@@ -170,11 +170,12 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-const Dashboard = () => {
+const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const getInitialTab = () => {
+    if (propTab) return propTab;
     const fromUrl = searchParams.get("tab");
     if (fromUrl) return fromUrl;
     if (typeof window !== "undefined") {
@@ -183,8 +184,9 @@ const Dashboard = () => {
     return "chat";
   };
 
-  const getInitialApp = (initialTab) => {
-    if (initialTab === "apps") {
+  const getInitialApp = (currentTab) => {
+    if (propApp) return propApp;
+    if (currentTab === "apps") {
       const fromUrl = searchParams.get("app");
       if (fromUrl) return fromUrl;
       if (typeof window !== "undefined") {
@@ -194,8 +196,8 @@ const Dashboard = () => {
     return null;
   };
 
-  const getInitialConvId = (initialTab) => {
-    if (initialTab === "chat") {
+  const getInitialConvId = (currentTab) => {
+    if (currentTab === "chat") {
       const fromUrl = searchParams.get("c");
       if (fromUrl) return fromUrl;
       if (typeof window !== "undefined") {

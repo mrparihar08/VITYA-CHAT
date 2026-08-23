@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { downloadFileAsBlob } from "./Presentation";
 
 export const BACKGROUND_PRESETS = [
   { id: "dark_gradient", name: "Midnight Purple", bg: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #31104b 100%)", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#31104b" },
@@ -187,6 +188,14 @@ export default function PresentationEditor({
   downloadUrl,
   exportFormat,
   generatedMeta,
+  loadingGenerate,
+  generatePpt,
+  isSaving,
+  isSaved,
+  saveError,
+  savedMeta,
+  savePresentation,
+  downloadSavedPresentation,
   handleDeckTitleChange,
   handleSlideTitleChange,
   handleSlideSubtitleChange,
@@ -213,7 +222,14 @@ export default function PresentationEditor({
   const activeSlide = plan?.slides?.[activeSlideIndex];
   const presenterSlide = plan?.slides?.[presenterSlideIndex];
 
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
   const carouselRef = useRef(null);
+
+  useEffect(() => {
+    if (downloadUrl) {
+      setShowDownloadModal(true);
+    }
+  }, [downloadUrl]);
 
   const scrollCarousel = (direction) => {
     if (carouselRef.current) {
@@ -225,11 +241,26 @@ export default function PresentationEditor({
     }
   };
 
+  const handleDirectDownload = async (e) => {
+    e?.preventDefault();
+    if (typeof downloadSavedPresentation === "function" && downloadUrl) {
+      await downloadSavedPresentation();
+      return;
+    }
+
+    if (!downloadUrl) return;
+    const fullUrl = downloadUrl.replace(/^http:\/\//i, "https://");
+    const filename = fullUrl.split("/").pop() || "presentation.pptx";
+    await downloadFileAsBlob(fullUrl, filename);
+  };
+
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://mother-8599.onrender.com";
+
   // Helper to dynamically fetch exact topic-matched HD Unsplash image via backend API
   const handleAutoUnsplashFetch = async (pIdx, query) => {
     const searchTopic = query || activeSlide?.title || "presentation visual";
     try {
-      const res = await fetch(`http://localhost:8000/api/presentation/unsplash/search?query=${encodeURIComponent(searchTopic)}`);
+      const res = await fetch(`${API_BASE_URL}/api/presentation/unsplash/search?query=${encodeURIComponent(searchTopic)}`);
       const data = await res.json();
       if (data?.url) {
         handlePluginTextChange(activeSlideIndex, pIdx, "url", data.url);
@@ -253,7 +284,7 @@ export default function PresentationEditor({
     if (!currentText) return;
 
     try {
-      const res = await fetch("http://localhost:8000/api/presentation/refine-slide", {
+      const res = await fetch(`${API_BASE_URL}/api/presentation/refine-slide`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: currentText, action }),
@@ -261,7 +292,7 @@ export default function PresentationEditor({
       const data = await res.json();
       if (data?.refined_text) {
         if (plugin.type === "bullets") {
-          const newPoints = data.refined_text.split("\n").map(s => s.replace(/^[•\-\*\d\.]+\s*/, "").trim()).filter(Boolean);
+          const newPoints = data.refined_text.split("\n").map(s => s.replace(/^[•\-*\d.]+\s*/, "").trim()).filter(Boolean);
           handlePluginTextChange(activeSlideIndex, pIdx, "points", newPoints);
         } else {
           handlePluginTextChange(activeSlideIndex, pIdx, "text", data.refined_text);
@@ -278,13 +309,54 @@ export default function PresentationEditor({
   return (
     <>
       <div className="card-box">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
           <div className="section-label" style={{ margin: 0 }}>Slide Navigation & Feature Editor</div>
-          {onBackToSetup ? (
-            <button className="btn-ui secondary sm" onClick={onBackToSetup}>
-              ◀ Back to Topic Setup
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            {saveError ? (
+              <span style={{ fontSize: 11, color: "#fca5a5", fontWeight: "bold" }}>
+                ⚠️ {saveError}
+              </span>
+            ) : null}
+
+            {isSaved ? (
+              <span style={{ fontSize: 11, color: "#86efac", fontWeight: "bold", background: "rgba(34, 197, 94, 0.15)", padding: "4px 8px", borderRadius: 6, border: "1px solid rgba(34, 197, 94, 0.3)" }}>
+                ✅ Saved {savedMeta?.presentation_id ? `(${savedMeta.presentation_id})` : "Successfully"}
+              </span>
+            ) : null}
+
+            <button
+              type="button"
+              className="btn-ui primary sm"
+              onClick={savePresentation}
+              disabled={isSaving}
+              style={{
+                background: isSaved
+                  ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
+                  : "linear-gradient(135deg, #8b5cf6, #ec4899)",
+                border: "none",
+                cursor: isSaving ? "not-allowed" : "pointer",
+                boxShadow: "0 4px 12px rgba(139, 92, 246, 0.4)",
+              }}
+            >
+              {isSaving ? "⏳ Saving..." : isSaved ? "💾 Save Changes" : "💾 Save Presentation"}
             </button>
-          ) : null}
+
+            {isSaved || downloadUrl ? (
+              <button
+                type="button"
+                className="btn-ui primary sm"
+                onClick={() => setShowDownloadModal(true)}
+                style={{
+                  background: "linear-gradient(135deg, #10b981, #059669)",
+                  border: "none",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.4)",
+                }}
+              >
+                📥Download
+              </button>
+            ) : null}
+          </div>
         </div>
 
         {/* DECK TITLE BAR */}
@@ -314,16 +386,8 @@ export default function PresentationEditor({
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "#c084fc", letterSpacing: 0.5 }}>
-                  🖼️ Presentation Slides ({plan?.slides?.length || 0})
+                  Presentation Slides ({plan?.slides?.length || 0})
                 </span>
-                <div style={{ display: "flex", gap: 4 }}>
-                  <button className="btn-ui secondary sm" onClick={() => scrollCarousel("left")} title="Scroll Left (2 Slides)" style={{ padding: "3px 8px" }}>
-                    ◀
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => scrollCarousel("right")} title="Scroll Right (2 Slides)" style={{ padding: "3px 8px" }}>
-                    ▶
-                  </button>
-                </div>
               </div>
               <button className="btn-ui primary sm" onClick={handleAddSlide} style={{ flexShrink: 0, padding: "5px 12px" }}>
                 + Add New Slide
@@ -403,17 +467,7 @@ export default function PresentationEditor({
                   </div>
 
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                    {downloadUrl ? (
-                      <a
-                        className="btn-ui primary sm"
-                        href={downloadUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ background: "linear-gradient(135deg, #10b981, #059669)", border: "none" }}
-                      >
-                        Download
-                      </a>
-                    ) : null}
+                    
                     <button className="btn-ui secondary sm" onClick={() => handleDuplicateSlide(activeSlideIndex)}>
                       📋Duplicate Slide
                     </button>
@@ -1123,6 +1177,93 @@ export default function PresentationEditor({
           </div>
         </div>
       ) : null}
+
+      {/* DOWNLOAD SUCCESS POPUP MODAL 🎁 */}
+      {showDownloadModal && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 10000,
+          background: "rgba(9, 13, 24, 0.85)",
+          backdropFilter: "blur(8px)",
+          display: "grid",
+          placeItems: "center",
+          padding: 16
+        }}>
+          <div style={{
+            background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)",
+            border: "1px solid #c084fc",
+            borderRadius: 24,
+            padding: "32px 28px",
+            maxWidth: 480,
+            width: "100%",
+            boxShadow: "0 25px 50px -12px rgba(192, 132, 252, 0.4)",
+            textAlign: "center",
+            position: "relative"
+          }}>
+            <button
+              onClick={() => setShowDownloadModal(false)}
+              style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", color: "#fff", fontSize: 18, cursor: "pointer", opacity: 0.7 }}
+            >
+              ✖
+            </button>
+
+            <div style={{ fontSize: 48, marginBottom: 8 }}>🎉</div>
+            <h2 style={{ fontSize: 20, fontWeight: 900, color: "#fff", margin: "0 0 6px 0" }}>
+              {plan?.title || "Presentation Deck Ready!"}
+            </h2>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", margin: "0 0 20px 0" }}>
+              Your 16:9 Widescreen PowerPoint presentation has been generated successfully!
+            </p>
+
+            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: 14, marginBottom: 24, textAlign: "left", fontSize: 13 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ color: "var(--text-muted)" }}>Format:</span>
+                <span style={{ fontWeight: 700, color: "#86efac" }}>PPTX (16:9 Widescreen)</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "var(--text-muted)" }}>Total Slides:</span>
+                <span style={{ fontWeight: 700, color: "#c084fc" }}>{plan?.slides?.length || 0} Slides</span>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              <button
+                type="button"
+                className="btn-ui primary"
+                onClick={async (e) => {
+                  e?.preventDefault();
+                  await handleDirectDownload(e);
+                  setShowDownloadModal(false);
+                }}
+                disabled={loadingGenerate}
+                style={{
+                  padding: "12px 24px",
+                  fontSize: 14,
+                  fontWeight: 800,
+                  background: loadingGenerate
+                    ? "linear-gradient(135deg, #4b5563, #374151)"
+                    : "linear-gradient(135deg, #10b981, #059669)",
+                  border: "none",
+                  borderRadius: 12,
+                  cursor: loadingGenerate ? "not-allowed" : "pointer",
+                  boxShadow: "0 8px 20px rgba(16, 185, 129, 0.4)"
+                }}
+              >
+                {loadingGenerate ? "⏳ Compiling PPTX..." : "📥 Download PPTX Now"}
+              </button>
+              <button
+                type="button"
+                className="btn-ui secondary"
+                onClick={() => setShowDownloadModal(false)}
+                style={{ padding: "12px 20px", borderRadius: 12, fontSize: 13 }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
