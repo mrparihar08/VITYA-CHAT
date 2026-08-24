@@ -587,7 +587,7 @@ body,
 /* Mobile */
 @media (max-width: 600px) {
   .content {
-    padding: 14px;
+    padding: 4px !important;
   }
 
   .topbar {

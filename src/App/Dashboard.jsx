@@ -579,7 +579,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           )}
 
           {activeTab === "presentation" && (
-            <section className="contentCard">
+            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
               <Presentation />
             </section>
           )}

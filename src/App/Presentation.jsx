@@ -880,7 +880,16 @@ export default function PresentationGenerator() {
           background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 60%, var(--bg-0) 100%);
         }
 
-        .ppt-shell { min-height: 100vh; padding: 20px; max-width: 1400px; margin: 0 auto; }
+        .ppt-shell { min-height: 100vh; padding: 20px; width: 100%; max-width: 100%; margin: 0; }
+
+        @media (max-width: 768px) {
+          .ppt-shell { padding: 4px !important; }
+          .card-box { padding: 10px 6px !important; border-radius: 12px !important; }
+          .ppt-header-bar { padding: 10px 12px !important; border-radius: 12px !important; }
+          .feature-block-card { padding: 8px 6px !important; margin-bottom: 8px !important; }
+          .slide-canvas-box { padding: 16px 10px !important; border-radius: 12px !important; }
+          .add-feature-bar { padding: 8px 6px !important; gap: 4px !important; }
+        }
 
         .ppt-header-bar {
           display: flex;
