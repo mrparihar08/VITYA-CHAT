@@ -783,3 +783,106 @@ body {
     padding: 16px !important;
   }
 }
+
+/* RESPONSIVE MEDIA QUERIES FOR PRESENTATION EDITOR */
+@media (max-width: 1024px) {
+  .title-subtitle-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .slide-formatting-row {
+    gap: 10px 12px !important;
+  }
+
+  .feature-formatting-bar {
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-box {
+    padding: 12px !important;
+    border-radius: 10px !important;
+  }
+
+  .slide-navigation-bar {
+    padding: 8px !important;
+  }
+
+  .slide-horizontal-carousel {
+    gap: 8px !important;
+  }
+
+  .slide-tab-item {
+    flex: 0 0 180px !important;
+    min-width: 180px !important;
+    padding: 8px !important;
+  }
+
+  .slide-canvas-box {
+    padding: 14px !important;
+    min-height: 220px !important;
+  }
+
+  .slide-formatting-row {
+    flex-wrap: wrap !important;
+    gap: 10px 12px !important;
+    padding: 8px 10px !important;
+    background: rgba(0, 0, 0, 0.2) !important;
+    border-radius: 8px !important;
+  }
+
+  .slide-row-badge {
+    min-width: 55px !important;
+  }
+
+  .feature-formatting-bar {
+    padding: 8px 10px !important;
+    gap: 8px !important;
+  }
+
+  .add-feature-bar button {
+    font-size: 10px !important;
+    padding: 6px 10px !important;
+  }
+}
+
+/* TITLE & SUBTITLE FORMATTING BAR RESPONSIVE LAYOUT */
+.title-subtitle-formatting-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+}
+
+@media (max-width: 1200px) {
+  .title-subtitle-formatting-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 540px) {
+  .slide-tab-item {
+    flex: 0 0 150px !important;
+    min-width: 150px !important;
+  }
+
+  .title-subtitle-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .slide-formatting-row > div:not(.slide-row-badge) {
+    flex: 1 1 calc(50% - 8px) !important;
+    min-width: 110px !important;
+  }
+
+  .slide-formatting-row input,
+  .slide-formatting-row select {
+    width: 100% !important;
+  }
+}

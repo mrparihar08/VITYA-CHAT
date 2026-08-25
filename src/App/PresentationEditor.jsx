@@ -155,54 +155,77 @@ export function VisualChartPreview({ data }) {
 }
 
 function FeatureFormattingBar({ pluginData, onChangeField, onRefineText }) {
+  const inputStyle = {
+    background: "#090d16",
+    border: "1px solid rgba(255, 255, 255, 0.15)",
+    borderRadius: "8px",
+    padding: "4px 8px",
+    color: "#ffffff",
+    fontSize: "12px",
+    fontWeight: "500",
+    outline: "none",
+    height: "28px",
+    boxSizing: "border-box",
+  };
+
+  const labelStyle = {
+    fontSize: "11px",
+    fontWeight: "500",
+    color: "rgba(255, 255, 255, 0.65)",
+    marginBottom: "4px",
+    display: "block",
+  };
+
   return (
     <div
       style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 6,
-        background: "rgba(255,255,255,0.03)",
-        padding: "6px 8px",
-        borderRadius: "6px",
-        border: "1px solid rgba(255,255,255,0.08)",
-        marginTop: 6,
+        gap: 10,
+        background: "rgba(15, 23, 42, 0.6)",
+        padding: "8px 12px",
+        borderRadius: "10px",
+        border: "1px solid rgba(255, 255, 255, 0.1)",
+        marginTop: 8,
         flexWrap: "wrap",
       }}
     >
-      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
         <div>
-          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Font Size (Pt):</label>
+          <label style={labelStyle}>Font Size (Pt):</label>
           <input
             type="number"
             min="10"
             max="60"
             value={pluginData?.font_size || 14}
             onChange={(e) => onChangeField("font_size", Number(e.target.value))}
-            style={{ width: "60px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+            style={{ ...inputStyle, width: "65px" }}
           />
         </div>
         <div>
-          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Font Color:</label>
-          <input
-            type="color"
-            value={pluginData?.font_color || pluginData?.color || "#ffffff"}
-            onChange={(e) => {
-              onChangeField("font_color", e.target.value);
-              onChangeField("color", e.target.value);
-            }}
-            style={{ border: "none", width: "24px", height: "24px", borderRadius: 4, cursor: "pointer", background: "none" }}
-          />
+          <label style={labelStyle}>Font Color:</label>
+          <div style={{ ...inputStyle, padding: "2px", display: "flex", alignItems: "center", justifyContent: "center", width: "32px", height: "28px" }}>
+            <input
+              type="color"
+              value={pluginData?.font_color || pluginData?.color || "#ffffff"}
+              onChange={(e) => {
+                onChangeField("font_color", e.target.value);
+                onChangeField("color", e.target.value);
+              }}
+              style={{ border: "none", width: "24px", height: "22px", borderRadius: "4px", cursor: "pointer", background: "none" }}
+            />
+          </div>
         </div>
         <div>
-          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Align:</label>
+          <label style={labelStyle}>H-Align:</label>
           <select
             value={pluginData?.alignment || pluginData?.align || "left"}
             onChange={(e) => {
               onChangeField("alignment", e.target.value);
               onChangeField("align", e.target.value);
             }}
-            style={{ width: "70px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+            style={{ ...inputStyle, width: "85px" }}
           >
             <option value="left">Left</option>
             <option value="center">Center</option>
@@ -211,37 +234,19 @@ function FeatureFormattingBar({ pluginData, onChangeField, onRefineText }) {
           </select>
         </div>
         <div>
-          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Top (in):</label>
-          <input
-            type="number"
-            step="0.1"
-            value={pluginData?.top ?? ""}
-            onChange={(e) => onChangeField("top", e.target.value ? Number(e.target.value) : "")}
-            placeholder="Auto"
-            style={{ width: "55px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
-          />
-        </div>
-        <div>
-          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Left (in):</label>
-          <input
-            type="number"
-            step="0.1"
-            value={pluginData?.left ?? ""}
-            onChange={(e) => onChangeField("left", e.target.value ? Number(e.target.value) : "")}
-            placeholder="Auto"
-            style={{ width: "55px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
-          />
-        </div>
-        <div>
-          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block" }}>Width (in):</label>
-          <input
-            type="number"
-            step="0.1"
-            value={pluginData?.width ?? ""}
-            onChange={(e) => onChangeField("width", e.target.value ? Number(e.target.value) : "")}
-            placeholder="Auto"
-            style={{ width: "55px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
-          />
+          <label style={labelStyle}>V-Align:</label>
+          <select
+            value={pluginData?.valign || pluginData?.v_align || "top"}
+            onChange={(e) => {
+              onChangeField("valign", e.target.value);
+              onChangeField("v_align", e.target.value);
+            }}
+            style={{ ...inputStyle, width: "85px" }}
+          >
+            <option value="top">Top</option>
+            <option value="middle">Middle</option>
+            <option value="bottom">Bottom</option>
+          </select>
         </div>
       </div>
 
@@ -250,7 +255,7 @@ function FeatureFormattingBar({ pluginData, onChangeField, onRefineText }) {
           type="button"
           onClick={onRefineText}
           className="btn-ui primary sm"
-          style={{ fontSize: 10, padding: "4px 10px", background: "linear-gradient(135deg, #8b5cf6, #ec4899)", border: "none", borderRadius: 6, cursor: "pointer" }}
+          style={{ fontSize: 10, padding: "5px 12px", background: "linear-gradient(135deg, #8b5cf6, #ec4899)", border: "none", borderRadius: 6, cursor: "pointer" }}
         >
           ✨ AI Polish & Refine
         </button>
@@ -610,7 +615,7 @@ export default function PresentationEditor({
                 style={{ background: selectedBgConfig.bg, color: selectedBgConfig.text }}
               >
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: "800", opacity: 0.6, letterSpacing: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: "800", color: selectedBgConfig?.accent || "inherit", opacity: 0.9, letterSpacing: 1 }}>
                     SLIDE {activeSlideIndex + 1} OF {plan.slides.length}
                   </div>
                   <h2
@@ -644,7 +649,7 @@ export default function PresentationEditor({
                   {safeArray(activeSlide.plugins).map((p, pIdx) => (
                     <div key={pIdx}>
                       {p.type === "subtitle" ? (
-                        <h3 style={{ fontSize: p.data?.font_size || 18, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "#c084fc", margin: "4px 0" }}>
+                        <h3 style={{ fontSize: p.data?.font_size || 18, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || selectedBgConfig?.accent || "#c084fc", margin: "4px 0" }}>
                           {p.data?.text}
                         </h3>
                       ) : null}
@@ -684,7 +689,7 @@ export default function PresentationEditor({
 
                       {p.type === "stat" ? (
                         <div style={{ display: "flex", alignItems: "baseline", gap: 10, margin: "8px 0" }}>
-                          <span style={{ fontSize: p.data?.font_size || 36, fontWeight: 900, color: "#c084fc" }}>{p.data?.number}</span>
+                          <span style={{ fontSize: p.data?.font_size || 36, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc" }}>{p.data?.number}</span>
                           <span style={{ fontSize: 14, fontWeight: 600, opacity: 0.85 }}>{p.data?.label}</span>
                         </div>
                       ) : null}
@@ -705,8 +710,8 @@ export default function PresentationEditor({
                           const headerTitle = headers[diagType] || "⚙️ SYSTEM ARCHITECTURE & PROCESS FLOW";
 
                           return (
-                            <div style={{ background: "rgba(192, 132, 252, 0.12)", border: "1px dashed rgba(192, 132, 252, 0.5)", borderRadius: 10, padding: 12, textAlign: p.data?.alignment || "center", margin: "8px 0" }}>
-                              <div style={{ fontSize: 11, fontWeight: 800, color: "#c084fc", marginBottom: 8, letterSpacing: 0.5 }}>
+                            <div style={{ background: `${selectedBgConfig?.accent || "#c084fc"}1f`, border: `1px dashed ${selectedBgConfig?.accent || "#c084fc"}80`, borderRadius: 10, padding: 12, textAlign: p.data?.alignment || "center", margin: "8px 0" }}>
+                              <div style={{ fontSize: 11, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 8, letterSpacing: 0.5 }}>
                                 {headerTitle}
                               </div>
                               
@@ -714,10 +719,10 @@ export default function PresentationEditor({
                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
                                   {steps.map((step, sIdx) => (
                                     <React.Fragment key={sIdx}>
-                                      <div style={{ background: "rgba(0,0,0,0.4)", border: "1px solid #c084fc", borderRadius: 6, padding: "6px 12px", fontSize: p.data?.font_size || 12, fontWeight: 700, color: "#fff" }}>
+                                      <div style={{ background: "rgba(0,0,0,0.4)", border: `1px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 6, padding: "6px 12px", fontSize: p.data?.font_size || 12, fontWeight: 700, color: "#fff" }}>
                                         {step}
                                       </div>
-                                      {sIdx < steps.length - 1 && <span style={{ color: "#c084fc", fontSize: 16 }}>➔</span>}
+                                      {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 16 }}>➔</span>}
                                     </React.Fragment>
                                   ))}
                                 </div>
@@ -726,7 +731,7 @@ export default function PresentationEditor({
                               {diagType === "architecture" && (
                                 <div style={{ display: "flex", flexDirection: "column", gap: 6, maxWidth: "85%", margin: "0 auto" }}>
                                   {steps.map((step, sIdx) => (
-                                    <div key={sIdx} style={{ background: "rgba(192, 132, 252, 0.2)", border: "1px solid #c084fc", borderRadius: 6, padding: "6px 12px", fontSize: p.data?.font_size || 12, fontWeight: 700, textAlign: "center", color: "#fff" }}>
+                                    <div key={sIdx} style={{ background: `${selectedBgConfig?.accent || "#c084fc"}33`, border: `1px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 6, padding: "6px 12px", fontSize: p.data?.font_size || 12, fontWeight: 700, textAlign: "center", color: "#fff" }}>
                                       Layer {sIdx + 1}: {step}
                                     </div>
                                   ))}
@@ -736,8 +741,8 @@ export default function PresentationEditor({
                               {diagType === "timeline" && (
                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, overflowX: "auto", padding: "4px 0" }}>
                                   {steps.map((step, sIdx) => (
-                                    <div key={sIdx} style={{ flex: 1, background: "rgba(0,0,0,0.4)", borderTop: "3px solid #c084fc", borderRadius: "0 0 6px 6px", padding: 8, fontSize: p.data?.font_size || 12, textAlign: "center", color: "#fff" }}>
-                                      <div style={{ fontSize: 10, color: "#c084fc", fontWeight: 800 }}>PHASE {sIdx + 1}</div>
+                                    <div key={sIdx} style={{ flex: 1, background: "rgba(0,0,0,0.4)", borderTop: `3px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: "0 0 6px 6px", padding: 8, fontSize: p.data?.font_size || 12, textAlign: "center", color: "#fff" }}>
+                                      <div style={{ fontSize: 10, color: selectedBgConfig?.accent || "#c084fc", fontWeight: 800 }}>PHASE {sIdx + 1}</div>
                                       <div style={{ fontWeight: 600 }}>{step}</div>
                                     </div>
                                   ))}
@@ -750,7 +755,7 @@ export default function PresentationEditor({
                                     const colLabels = ["INPUT", "PROCESS", "OUTPUT"];
                                     return (
                                       <div key={sIdx} style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 8, textAlign: "center" }}>
-                                        <div style={{ fontSize: 10, fontWeight: 800, color: "#c084fc", marginBottom: 2 }}>
+                                        <div style={{ fontSize: 10, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 2 }}>
                                           {colLabels[sIdx] || `STEP ${sIdx + 1}`}
                                         </div>
                                         <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 600 }}>{step}</div>
@@ -762,13 +767,13 @@ export default function PresentationEditor({
 
                               {diagType === "mindmap" && (
                                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                                  <div style={{ background: "#c084fc", color: "#000", fontWeight: 800, padding: "4px 14px", borderRadius: 20, fontSize: 12 }}>
+                                  <div style={{ background: selectedBgConfig?.accent || "#c084fc", color: "#000", fontWeight: 800, padding: "4px 14px", borderRadius: 20, fontSize: 12 }}>
                                     {steps[0] || "Core Concept"}
                                   </div>
-                                  {steps.length > 1 && <div style={{ width: 2, height: 12, background: "#c084fc" }} />}
+                                  {steps.length > 1 && <div style={{ width: 2, height: 12, background: selectedBgConfig?.accent || "#c084fc" }} />}
                                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
                                     {steps.slice(1).map((subStep, sIdx) => (
-                                      <div key={sIdx} style={{ background: "rgba(0,0,0,0.4)", border: "1px solid #c084fc", borderRadius: 12, padding: "4px 10px", fontSize: p.data?.font_size || 12, color: "#fff" }}>
+                                      <div key={sIdx} style={{ background: "rgba(0,0,0,0.4)", border: `1px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 12, padding: "4px 10px", fontSize: p.data?.font_size || 12, color: "#fff" }}>
                                         {subStep}
                                       </div>
                                     ))}
@@ -785,9 +790,9 @@ export default function PresentationEditor({
                           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: p.data?.cell_font_size || 11, background: "rgba(0,0,0,0.35)", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)" }}>
                             {safeArray(p.data?.headers).length > 0 && (
                               <thead>
-                                <tr style={{ background: p.data?.header_bg || "rgba(192, 132, 252, 0.25)" }}>
+                                <tr style={{ background: p.data?.header_bg || `${selectedBgConfig?.accent || "#c084fc"}33` }}>
                                   {p.data.headers.map((h, hIdx) => (
-                                    <th key={hIdx} style={{ padding: "6px 10px", textAlign: p.data?.align || "left", borderBottom: "1px solid rgba(255,255,255,0.15)", fontWeight: 700, fontSize: p.data?.header_font_size || 12, color: p.data?.header_color || "#c084fc" }}>{h}</th>
+                                    <th key={hIdx} style={{ padding: "6px 10px", textAlign: p.data?.align || "left", borderBottom: "1px solid rgba(255,255,255,0.15)", fontWeight: 700, fontSize: p.data?.header_font_size || 12, color: p.data?.header_color || selectedBgConfig?.accent || "#c084fc" }}>{h}</th>
                                   ))}
                                 </tr>
                               </thead>
@@ -820,9 +825,6 @@ export default function PresentationEditor({
                   <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)", width: "100%", marginBottom: 4 }}>
                     ➕ Add Feature Element to Slide {activeSlideIndex + 1}:
                   </span>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "subtitle")}>
-                    📝 + Subtitle
-                  </button>
                   <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "chart")}>
                     📊 + Chart Block
                   </button>
@@ -853,7 +855,7 @@ export default function PresentationEditor({
                 <div style={{ fontWeight: 800, fontSize: 13, color: "#c084fc", marginBottom: 10 }}>
                   ✏️ Edit Slide {activeSlideIndex + 1} General Info & Title Styling:
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div className="title-subtitle-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)" }}>Slide Main Title:</label>
                     <input
@@ -876,71 +878,113 @@ export default function PresentationEditor({
                 </div>
 
                 {/* TITLE & SUBTITLE FORMATTING BAR */}
-                <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginTop: 10, paddingTop: 10, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Title Color:</label>
-                    <input
-                      type="color"
-                      value={activeSlide.title_color || "#ffffff"}
-                      onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_color", e.target.value)}
-                      style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Title Size:</label>
-                    <input
-                      type="number"
-                      min="14"
-                      max="60"
-                      value={activeSlide.title_font_size || 26}
-                      onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_font_size", Number(e.target.value))}
-                      style={{ width: 50, background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Title Align:</label>
-                    <select
-                      value={activeSlide.title_align || "left"}
-                      onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_align", e.target.value)}
-                      style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
-                    >
-                      <option value="left">Left</option>
-                      <option value="center">Center</option>
-                      <option value="right">Right</option>
-                    </select>
+                <div className="title-subtitle-formatting-bar" style={{ marginTop: 10, paddingTop: 10, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
+                  {/* TITLE ROW */}
+                  <div className="slide-formatting-row" style={{ display: "flex", gap: 14, alignItems: "flex-end", flexWrap: "wrap" }}>
+                    <div className="slide-row-badge" style={{ fontSize: 12, fontWeight: "700", color: "#c084fc", minWidth: "55px", marginBottom: "5px" }}>Title:</div>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>Font Size (Pt):</label>
+                      <input
+                        type="number"
+                        min="14"
+                        max="60"
+                        value={activeSlide.title_font_size || 26}
+                        onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_font_size", Number(e.target.value))}
+                        style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 70, height: 28, boxSizing: "border-box" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>Font Color:</label>
+                      <div style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 2, display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 28, boxSizing: "border-box" }}>
+                        <input
+                          type="color"
+                          value={activeSlide.title_color || "#ffffff"}
+                          onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_color", e.target.value)}
+                          style={{ border: "none", width: 26, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>H-Align:</label>
+                      <select
+                        value={activeSlide.title_align || "auto"}
+                        onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_align", e.target.value)}
+                        style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 95, height: 28, boxSizing: "border-box" }}
+                      >
+                        <option value="auto">✨ Auto</option>
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                        <option value="justify">Justify</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>V-Align:</label>
+                      <select
+                        value={activeSlide.title_valign || "auto"}
+                        onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_valign", e.target.value)}
+                        style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 95, height: 28, boxSizing: "border-box" }}
+                      >
+                        <option value="auto">✨ Auto</option>
+                        <option value="top">Top</option>
+                        <option value="middle">Middle</option>
+                        <option value="bottom">Bottom</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: 10 }}>
-                    <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Subtitle Color:</label>
-                    <input
-                      type="color"
-                      value={activeSlide.subtitle_color || "#94a3b8"}
-                      onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_color", e.target.value)}
-                      style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Subtitle Size:</label>
-                    <input
-                      type="number"
-                      min="10"
-                      max="36"
-                      value={activeSlide.subtitle_font_size || 15}
-                      onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_font_size", Number(e.target.value))}
-                      style={{ width: 50, background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Subtitle Align:</label>
-                    <select
-                      value={activeSlide.subtitle_align || "left"}
-                      onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_align", e.target.value)}
-                      style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
-                    >
-                      <option value="left">Left</option>
-                      <option value="center">Center</option>
-                      <option value="right">Right</option>
-                    </select>
+                  {/* SUBTITLE ROW */}
+                  <div className="slide-formatting-row" style={{ display: "flex", gap: 14, alignItems: "flex-end", flexWrap: "wrap" }}>
+                    <div className="slide-row-badge" style={{ fontSize: 12, fontWeight: "700", color: "#c084fc", minWidth: "55px", marginBottom: "5px" }}>Subtitle:</div>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>Font Size (Pt):</label>
+                      <input
+                        type="number"
+                        min="10"
+                        max="36"
+                        value={activeSlide.subtitle_font_size || 15}
+                        onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_font_size", Number(e.target.value))}
+                        style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 70, height: 28, boxSizing: "border-box" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>Font Color:</label>
+                      <div style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 2, display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 28, boxSizing: "border-box" }}>
+                        <input
+                          type="color"
+                          value={activeSlide.subtitle_color || "#94a3b8"}
+                          onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_color", e.target.value)}
+                          style={{ border: "none", width: 26, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>H-Align:</label>
+                      <select
+                        value={activeSlide.subtitle_align || "auto"}
+                        onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_align", e.target.value)}
+                        style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 95, height: 28, boxSizing: "border-box" }}
+                      >
+                        <option value="auto">✨ Auto</option>
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                        <option value="justify">Justify</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>V-Align:</label>
+                      <select
+                        value={activeSlide.subtitle_valign || "auto"}
+                        onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_valign", e.target.value)}
+                        style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 95, height: 28, boxSizing: "border-box" }}
+                      >
+                        <option value="auto">✨ Auto</option>
+                        <option value="top">Top</option>
+                        <option value="middle">Middle</option>
+                        <option value="bottom">Bottom</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
