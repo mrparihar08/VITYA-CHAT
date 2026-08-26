@@ -104,6 +104,17 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
           type: "paragraph",
           data: { ...pluginData, text: String(pluginData.text || "").trim() },
         });
+      } else if (p.type === "paragraph_2col") {
+        plugins.push({
+          type: "paragraph_2col",
+          data: {
+            ...pluginData,
+            left_title: String(pluginData.left_title || "").trim(),
+            left_text: String(pluginData.left_text || pluginData.text || "").trim(),
+            right_title: String(pluginData.right_title || "").trim(),
+            right_text: String(pluginData.right_text || "").trim(),
+          },
+        });
       } else if (p.type === "subtitle" || p.type === "text") {
         plugins.push({
           type: "text",
@@ -706,12 +717,15 @@ export default function PresentationGenerator() {
       const plugin = { ...plugins[pluginIndex] };
       const data = { ...plugin.data };
 
-      if (field === "labels" || field === "categories") {
-        const parsed = rawInput.split(",").map((s) => s.trim());
-        data.labels = parsed;
-        data.categories = parsed;
+      if (field === "labels" || field === "categories" || field === "headers") {
+        const parsed = typeof rawInput === "string" ? rawInput.split(",").map((s) => s.trim()) : safeArray(rawInput);
+        data[field] = parsed;
+        if (field === "labels" || field === "categories") {
+          data.labels = parsed;
+          data.categories = parsed;
+        }
       } else if (field === "values") {
-        data.values = rawInput.split(",").map((s) => Number(s.trim()) || 0);
+        data.values = typeof rawInput === "string" ? rawInput.split(",").map((s) => Number(s.trim()) || 0) : safeArray(rawInput);
       } else {
         data[field] = rawInput;
       }
@@ -783,6 +797,13 @@ export default function PresentationGenerator() {
         newPlugin.data = { points: ["Key bullet item 1", "Key bullet item 2"] };
       } else if (pluginType === "paragraph") {
         newPlugin.data = { text: "Enter descriptive paragraph narrative here..." };
+      } else if (pluginType === "paragraph_2col") {
+        newPlugin.data = {
+          left_title: "Left Column Concept",
+          left_text: "First detailed paragraph narrative for the left column...",
+          right_title: "Right Column Concept",
+          right_text: "Second detailed paragraph narrative for the right column..."
+        };
       } else if (pluginType === "stat") {
         newPlugin.data = { number: "95%", label: "Key Metric / Growth Rate" };
       } else if (pluginType === "notes") {

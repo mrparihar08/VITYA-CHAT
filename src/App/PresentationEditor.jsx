@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import { API_BASE_URL } from "../services/api";
 import { downloadFileAsBlob } from "./Presentation";
 
 export const BACKGROUND_PRESETS = [
@@ -16,8 +17,90 @@ export const BACKGROUND_PRESETS = [
   { id: "custom", name: "🎨 Custom Palette", bg: "custom", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#1e1b4b", bg_end: "#0f172a" },
 ];
 
+export const TABLE_THEME_PRESETS = [
+  { id: "midnight_purple", name: "🌌 Midnight Purple", header_bg: "#8b5cf6", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
+  { id: "ocean_blue", name: "🌊 Ocean Breeze", header_bg: "#0284c7", header_color: "#ffffff", cell_bg: "#0b2545", cell_color: "#ffffff" },
+  { id: "emerald_forest", name: "🌲 Emerald Forest", header_bg: "#059669", header_color: "#ffffff", cell_bg: "#064e3b", cell_color: "#ffffff" },
+  { id: "cyberpunk_neon", name: "⚡ Cyberpunk Neon", header_bg: "#f43f5e", header_color: "#ffffff", cell_bg: "#2e1065", cell_color: "#ffffff" },
+  { id: "executive_gold", name: "🏆 Executive Gold", header_bg: "#d97706", header_color: "#ffffff", cell_bg: "#1c1917", cell_color: "#ffffff" },
+  { id: "velvet_rose", name: "🌹 Velvet Rose", header_bg: "#e11d48", header_color: "#ffffff", cell_bg: "#4c0519", cell_color: "#ffffff" },
+  { id: "minimal_light", name: "☀️ Minimal Light", header_bg: "#2563eb", header_color: "#ffffff", cell_bg: "#f1f5f9", cell_color: "#0f172a" },
+  { id: "titanium_white", name: "🏛️ Titanium White", header_bg: "#4f46e5", header_color: "#ffffff", cell_bg: "#f4f4f5", cell_color: "#18181b" },
+  { id: "custom", name: "🎨 Custom Palette", header_bg: "#8b5cf6", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
+];
+
 function safeArray(value) {
   return Array.isArray(value) ? value : [];
+}
+
+export function detectBulletStyle(points = [], selectedStyle = "auto") {
+  const st = String(selectedStyle || "auto").toLowerCase().trim();
+  if (st !== "auto" && st !== "none" && st !== "") {
+    return st;
+  }
+  const joinedText = safeArray(points).join(" ").toLowerCase();
+  if (/(step|phase|stage|rank|order|first|second|third|1\.|2\.|3\.)/i.test(joinedText)) {
+    return "number";
+  }
+  if (/(task|todo|check|verify|complete|done|feature|status)/i.test(joinedText)) {
+    return "check";
+  }
+  if (/(key|important|highlight|top|benefit|advantage|star)/i.test(joinedText)) {
+    return "star";
+  }
+  if (/(process|flow|next|then|direction|target|goal)/i.test(joinedText)) {
+    return "arrow";
+  }
+  if (/(option|category|tier|type)/i.test(joinedText)) {
+    return "alpha";
+  }
+  return "bullet";
+}
+
+export function formatBulletPrefix(style = "auto", index = 0, points = []) {
+  const resolvedStyle = detectBulletStyle(points, style);
+  const st = String(resolvedStyle || "bullet").toLowerCase().trim();
+  if (st === "number" || st === "numbered" || st === "123") {
+    return `${index + 1}. `;
+  }
+  if (st === "alpha" || st === "abc") {
+    return `${String.fromCharCode(65 + (index % 26))}. `;
+  }
+  if (st === "roman") {
+    const romans = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+    return `${romans[index % 10]}. `;
+  }
+  if (st === "check" || st === "checklist") {
+    return "✅ ";
+  }
+  if (st === "star") {
+    return "⭐ ";
+  }
+  if (st === "arrow") {
+    return "➔ ";
+  }
+  if (st === "diamond") {
+    return "🔹 ";
+  }
+  return "• ";
+}
+
+export function detectDiagramType(text = "", selectedType = "auto") {
+  const type = String(selectedType || "auto").toLowerCase();
+  if (type !== "auto" && type !== "none" && type !== "") {
+    return type;
+  }
+  const raw = String(text || "").toLowerCase();
+  if (/(cycle|loop|repeat|iterat|pdca|agile|sprint)/i.test(raw)) return "cycle";
+  if (/(funnel|conversion|lead|pipeline|sales)/i.test(raw)) return "funnel";
+  if (/(pyramid|hierarchy|maslow|foundation|level)/i.test(raw)) return "pyramid";
+  if (/(swot|matrix|quadrant|2x2|grid)/i.test(raw)) return "quadrant";
+  if (/(vs|versus|compare|comparison|feature\s*matrix)/i.test(raw)) return "comparison";
+  if (/(timeline|roadmap|milestone|phase|quarter|q1|q2|q3|q4|202\d)/i.test(raw)) return "timeline";
+  if (/(stack|architecture|layer|tier|database|backend|frontend|api)/i.test(raw)) return "architecture";
+  if (/(input|output|processing|io\b)/i.test(raw)) return "io_cards";
+  if (/(mindmap|brainstorm|category|concept|topic)/i.test(raw)) return "mindmap";
+  return "flowchart";
 }
 
 export function VisualChartPreview({ data }) {
@@ -191,7 +274,7 @@ function FeatureFormattingBar({ pluginData, onChangeField, onRefineText }) {
         flexWrap: "wrap",
       }}
     >
-      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+      <div className="feature-formatting-bar" style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", width: "100%" }}>
         <div>
           <label style={labelStyle}>Font Size (Pt):</label>
           <input
@@ -367,13 +450,13 @@ export default function PresentationEditor({
     await downloadFileAsBlob(fullUrl, filename);
   };
 
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://mother-8599.onrender.com";
+  const API_SERVER_URL = `${API_BASE_URL || process.env.REACT_APP_API_BASE_URL || ""}/api/presentation`;
 
   // Helper to dynamically fetch exact topic-matched HD Unsplash image via backend API
   const handleAutoUnsplashFetch = async (pIdx, query) => {
     const searchTopic = query || activeSlide?.title || "presentation visual";
     try {
-      const res = await fetch(`${API_BASE_URL}/api/presentation/unsplash/search?query=${encodeURIComponent(searchTopic)}`);
+      const res = await fetch(`${API_SERVER_URL}/unsplash/search?query=${encodeURIComponent(searchTopic)}`);
       const data = await res.json();
       if (data?.url) {
         handlePluginTextChange(activeSlideIndex, pIdx, "url", data.url);
@@ -397,7 +480,7 @@ export default function PresentationEditor({
     if (!currentText) return;
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/presentation/refine-slide`, {
+      const res = await fetch(`${API_SERVER_URL}/refine-slide`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: currentText, action }),
@@ -648,7 +731,7 @@ export default function PresentationEditor({
                 <div style={{ flex: 1, overflowY: "auto", margin: "16px 0", display: "flex", flexDirection: "column", gap: 10 }}>
                   {safeArray(activeSlide.plugins).map((p, pIdx) => (
                     <div key={pIdx}>
-                      {p.type === "subtitle" ? (
+                      {p.type === "subtitle" || p.type === "text" ? (
                         <h3 style={{ fontSize: p.data?.font_size || 18, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || selectedBgConfig?.accent || "#c084fc", margin: "4px 0" }}>
                           {p.data?.text}
                         </h3>
@@ -660,12 +743,42 @@ export default function PresentationEditor({
                         </p>
                       ) : null}
 
+                      {p.type === "paragraph_2col" ? (
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: p.data?.column_gap || 14, margin: "8px 0" }}>
+                          <div style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+                            {p.data?.left_title && (
+                              <div style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
+                                {p.data.left_title}
+                              </div>
+                            )}
+                            <p style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0 }}>
+                              {p.data?.left_text || p.data?.text || "Left paragraph content..."}
+                            </p>
+                          </div>
+                          <div style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+                            {p.data?.right_title && (
+                              <div style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
+                                {p.data.right_title}
+                              </div>
+                            )}
+                            <p style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0 }}>
+                              {p.data?.right_text || "Right paragraph content..."}
+                            </p>
+                          </div>
+                        </div>
+                      ) : null}
+
                       {p.type === "bullets" ? (
-                        <ul style={{ paddingLeft: 20, margin: "4px 0", textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "inherit" }}>
+                        <div style={{ paddingLeft: 4, margin: "6px 0", textAlign: p.data?.alignment || p.data?.align || "left", color: p.data?.font_color || p.data?.color || "inherit" }}>
                           {safeArray(p.data?.points).map((pt, bIdx) => (
-                            <li key={bIdx} style={{ fontSize: p.data?.font_size || 14, marginBottom: 4 }}>{pt}</li>
+                            <div key={bIdx} style={{ fontSize: p.data?.font_size || 14, marginBottom: 5, display: "flex", gap: 8, alignItems: "baseline" }}>
+                              <span style={{ fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", flexShrink: 0 }}>
+                                {formatBulletPrefix(p.data?.bullet_style || p.data?.list_style, bIdx, p.data?.points)}
+                              </span>
+                              <span>{pt}</span>
+                            </div>
                           ))}
-                        </ul>
+                        </div>
                       ) : null}
 
                       {p.type === "chart" ? (
@@ -696,8 +809,8 @@ export default function PresentationEditor({
 
                       {p.type === "diagram" ? (
                         (() => {
-                          const diagType = String(p.data?.diagram_type || "flowchart").toLowerCase();
                           const textRaw = p.data?.diagram || p.data?.text || "[Input] ➔ [Processing] ➔ [Output]";
+                          const diagType = detectDiagramType(textRaw, p.data?.diagram_type);
                           const steps = textRaw.split(/➔|->|→/).map(s => s.trim()).filter(Boolean);
                           
                           const headers = {
@@ -706,6 +819,11 @@ export default function PresentationEditor({
                             timeline: "📅 TIMELINE & ROADMAP MILESTONES",
                             io_cards: "📥 INPUT  │  ⚙️ PROCESSING  │  📤 OUTPUT",
                             mindmap: "🧠 CONCEPT & CATEGORY MAP",
+                            funnel: "🔻 CONVERSION & PIPELINE FUNNEL",
+                            cycle: "🔁 CIRCULAR PROCESS & ITERATION LOOP",
+                            pyramid: "🔺 HIERARCHY & LAYERED PYRAMID",
+                            quadrant: "🧭 2x2 STRATEGIC MATRIX / QUADRANT",
+                            comparison: "⚔️ FEATURE & SOLUTION COMPARISON",
                           };
                           const headerTitle = headers[diagType] || "⚙️ SYSTEM ARCHITECTURE & PROCESS FLOW";
 
@@ -716,49 +834,94 @@ export default function PresentationEditor({
                               </div>
                               
                               {diagType === "flowchart" && (
-                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", padding: "10px 0" }}>
+                                  {steps.map((step, sIdx) => {
+                                    const isStartEnd = sIdx === 0 || sIdx === steps.length - 1;
+                                    return (
+                                      <React.Fragment key={sIdx}>
+                                        <div style={{
+                                          background: isStartEnd ? selectedBgConfig?.accent || "#c084fc" : "rgba(15,23,42,0.85)",
+                                          color: isStartEnd ? "#000" : "#fff",
+                                          border: `2px solid ${selectedBgConfig?.accent || "#c084fc"}`,
+                                          borderRadius: isStartEnd ? "24px" : "8px",
+                                          padding: "8px 16px",
+                                          fontSize: p.data?.font_size || 12,
+                                          fontWeight: 800,
+                                          boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+                                        }}>
+                                          {isStartEnd ? `🏁 ${step}` : `⚙️ ${step}`}
+                                        </div>
+                                        {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 18, fontWeight: 900 }}>➔</span>}
+                                      </React.Fragment>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                              {diagType === "architecture" && (
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, maxWidth: "85%", margin: "0 auto", padding: "6px 0" }}>
                                   {steps.map((step, sIdx) => (
                                     <React.Fragment key={sIdx}>
-                                      <div style={{ background: "rgba(0,0,0,0.4)", border: `1px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 6, padding: "6px 12px", fontSize: p.data?.font_size || 12, fontWeight: 700, color: "#fff" }}>
-                                        {step}
+                                      <div style={{
+                                        width: "100%",
+                                        background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}33 0%, rgba(15,23,42,0.9) 100%)`,
+                                        border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`,
+                                        borderRadius: "10px",
+                                        padding: "8px 16px",
+                                        fontSize: p.data?.font_size || 12,
+                                        fontWeight: 700,
+                                        textAlign: "center",
+                                        color: "#fff",
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
+                                      }}>
+                                        <span style={{ fontSize: 10, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", background: "rgba(0,0,0,0.4)", padding: "2px 8px", borderRadius: 4 }}>
+                                          TIER {sIdx + 1}
+                                        </span>
+                                        <span style={{ fontWeight: 700 }}>{step}</span>
+                                        <span style={{ opacity: 0.5, fontSize: 10 }}>[Layer Spec]</span>
                                       </div>
-                                      {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 16 }}>➔</span>}
+                                      {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 12 }}>⬇️</span>}
                                     </React.Fragment>
                                   ))}
                                 </div>
                               )}
 
-                              {diagType === "architecture" && (
-                                <div style={{ display: "flex", flexDirection: "column", gap: 6, maxWidth: "85%", margin: "0 auto" }}>
-                                  {steps.map((step, sIdx) => (
-                                    <div key={sIdx} style={{ background: `${selectedBgConfig?.accent || "#c084fc"}33`, border: `1px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 6, padding: "6px 12px", fontSize: p.data?.font_size || 12, fontWeight: 700, textAlign: "center", color: "#fff" }}>
-                                      Layer {sIdx + 1}: {step}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-
                               {diagType === "timeline" && (
-                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, overflowX: "auto", padding: "4px 0" }}>
-                                  {steps.map((step, sIdx) => (
-                                    <div key={sIdx} style={{ flex: 1, background: "rgba(0,0,0,0.4)", borderTop: `3px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: "0 0 6px 6px", padding: 8, fontSize: p.data?.font_size || 12, textAlign: "center", color: "#fff" }}>
-                                      <div style={{ fontSize: 10, color: selectedBgConfig?.accent || "#c084fc", fontWeight: 800 }}>PHASE {sIdx + 1}</div>
-                                      <div style={{ fontWeight: 600 }}>{step}</div>
-                                    </div>
-                                  ))}
+                                <div style={{ position: "relative", padding: "20px 10px 10px", margin: "8px 0" }}>
+                                  {/* HORIZONTAL AXIS LINE */}
+                                  <div style={{ position: "absolute", top: "45px", left: "5%", right: "5%", height: "4px", background: selectedBgConfig?.accent || "#c084fc", borderRadius: 2, zIndex: 1 }} />
+                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, position: "relative", zIndex: 2 }}>
+                                    {steps.map((step, sIdx) => (
+                                      <div key={sIdx} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+                                        <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: selectedBgConfig?.accent || "#c084fc", color: "#000", fontWeight: 900, fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8, boxShadow: `0 0 10px ${selectedBgConfig?.accent || "#c084fc"}` }}>
+                                          {sIdx + 1}
+                                        </div>
+                                        <div style={{ background: "rgba(15,23,42,0.9)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "6px 8px", width: "100%" }}>
+                                          <div style={{ fontSize: 9, color: selectedBgConfig?.accent || "#c084fc", fontWeight: 800, textTransform: "uppercase" }}>MILESTONE {sIdx + 1}</div>
+                                          <div style={{ fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff", marginTop: 2 }}>{step}</div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
                               )}
 
                               {diagType === "io_cards" && (
-                                <div style={{ display: "grid", gridTemplateColumns: steps.length === 3 ? "1fr 1fr 1fr" : "repeat(auto-fit, minmax(100px, 1fr))", gap: 8 }}>
+                                <div style={{ display: "grid", gridTemplateColumns: steps.length === 3 ? "1fr 1fr 1fr" : `repeat(${Math.min(steps.length, 4)}, 1fr)`, gap: 12, padding: "6px 0" }}>
                                   {steps.map((step, sIdx) => {
-                                    const colLabels = ["INPUT", "PROCESS", "OUTPUT"];
+                                    const styles = [
+                                      { bg: "linear-gradient(135deg, #0284c7 0%, #0f172a 100%)", border: "#38bdf8", title: "📥 INPUT DATA" },
+                                      { bg: "linear-gradient(135deg, #7c3aed 0%, #0f172a 100%)", border: "#c084fc", title: "⚙️ PROCESSING" },
+                                      { bg: "linear-gradient(135deg, #059669 0%, #0f172a 100%)", border: "#34d399", title: "📤 OUTPUT RESULT" },
+                                    ];
+                                    const st = styles[sIdx % styles.length];
                                     return (
-                                      <div key={sIdx} style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 8, textAlign: "center" }}>
-                                        <div style={{ fontSize: 10, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 2 }}>
-                                          {colLabels[sIdx] || `STEP ${sIdx + 1}`}
-                                        </div>
-                                        <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 600 }}>{step}</div>
+                                      <div key={sIdx} style={{ background: st.bg, border: `1.5px solid ${st.border}`, borderRadius: 12, padding: 12, textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
+                                        <div style={{ fontSize: 10, fontWeight: 900, color: st.border, marginBottom: 6, letterSpacing: 0.5 }}>{st.title}</div>
+                                        <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700 }}>{step}</div>
                                       </div>
                                     );
                                   })}
@@ -766,18 +929,183 @@ export default function PresentationEditor({
                               )}
 
                               {diagType === "mindmap" && (
-                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                                  <div style={{ background: selectedBgConfig?.accent || "#c084fc", color: "#000", fontWeight: 800, padding: "4px 14px", borderRadius: 20, fontSize: 12 }}>
-                                    {steps[0] || "Core Concept"}
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "8px 0" }}>
+                                  <div style={{ background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}, #ec4899)`, color: "#fff", fontWeight: 900, padding: "8px 20px", borderRadius: 24, fontSize: 13, boxShadow: "0 4px 16px rgba(192, 132, 252, 0.4)" }}>
+                                    🧠 {steps[0] || "Core Concept"}
                                   </div>
-                                  {steps.length > 1 && <div style={{ width: 2, height: 12, background: selectedBgConfig?.accent || "#c084fc" }} />}
-                                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-                                    {steps.slice(1).map((subStep, sIdx) => (
-                                      <div key={sIdx} style={{ background: "rgba(0,0,0,0.4)", border: `1px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 12, padding: "4px 10px", fontSize: p.data?.font_size || 12, color: "#fff" }}>
-                                        {subStep}
+                                  {steps.length > 1 && (
+                                    <>
+                                      <div style={{ width: 2, height: 16, background: selectedBgConfig?.accent || "#c084fc" }} />
+                                      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+                                        {steps.slice(1).map((subStep, sIdx) => (
+                                          <div key={sIdx} style={{ background: "rgba(15,23,42,0.85)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 14, padding: "6px 14px", fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff" }}>
+                                            🔹 {subStep}
+                                          </div>
+                                        ))}
                                       </div>
-                                    ))}
+                                    </>
+                                  )}
+                                </div>
+                              )}
+
+                              {diagType === "funnel" && (
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "8px 0" }}>
+                                  {steps.map((step, sIdx) => {
+                                    const widthPct = Math.max(30, 100 - sIdx * (65 / Math.max(1, steps.length - 1)));
+                                    return (
+                                      <div
+                                        key={sIdx}
+                                        style={{
+                                          width: `${widthPct}%`,
+                                          background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}ee 0%, ${selectedBgConfig?.accent || "#c084fc"}44 100%)`,
+                                          border: "1px solid rgba(255,255,255,0.25)",
+                                          borderRadius: 8,
+                                          padding: "6px 12px",
+                                          fontSize: p.data?.font_size || 11,
+                                          fontWeight: 800,
+                                          textAlign: "center",
+                                          color: "#fff",
+                                          boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
+                                        }}
+                                      >
+                                        STAGE {sIdx + 1}: {step}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                              {diagType === "cycle" && (
+                                <div style={{ position: "relative", width: "100%", height: "200px", margin: "10px 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                  {/* SVG DASHED CIRCULAR RING */}
+                                  <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+                                    <ellipse
+                                      cx="50%"
+                                      cy="50%"
+                                      rx="140"
+                                      ry="65"
+                                      fill="none"
+                                      stroke={selectedBgConfig?.accent || "#c084fc"}
+                                      strokeWidth="2.5"
+                                      strokeDasharray="6 4"
+                                      opacity="0.6"
+                                    />
+                                  </svg>
+
+                                  {/* CENTRAL REPEAT BADGE */}
+                                  <div style={{
+                                    position: "absolute",
+                                    width: "56px",
+                                    height: "56px",
+                                    borderRadius: "50%",
+                                    background: selectedBgConfig?.accent || "#c084fc",
+                                    color: "#000",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: 900,
+                                    fontSize: 10,
+                                    boxShadow: `0 0 16px ${selectedBgConfig?.accent || "#c084fc"}80`,
+                                    zIndex: 2,
+                                  }}>
+                                    <span style={{ fontSize: 16 }}>🔁</span>
+                                    <span>LOOP</span>
                                   </div>
+
+                                  {/* RADIAL CIRCULAR NODES */}
+                                  {steps.map((step, sIdx) => {
+                                    const total = steps.length;
+                                    const angle = (2 * Math.PI * sIdx) / total - Math.PI / 2;
+                                    const radiusX = 140; // Horizontal radius
+                                    const radiusY = 65;  // Vertical radius
+                                    const x = Math.cos(angle) * radiusX;
+                                    const y = Math.sin(angle) * radiusY;
+
+                                    return (
+                                      <div
+                                        key={sIdx}
+                                        style={{
+                                          position: "absolute",
+                                          transform: `translate(${x}px, ${y}px)`,
+                                          background: "rgba(15, 23, 42, 0.95)",
+                                          border: `2px solid ${selectedBgConfig?.accent || "#c084fc"}`,
+                                          borderRadius: "16px",
+                                          padding: "5px 12px",
+                                          fontSize: p.data?.font_size || 11,
+                                          fontWeight: 700,
+                                          color: "#fff",
+                                          boxShadow: "0 4px 14px rgba(0,0,0,0.6)",
+                                          whiteSpace: "nowrap",
+                                          zIndex: 3,
+                                          maxWidth: "140px",
+                                          textOverflow: "ellipsis",
+                                          overflow: "hidden",
+                                        }}
+                                      >
+                                        <span style={{ color: selectedBgConfig?.accent || "#c084fc", marginRight: 4 }}>
+                                          {sIdx + 1}.
+                                        </span>
+                                        {step}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                              {diagType === "pyramid" && (
+                                <div style={{ display: "flex", flexDirection: "column-reverse", alignItems: "center", gap: 6, padding: "8px 0" }}>
+                                  {steps.map((step, sIdx) => {
+                                    const widthPct = Math.max(30, 40 + sIdx * (60 / Math.max(1, steps.length - 1)));
+                                    return (
+                                      <div
+                                        key={sIdx}
+                                        style={{
+                                          width: `${widthPct}%`,
+                                          background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}33 0%, ${selectedBgConfig?.accent || "#c084fc"}aa 100%)`,
+                                          border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`,
+                                          borderRadius: 8,
+                                          padding: "6px 12px",
+                                          fontSize: p.data?.font_size || 11,
+                                          fontWeight: 800,
+                                          textAlign: "center",
+                                          color: "#fff",
+                                          boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
+                                        }}
+                                      >
+                                        TIER {sIdx + 1}: {step}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                              {diagType === "quadrant" && (
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, maxWidth: "90%", margin: "6px auto" }}>
+                                  {steps.slice(0, 4).map((step, sIdx) => {
+                                    const quadNames = ["STRENGTHS / Q1", "WEAKNESSES / Q2", "OPPORTUNITIES / Q3", "THREATS / Q4"];
+                                    return (
+                                      <div key={sIdx} style={{ background: "rgba(15,23,42,0.9)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 10, padding: 12, textAlign: "left", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>
+                                        <div style={{ fontSize: 10, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
+                                          {quadNames[sIdx] || `QUADRANT ${sIdx + 1}`}
+                                        </div>
+                                        <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700 }}>{step}</div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                              {diagType === "comparison" && (
+                                <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(steps.length, 3)}, 1fr)`, gap: 12, padding: "6px 0" }}>
+                                  {steps.map((step, sIdx) => (
+                                    <div key={sIdx} style={{ background: "rgba(15,23,42,0.9)", borderTop: `4px solid ${selectedBgConfig?.accent || "#c084fc"}`, border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px 8px 12px 12px", padding: 12, textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
+                                      <div style={{ fontSize: 10, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 6 }}>
+                                        ⚔️ OPTION {sIdx + 1}
+                                      </div>
+                                      <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700 }}>{step}</div>
+                                    </div>
+                                  ))}
                                 </div>
                               )}
                             </div>
@@ -878,10 +1206,10 @@ export default function PresentationEditor({
                 </div>
 
                 {/* TITLE & SUBTITLE FORMATTING BAR */}
-                <div className="title-subtitle-formatting-bar" style={{ marginTop: 10, paddingTop: 10, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
-                  {/* TITLE ROW */}
-                  <div className="slide-formatting-row" style={{ display: "flex", gap: 14, alignItems: "flex-end", flexWrap: "wrap" }}>
-                    <div className="slide-row-badge" style={{ fontSize: 12, fontWeight: "700", color: "#c084fc", minWidth: "55px", marginBottom: "5px" }}>Title:</div>
+                <div className="title-subtitle-formatting-bar" style={{ marginTop: 10, paddingTop: 10, borderTop: "1px dashed rgba(255,255,255,0.1)", display: "flex", gap: 16, alignItems: "flex-end", flexWrap: "wrap", justifyContent: "flex-start" }}>
+                  {/* TITLE CONTROLS */}
+                  <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
+                    <div style={{ fontSize: 12, fontWeight: "700", color: "#c084fc", marginBottom: "5px" }}>Title:</div>
                     <div>
                       <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>Font Size (Pt):</label>
                       <input
@@ -933,9 +1261,9 @@ export default function PresentationEditor({
                     </div>
                   </div>
 
-                  {/* SUBTITLE ROW */}
-                  <div className="slide-formatting-row" style={{ display: "flex", gap: 14, alignItems: "flex-end", flexWrap: "wrap" }}>
-                    <div className="slide-row-badge" style={{ fontSize: 12, fontWeight: "700", color: "#c084fc", minWidth: "55px", marginBottom: "5px" }}>Subtitle:</div>
+                  {/* SUBTITLE CONTROLS */}
+                  <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
+                    <div style={{ fontSize: 12, fontWeight: "700", color: "#c084fc", marginBottom: "5px" }}>Subtitle:</div>
                     <div>
                       <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>Font Size (Pt):</label>
                       <input
@@ -999,11 +1327,12 @@ export default function PresentationEditor({
                   <div key={pIdx} className="feature-block-card">
                     <div className="feature-block-header">
                       <span>
-                        {plugin.type === "subtitle" && "📝 Subtitle Block"}
+                        {(plugin.type === "subtitle" || plugin.type === "text") && "📝 Subtitle / Text Block"}
                         {plugin.type === "chart" && "📊 Visual Chart Block"}
                         {plugin.type === "image" && "🖼️ Image Block"}
                         {plugin.type === "bullets" && "• Bullet Points Block"}
-                        {plugin.type === "paragraph" && "📄 Paragraph Block"}
+                        {plugin.type === "paragraph" && "📄 Single Paragraph Block"}
+                        {plugin.type === "paragraph_2col" && "📄📄 2-Column Paragraphs Block"}
                         {plugin.type === "stat" && "📊 Key Metric / Stat"}
                         {plugin.type === "diagram" && "⚙️ Diagram Flow Block"}
                         {plugin.type === "table" && "📋 Comparison Table Block"}
@@ -1017,8 +1346,8 @@ export default function PresentationEditor({
                       </button>
                     </div>
 
-                    {/* SUBTITLE */}
-                    {plugin.type === "subtitle" ? (
+                    {/* SUBTITLE / TEXT */}
+                    {plugin.type === "subtitle" || plugin.type === "text" ? (
                       <div>
                         <input
                           type="text"
@@ -1041,15 +1370,21 @@ export default function PresentationEditor({
                         <div>
                           <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Diagram Style / Type:</label>
                           <select
-                            value={plugin.data?.diagram_type || "flowchart"}
+                            value={plugin.data?.diagram_type || "auto"}
                             onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "diagram_type", e.target.value)}
                             style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
                           >
+                            <option value="auto">✨ Auto (Smart Content Match)</option>
                             <option value="flowchart">🔄 Flowchart (Process Flow)</option>
                             <option value="architecture">🏛️ Architecture Stack (Multi-Tier)</option>
                             <option value="timeline">📅 Timeline Roadmap (Milestones)</option>
                             <option value="io_cards">📥 Input/Output Cards (3-Column)</option>
                             <option value="mindmap">🧠 Mindmap (Category Tree)</option>
+                            <option value="funnel">🔻 Conversion Funnel (Pipeline)</option>
+                            <option value="cycle">🔁 Circular Process Loop (Iteration)</option>
+                            <option value="pyramid">🔺 Hierarchy Pyramid (Pyramid Layers)</option>
+                            <option value="quadrant">🧭 2x2 Matrix / Quadrant (SWOT Grid)</option>
+                            <option value="comparison">⚔️ Side-by-Side Comparison Cards</option>
                           </select>
                         </div>
 
@@ -1099,45 +1434,82 @@ export default function PresentationEditor({
                           />
                         </div>
 
-                        {/* TABLE COLOR & STYLE FORMATTING BAR */}
-                        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", background: "rgba(255,255,255,0.03)", padding: "6px 10px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.08)" }}>
-                          <span style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", width: "100%" }}>🎨 Table Styling & Color Customization:</span>
-                          <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
-                            Header BG:
-                            <input
-                              type="color"
-                              value={plugin.data?.header_bg || "#8b5cf6"}
-                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "header_bg", e.target.value)}
-                              style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
-                            />
-                          </label>
-                          <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
-                            Header Text:
-                            <input
-                              type="color"
-                              value={plugin.data?.header_color || "#ffffff"}
-                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "header_color", e.target.value)}
-                              style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
-                            />
-                          </label>
-                          <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
-                            Rows BG:
-                            <input
-                              type="color"
-                              value={plugin.data?.cell_bg || "#1e293b"}
-                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "cell_bg", e.target.value)}
-                              style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
-                            />
-                          </label>
-                          <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
-                            Rows Text:
-                            <input
-                              type="color"
-                              value={plugin.data?.cell_color || "#ffffff"}
-                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "cell_color", e.target.value)}
-                              style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
-                            />
-                          </label>
+                        {/* TABLE COLOR & STYLE FORMATTING BAR WITH THEME PRESETS */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8, background: "rgba(255,255,255,0.03)", padding: "10px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: 11, fontWeight: 800, color: "#c084fc" }}>🎨 Select Table Visual Theme / Color Preset:</span>
+                          </div>
+                          <select
+                            value={plugin.data?.table_theme || "custom"}
+                            onChange={(e) => {
+                              const selectedId = e.target.value;
+                              const themePreset = TABLE_THEME_PRESETS.find((t) => t.id === selectedId);
+                              if (themePreset) {
+                                handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", themePreset.id);
+                                handlePluginTextChange(activeSlideIndex, pIdx, "header_bg", themePreset.header_bg);
+                                handlePluginTextChange(activeSlideIndex, pIdx, "header_color", themePreset.header_color);
+                                handlePluginTextChange(activeSlideIndex, pIdx, "cell_bg", themePreset.cell_bg);
+                                handlePluginTextChange(activeSlideIndex, pIdx, "cell_color", themePreset.cell_color);
+                              }
+                            }}
+                            style={{ width: "100%", background: "#090d16", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12, fontWeight: 700 }}
+                          >
+                            {TABLE_THEME_PRESETS.map((th) => (
+                              <option key={th.id} value={th.id}>{th.name}</option>
+                            ))}
+                          </select>
+
+                          {/* COLOR PICKERS ROW */}
+                          <div className="table-preset-color-row" style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginTop: 2, width: "100%" }}>
+                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                              Header BG:
+                              <input
+                                type="color"
+                                value={plugin.data?.header_bg || "#8b5cf6"}
+                                onChange={(e) => {
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", "custom");
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "header_bg", e.target.value);
+                                }}
+                                style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                              />
+                            </label>
+                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                              Header Text:
+                              <input
+                                type="color"
+                                value={plugin.data?.header_color || "#ffffff"}
+                                onChange={(e) => {
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", "custom");
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "header_color", e.target.value);
+                                }}
+                                style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                              />
+                            </label>
+                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                              Rows BG:
+                              <input
+                                type="color"
+                                value={plugin.data?.cell_bg || "#1e293b"}
+                                onChange={(e) => {
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", "custom");
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "cell_bg", e.target.value);
+                                }}
+                                style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                              />
+                            </label>
+                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                              Rows Text:
+                              <input
+                                type="color"
+                                value={plugin.data?.cell_color || "#ffffff"}
+                                onChange={(e) => {
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", "custom");
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "cell_color", e.target.value);
+                                }}
+                                style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                              />
+                            </label>
+                          </div>
                         </div>
 
                         <FeatureFormattingBar
@@ -1304,16 +1676,43 @@ export default function PresentationEditor({
                       </div>
                     ) : null}
 
-                    {/* BULLETS */}
+                    {/* BULLETS / INDEXING EDITOR */}
                     {plugin.type === "bullets" ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        <div>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>
+                            🔢 List Indexing & Bullet Style:
+                          </label>
+                          <select
+                            value={plugin.data?.bullet_style || plugin.data?.list_style || "auto"}
+                            onChange={(e) => {
+                              handlePluginTextChange(activeSlideIndex, pIdx, "bullet_style", e.target.value);
+                              handlePluginTextChange(activeSlideIndex, pIdx, "list_style", e.target.value);
+                            }}
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12, fontWeight: 700 }}
+                          >
+                            <option value="auto">✨ Auto (Smart Content Match)</option>
+                            <option value="bullet">• Standard Bullet Dots (• Item)</option>
+                            <option value="number">1. Numbered List Indexing (1., 2., 3.)</option>
+                            <option value="alpha">A. Alphabetical Indexing (A., B., C.)</option>
+                            <option value="roman">I. Roman Numerals Indexing (I., II., III.)</option>
+                            <option value="check">✅ Checklist Items (✅ Item)</option>
+                            <option value="star">⭐ Star Highlight List (⭐ Item)</option>
+                            <option value="arrow">➔ Arrow Pointer List (➔ Item)</option>
+                            <option value="diamond">🔹 Diamond Bullet Points (🔹 Item)</option>
+                          </select>
+                        </div>
+
                         {safeArray(plugin.data?.points).map((bullet, bIdx) => (
-                          <div key={bIdx} style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                            <span style={{ color: "#c084fc" }}>•</span>
+                          <div key={bIdx} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                            <span style={{ color: "#c084fc", fontWeight: 800, minWidth: 24, textAlign: "right", fontSize: 12 }}>
+                              {formatBulletPrefix(plugin.data?.bullet_style || plugin.data?.list_style, bIdx, plugin.data?.points)}
+                            </span>
                             <input
                               type="text"
                               value={bullet}
                               onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "points", e.target.value, bIdx)}
+                              placeholder={`Enter point ${bIdx + 1}...`}
                               style={{ flex: 1, background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: 6, color: "#fff", fontSize: 13 }}
                             />
                             <button className="btn-ui danger sm" onClick={() => handleDeleteBullet(activeSlideIndex, pIdx, bIdx)}>
@@ -1322,7 +1721,7 @@ export default function PresentationEditor({
                           </div>
                         ))}
                         <button className="btn-ui secondary sm" style={{ alignSelf: "flex-start", marginTop: 4 }} onClick={() => handleAddBullet(activeSlideIndex, pIdx)}>
-                          + Add Bullet Point
+                          + Add List Point
                         </button>
                         <FeatureFormattingBar
                           pluginData={plugin.data}
@@ -1334,7 +1733,22 @@ export default function PresentationEditor({
 
                     {/* PARAGRAPH */}
                     {plugin.type === "paragraph" ? (
-                      <div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Paragraph Narrative:</label>
+                          <button
+                            type="button"
+                            className="btn-ui secondary sm"
+                            style={{ fontSize: 10, padding: "2px 8px" }}
+                            onClick={() => {
+                              handlePluginTextChange(activeSlideIndex, pIdx, "type", "paragraph_2col");
+                              handlePluginTextChange(activeSlideIndex, pIdx, "left_text", plugin.data?.text || "Left paragraph narrative...");
+                              handlePluginTextChange(activeSlideIndex, pIdx, "right_text", "Second paragraph narrative side-by-side...");
+                            }}
+                          >
+                            📄➔📄 Convert to 2-Column Paragraphs
+                          </button>
+                        </div>
                         <textarea
                           value={plugin.data?.text || ""}
                           onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value)}
@@ -1342,6 +1756,74 @@ export default function PresentationEditor({
                           placeholder="Enter paragraph text..."
                           style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
                         />
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                          onRefineText={() => handleAIRefine(pIdx, "summarize")}
+                        />
+                      </div>
+                    ) : null}
+
+                    {/* 2-COLUMN PARAGRAPHS */}
+                    {plugin.type === "paragraph_2col" ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc" }}>📄📄 2-Column Side-by-Side Paragraphs:</span>
+                          <button
+                            type="button"
+                            className="btn-ui secondary sm"
+                            style={{ fontSize: 10, padding: "2px 8px" }}
+                            onClick={() => {
+                              handlePluginTextChange(activeSlideIndex, pIdx, "type", "paragraph");
+                              handlePluginTextChange(activeSlideIndex, pIdx, "text", plugin.data?.left_text || plugin.data?.text || "");
+                            }}
+                          >
+                            📄 Convert to 1 Single Column
+                          </button>
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                          {/* LEFT COLUMN */}
+                          <div style={{ background: "rgba(0,0,0,0.25)", padding: 8, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", display: "block", marginBottom: 4 }}>Left Column Title:</label>
+                            <input
+                              type="text"
+                              value={plugin.data?.left_title || ""}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "left_title", e.target.value)}
+                              placeholder="e.g. Current Strategy"
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: 6, color: "#fff", fontSize: 12, marginBottom: 6 }}
+                            />
+                            <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Left Paragraph Text:</label>
+                            <textarea
+                              value={plugin.data?.left_text || plugin.data?.text || ""}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "left_text", e.target.value)}
+                              rows={3}
+                              placeholder="Left column paragraph text..."
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: 6, color: "#fff", fontSize: 12 }}
+                            />
+                          </div>
+
+                          {/* RIGHT COLUMN */}
+                          <div style={{ background: "rgba(0,0,0,0.25)", padding: 8, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", display: "block", marginBottom: 4 }}>Right Column Title:</label>
+                            <input
+                              type="text"
+                              value={plugin.data?.right_title || ""}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "right_title", e.target.value)}
+                              placeholder="e.g. Proposed AI Solution"
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: 6, color: "#fff", fontSize: 12, marginBottom: 6 }}
+                            />
+                            <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Right Paragraph Text:</label>
+                            <textarea
+                              value={plugin.data?.right_text || ""}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "right_text", e.target.value)}
+                              rows={3}
+                              placeholder="Right column paragraph text..."
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: 6, color: "#fff", fontSize: 12 }}
+                            />
+                          </div>
+                        </div>
+
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
@@ -1376,20 +1858,23 @@ export default function PresentationEditor({
                       </div>
                     ) : null}
 
-                    {/* SPEAKER NOTES */}
-                    {plugin.type === "notes" ? (
-                      <textarea
-                        value={plugin.data?.notes || ""}
-                        onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "notes", e.target.value)}
-                        rows={2}
-                        placeholder="Enter speaker notes for narration..."
-                        style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
-                      />
-                    ) : null}
                   </div>
                 ))}
 
-               
+                {/* ADD FEATURE BLOCK BUTTON BAR */}
+                <div className="add-feature-bar" style={{ marginTop: 14, paddingTop: 10, borderTop: "1px dashed rgba(255,255,255,0.15)", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", width: "100%" }}>➕ Add Feature Block to Slide {activeSlideIndex + 1}:</span>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "paragraph")}>📄 + Paragraph</button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "paragraph_2col")} style={{ borderColor: "#c084fc", color: "#c084fc" }}>📄📄 + 2-Col Paragraphs</button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "bullets")}>• + Bullets</button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "subtitle")}>📝 + Subtitle</button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "diagram")}>⚙️ + Diagram</button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "chart")}>📊 + Chart</button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "table")}>📋 + Table</button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "stat")}>📊 + Metric</button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "image")}>🖼️ + Image</button>
+                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "notes")}>🗣️ + Notes</button>
+                </div>
               </div>
             </div>
           ) : null}
@@ -1514,7 +1999,7 @@ export default function PresentationEditor({
               <div style={{ flex: 1, overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 12 }}>
                 {safeArray(presenterSlide.plugins).map((plugin, pIdx) => (
                   <div key={pIdx}>
-                    {plugin.type === "subtitle" ? (
+                    {plugin.type === "subtitle" || plugin.type === "text" ? (
                       <h3 style={{ fontSize: plugin.data?.font_size || 22, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "#c084fc", margin: "4px 0" }}>
                         {plugin.data?.text}
                       </h3>

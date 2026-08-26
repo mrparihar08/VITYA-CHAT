@@ -681,3 +681,95 @@ body,
 .sidebarCloseBtn:hover {
   background: rgba(255, 255, 255, 0.12);
 }
+
+.title-subtitle-formatting-bar {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: flex-end !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+}
+
+.title-subtitle-formatting-bar > div {
+  display: flex !important;
+  gap: 10px !important;
+  align-items: flex-end !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* ==========================================
+   Presentation & PresentationEditor Mobile-Only CSS (max-width: 500px)
+   ========================================== */
+@media (max-width: 500px) {
+  .title-subtitle-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .title-subtitle-formatting-bar {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .title-subtitle-formatting-bar > div {
+    width: 100% !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+  }
+
+  .add-feature-bar {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .add-feature-bar > span {
+    grid-column: 1 / -1 !important;
+  }
+
+  .add-feature-bar button {
+    width: 100% !important;
+    font-size: 11px !important;
+    padding: 6px 8px !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  .feature-block-card {
+    padding: 10px !important;
+    overflow-x: hidden !important;
+  }
+
+  .feature-block-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .feature-block-header button {
+    align-self: flex-end !important;
+  }
+
+  .feature-formatting-bar {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .feature-formatting-bar > button {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+
+  .table-preset-color-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+}
