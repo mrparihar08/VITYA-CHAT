@@ -1148,36 +1148,7 @@ export default function PresentationEditor({
                   </div>
                 ) : null}
               </div>
-               {/* ADD FEATURE TOOLBAR */}
-                <div className="add-feature-bar">
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)", width: "100%", marginBottom: 4 }}>
-                    ➕ Add Feature Element to Slide {activeSlideIndex + 1}:
-                  </span>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "chart")}>
-                    📊 + Chart Block
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "image")}>
-                    🖼️ + Image Block
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "bullets")}>
-                    • + Bullet Points
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "paragraph")}>
-                    📄 + Paragraph
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "stat")}>
-                    📈 + Stat Metric
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "diagram")}>
-                    ⚙️ + Diagram Flow
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "table")}>
-                    📋 + Data Table
-                  </button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "notes")}>
-                    🗣️ + Speaker Notes
-                  </button>
-                </div>
+
               {/* SLIDE BASIC & FORMATTING PROPERTIES */}
               <div className="card-box" style={{ background: "rgba(0,0,0,0.3)" }}>
                 <div style={{ fontWeight: 800, fontSize: 13, color: "#c084fc", marginBottom: 10 }}>
@@ -1323,6 +1294,91 @@ export default function PresentationEditor({
                   🧩 Edit Feature Blocks on Slide {activeSlideIndex + 1}:
                 </div>
 
+                {/* ADD FEATURE BLOCK BUTTON BAR (ICON ONLY WITH HOVER TOOLTIPS 🎯) */}
+                <div className="add-feature-bar" style={{ marginBottom: 14, paddingBottom: 10, borderBottom: "1px dashed rgba(255,255,255,0.15)", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginRight: 4 }}>➕ Add Feature Block:</span>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Paragraph"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "paragraph")}
+                    style={{ padding: "5px 12px", fontSize: 15, fontWeight: "bold", cursor: "pointer" }}
+                  >
+                    ¶
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="2 Paragraphs"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "paragraph_2col")}
+                    style={{ padding: "5px 10px", fontSize: 14, fontWeight: "bold", cursor: "pointer" }}
+                  >
+                    ¶¶
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Points"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "bullets")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    •
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Subtitle"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "subtitle")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    📝
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Diagram"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "diagram")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    ⚙️
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Chart"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "chart")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    📊
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Table"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "table")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    📋
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Metric"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "stat")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    📈
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Image"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "image")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    🖼️
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Notes"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "notes")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    🗣️
+                  </button>
+                </div>
+
                 {safeArray(activeSlide.plugins).map((plugin, pIdx) => (
                   <div key={pIdx} className="feature-block-card">
                     <div className="feature-block-header">
@@ -1331,8 +1387,8 @@ export default function PresentationEditor({
                         {plugin.type === "chart" && "📊 Visual Chart Block"}
                         {plugin.type === "image" && "🖼️ Image Block"}
                         {plugin.type === "bullets" && "• Bullet Points Block"}
-                        {plugin.type === "paragraph" && "📄 Single Paragraph Block"}
-                        {plugin.type === "paragraph_2col" && "📄📄 2-Column Paragraphs Block"}
+                        {plugin.type === "paragraph" && "¶ Single Paragraph Block"}
+                        {plugin.type === "paragraph_2col" && "¶¶ 2-Column Paragraphs Block"}
                         {plugin.type === "stat" && "📊 Key Metric / Stat"}
                         {plugin.type === "diagram" && "⚙️ Diagram Flow Block"}
                         {plugin.type === "table" && "📋 Comparison Table Block"}
@@ -1680,27 +1736,49 @@ export default function PresentationEditor({
                     {plugin.type === "bullets" ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                         <div>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 6 }}>
                             🔢 List Indexing & Bullet Style:
                           </label>
-                          <select
-                            value={plugin.data?.bullet_style || plugin.data?.list_style || "auto"}
-                            onChange={(e) => {
-                              handlePluginTextChange(activeSlideIndex, pIdx, "bullet_style", e.target.value);
-                              handlePluginTextChange(activeSlideIndex, pIdx, "list_style", e.target.value);
-                            }}
-                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12, fontWeight: 700 }}
-                          >
-                            <option value="auto">✨ Auto (Smart Content Match)</option>
-                            <option value="bullet">• Standard Bullet Dots (• Item)</option>
-                            <option value="number">1. Numbered List Indexing (1., 2., 3.)</option>
-                            <option value="alpha">A. Alphabetical Indexing (A., B., C.)</option>
-                            <option value="roman">I. Roman Numerals Indexing (I., II., III.)</option>
-                            <option value="check">✅ Checklist Items (✅ Item)</option>
-                            <option value="star">⭐ Star Highlight List (⭐ Item)</option>
-                            <option value="arrow">➔ Arrow Pointer List (➔ Item)</option>
-                            <option value="diamond">🔹 Diamond Bullet Points (🔹 Item)</option>
-                          </select>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+                            {[
+                              { style: "bullet", symbol: "•", title: "Standard Bullet Dots" },
+                              { style: "number", symbol: "1.", title: "Numbered List (1, 2, 3)" },
+                              { style: "alpha", symbol: "A.", title: "Alphabetical List (A, B, C)" },
+                              { style: "roman", symbol: "I.", title: "Roman Numerals List (I, II, III)" },
+                              { style: "check", symbol: "✅", title: "Checklist Items" },
+                              { style: "star", symbol: "⭐", title: "Star Highlight List" },
+                              { style: "arrow", symbol: "➔", title: "Arrow Pointer List" },
+                              { style: "diamond", symbol: "🔹", title: "Diamond Bullet Points" },
+                            ].map((opt) => {
+                              const rawStyle = plugin.data?.bullet_style || plugin.data?.list_style || "auto";
+                              const resolvedStyle = detectBulletStyle(plugin.data?.points, rawStyle);
+                              const isActive = resolvedStyle === opt.style;
+                              return (
+                                <button
+                                  key={opt.style}
+                                  type="button"
+                                  className="btn-ui secondary sm"
+                                  title={opt.title}
+                                  onClick={() => {
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "bullet_style", opt.style);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "list_style", opt.style);
+                                  }}
+                                  style={{
+                                    padding: "4px 10px",
+                                    fontSize: 13,
+                                    fontWeight: "bold",
+                                    cursor: "pointer",
+                                    borderColor: isActive ? "#c084fc" : "rgba(255,255,255,0.15)",
+                                    background: isActive ? "rgba(192, 132, 252, 0.15)" : "rgba(0,0,0,0.3)",
+                                    color: isActive ? "#c084fc" : "#fff",
+                                    boxShadow: isActive ? "0 0 8px rgba(192, 132, 252, 0.3)" : "none"
+                                  }}
+                                >
+                                  {opt.symbol}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
 
                         {safeArray(plugin.data?.points).map((bullet, bIdx) => (
@@ -1746,7 +1824,7 @@ export default function PresentationEditor({
                               handlePluginTextChange(activeSlideIndex, pIdx, "right_text", "Second paragraph narrative side-by-side...");
                             }}
                           >
-                            📄➔📄 Convert to 2-Column Paragraphs
+                            ¶➔¶¶ Convert to 2-Column Paragraphs
                           </button>
                         </div>
                         <textarea
@@ -1768,7 +1846,7 @@ export default function PresentationEditor({
                     {plugin.type === "paragraph_2col" ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc" }}>📄📄 2-Column Side-by-Side Paragraphs:</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc" }}>¶¶ 2-Column Side-by-Side Paragraphs:</span>
                           <button
                             type="button"
                             className="btn-ui secondary sm"
@@ -1778,7 +1856,7 @@ export default function PresentationEditor({
                               handlePluginTextChange(activeSlideIndex, pIdx, "text", plugin.data?.left_text || plugin.data?.text || "");
                             }}
                           >
-                            📄 Convert to 1 Single Column
+                            ¶ Convert to 1 Single Column
                           </button>
                         </div>
 
@@ -1860,21 +1938,6 @@ export default function PresentationEditor({
 
                   </div>
                 ))}
-
-                {/* ADD FEATURE BLOCK BUTTON BAR */}
-                <div className="add-feature-bar" style={{ marginTop: 14, paddingTop: 10, borderTop: "1px dashed rgba(255,255,255,0.15)", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", width: "100%" }}>➕ Add Feature Block to Slide {activeSlideIndex + 1}:</span>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "paragraph")}>📄 + Paragraph</button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "paragraph_2col")} style={{ borderColor: "#c084fc", color: "#c084fc" }}>📄📄 + 2-Col Paragraphs</button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "bullets")}>• + Bullets</button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "subtitle")}>📝 + Subtitle</button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "diagram")}>⚙️ + Diagram</button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "chart")}>📊 + Chart</button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "table")}>📋 + Table</button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "stat")}>📊 + Metric</button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "image")}>🖼️ + Image</button>
-                  <button className="btn-ui secondary sm" onClick={() => handleAddPlugin(activeSlideIndex, "notes")}>🗣️ + Notes</button>
-                </div>
               </div>
             </div>
           ) : null}
