@@ -18,15 +18,24 @@ export const BACKGROUND_PRESETS = [
 ];
 
 export const TABLE_THEME_PRESETS = [
-  { id: "midnight_purple", name: "🌌 Midnight Purple", header_bg: "#8b5cf6", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
-  { id: "ocean_blue", name: "🌊 Ocean Breeze", header_bg: "#0284c7", header_color: "#ffffff", cell_bg: "#0b2545", cell_color: "#ffffff" },
-  { id: "emerald_forest", name: "🌲 Emerald Forest", header_bg: "#059669", header_color: "#ffffff", cell_bg: "#064e3b", cell_color: "#ffffff" },
-  { id: "cyberpunk_neon", name: "⚡ Cyberpunk Neon", header_bg: "#f43f5e", header_color: "#ffffff", cell_bg: "#2e1065", cell_color: "#ffffff" },
-  { id: "executive_gold", name: "🏆 Executive Gold", header_bg: "#d97706", header_color: "#ffffff", cell_bg: "#1c1917", cell_color: "#ffffff" },
-  { id: "velvet_rose", name: "🌹 Velvet Rose", header_bg: "#e11d48", header_color: "#ffffff", cell_bg: "#4c0519", cell_color: "#ffffff" },
-  { id: "minimal_light", name: "☀️ Minimal Light", header_bg: "#2563eb", header_color: "#ffffff", cell_bg: "#f1f5f9", cell_color: "#0f172a" },
-  { id: "titanium_white", name: "🏛️ Titanium White", header_bg: "#4f46e5", header_color: "#ffffff", cell_bg: "#f4f4f5", cell_color: "#18181b" },
-  { id: "custom", name: "🎨 Custom Palette", header_bg: "#8b5cf6", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
+  { id: "dark_gradient", name: "Midnight Purple", icon: "🌌", header_bg: "#8b5cf6", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
+  { id: "ocean_blue", name: "Ocean Breeze", icon: "🌊", header_bg: "#0284c7", header_color: "#ffffff", cell_bg: "#0b2545", cell_color: "#ffffff" },
+  { id: "emerald_dark", name: "Emerald Forest", icon: "🌲", header_bg: "#059669", header_color: "#ffffff", cell_bg: "#064e3b", cell_color: "#ffffff" },
+  { id: "cyberpunk_neon", name: "Cyberpunk Neon", icon: "⚡", header_bg: "#e11d48", header_color: "#ffffff", cell_bg: "#2e1065", cell_color: "#ffffff" },
+  { id: "wall_street", name: "Wall Street Finance", icon: "💵", header_bg: "#10b981", header_color: "#ffffff", cell_bg: "#064e3b", cell_color: "#ffffff" },
+  { id: "executive_gold", name: "Executive Gold", icon: "🏆", header_bg: "#d97706", header_color: "#ffffff", cell_bg: "#451a03", cell_color: "#ffffff" },
+  { id: "velvet_rose", name: "Velvet Rose", icon: "🌹", header_bg: "#e11d48", header_color: "#ffffff", cell_bg: "#4c0519", cell_color: "#ffffff" },
+  { id: "royal_violet", name: "Royal Violet", icon: "🍇", header_bg: "#7e22ce", header_color: "#ffffff", cell_bg: "#3b0764", cell_color: "#ffffff" },
+  { id: "nordic_frost", name: "Nordic Frost", icon: "🧊", header_bg: "#0284c7", header_color: "#ffffff", cell_bg: "#0c4a6e", cell_color: "#ffffff" },
+  { id: "amber_bronze", name: "Amber Bronze", icon: "👑", header_bg: "#b45309", header_color: "#ffffff", cell_bg: "#451a03", cell_color: "#ffffff" },
+  { id: "teal_cyan", name: "Teal Cyan", icon: "💎", header_bg: "#0d9488", header_color: "#ffffff", cell_bg: "#134e4a", cell_color: "#ffffff" },
+  { id: "slate_dark", name: "Slate Dark", icon: "🛡️", header_bg: "#475569", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
+  { id: "monochrome_black", name: "Monochrome Black", icon: "🕶️", header_bg: "#334155", header_color: "#ffffff", cell_bg: "#000000", cell_color: "#ffffff" },
+  { id: "executive_slate", name: "Executive Slate", icon: "🪨", header_bg: "#6366f1", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
+  { id: "clean_light", name: "Minimal Light", icon: "☀️", header_bg: "#2563eb", header_color: "#ffffff", cell_bg: "#f1f5f9", cell_color: "#0f172a" },
+  { id: "titanium_white", name: "Titanium White", icon: "🏛️", header_bg: "#4f46e5", header_color: "#ffffff", cell_bg: "#f4f4f5", cell_color: "#18181b" },
+  { id: "sunset_glow", name: "Sunset Glow", icon: "🌅", header_bg: "#ea580c", header_color: "#ffffff", cell_bg: "#431407", cell_color: "#ffffff" },
+  { id: "custom", name: "Custom Palette", icon: "🎨", header_bg: "#8b5cf6", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
 ];
 
 function safeArray(value) {
@@ -646,9 +655,9 @@ export default function PresentationEditor({
             <div className="feature-inspector-container" style={{ display: "flex", flexDirection: "column", width: "100%", gap: 16 }}>
               {/* TOP SLIDE TOOLBAR & CUSTOM COLOR PICKER */}
               <div style={{ display: "flex", flexDirection: "column", gap: 10, background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 12, border: "1px solid var(--panel-border)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#c084fc" }}>Slide Theme BG:</span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "nowrap", gap: 8, overflowX: "auto" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", whiteSpace: "nowrap" }}>Slide Theme BG:</span>
                     <select
                       value={selectedBgPreset}
                       onChange={(e) => setSelectedBgPreset(e.target.value)}
@@ -662,12 +671,11 @@ export default function PresentationEditor({
                     </select>
                   </div>
 
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                    
-                    <button className="btn-ui secondary sm" onClick={() => handleDuplicateSlide(activeSlideIndex)}>
-                      📋Duplicate Slide
+                  <div style={{ display: "flex", gap: 6, flexWrap: "nowrap", alignItems: "center", flexShrink: 0 }}>
+                    <button className="btn-ui secondary sm" onClick={() => handleDuplicateSlide(activeSlideIndex)} style={{ whiteSpace: "nowrap" }}>
+                      📋 Duplicate
                     </button>
-                    <button className="btn-ui danger sm" onClick={() => handleDeleteSlide(activeSlideIndex)}>
+                    <button className="btn-ui danger sm" onClick={() => handleDeleteSlide(activeSlideIndex)} style={{ flexShrink: 0 }}>
                       🗑️
                     </button>
                   </div>
@@ -703,11 +711,12 @@ export default function PresentationEditor({
                   </div>
                   <h2
                     style={{
-                      fontSize: activeSlide.title_font_size || 26,
+                      fontSize: `clamp(18px, 4vw, ${activeSlide.title_font_size || 26}px)`,
                       color: activeSlide.title_color || "inherit",
                       textAlign: activeSlide.title_align || "left",
                       fontWeight: activeSlide.title_bold === false ? 400 : 800,
                       margin: "6px 0 4px",
+                      wordBreak: "break-word",
                     }}
                   >
                     {activeSlide.title || "Slide Title"}
@@ -715,11 +724,12 @@ export default function PresentationEditor({
                   {activeSlide.subtitle ? (
                     <div
                       style={{
-                        fontSize: activeSlide.subtitle_font_size || 15,
+                        fontSize: `clamp(12px, 3vw, ${activeSlide.subtitle_font_size || 15}px)`,
                         color: activeSlide.subtitle_color || "inherit",
                         textAlign: activeSlide.subtitle_align || "left",
                         opacity: activeSlide.subtitle_color ? 1 : 0.8,
                         fontWeight: 600,
+                        wordBreak: "break-word",
                       }}
                     >
                       {activeSlide.subtitle}
@@ -728,7 +738,7 @@ export default function PresentationEditor({
                 </div>
                 
                 {/* LIVE PLUGINS CONTENT */}
-                <div style={{ flex: 1, overflowY: "auto", margin: "16px 0", display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ flex: 1, overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 10, paddingRight: 4 }}>
                   {safeArray(activeSlide.plugins).map((p, pIdx) => (
                     <div key={pIdx}>
                       {p.type === "subtitle" || p.type === "text" ? (
@@ -1161,7 +1171,7 @@ export default function PresentationEditor({
                       type="text"
                       value={activeSlide.title || ""}
                       onChange={(e) => handleSlideTitleChange(activeSlideIndex, e.target.value)}
-                      style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
+                      style={{ width: "100%", boxSizing: "border-box", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
                     />
                   </div>
                   <div>
@@ -1171,7 +1181,7 @@ export default function PresentationEditor({
                       value={activeSlide.subtitle || ""}
                       onChange={(e) => handleSlideSubtitleChange(activeSlideIndex, e.target.value)}
                       placeholder="e.g. Overview & Key Metrics"
-                      style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
+                      style={{ width: "100%", boxSizing: "border-box", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
                     />
                   </div>
                 </div>
@@ -1296,14 +1306,14 @@ export default function PresentationEditor({
 
                 {/* ADD FEATURE BLOCK BUTTON BAR (ICON ONLY WITH HOVER TOOLTIPS 🎯) */}
                 <div className="add-feature-bar" style={{ marginBottom: 14, paddingBottom: 10, borderBottom: "1px dashed rgba(255,255,255,0.15)", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginRight: 4 }}>➕ Add Feature Block:</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginRight: 4 }}></span>
                   <button
                     className="btn-ui secondary sm"
                     title="Paragraph"
                     onClick={() => handleAddPlugin(activeSlideIndex, "paragraph")}
                     style={{ padding: "5px 12px", fontSize: 15, fontWeight: "bold", cursor: "pointer" }}
                   >
-                    ¶
+                    <span className="btn-icon">¶</span><span className="btn-label">Paragraph</span>
                   </button>
                   <button
                     className="btn-ui secondary sm"
@@ -1311,7 +1321,7 @@ export default function PresentationEditor({
                     onClick={() => handleAddPlugin(activeSlideIndex, "paragraph_2col")}
                     style={{ padding: "5px 10px", fontSize: 14, fontWeight: "bold", cursor: "pointer" }}
                   >
-                    ¶¶
+                    <span className="btn-icon">¶¶</span><span className="btn-label">2 Paragraphs</span>
                   </button>
                   <button
                     className="btn-ui secondary sm"
@@ -1319,7 +1329,7 @@ export default function PresentationEditor({
                     onClick={() => handleAddPlugin(activeSlideIndex, "bullets")}
                     style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
                   >
-                    •
+                    <span className="btn-icon">•</span><span className="btn-label">Points</span>
                   </button>
                   <button
                     className="btn-ui secondary sm"
@@ -1327,7 +1337,7 @@ export default function PresentationEditor({
                     onClick={() => handleAddPlugin(activeSlideIndex, "subtitle")}
                     style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
                   >
-                    📝
+                    <span className="btn-icon">📝</span><span className="btn-label">Subtitle</span>
                   </button>
                   <button
                     className="btn-ui secondary sm"
@@ -1335,7 +1345,7 @@ export default function PresentationEditor({
                     onClick={() => handleAddPlugin(activeSlideIndex, "diagram")}
                     style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
                   >
-                    ⚙️
+                    <span className="btn-icon">⚙️</span><span className="btn-label">Diagram</span>
                   </button>
                   <button
                     className="btn-ui secondary sm"
@@ -1343,7 +1353,7 @@ export default function PresentationEditor({
                     onClick={() => handleAddPlugin(activeSlideIndex, "chart")}
                     style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
                   >
-                    📊
+                    <span className="btn-icon">📊</span><span className="btn-label">Chart</span>
                   </button>
                   <button
                     className="btn-ui secondary sm"
@@ -1351,7 +1361,7 @@ export default function PresentationEditor({
                     onClick={() => handleAddPlugin(activeSlideIndex, "table")}
                     style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
                   >
-                    📋
+                    <span className="btn-icon">📋</span><span className="btn-label">Table</span>
                   </button>
                   <button
                     className="btn-ui secondary sm"
@@ -1359,7 +1369,7 @@ export default function PresentationEditor({
                     onClick={() => handleAddPlugin(activeSlideIndex, "stat")}
                     style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
                   >
-                    📈
+                    <span className="btn-icon">📈</span><span className="btn-label">Metric</span>
                   </button>
                   <button
                     className="btn-ui secondary sm"
@@ -1367,7 +1377,7 @@ export default function PresentationEditor({
                     onClick={() => handleAddPlugin(activeSlideIndex, "image")}
                     style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
                   >
-                    🖼️
+                    <span className="btn-icon">🖼️</span><span className="btn-label">Image</span>
                   </button>
                   <button
                     className="btn-ui secondary sm"
@@ -1375,7 +1385,7 @@ export default function PresentationEditor({
                     onClick={() => handleAddPlugin(activeSlideIndex, "notes")}
                     style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
                   >
-                    🗣️
+                    <span className="btn-icon">🗣️</span><span className="btn-label">Notes</span>
                   </button>
                 </div>
 
@@ -1495,29 +1505,62 @@ export default function PresentationEditor({
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span style={{ fontSize: 11, fontWeight: 800, color: "#c084fc" }}>🎨 Select Table Visual Theme / Color Preset:</span>
                           </div>
-                          <select
-                            value={plugin.data?.table_theme || "custom"}
-                            onChange={(e) => {
-                              const selectedId = e.target.value;
-                              const themePreset = TABLE_THEME_PRESETS.find((t) => t.id === selectedId);
-                              if (themePreset) {
-                                handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", themePreset.id);
-                                handlePluginTextChange(activeSlideIndex, pIdx, "header_bg", themePreset.header_bg);
-                                handlePluginTextChange(activeSlideIndex, pIdx, "header_color", themePreset.header_color);
-                                handlePluginTextChange(activeSlideIndex, pIdx, "cell_bg", themePreset.cell_bg);
-                                handlePluginTextChange(activeSlideIndex, pIdx, "cell_color", themePreset.cell_color);
-                              }
-                            }}
-                            style={{ width: "100%", background: "#090d16", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12, fontWeight: 700 }}
-                          >
-                            {TABLE_THEME_PRESETS.map((th) => (
-                              <option key={th.id} value={th.id}>{th.name}</option>
-                            ))}
-                          </select>
+                          {/* TABLE THEME BUTTONS ROW (SINGLE HORIZONTAL ROW 🎯) */}
+                          <div style={{ display: "flex", flexWrap: "nowrap", overflowX: "auto", gap: 6, marginTop: 4, width: "100%", alignItems: "center", paddingBottom: 4 }}>
+                            {TABLE_THEME_PRESETS.map((themePreset) => {
+                              const currentTheme = plugin.data?.table_theme || "custom";
+                              const isActive = currentTheme === themePreset.id;
+                              return (
+                                <button
+                                  key={themePreset.id}
+                                  type="button"
+                                  className="btn-ui secondary sm"
+                                  title={themePreset.name}
+                                  onClick={() => {
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", themePreset.id);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "header_bg", themePreset.header_bg);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "header_color", themePreset.header_color);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "cell_bg", themePreset.cell_bg);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "cell_color", themePreset.cell_color);
+                                  }}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: 4,
+                                    padding: "4px 8px",
+                                    fontSize: 12,
+                                    fontWeight: 700,
+                                    cursor: "pointer",
+                                    borderRadius: 8,
+                                    flexShrink: 0,
+                                    borderColor: isActive ? "#c084fc" : "rgba(255,255,255,0.15)",
+                                    background: isActive ? "rgba(192, 132, 252, 0.2)" : "rgba(0,0,0,0.35)",
+                                    color: isActive ? "#c084fc" : "#fff",
+                                    boxShadow: isActive ? "0 0 10px rgba(192, 132, 252, 0.4)" : "none",
+                                    transition: "all 0.2s ease",
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      width: 14,
+                                      height: 14,
+                                      borderRadius: "50%",
+                                      background: `linear-gradient(135deg, ${themePreset.header_bg} 50%, ${themePreset.cell_bg} 50%)`,
+                                      border: "1px dashed rgba(255,255,255,0.5)",
+                                      display: "inline-block",
+                                      flexShrink: 0,
+                                    }}
+                                  />
+                                  <span style={{ fontSize: 11 }}>{themePreset.icon}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
 
-                          {/* COLOR PICKERS ROW */}
-                          <div className="table-preset-color-row" style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginTop: 2, width: "100%" }}>
-                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                          {/* COLOR PICKERS ROW (SINGLE HORIZONTAL ROW 🎯) */}
+                          <div className="table-preset-color-row" style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "nowrap", overflowX: "auto", marginTop: 4, width: "100%", justifyContent: "flex-start", paddingBottom: 2 }}>
+                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", flexShrink: 0 }}>
                               Header BG:
                               <input
                                 type="color"
@@ -1529,7 +1572,7 @@ export default function PresentationEditor({
                                 style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
                               />
                             </label>
-                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", flexShrink: 0 }}>
                               Header Text:
                               <input
                                 type="color"
@@ -1541,7 +1584,7 @@ export default function PresentationEditor({
                                 style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
                               />
                             </label>
-                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", flexShrink: 0 }}>
                               Rows BG:
                               <input
                                 type="color"
@@ -1553,7 +1596,7 @@ export default function PresentationEditor({
                                 style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
                               />
                             </label>
-                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", flexShrink: 0 }}>
                               Rows Text:
                               <input
                                 type="color"

@@ -908,7 +908,11 @@ export default function PresentationGenerator() {
           .card-box { padding: 10px 6px !important; border-radius: 12px !important; }
           .ppt-header-bar { padding: 10px 12px !important; border-radius: 12px !important; }
           .feature-block-card { padding: 8px 6px !important; margin-bottom: 8px !important; }
-          .slide-canvas-box { padding: 16px 10px !important; border-radius: 12px !important; }
+          .slide-canvas-box { aspect-ratio: 16 / 10 !important; width: 100% !important; min-height: 250px !important; padding: 12px 10px !important; border-radius: 12px !important; box-sizing: border-box !important; }
+          .slide-canvas-box h2 { font-size: clamp(14px, 3.8vw, 18px) !important; margin: 3px 0 2px !important; line-height: 1.25 !important; }
+          .slide-canvas-box th, .slide-canvas-box td { padding: 4px 6px !important; font-size: 10px !important; line-height: 1.2 !important; }
+          .slide-canvas-box p { font-size: 11px !important; line-height: 1.35 !important; }
+          .slide-canvas-box h3 { font-size: 13px !important; margin: 2px 0 !important; }
           .add-feature-bar { padding: 8px 6px !important; gap: 4px !important; }
         }
 
