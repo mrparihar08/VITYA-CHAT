@@ -452,7 +452,9 @@ export default function PresentationGenerator() {
 
   const buildPrompt = () => {
     const requirements = [
-      `Create approximately ${slideCount} slides.`,
+      `Create approximately ${slideCount} slides with high executive quality and domain depth.`,
+      `Must include an explicit 'Introduction & Executive Context' slide (or 'Introduction to [Topic]') right after the Title Cover.`,
+      `Include structured, audience-ready section titles (Presentation Overview, Introduction, System Architecture, Feature Comparison, Data Metrics, Conclusion).`,
       `Target audience: ${audience}.`,
       `Tone: ${tone || "Professional"}.`,
       `Language: ${language || "English"}.`,
@@ -460,7 +462,7 @@ export default function PresentationGenerator() {
       includeSpeakerNotes && "Include concise speaker notes for every slide.",
     ].filter(Boolean);
 
-    return `${prompt.trim()}\n\nPresentation requirements:\n${requirements
+    return `${prompt.trim()}\n\nPresentation quality requirements:\n${requirements
       .map((item) => `- ${item}`)
       .join("\n")}`;
   };

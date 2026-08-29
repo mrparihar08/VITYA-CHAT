@@ -100,6 +100,7 @@ export function detectDiagramType(text = "", selectedType = "auto") {
     return type;
   }
   const raw = String(text || "").toLowerCase();
+  if (/(tree|hierarchy|decision|branch|node)/i.test(raw)) return "tree";
   if (/(cycle|loop|repeat|iterat|pdca|agile|sprint)/i.test(raw)) return "cycle";
   if (/(funnel|conversion|lead|pipeline|sales)/i.test(raw)) return "funnel";
   if (/(pyramid|hierarchy|maslow|foundation|level)/i.test(raw)) return "pyramid";
@@ -116,7 +117,24 @@ export function VisualChartPreview({ data }) {
   const chartType = (data?.chart_type || "column").toLowerCase();
   const title = data?.title || "Data Metrics Overview";
   const rawLabels = safeArray(data?.labels).length ? data.labels : (safeArray(data?.categories).length ? data.categories : ["Phase 1", "Phase 2", "Phase 3", "Phase 4"]);
-  const rawValues = safeArray(data?.values).length ? data.values.map(Number) : [25, 55, 80, 110];
+  
+  let rawValues = safeArray(data?.values).map(Number).filter((v) => !isNaN(v));
+  if (data?.series_map && typeof data.series_map === "object") {
+    const firstSeries = Object.values(data.series_map)[0];
+    if (Array.isArray(firstSeries)) {
+      rawValues = firstSeries.map(Number).filter((v) => !isNaN(v));
+    } else if (firstSeries && typeof firstSeries === "object") {
+      rawValues = Object.values(firstSeries).map(Number).filter((v) => !isNaN(v));
+    }
+  }
+
+  if (!rawValues.length || rawValues.every((v) => v === 0)) {
+    rawValues = [28.5, 52.0, 84.5, 130.0].slice(0, rawLabels.length);
+    while (rawValues.length < rawLabels.length) {
+      rawValues.push(Math.round((rawValues.length + 1) * 28.5));
+    }
+  }
+
   const maxVal = Math.max(...rawValues, 10);
 
   const colors = ["#8b5cf6", "#06b6d4", "#ec4899", "#10b981", "#f59e0b", "#3b82f6"];
@@ -246,40 +264,34 @@ export function VisualChartPreview({ data }) {
   );
 }
 
-function FeatureFormattingBar({ pluginData, onChangeField, onRefineText }) {
+function FeatureFormattingBar({ pluginData, onChangeField, onRefineText, isRefining = false }) {
   const inputStyle = {
-    background: "#090d16",
-    border: "1px solid rgba(255, 255, 255, 0.15)",
-    borderRadius: "8px",
-    padding: "4px 8px",
-    color: "#ffffff",
-    fontSize: "12px",
-    fontWeight: "500",
-    outline: "none",
-    height: "28px",
-    boxSizing: "border-box",
-  };
-
-  const labelStyle = {
+    background: "rgba(0,0,0,0.4)",
+    border: "1px solid var(--panel-border)",
+    borderRadius: "6px",
+    padding: "3px 6px",
+    color: "#fff",
     fontSize: "11px",
-    fontWeight: "500",
-    color: "rgba(255, 255, 255, 0.65)",
-    marginBottom: "4px",
+  };
+  const labelStyle = {
+    fontSize: "10px",
+    color: "var(--text-muted)",
     display: "block",
+    marginBottom: "2px",
   };
 
   return (
     <div
       style={{
         display: "flex",
+        gap: 12,
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 10,
-        background: "rgba(15, 23, 42, 0.6)",
-        padding: "8px 12px",
-        borderRadius: "10px",
-        border: "1px solid rgba(255, 255, 255, 0.1)",
-        marginTop: 8,
+        marginTop: 6,
+        background: "rgba(0,0,0,0.2)",
+        padding: "6px 10px",
+        borderRadius: 8,
+        border: "1px solid rgba(255,255,255,0.05)",
         flexWrap: "wrap",
       }}
     >
@@ -346,10 +358,11 @@ function FeatureFormattingBar({ pluginData, onChangeField, onRefineText }) {
         <button
           type="button"
           onClick={onRefineText}
+          disabled={isRefining}
           className="btn-ui primary sm"
-          style={{ fontSize: 10, padding: "5px 12px", background: "linear-gradient(135deg, #8b5cf6, #ec4899)", border: "none", borderRadius: 6, cursor: "pointer" }}
+          style={{ fontSize: 10, padding: "5px 12px", background: "linear-gradient(135deg, #8b5cf6, #ec4899)", border: "none", borderRadius: 6, cursor: isRefining ? "wait" : "pointer", opacity: isRefining ? 0.7 : 1 }}
         >
-          ✨ AI Polish & Refine
+          {isRefining ? "⏳ Polishing..." : "✨ AI Polish & Refine"}
         </button>
       ) : null}
     </div>
@@ -455,7 +468,8 @@ export default function PresentationEditor({
 
     if (!downloadUrl) return;
     const fullUrl = downloadUrl.replace(/^http:\/\//i, "https://");
-    const filename = fullUrl.split("/").pop() || "presentation.pptx";
+    const fallbackExt = exportFormat === "pdf" ? "pdf" : "pptx";
+    const filename = fullUrl.split("/").pop() || `presentation.${fallbackExt}`;
     await downloadFileAsBlob(fullUrl, filename);
   };
 
@@ -481,6 +495,37 @@ export default function PresentationEditor({
     handlePluginTextChange(activeSlideIndex, pIdx, "path", fallbackUrl);
   };
 
+  // Helper to handle local custom image file uploads from device (FileReader -> Data URL)
+  const handleImageFileUpload = (e, targetPluginIdx = null) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result;
+      if (!dataUrl) return;
+
+      if (targetPluginIdx !== null && targetPluginIdx !== undefined) {
+        handlePluginTextChange(activeSlideIndex, targetPluginIdx, "url", dataUrl);
+        handlePluginTextChange(activeSlideIndex, targetPluginIdx, "path", dataUrl);
+        if (!activeSlide?.plugins?.[targetPluginIdx]?.data?.caption) {
+          handlePluginTextChange(activeSlideIndex, targetPluginIdx, "caption", file.name.replace(/\.[^/.]+$/, ""));
+        }
+      } else {
+        handleAddPlugin(activeSlideIndex, "image");
+        setTimeout(() => {
+          const newIdx = safeArray(activeSlide?.plugins).length;
+          handlePluginTextChange(activeSlideIndex, newIdx, "url", dataUrl);
+          handlePluginTextChange(activeSlideIndex, newIdx, "path", dataUrl);
+          handlePluginTextChange(activeSlideIndex, newIdx, "caption", file.name.replace(/\.[^/.]+$/, ""));
+        }, 50);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const [refiningPluginIdx, setRefiningPluginIdx] = useState(null);
+
   // Helper to use Gemini AI to refine, polish, or convert slide content into punchy bullets
   const handleAIRefine = async (pIdx, action = "bullets") => {
     const plugin = activeSlide?.plugins?.[pIdx];
@@ -488,6 +533,7 @@ export default function PresentationEditor({
     const currentText = plugin.data?.text || safeArray(plugin.data?.points).join("\n") || plugin.data?.diagram || "";
     if (!currentText) return;
 
+    setRefiningPluginIdx(pIdx);
     try {
       const res = await fetch(`${API_SERVER_URL}/refine-slide`, {
         method: "POST",
@@ -508,6 +554,8 @@ export default function PresentationEditor({
       }
     } catch (err) {
       console.warn("AI Refine API call failed", err);
+    } finally {
+      setRefiningPluginIdx(null);
     }
   };
 
@@ -738,417 +786,468 @@ export default function PresentationEditor({
                 </div>
                 
                 {/* LIVE PLUGINS CONTENT */}
+                {/* LIVE PLUGINS CONTENT */}
                 <div style={{ flex: 1, overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 10, paddingRight: 4 }}>
-                  {safeArray(activeSlide.plugins).map((p, pIdx) => (
-                    <div key={pIdx}>
-                      {p.type === "subtitle" || p.type === "text" ? (
-                        <h3 style={{ fontSize: p.data?.font_size || 18, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || selectedBgConfig?.accent || "#c084fc", margin: "4px 0" }}>
-                          {p.data?.text}
-                        </h3>
-                      ) : null}
+                  {(() => {
+                    const plugins = safeArray(activeSlide.plugins);
+                    const hasImage = plugins.some((p) => p.type === "image" && (p.data?.url || p.data?.path));
+                    const hasText = plugins.some((p) => p.type === "bullets" || p.type === "paragraph");
 
-                      {p.type === "paragraph" ? (
-                        <p style={{ fontSize: p.data?.font_size || 14, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "inherit", lineHeight: 1.5, opacity: (p.data?.font_color || p.data?.color) ? 1 : 0.9 }}>
-                          {p.data?.text}
-                        </p>
-                      ) : null}
+                    const renderPluginItem = (p, pIdx) => (
+                      <div key={pIdx}>
+                        {p.type === "subtitle" || p.type === "text" ? (
+                          <h3 style={{ fontSize: p.data?.font_size || 18, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || selectedBgConfig?.accent || "#c084fc", margin: "4px 0" }}>
+                            {p.data?.text}
+                          </h3>
+                        ) : null}
 
-                      {p.type === "paragraph_2col" ? (
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: p.data?.column_gap || 14, margin: "8px 0" }}>
-                          <div style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
-                            {p.data?.left_title && (
-                              <div style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
-                                {p.data.left_title}
-                              </div>
-                            )}
-                            <p style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0 }}>
-                              {p.data?.left_text || p.data?.text || "Left paragraph content..."}
-                            </p>
-                          </div>
-                          <div style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
-                            {p.data?.right_title && (
-                              <div style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
-                                {p.data.right_title}
-                              </div>
-                            )}
-                            <p style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0 }}>
-                              {p.data?.right_text || "Right paragraph content..."}
-                            </p>
-                          </div>
-                        </div>
-                      ) : null}
+                        {p.type === "paragraph" ? (
+                          <p style={{ fontSize: p.data?.font_size || 14, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "inherit", lineHeight: 1.5, opacity: (p.data?.font_color || p.data?.color) ? 1 : 0.9 }}>
+                            {p.data?.text}
+                          </p>
+                        ) : null}
 
-                      {p.type === "bullets" ? (
-                        <div style={{ paddingLeft: 4, margin: "6px 0", textAlign: p.data?.alignment || p.data?.align || "left", color: p.data?.font_color || p.data?.color || "inherit" }}>
-                          {safeArray(p.data?.points).map((pt, bIdx) => (
-                            <div key={bIdx} style={{ fontSize: p.data?.font_size || 14, marginBottom: 5, display: "flex", gap: 8, alignItems: "baseline" }}>
-                              <span style={{ fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", flexShrink: 0 }}>
-                                {formatBulletPrefix(p.data?.bullet_style || p.data?.list_style, bIdx, p.data?.points)}
-                              </span>
-                              <span>{pt}</span>
+                        {p.type === "paragraph_2col" ? (
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: p.data?.column_gap || 14, margin: "8px 0" }}>
+                            <div style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+                              {p.data?.left_title && (
+                                <div style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
+                                  {p.data.left_title}
+                                </div>
+                              )}
+                              <p style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0 }}>
+                                {p.data?.left_text || p.data?.text || "Left paragraph content..."}
+                              </p>
                             </div>
-                          ))}
-                        </div>
-                      ) : null}
+                            <div style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+                              {p.data?.right_title && (
+                                <div style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
+                                  {p.data.right_title}
+                                </div>
+                              )}
+                              <p style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0 }}>
+                                {p.data?.right_text || "Right paragraph content..."}
+                              </p>
+                            </div>
+                          </div>
+                        ) : null}
 
-                      {p.type === "chart" ? (
-                        <VisualChartPreview data={p.data} />
-                      ) : null}
-
-                      {p.type === "image" ? (
-                        <div style={{ textAlign: p.data?.align || p.data?.alignment || "center", margin: "8px 0" }}>
-                          {p.data?.url || p.data?.path ? (
-                            <img
-                              src={p.data.url || p.data.path}
-                              alt="Slide media"
-                              style={{ maxHeight: 180, borderRadius: 10, border: "1px solid rgba(255,255,255,0.2)" }}
-                            />
-                          ) : null}
-                          {p.data?.caption ? (
-                            <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>{p.data.caption}</div>
-                          ) : null}
-                        </div>
-                      ) : null}
-
-                      {p.type === "stat" ? (
-                        <div style={{ display: "flex", alignItems: "baseline", gap: 10, margin: "8px 0" }}>
-                          <span style={{ fontSize: p.data?.font_size || 36, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc" }}>{p.data?.number}</span>
-                          <span style={{ fontSize: 14, fontWeight: 600, opacity: 0.85 }}>{p.data?.label}</span>
-                        </div>
-                      ) : null}
-
-                      {p.type === "diagram" ? (
-                        (() => {
-                          const textRaw = p.data?.diagram || p.data?.text || "[Input] ➔ [Processing] ➔ [Output]";
-                          const diagType = detectDiagramType(textRaw, p.data?.diagram_type);
-                          const steps = textRaw.split(/➔|->|→/).map(s => s.trim()).filter(Boolean);
-                          
-                          const headers = {
-                            flowchart: "🔄 PROCESS & WORKFLOW DIAGRAM",
-                            architecture: "🏛️ SYSTEM ARCHITECTURE STACK",
-                            timeline: "📅 TIMELINE & ROADMAP MILESTONES",
-                            io_cards: "📥 INPUT  │  ⚙️ PROCESSING  │  📤 OUTPUT",
-                            mindmap: "🧠 CONCEPT & CATEGORY MAP",
-                            funnel: "🔻 CONVERSION & PIPELINE FUNNEL",
-                            cycle: "🔁 CIRCULAR PROCESS & ITERATION LOOP",
-                            pyramid: "🔺 HIERARCHY & LAYERED PYRAMID",
-                            quadrant: "🧭 2x2 STRATEGIC MATRIX / QUADRANT",
-                            comparison: "⚔️ FEATURE & SOLUTION COMPARISON",
-                          };
-                          const headerTitle = headers[diagType] || "⚙️ SYSTEM ARCHITECTURE & PROCESS FLOW";
-
-                          return (
-                            <div style={{ background: `${selectedBgConfig?.accent || "#c084fc"}1f`, border: `1px dashed ${selectedBgConfig?.accent || "#c084fc"}80`, borderRadius: 10, padding: 12, textAlign: p.data?.alignment || "center", margin: "8px 0" }}>
-                              <div style={{ fontSize: 11, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 8, letterSpacing: 0.5 }}>
-                                {headerTitle}
+                        {p.type === "bullets" ? (
+                          <div style={{ paddingLeft: 4, margin: "6px 0", textAlign: p.data?.alignment || p.data?.align || "left", color: p.data?.font_color || p.data?.color || "inherit" }}>
+                            {safeArray(p.data?.points).map((pt, bIdx) => (
+                              <div key={bIdx} style={{ fontSize: p.data?.font_size || 14, marginBottom: 5, display: "flex", gap: 8, alignItems: "baseline" }}>
+                                <span style={{ fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", flexShrink: 0 }}>
+                                  {formatBulletPrefix(p.data?.bullet_style || p.data?.list_style, bIdx, p.data?.points)}
+                                </span>
+                                <span>{pt}</span>
                               </div>
-                              
-                              {diagType === "flowchart" && (
-                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", padding: "10px 0" }}>
-                                  {steps.map((step, sIdx) => {
-                                    const isStartEnd = sIdx === 0 || sIdx === steps.length - 1;
-                                    return (
+                            ))}
+                          </div>
+                        ) : null}
+
+                        {p.type === "chart" ? (
+                          <VisualChartPreview data={p.data} />
+                        ) : null}
+
+                        {p.type === "image" ? (
+                          <div style={{ textAlign: p.data?.align || p.data?.alignment || "center", margin: "8px 0" }}>
+                            {p.data?.url || p.data?.path ? (
+                              <img
+                                src={p.data.url || p.data.path}
+                                alt="Slide media"
+                                style={{
+                                  maxHeight: Number(p.data?.img_height || p.data?.height || 180),
+                                  borderRadius: 10,
+                                  border: "1px solid rgba(255,255,255,0.2)",
+                                  transition: "max-height 0.2s ease"
+                                }}
+                              />
+                            ) : null}
+                            {p.data?.caption ? (
+                              <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>{p.data.caption}</div>
+                            ) : null}
+                          </div>
+                        ) : null}
+
+                        {p.type === "stat" ? (
+                          <div style={{ display: "flex", alignItems: "baseline", gap: 10, margin: "8px 0" }}>
+                            <span style={{ fontSize: p.data?.font_size || 36, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc" }}>{p.data?.number}</span>
+                            <span style={{ fontSize: 14, fontWeight: 600, opacity: 0.85 }}>{p.data?.label}</span>
+                          </div>
+                        ) : null}
+
+                        {p.type === "diagram" ? (
+                          (() => {
+                            const textRaw = p.data?.diagram || p.data?.text || "[Input] ➔ [Processing] ➔ [Output]";
+                            const diagType = detectDiagramType(textRaw, p.data?.diagram_type);
+                            const steps = textRaw.split(/➔|->|→/).map(s => s.trim()).filter(Boolean);
+                            
+                            const headers = {
+                              tree: "🌳 TREE HIERARCHY & DECISION BRANCHES",
+                              flowchart: "🔄 PROCESS & WORKFLOW DIAGRAM",
+                              architecture: "🏛️ SYSTEM ARCHITECTURE STACK",
+                              timeline: "📅 TIMELINE & ROADMAP MILESTONES",
+                              io_cards: "📥 INPUT  │  ⚙️ PROCESSING  │  📤 OUTPUT",
+                              mindmap: "🧠 CONCEPT & CATEGORY MAP",
+                              funnel: "🔻 CONVERSION & PIPELINE FUNNEL",
+                              cycle: "🔁 CIRCULAR PROCESS & ITERATION LOOP",
+                              pyramid: "🔺 HIERARCHY & LAYERED PYRAMID",
+                              quadrant: "🧭 2x2 STRATEGIC MATRIX / QUADRANT",
+                              comparison: "⚔️ FEATURE & SOLUTION COMPARISON",
+                            };
+                            const customDiagramTitle = p.data?.title || p.data?.diagram_title;
+                            const headerTitle = customDiagramTitle ? customDiagramTitle.toUpperCase() : (headers[diagType] || "⚙️ SYSTEM ARCHITECTURE & PROCESS FLOW");
+
+                            return (
+                              <div style={{ background: `${selectedBgConfig?.accent || "#c084fc"}1f`, border: `1px dashed ${selectedBgConfig?.accent || "#c084fc"}80`, borderRadius: 10, padding: 12, textAlign: p.data?.alignment || "center", margin: "8px 0" }}>
+                                <div style={{ fontSize: 11, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 8, letterSpacing: 0.5 }}>
+                                  {headerTitle}
+                                </div>
+                                
+                                {diagType === "tree" && (
+                                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "8px 0" }}>
+                                    <div style={{ background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}, #3b82f6)`, color: "#fff", fontWeight: 900, padding: "8px 24px", borderRadius: 12, fontSize: 13, boxShadow: "0 4px 16px rgba(192, 132, 252, 0.4)", border: "1.5px solid rgba(255,255,255,0.3)" }}>
+                                      🌳 {steps[0] || "Root Concept"}
+                                    </div>
+                                    {steps.length > 1 && (
+                                      <>
+                                        <div style={{ width: 2, height: 16, background: selectedBgConfig?.accent || "#c084fc" }} />
+                                        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+                                          {steps.slice(1).map((subStep, sIdx) => (
+                                            <div key={sIdx} style={{ background: "rgba(15,23,42,0.9)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 10, padding: "8px 14px", fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,0.3)" }}>
+                                              <span style={{ color: selectedBgConfig?.accent || "#c084fc", marginRight: 4 }}>🌿 Node {sIdx + 1}:</span>
+                                              {subStep}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+
+                                {diagType === "flowchart" && (
+                                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", padding: "10px 0" }}>
+                                    {steps.map((step, sIdx) => {
+                                      const isStartEnd = sIdx === 0 || sIdx === steps.length - 1;
+                                      return (
+                                        <React.Fragment key={sIdx}>
+                                          <div style={{
+                                            background: isStartEnd ? selectedBgConfig?.accent || "#c084fc" : "rgba(15,23,42,0.85)",
+                                            color: isStartEnd ? "#000" : "#fff",
+                                            border: `2px solid ${selectedBgConfig?.accent || "#c084fc"}`,
+                                            borderRadius: isStartEnd ? "24px" : "8px",
+                                            padding: "8px 16px",
+                                            fontSize: p.data?.font_size || 12,
+                                            fontWeight: 800,
+                                            boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+                                          }}>
+                                            {isStartEnd ? `🏁 ${step}` : `⚙️ ${step}`}
+                                          </div>
+                                          {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 18, fontWeight: 900 }}>➔</span>}
+                                        </React.Fragment>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                {diagType === "architecture" && (
+                                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, maxWidth: "85%", margin: "0 auto", padding: "6px 0" }}>
+                                    {steps.map((step, sIdx) => (
                                       <React.Fragment key={sIdx}>
                                         <div style={{
-                                          background: isStartEnd ? selectedBgConfig?.accent || "#c084fc" : "rgba(15,23,42,0.85)",
-                                          color: isStartEnd ? "#000" : "#fff",
-                                          border: `2px solid ${selectedBgConfig?.accent || "#c084fc"}`,
-                                          borderRadius: isStartEnd ? "24px" : "8px",
+                                          width: "100%",
+                                          background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}33 0%, rgba(15,23,42,0.9) 100%)`,
+                                          border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`,
+                                          borderRadius: "10px",
                                           padding: "8px 16px",
                                           fontSize: p.data?.font_size || 12,
-                                          fontWeight: 800,
-                                          boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+                                          fontWeight: 700,
+                                          textAlign: "center",
+                                          color: "#fff",
+                                          display: "flex",
+                                          justifyContent: "space-between",
+                                          alignItems: "center",
+                                          boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
                                         }}>
-                                          {isStartEnd ? `🏁 ${step}` : `⚙️ ${step}`}
+                                          <span style={{ fontSize: 10, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", background: "rgba(0,0,0,0.4)", padding: "2px 8px", borderRadius: 4 }}>
+                                            TIER {sIdx + 1}
+                                          </span>
+                                          <span style={{ fontWeight: 700 }}>{step}</span>
+                                          <span style={{ opacity: 0.5, fontSize: 10 }}>[Layer Spec]</span>
                                         </div>
-                                        {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 18, fontWeight: 900 }}>➔</span>}
+                                        {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 12 }}>⬇️</span>}
                                       </React.Fragment>
-                                    );
-                                  })}
-                                </div>
-                              )}
+                                    ))}
+                                  </div>
+                                )}
 
-                              {diagType === "architecture" && (
-                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, maxWidth: "85%", margin: "0 auto", padding: "6px 0" }}>
-                                  {steps.map((step, sIdx) => (
-                                    <React.Fragment key={sIdx}>
-                                      <div style={{
-                                        width: "100%",
-                                        background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}33 0%, rgba(15,23,42,0.9) 100%)`,
-                                        border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`,
-                                        borderRadius: "10px",
-                                        padding: "8px 16px",
-                                        fontSize: p.data?.font_size || 12,
-                                        fontWeight: 700,
-                                        textAlign: "center",
-                                        color: "#fff",
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                        boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
-                                      }}>
-                                        <span style={{ fontSize: 10, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", background: "rgba(0,0,0,0.4)", padding: "2px 8px", borderRadius: 4 }}>
-                                          TIER {sIdx + 1}
-                                        </span>
-                                        <span style={{ fontWeight: 700 }}>{step}</span>
-                                        <span style={{ opacity: 0.5, fontSize: 10 }}>[Layer Spec]</span>
-                                      </div>
-                                      {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 12 }}>⬇️</span>}
-                                    </React.Fragment>
-                                  ))}
-                                </div>
-                              )}
+                                {diagType === "timeline" && (
+                                  <div style={{ position: "relative", padding: "20px 10px 10px", margin: "8px 0" }}>
+                                    <div style={{ position: "absolute", top: "45px", left: "5%", right: "5%", height: "4px", background: selectedBgConfig?.accent || "#c084fc", borderRadius: 2, zIndex: 1 }} />
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, position: "relative", zIndex: 2 }}>
+                                      {steps.map((step, sIdx) => (
+                                        <div key={sIdx} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+                                          <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: selectedBgConfig?.accent || "#c084fc", color: "#000", fontWeight: 900, fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8, boxShadow: `0 0 10px ${selectedBgConfig?.accent || "#c084fc"}` }}>
+                                            {sIdx + 1}
+                                          </div>
+                                          <div style={{ background: "rgba(15,23,42,0.9)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "6px 8px", width: "100%" }}>
+                                            <div style={{ fontSize: 9, color: selectedBgConfig?.accent || "#c084fc", fontWeight: 800, textTransform: "uppercase" }}>MILESTONE {sIdx + 1}</div>
+                                            <div style={{ fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff", marginTop: 2 }}>{step}</div>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
 
-                              {diagType === "timeline" && (
-                                <div style={{ position: "relative", padding: "20px 10px 10px", margin: "8px 0" }}>
-                                  {/* HORIZONTAL AXIS LINE */}
-                                  <div style={{ position: "absolute", top: "45px", left: "5%", right: "5%", height: "4px", background: selectedBgConfig?.accent || "#c084fc", borderRadius: 2, zIndex: 1 }} />
-                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, position: "relative", zIndex: 2 }}>
+                                {diagType === "io_cards" && (
+                                  <div style={{ display: "grid", gridTemplateColumns: steps.length === 3 ? "1fr 1fr 1fr" : `repeat(${Math.min(steps.length, 4)}, 1fr)`, gap: 12, padding: "6px 0" }}>
+                                    {steps.map((step, sIdx) => {
+                                      const styles = [
+                                        { bg: "linear-gradient(135deg, #0284c7 0%, #0f172a 100%)", border: "#38bdf8", title: "📥 INPUT DATA" },
+                                        { bg: "linear-gradient(135deg, #7c3aed 0%, #0f172a 100%)", border: "#c084fc", title: "⚙️ PROCESSING" },
+                                        { bg: "linear-gradient(135deg, #059669 0%, #0f172a 100%)", border: "#34d399", title: "📤 OUTPUT RESULT" },
+                                      ];
+                                      const st = styles[sIdx % styles.length];
+                                      return (
+                                        <div key={sIdx} style={{ background: st.bg, border: `1.5px solid ${st.border}`, borderRadius: 12, padding: 12, textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
+                                          <div style={{ fontSize: 10, fontWeight: 900, color: st.border, marginBottom: 6, letterSpacing: 0.5 }}>{st.title}</div>
+                                          <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700 }}>{step}</div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                {diagType === "mindmap" && (
+                                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "8px 0" }}>
+                                    <div style={{ background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}, #ec4899)`, color: "#fff", fontWeight: 900, padding: "8px 20px", borderRadius: 24, fontSize: 13, boxShadow: "0 4px 16px rgba(192, 132, 252, 0.4)" }}>
+                                      🧠 {steps[0] || "Core Concept"}
+                                    </div>
+                                    {steps.length > 1 && (
+                                      <>
+                                        <div style={{ width: 2, height: 16, background: selectedBgConfig?.accent || "#c084fc" }} />
+                                        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+                                          {steps.slice(1).map((subStep, sIdx) => (
+                                            <div key={sIdx} style={{ background: "rgba(15,23,42,0.85)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 14, padding: "6px 14px", fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff" }}>
+                                              🔹 {subStep}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+
+                                {diagType === "funnel" && (
+                                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "8px 0" }}>
+                                    {steps.map((step, sIdx) => {
+                                      const widthPct = Math.max(30, 100 - sIdx * (65 / Math.max(1, steps.length - 1)));
+                                      return (
+                                        <div
+                                          key={sIdx}
+                                          style={{
+                                            width: `${widthPct}%`,
+                                            background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}ee 0%, ${selectedBgConfig?.accent || "#c084fc"}44 100%)`,
+                                            border: "1px solid rgba(255,255,255,0.25)",
+                                            borderRadius: 8,
+                                            padding: "6px 12px",
+                                            fontSize: p.data?.font_size || 11,
+                                            fontWeight: 800,
+                                            textAlign: "center",
+                                            color: "#fff",
+                                            boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
+                                          }}
+                                        >
+                                          STAGE {sIdx + 1}: {step}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                {diagType === "cycle" && (
+                                  <div style={{ position: "relative", width: "100%", height: "200px", margin: "10px 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+                                      <ellipse
+                                        cx="50%"
+                                        cy="50%"
+                                        rx="140"
+                                        ry="65"
+                                        fill="none"
+                                        stroke={selectedBgConfig?.accent || "#c084fc"}
+                                        strokeWidth="2.5"
+                                        strokeDasharray="6 4"
+                                        opacity="0.6"
+                                      />
+                                    </svg>
+                                    <div style={{
+                                      position: "absolute",
+                                      width: "56px",
+                                      height: "56px",
+                                      borderRadius: "50%",
+                                      background: selectedBgConfig?.accent || "#c084fc",
+                                      color: "#000",
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      fontWeight: 900,
+                                      fontSize: 10,
+                                      boxShadow: `0 0 16px ${selectedBgConfig?.accent || "#c084fc"}80`,
+                                      zIndex: 2,
+                                    }}>
+                                      <span style={{ fontSize: 16 }}>🔁</span>
+                                      <span>LOOP</span>
+                                    </div>
+                                    {steps.map((step, sIdx) => {
+                                      const total = steps.length;
+                                      const angle = (2 * Math.PI * sIdx) / total - Math.PI / 2;
+                                      const radiusX = 140;
+                                      const radiusY = 65;
+                                      const x = Math.cos(angle) * radiusX;
+                                      const y = Math.sin(angle) * radiusY;
+
+                                      return (
+                                        <div
+                                          key={sIdx}
+                                          style={{
+                                            position: "absolute",
+                                            transform: `translate(${x}px, ${y}px)`,
+                                            background: "rgba(15, 23, 42, 0.95)",
+                                            border: `2px solid ${selectedBgConfig?.accent || "#c084fc"}`,
+                                            borderRadius: "16px",
+                                            padding: "5px 12px",
+                                            fontSize: p.data?.font_size || 11,
+                                            fontWeight: 700,
+                                            color: "#fff",
+                                            boxShadow: "0 4px 14px rgba(0,0,0,0.6)",
+                                            whiteSpace: "nowrap",
+                                            zIndex: 3,
+                                            maxWidth: "140px",
+                                            textOverflow: "ellipsis",
+                                            overflow: "hidden",
+                                          }}
+                                        >
+                                          <span style={{ color: selectedBgConfig?.accent || "#c084fc", marginRight: 4 }}>
+                                            {sIdx + 1}.
+                                          </span>
+                                          {step}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                {diagType === "pyramid" && (
+                                  <div style={{ display: "flex", flexDirection: "column-reverse", alignItems: "center", gap: 6, padding: "8px 0" }}>
+                                    {steps.map((step, sIdx) => {
+                                      const widthPct = Math.max(30, 40 + sIdx * (60 / Math.max(1, steps.length - 1)));
+                                      return (
+                                        <div
+                                          key={sIdx}
+                                          style={{
+                                            width: `${widthPct}%`,
+                                            background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}33 0%, ${selectedBgConfig?.accent || "#c084fc"}aa 100%)`,
+                                            border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`,
+                                            borderRadius: 8,
+                                            padding: "6px 12px",
+                                            fontSize: p.data?.font_size || 11,
+                                            fontWeight: 800,
+                                            textAlign: "center",
+                                            color: "#fff",
+                                            boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
+                                          }}
+                                        >
+                                          TIER {sIdx + 1}: {step}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                {diagType === "quadrant" && (
+                                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, maxWidth: "90%", margin: "6px auto" }}>
+                                    {steps.slice(0, 4).map((step, sIdx) => {
+                                      const quadNames = ["STRENGTHS / Q1", "WEAKNESSES / Q2", "OPPORTUNITIES / Q3", "THREATS / Q4"];
+                                      return (
+                                        <div key={sIdx} style={{ background: "rgba(15,23,42,0.9)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 10, padding: 12, textAlign: "left", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>
+                                          <div style={{ fontSize: 10, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
+                                            {quadNames[sIdx] || `QUADRANT ${sIdx + 1}`}
+                                          </div>
+                                          <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700 }}>{step}</div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                {diagType === "comparison" && (
+                                  <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(steps.length, 3)}, 1fr)`, gap: 12, padding: "6px 0" }}>
                                     {steps.map((step, sIdx) => (
-                                      <div key={sIdx} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-                                        <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: selectedBgConfig?.accent || "#c084fc", color: "#000", fontWeight: 900, fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8, boxShadow: `0 0 10px ${selectedBgConfig?.accent || "#c084fc"}` }}>
-                                          {sIdx + 1}
+                                      <div key={sIdx} style={{ background: "rgba(15,23,42,0.9)", borderTop: `4px solid ${selectedBgConfig?.accent || "#c084fc"}`, border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px 8px 12px 12px", padding: 12, textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
+                                        <div style={{ fontSize: 10, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 6 }}>
+                                          ⚔️ OPTION {sIdx + 1}
                                         </div>
-                                        <div style={{ background: "rgba(15,23,42,0.9)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "6px 8px", width: "100%" }}>
-                                          <div style={{ fontSize: 9, color: selectedBgConfig?.accent || "#c084fc", fontWeight: 800, textTransform: "uppercase" }}>MILESTONE {sIdx + 1}</div>
-                                          <div style={{ fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff", marginTop: 2 }}>{step}</div>
-                                        </div>
+                                        <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700 }}>{step}</div>
                                       </div>
                                     ))}
                                   </div>
-                                </div>
+                                )}
+                              </div>
+                            );
+                          })()
+                        ) : null}
+
+                        {p.type === "table" ? (
+                          <div style={{ overflowX: "auto", margin: "8px 0" }}>
+                            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: p.data?.cell_font_size || 11, background: "rgba(0,0,0,0.35)", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)" }}>
+                              {safeArray(p.data?.headers).length > 0 && (
+                                <thead>
+                                  <tr style={{ background: p.data?.header_bg || `${selectedBgConfig?.accent || "#c084fc"}33` }}>
+                                    {p.data.headers.map((h, hIdx) => (
+                                      <th key={hIdx} style={{ padding: "6px 10px", textAlign: p.data?.align || "left", borderBottom: "1px solid rgba(255,255,255,0.15)", fontWeight: 700, fontSize: p.data?.header_font_size || 12, color: p.data?.header_color || selectedBgConfig?.accent || "#c084fc" }}>{h}</th>
+                                    ))}
+                                  </tr>
+                                </thead>
                               )}
+                              <tbody>
+                                {safeArray(p.data?.rows).map((row, rIdx) => (
+                                  <tr key={rIdx} style={{ background: p.data?.cell_bg ? p.data.cell_bg : (rIdx % 2 === 1 ? "rgba(255,255,255,0.04)" : "transparent"), borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                                    {safeArray(row).map((cell, cIdx) => (
+                                      <td key={cIdx} style={{ padding: "6px 10px", textAlign: p.data?.align || "left", color: p.data?.cell_color || "inherit", opacity: p.data?.cell_color ? 1 : 0.9 }}>{cell}</td>
+                                    ))}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        ) : null}
+                      </div>
+                    );
 
-                              {diagType === "io_cards" && (
-                                <div style={{ display: "grid", gridTemplateColumns: steps.length === 3 ? "1fr 1fr 1fr" : `repeat(${Math.min(steps.length, 4)}, 1fr)`, gap: 12, padding: "6px 0" }}>
-                                  {steps.map((step, sIdx) => {
-                                    const styles = [
-                                      { bg: "linear-gradient(135deg, #0284c7 0%, #0f172a 100%)", border: "#38bdf8", title: "📥 INPUT DATA" },
-                                      { bg: "linear-gradient(135deg, #7c3aed 0%, #0f172a 100%)", border: "#c084fc", title: "⚙️ PROCESSING" },
-                                      { bg: "linear-gradient(135deg, #059669 0%, #0f172a 100%)", border: "#34d399", title: "📤 OUTPUT RESULT" },
-                                    ];
-                                    const st = styles[sIdx % styles.length];
-                                    return (
-                                      <div key={sIdx} style={{ background: st.bg, border: `1.5px solid ${st.border}`, borderRadius: 12, padding: 12, textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
-                                        <div style={{ fontSize: 10, fontWeight: 900, color: st.border, marginBottom: 6, letterSpacing: 0.5 }}>{st.title}</div>
-                                        <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700 }}>{step}</div>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
+                    if (hasImage && hasText) {
+                      const textPlugins = plugins.filter((p) => p.type === "bullets" || p.type === "paragraph" || p.type === "subtitle" || p.type === "text");
+                      const imagePlugins = plugins.filter((p) => p.type === "image");
+                      const otherPlugins = plugins.filter((p) => p.type !== "bullets" && p.type !== "paragraph" && p.type !== "subtitle" && p.type !== "text" && p.type !== "image");
 
-                              {diagType === "mindmap" && (
-                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "8px 0" }}>
-                                  <div style={{ background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}, #ec4899)`, color: "#fff", fontWeight: 900, padding: "8px 20px", borderRadius: 24, fontSize: 13, boxShadow: "0 4px 16px rgba(192, 132, 252, 0.4)" }}>
-                                    🧠 {steps[0] || "Core Concept"}
-                                  </div>
-                                  {steps.length > 1 && (
-                                    <>
-                                      <div style={{ width: 2, height: 16, background: selectedBgConfig?.accent || "#c084fc" }} />
-                                      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-                                        {steps.slice(1).map((subStep, sIdx) => (
-                                          <div key={sIdx} style={{ background: "rgba(15,23,42,0.85)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 14, padding: "6px 14px", fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff" }}>
-                                            🔹 {subStep}
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </>
-                                  )}
-                                </div>
-                              )}
-
-                              {diagType === "funnel" && (
-                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "8px 0" }}>
-                                  {steps.map((step, sIdx) => {
-                                    const widthPct = Math.max(30, 100 - sIdx * (65 / Math.max(1, steps.length - 1)));
-                                    return (
-                                      <div
-                                        key={sIdx}
-                                        style={{
-                                          width: `${widthPct}%`,
-                                          background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}ee 0%, ${selectedBgConfig?.accent || "#c084fc"}44 100%)`,
-                                          border: "1px solid rgba(255,255,255,0.25)",
-                                          borderRadius: 8,
-                                          padding: "6px 12px",
-                                          fontSize: p.data?.font_size || 11,
-                                          fontWeight: 800,
-                                          textAlign: "center",
-                                          color: "#fff",
-                                          boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
-                                        }}
-                                      >
-                                        STAGE {sIdx + 1}: {step}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
-
-                              {diagType === "cycle" && (
-                                <div style={{ position: "relative", width: "100%", height: "200px", margin: "10px 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                  {/* SVG DASHED CIRCULAR RING */}
-                                  <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
-                                    <ellipse
-                                      cx="50%"
-                                      cy="50%"
-                                      rx="140"
-                                      ry="65"
-                                      fill="none"
-                                      stroke={selectedBgConfig?.accent || "#c084fc"}
-                                      strokeWidth="2.5"
-                                      strokeDasharray="6 4"
-                                      opacity="0.6"
-                                    />
-                                  </svg>
-
-                                  {/* CENTRAL REPEAT BADGE */}
-                                  <div style={{
-                                    position: "absolute",
-                                    width: "56px",
-                                    height: "56px",
-                                    borderRadius: "50%",
-                                    background: selectedBgConfig?.accent || "#c084fc",
-                                    color: "#000",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontWeight: 900,
-                                    fontSize: 10,
-                                    boxShadow: `0 0 16px ${selectedBgConfig?.accent || "#c084fc"}80`,
-                                    zIndex: 2,
-                                  }}>
-                                    <span style={{ fontSize: 16 }}>🔁</span>
-                                    <span>LOOP</span>
-                                  </div>
-
-                                  {/* RADIAL CIRCULAR NODES */}
-                                  {steps.map((step, sIdx) => {
-                                    const total = steps.length;
-                                    const angle = (2 * Math.PI * sIdx) / total - Math.PI / 2;
-                                    const radiusX = 140; // Horizontal radius
-                                    const radiusY = 65;  // Vertical radius
-                                    const x = Math.cos(angle) * radiusX;
-                                    const y = Math.sin(angle) * radiusY;
-
-                                    return (
-                                      <div
-                                        key={sIdx}
-                                        style={{
-                                          position: "absolute",
-                                          transform: `translate(${x}px, ${y}px)`,
-                                          background: "rgba(15, 23, 42, 0.95)",
-                                          border: `2px solid ${selectedBgConfig?.accent || "#c084fc"}`,
-                                          borderRadius: "16px",
-                                          padding: "5px 12px",
-                                          fontSize: p.data?.font_size || 11,
-                                          fontWeight: 700,
-                                          color: "#fff",
-                                          boxShadow: "0 4px 14px rgba(0,0,0,0.6)",
-                                          whiteSpace: "nowrap",
-                                          zIndex: 3,
-                                          maxWidth: "140px",
-                                          textOverflow: "ellipsis",
-                                          overflow: "hidden",
-                                        }}
-                                      >
-                                        <span style={{ color: selectedBgConfig?.accent || "#c084fc", marginRight: 4 }}>
-                                          {sIdx + 1}.
-                                        </span>
-                                        {step}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
-
-                              {diagType === "pyramid" && (
-                                <div style={{ display: "flex", flexDirection: "column-reverse", alignItems: "center", gap: 6, padding: "8px 0" }}>
-                                  {steps.map((step, sIdx) => {
-                                    const widthPct = Math.max(30, 40 + sIdx * (60 / Math.max(1, steps.length - 1)));
-                                    return (
-                                      <div
-                                        key={sIdx}
-                                        style={{
-                                          width: `${widthPct}%`,
-                                          background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}33 0%, ${selectedBgConfig?.accent || "#c084fc"}aa 100%)`,
-                                          border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`,
-                                          borderRadius: 8,
-                                          padding: "6px 12px",
-                                          fontSize: p.data?.font_size || 11,
-                                          fontWeight: 800,
-                                          textAlign: "center",
-                                          color: "#fff",
-                                          boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
-                                        }}
-                                      >
-                                        TIER {sIdx + 1}: {step}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
-
-                              {diagType === "quadrant" && (
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, maxWidth: "90%", margin: "6px auto" }}>
-                                  {steps.slice(0, 4).map((step, sIdx) => {
-                                    const quadNames = ["STRENGTHS / Q1", "WEAKNESSES / Q2", "OPPORTUNITIES / Q3", "THREATS / Q4"];
-                                    return (
-                                      <div key={sIdx} style={{ background: "rgba(15,23,42,0.9)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 10, padding: 12, textAlign: "left", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>
-                                        <div style={{ fontSize: 10, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
-                                          {quadNames[sIdx] || `QUADRANT ${sIdx + 1}`}
-                                        </div>
-                                        <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700 }}>{step}</div>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
-
-                              {diagType === "comparison" && (
-                                <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(steps.length, 3)}, 1fr)`, gap: 12, padding: "6px 0" }}>
-                                  {steps.map((step, sIdx) => (
-                                    <div key={sIdx} style={{ background: "rgba(15,23,42,0.9)", borderTop: `4px solid ${selectedBgConfig?.accent || "#c084fc"}`, border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px 8px 12px 12px", padding: 12, textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
-                                      <div style={{ fontSize: 10, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 6 }}>
-                                        ⚔️ OPTION {sIdx + 1}
-                                      </div>
-                                      <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700 }}>{step}</div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
+                      return (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 16, alignItems: "center" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                              {textPlugins.map((p, pIdx) => renderPluginItem(p, `txt-${pIdx}`))}
                             </div>
-                          );
-                        })()
-                      ) : null}
-
-                      {p.type === "table" ? (
-                        <div style={{ overflowX: "auto", margin: "8px 0" }}>
-                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: p.data?.cell_font_size || 11, background: "rgba(0,0,0,0.35)", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)" }}>
-                            {safeArray(p.data?.headers).length > 0 && (
-                              <thead>
-                                <tr style={{ background: p.data?.header_bg || `${selectedBgConfig?.accent || "#c084fc"}33` }}>
-                                  {p.data.headers.map((h, hIdx) => (
-                                    <th key={hIdx} style={{ padding: "6px 10px", textAlign: p.data?.align || "left", borderBottom: "1px solid rgba(255,255,255,0.15)", fontWeight: 700, fontSize: p.data?.header_font_size || 12, color: p.data?.header_color || selectedBgConfig?.accent || "#c084fc" }}>{h}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                            )}
-                            <tbody>
-                              {safeArray(p.data?.rows).map((row, rIdx) => (
-                                <tr key={rIdx} style={{ background: p.data?.cell_bg ? p.data.cell_bg : (rIdx % 2 === 1 ? "rgba(255,255,255,0.04)" : "transparent"), borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                                  {safeArray(row).map((cell, cIdx) => (
-                                    <td key={cIdx} style={{ padding: "6px 10px", textAlign: p.data?.align || "left", color: p.data?.cell_color || "inherit", opacity: p.data?.cell_color ? 1 : 0.9 }}>{cell}</td>
-                                  ))}
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                              {imagePlugins.map((p, pIdx) => renderPluginItem(p, `img-${pIdx}`))}
+                            </div>
+                          </div>
+                          {otherPlugins.map((p, pIdx) => renderPluginItem(p, `oth-${pIdx}`))}
                         </div>
-                      ) : null}
-                    </div>
-                  ))}
+                      );
+                    }
+
+                    return plugins.map((p, pIdx) => renderPluginItem(p, pIdx));
+                  })()}
                 </div>
                 
                 {/* SPEAKER NOTES DISPLAY */}
@@ -1379,6 +1478,20 @@ export default function PresentationEditor({
                   >
                     <span className="btn-icon">🖼️</span><span className="btn-label">Image</span>
                   </button>
+
+                  <label
+                    className="btn-ui secondary sm"
+                    title="Upload Custom Image File from Computer"
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}
+                  >
+                    <span className="btn-icon">📤</span><span className="btn-label">Upload Image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={(e) => handleImageFileUpload(e, null)}
+                    />
+                  </label>
                   <button
                     className="btn-ui secondary sm"
                     title="Notes"
@@ -1426,32 +1539,87 @@ export default function PresentationEditor({
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
                           onRefineText={() => handleAIRefine(pIdx, "headline")}
+                          isRefining={refiningPluginIdx === pIdx}
                         />
                       </div>
                     ) : null}
 
                     {/* DIAGRAM FEATURE BLOCK EDITOR */}
                     {plugin.type === "diagram" ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <div style={{ background: "rgba(255,255,255,0.03)", padding: 10, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", display: "flex", alignItems: "center", gap: 4 }}>
+                              📐 Select Visual Diagram Style / Structure:
+                            </label>
+                            <span style={{ fontSize: 10, opacity: 0.8, color: "#86efac", background: "rgba(34, 197, 94, 0.15)", padding: "2px 6px", borderRadius: 4, border: "1px solid rgba(34, 197, 94, 0.3)" }}>
+                              Active: <strong>{(plugin.data?.diagram_type || "auto").toUpperCase()}</strong>
+                            </span>
+                          </div>
+
+                          {/* VISUAL DIAGRAM TYPE PRESET CHIPS ROW (SINGLE SCROLLABLE ROW 🎯) */}
+                          <div className="diagram-chips-row" style={{ display: "flex", flexWrap: "nowrap", overflowX: "auto", gap: 6, alignItems: "center", width: "100%", paddingBottom: 4 }}>
+                            {[
+                              { id: "flowchart", label: "🔄 Flowchart", defaultText: "[Start Process] ➔ [Data Ingestion] ➔ [Processing Engine] ➔ [Output Result]" },
+                              { id: "architecture", label: "🏛️ Architecture", defaultText: "[User & Presentation Layer] ➔ [API Gateway & Business Logic] ➔ [Database & Security Tier]" },
+                              { id: "timeline", label: "📅 Timeline", defaultText: "Phase 1: Setup ➔ Phase 2: Core Development ➔ Phase 3: Testing ➔ Phase 4: Global Launch" },
+                              { id: "tree", label: "🌳 Tree", defaultText: "[Root System Concept] ➔ [Branch A: Frontend Service] ➔ [Branch B: Backend Engine] ➔ [Leaf Node: Database]" },
+                              { id: "io_cards", label: "📥 I/O Cards", defaultText: "[Raw Data Ingestion] ➔ [High Performance Computing Engine] ➔ [Analytics & Report Output]" },
+                              { id: "mindmap", label: "🧠 Mindmap", defaultText: "[Central Core Topic] ➔ [Subtopic A: Strategy] ➔ [Subtopic B: Operations] ➔ [Subtopic C: Metrics]" },
+                              { id: "funnel", label: "🔻 Funnel", defaultText: "[Stage 1: Awareness 100%] ➔ [Stage 2: Interest 60%] ➔ [Stage 3: Decision 30%] ➔ [Stage 4: Action 10%]" },
+                              { id: "cycle", label: "🔁 Cycle", defaultText: "[Requirement Phase] ➔ [Design & Build] ➔ [Validation Test] ➔ [Deployment Loop]" },
+                              { id: "pyramid", label: "🔺 Pyramid", defaultText: "[Foundation Security Layer] ➔ [Infrastructure & Network Tier] ➔ [Executive Peak]" },
+                              { id: "quadrant", label: "🧭 2x2 Matrix", defaultText: "[Strengths: High Performance] ➔ [Weaknesses: Initial Cost] ➔ [Opportunities: Growth] ➔ [Threats: Risk]" },
+                              { id: "comparison", label: "⚔️ Comparison", defaultText: "[Option A: Cloud Microservices] ➔ [Option B: On-Premises Monolith]" },
+                            ].map((diagOpt) => {
+                              const textRaw = plugin.data?.diagram || plugin.data?.text || "";
+                              const currentType = detectDiagramType(textRaw, plugin.data?.diagram_type);
+                              const isActive = currentType === diagOpt.id;
+                              return (
+                                <button
+                                  key={diagOpt.id}
+                                  type="button"
+                                  className="btn-ui secondary sm"
+                                  title={`Switch to ${diagOpt.label} Diagram`}
+                                  onClick={() => {
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "diagram_type", diagOpt.id);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "diagram", diagOpt.defaultText);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "text", diagOpt.defaultText);
+                                  }}
+                                  style={{
+                                    padding: "5px 12px",
+                                    fontSize: 11,
+                                    fontWeight: "bold",
+                                    cursor: "pointer",
+                                    borderRadius: 8,
+                                    whiteSpace: "nowrap",
+                                    flexShrink: 0,
+                                    transition: "all 0.2s ease",
+                                    borderColor: isActive ? "#c084fc" : "rgba(255,255,255,0.15)",
+                                    background: isActive ? "linear-gradient(135deg, rgba(192, 132, 252, 0.3) 0%, rgba(124, 58, 237, 0.3) 100%)" : "rgba(0,0,0,0.3)",
+                                    color: isActive ? "#ffffff" : "rgba(255,255,255,0.85)",
+                                    boxShadow: isActive ? "0 0 10px rgba(192, 132, 252, 0.4)" : "none",
+                                  }}
+                                >
+                                  {diagOpt.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
                         <div>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Diagram Style / Type:</label>
-                          <select
-                            value={plugin.data?.diagram_type || "auto"}
-                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "diagram_type", e.target.value)}
-                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
-                          >
-                            <option value="auto">✨ Auto (Smart Content Match)</option>
-                            <option value="flowchart">🔄 Flowchart (Process Flow)</option>
-                            <option value="architecture">🏛️ Architecture Stack (Multi-Tier)</option>
-                            <option value="timeline">📅 Timeline Roadmap (Milestones)</option>
-                            <option value="io_cards">📥 Input/Output Cards (3-Column)</option>
-                            <option value="mindmap">🧠 Mindmap (Category Tree)</option>
-                            <option value="funnel">🔻 Conversion Funnel (Pipeline)</option>
-                            <option value="cycle">🔁 Circular Process Loop (Iteration)</option>
-                            <option value="pyramid">🔺 Hierarchy Pyramid (Pyramid Layers)</option>
-                            <option value="quadrant">🧭 2x2 Matrix / Quadrant (SWOT Grid)</option>
-                            <option value="comparison">⚔️ Side-by-Side Comparison Cards</option>
-                          </select>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Diagram Title / Header:</label>
+                          <input
+                            type="text"
+                            value={plugin.data?.title || plugin.data?.diagram_title || ""}
+                            onChange={(e) => {
+                              handlePluginTextChange(activeSlideIndex, pIdx, "title", e.target.value);
+                              handlePluginTextChange(activeSlideIndex, pIdx, "diagram_title", e.target.value);
+                            }}
+                            placeholder="e.g. System Architecture & Process Workflow"
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13, marginBottom: 8 }}
+                          />
                         </div>
 
                         <div>
@@ -1472,6 +1640,7 @@ export default function PresentationEditor({
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
                           onRefineText={() => handleAIRefine(pIdx, "bullets")}
+                          isRefining={refiningPluginIdx === pIdx}
                         />
                       </div>
                     ) : null}
@@ -1734,16 +1903,31 @@ export default function PresentationEditor({
                     {plugin.type === "image" ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                         <div>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
-                            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Image URL / Path:</label>
-                            <button
-                              type="button"
-                              className="btn-ui primary sm"
-                              style={{ fontSize: 10, padding: "2px 8px" }}
-                              onClick={() => handleAutoUnsplashFetch(pIdx, plugin.data?.caption)}
-                            >
-                              ⚡ Auto Unsplash Image
-                            </button>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, gap: 6, flexWrap: "wrap" }}>
+                            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Image URL / File Source:</label>
+                            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                              <label
+                                className="btn-ui secondary sm"
+                                style={{ fontSize: 10, padding: "3px 8px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}
+                                title="Upload Custom Image File from Device"
+                              >
+                                Upload Image
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  style={{ display: "none" }}
+                                  onChange={(e) => handleImageFileUpload(e, pIdx)}
+                                />
+                              </label>
+                              <button
+                                type="button"
+                                className="btn-ui primary sm"
+                                style={{ fontSize: 10, padding: "3px 8px" }}
+                                onClick={() => handleAutoUnsplashFetch(pIdx, plugin.data?.caption)}
+                              >
+                                ⚡ Auto Unsplash Image
+                              </button>
+                            </div>
                           </div>
                           <input
                             type="text"
@@ -1768,9 +1952,109 @@ export default function PresentationEditor({
                           />
                         </div>
 
+                        {/* IMAGE SIZE INCREASE / DECREASE & PRESET CONTROLS 🔍 */}
+                        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", display: "flex", alignItems: "center", gap: 4 }}>
+                              🖼️ Image Size (Height):
+                            </label>
+                            <span style={{ fontSize: 11, fontWeight: 800, color: "#86efac", background: "rgba(34,197,94,0.15)", padding: "2px 8px", borderRadius: 6, border: "1px solid rgba(34,197,94,0.3)" }}>
+                              {plugin.data?.img_height || plugin.data?.height || 180}px
+                            </span>
+                          </div>
+
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                            {/* DECREASE & INCREASE BUTTONS */}
+                            <button
+                              type="button"
+                              className="btn-ui secondary sm"
+                              title="Decrease Image Size (-20px)"
+                              onClick={() => {
+                                const curr = Number(plugin.data?.img_height || plugin.data?.height || 180);
+                                const next = Math.max(80, curr - 20);
+                                handlePluginTextChange(activeSlideIndex, pIdx, "img_height", next);
+                                handlePluginTextChange(activeSlideIndex, pIdx, "height", next);
+                              }}
+                              style={{ padding: "4px 10px", fontSize: 12, fontWeight: "bold", cursor: "pointer" }}
+                            >
+                              ➖
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn-ui secondary sm"
+                              title="Increase Image Size (+20px)"
+                              onClick={() => {
+                                const curr = Number(plugin.data?.img_height || plugin.data?.height || 180);
+                                const next = Math.min(400, curr + 20);
+                                handlePluginTextChange(activeSlideIndex, pIdx, "img_height", next);
+                                handlePluginTextChange(activeSlideIndex, pIdx, "height", next);
+                              }}
+                              style={{ padding: "4px 10px", fontSize: 12, fontWeight: "bold", cursor: "pointer" }}
+                            >
+                              ➕
+                            </button>
+
+                            {/* PRESET SIZES */}
+                            <div style={{ display: "flex", gap: 4, alignItems: "center", marginLeft: "auto" }}>
+                              {[
+                                { label: "S", size: 120, title: "Small (120px)" },
+                                { label: "M", size: 180, title: "Medium (180px)" },
+                                { label: "L", size: 240, title: "Large (240px)" },
+                                { label: "XL", size: 300, title: "Extra Large (300px)" },
+                                { label: "Max", size: 360, title: "Full Size (360px)" },
+                              ].map((preset) => {
+                                const activeSize = Number(plugin.data?.img_height || plugin.data?.height || 180);
+                                const isActive = activeSize === preset.size;
+                                return (
+                                  <button
+                                    key={preset.label}
+                                    type="button"
+                                    className="btn-ui secondary sm"
+                                    title={preset.title}
+                                    onClick={() => {
+                                      handlePluginTextChange(activeSlideIndex, pIdx, "img_height", preset.size);
+                                      handlePluginTextChange(activeSlideIndex, pIdx, "height", preset.size);
+                                    }}
+                                    style={{
+                                      padding: "3px 8px",
+                                      fontSize: 11,
+                                      fontWeight: "bold",
+                                      borderColor: isActive ? "#c084fc" : "rgba(255,255,255,0.15)",
+                                      background: isActive ? "rgba(192, 132, 252, 0.25)" : "rgba(0,0,0,0.3)",
+                                      color: isActive ? "#c084fc" : "#fff",
+                                      cursor: "pointer"
+                                    }}
+                                  >
+                                    {preset.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* SLIDER CONTROLLER */}
+                          <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 2 }}>
+                            <input
+                              type="range"
+                              min="80"
+                              max="400"
+                              step="10"
+                              value={Number(plugin.data?.img_height || plugin.data?.height || 180)}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                handlePluginTextChange(activeSlideIndex, pIdx, "img_height", val);
+                                handlePluginTextChange(activeSlideIndex, pIdx, "height", val);
+                              }}
+                              style={{ flex: 1, accentColor: "#c084fc", cursor: "pointer" }}
+                            />
+                          </div>
+                        </div>
+
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                          isRefining={refiningPluginIdx === pIdx}
                         />
                       </div>
                     ) : null}
@@ -1855,20 +2139,8 @@ export default function PresentationEditor({
                     {/* PARAGRAPH */}
                     {plugin.type === "paragraph" ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Paragraph Narrative:</label>
-                          <button
-                            type="button"
-                            className="btn-ui secondary sm"
-                            style={{ fontSize: 10, padding: "2px 8px" }}
-                            onClick={() => {
-                              handlePluginTextChange(activeSlideIndex, pIdx, "type", "paragraph_2col");
-                              handlePluginTextChange(activeSlideIndex, pIdx, "left_text", plugin.data?.text || "Left paragraph narrative...");
-                              handlePluginTextChange(activeSlideIndex, pIdx, "right_text", "Second paragraph narrative side-by-side...");
-                            }}
-                          >
-                            ¶➔¶¶ Convert to 2-Column Paragraphs
-                          </button>
+                        <div>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Paragraph Narrative:</label>
                         </div>
                         <textarea
                           value={plugin.data?.text || ""}
@@ -1975,6 +2247,7 @@ export default function PresentationEditor({
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                          isRefining={refiningPluginIdx === pIdx}
                         />
                       </div>
                     ) : null}
@@ -2103,47 +2376,84 @@ export default function PresentationEditor({
               </div>
 
               <div style={{ flex: 1, overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 12 }}>
-                {safeArray(presenterSlide.plugins).map((plugin, pIdx) => (
-                  <div key={pIdx}>
-                    {plugin.type === "subtitle" || plugin.type === "text" ? (
-                      <h3 style={{ fontSize: plugin.data?.font_size || 22, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "#c084fc", margin: "4px 0" }}>
-                        {plugin.data?.text}
-                      </h3>
-                    ) : null}
+                {(() => {
+                  const plugins = safeArray(presenterSlide.plugins);
+                  const hasImage = plugins.some((p) => p.type === "image" && (p.data?.url || p.data?.path));
+                  const hasText = plugins.some((p) => p.type === "bullets" || p.type === "paragraph");
 
-                    {plugin.type === "paragraph" ? (
-                      <p style={{ fontSize: plugin.data?.font_size || 18, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "inherit", lineHeight: 1.5, opacity: 0.95 }}>
-                        {plugin.data?.text}
-                      </p>
-                    ) : null}
+                  const renderPresenterItem = (plugin, pIdx) => (
+                    <div key={pIdx}>
+                      {plugin.type === "subtitle" || plugin.type === "text" ? (
+                        <h3 style={{ fontSize: plugin.data?.font_size || 22, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "#c084fc", margin: "4px 0" }}>
+                          {plugin.data?.text}
+                        </h3>
+                      ) : null}
 
-                    {plugin.type === "bullets" ? (
-                      <ul style={{ paddingLeft: 24, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "inherit" }}>
-                        {safeArray(plugin.data?.points).map((pt, bIdx) => (
-                          <li key={bIdx} style={{ fontSize: plugin.data?.font_size || 18, marginBottom: 6 }}>{pt}</li>
-                        ))}
-                      </ul>
-                    ) : null}
+                      {plugin.type === "paragraph" ? (
+                        <p style={{ fontSize: plugin.data?.font_size || 18, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "inherit", lineHeight: 1.5, opacity: 0.95 }}>
+                          {plugin.data?.text}
+                        </p>
+                      ) : null}
 
-                    {plugin.type === "chart" ? (
-                      <VisualChartPreview data={plugin.data} />
-                    ) : null}
+                      {plugin.type === "bullets" ? (
+                        <ul style={{ paddingLeft: 24, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "inherit" }}>
+                          {safeArray(plugin.data?.points).map((pt, bIdx) => (
+                            <li key={bIdx} style={{ fontSize: plugin.data?.font_size || 18, marginBottom: 6 }}>{pt}</li>
+                          ))}
+                        </ul>
+                      ) : null}
 
-                    {plugin.type === "image" && (plugin.data?.url || plugin.data?.path) ? (
-                      <div style={{ textAlign: plugin.data?.align || plugin.data?.alignment || "center", margin: "8px 0" }}>
-                        <img src={plugin.data.url || plugin.data.path} alt="slide visual" style={{ maxHeight: 220, borderRadius: 12, border: "1px solid rgba(255,255,255,0.2)" }} />
-                        {plugin.data?.caption ? <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>{plugin.data.caption}</div> : null}
+                      {plugin.type === "chart" ? (
+                        <VisualChartPreview data={plugin.data} />
+                      ) : null}
+
+                      {plugin.type === "image" && (plugin.data?.url || plugin.data?.path) ? (
+                        <div style={{ textAlign: plugin.data?.align || plugin.data?.alignment || "center", margin: "8px 0" }}>
+                          <img
+                            src={plugin.data.url || plugin.data.path}
+                            alt="slide visual"
+                            style={{
+                              maxHeight: Number(plugin.data?.img_height || plugin.data?.height || 180) * 1.25,
+                              borderRadius: 12,
+                              border: "1px solid rgba(255,255,255,0.2)",
+                              transition: "max-height 0.2s ease"
+                            }}
+                          />
+                          {plugin.data?.caption ? <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>{plugin.data.caption}</div> : null}
+                        </div>
+                      ) : null}
+
+                      {plugin.type === "stat" ? (
+                        <div style={{ display: "flex", alignItems: "baseline", gap: 12, margin: "8px 0" }}>
+                          <span style={{ fontSize: plugin.data?.font_size || 48, fontWeight: 900, color: "#c084fc" }}>{plugin.data?.number}</span>
+                          <span style={{ fontSize: 18, fontWeight: 600, opacity: 0.9 }}>{plugin.data?.label}</span>
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+
+                  if (hasImage && hasText) {
+                    const textPlugins = plugins.filter((p) => p.type === "bullets" || p.type === "paragraph" || p.type === "subtitle" || p.type === "text");
+                    const imagePlugins = plugins.filter((p) => p.type === "image");
+                    const otherPlugins = plugins.filter((p) => p.type !== "bullets" && p.type !== "paragraph" && p.type !== "subtitle" && p.type !== "text" && p.type !== "image");
+
+                    return (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 20, alignItems: "center" }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                            {textPlugins.map((p, pIdx) => renderPresenterItem(p, `ptxt-${pIdx}`))}
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                            {imagePlugins.map((p, pIdx) => renderPresenterItem(p, `pimg-${pIdx}`))}
+                          </div>
+                        </div>
+                        {otherPlugins.map((p, pIdx) => renderPresenterItem(p, `poth-${pIdx}`))}
                       </div>
-                    ) : null}
+                    );
+                  }
 
-                    {plugin.type === "stat" ? (
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 12, margin: "8px 0" }}>
-                        <span style={{ fontSize: plugin.data?.font_size || 48, fontWeight: 900, color: "#c084fc" }}>{plugin.data?.number}</span>
-                        <span style={{ fontSize: 18, fontWeight: 600, opacity: 0.9 }}>{plugin.data?.label}</span>
-                      </div>
-                    ) : null}
-                  </div>
-                ))}
+                  return plugins.map((plugin, pIdx) => renderPresenterItem(plugin, pIdx));
+                })()}
               </div>
             </div>
 
@@ -2221,13 +2531,17 @@ export default function PresentationEditor({
               {plan?.title || "Presentation Deck Ready!"}
             </h2>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", margin: "0 0 20px 0" }}>
-              Your 16:9 Widescreen PowerPoint presentation has been generated successfully!
+              {exportFormat === "pdf"
+                ? "Your PDF document presentation has been generated successfully!"
+                : "Your 16:9 Widescreen PowerPoint presentation has been generated successfully!"}
             </p>
 
             <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: 14, marginBottom: 24, textAlign: "left", fontSize: 13 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                 <span style={{ color: "var(--text-muted)" }}>Format:</span>
-                <span style={{ fontWeight: 700, color: "#86efac" }}>PPTX (16:9 Widescreen)</span>
+                <span style={{ fontWeight: 700, color: "#86efac" }}>
+                  {exportFormat === "pdf" ? "PDF (Document)" : "PPTX (16:9 Widescreen)"}
+                </span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span style={{ color: "var(--text-muted)" }}>Total Slides:</span>
@@ -2258,7 +2572,9 @@ export default function PresentationEditor({
                   boxShadow: "0 8px 20px rgba(16, 185, 129, 0.4)"
                 }}
               >
-                {loadingGenerate ? "⏳ Compiling PPTX..." : "📥 Download PPTX Now"}
+                {loadingGenerate
+                  ? (exportFormat === "pdf" ? "⏳ Compiling PDF..." : "⏳ Compiling PPTX...")
+                  : (exportFormat === "pdf" ? "📥 Download PDF Now" : "📥 Download PPTX Now")}
               </button>
               <button
                 type="button"

@@ -58,7 +58,7 @@ export const PPT_PROMPTS = [
       "agentic ai",
       "computer vision"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Artificial Intelligence (AI) covering its definition, history, how AI works, major types of AI, machine learning and deep learning, natural language processing, computer vision, generative AI, real-world applications, advantages, limitations, ethical concerns, future scope, and career opportunities. Use simple explanations, practical examples, relevant diagrams, icons, and AI-related images on every slide, with a modern technology-themed design suitable for students and beginners.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Artificial Intelligence (AI) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, history, how AI works, major types of AI, machine learning and deep learning, natural language processing, computer vision, generative AI, real-world applications, advantages, limitations, ethical concerns, future scope, and career opportunities. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, practical examples, relevant diagrams, icons, and AI-related images on every slide, with a modern technology-themed design suitable for students and beginners.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Students & Tech Enthusiasts"
@@ -80,7 +80,7 @@ export const PPT_PROMPTS = [
       "ethical hacking",
       "hacking"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Cyber Security covering its definition, importance, common cyber threats, malware, phishing, ransomware, password security, encryption, authentication, network security, data privacy, ethical hacking, real-world cyber attacks, prevention methods, advantages, challenges, and future scope. Use simple explanations, real-world examples, security diagrams, relevant icons, and cybersecurity-themed images on every slide, with a modern professional design suitable for students and beginners.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Cyber Security covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, importance, common cyber threats, malware, phishing, ransomware, password security, encryption, authentication, network security, data privacy, ethical hacking, real-world cyber attacks, prevention methods, advantages, challenges, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, real-world examples, security diagrams, relevant icons, and cybersecurity-themed images on every slide, with a modern professional design suitable for students and beginners.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Students & IT Professionals"
@@ -102,7 +102,7 @@ export const PPT_PROMPTS = [
       "gcp",
       "virtualization"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Cloud Computing covering its definition, how cloud computing works, characteristics, service models such as IaaS, PaaS and SaaS, deployment models, virtualization, cloud storage, major cloud platforms, real-world applications, benefits, limitations, security concerns, and future scope. Use simple explanations, practical examples, cloud architecture diagrams, relevant icons, and high-quality cloud computing images on every slide, with a modern technology-themed design.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Cloud Computing covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, how cloud computing works, characteristics, service models such as IaaS, PaaS and SaaS, deployment models, virtualization, cloud storage, major cloud platforms, real-world applications, benefits, limitations, security concerns, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, practical examples, cloud architecture diagrams, relevant icons, and high-quality cloud computing images on every slide, with a modern technology-themed design.",
     "template": "corporate",
     "slideCount": 8,
     "audience": "Students & Tech Beginners"
@@ -121,7 +121,7 @@ export const PPT_PROMPTS = [
       "reinforcement learning",
       "algorithms"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Machine Learning (ML) covering its definition, relationship with Artificial Intelligence, how machine learning works, types of machine learning such as supervised, unsupervised and reinforcement learning, data preprocessing, training and testing, important algorithms, model evaluation, real-world applications, advantages, limitations, challenges, and future scope. Use simple explanations, practical examples, flowcharts, ML diagrams, charts, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Machine Learning (ML) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, relationship with Artificial Intelligence, how machine learning works, types of machine learning such as supervised, unsupervised and reinforcement learning, data preprocessing, training and testing, important algorithms, model evaluation, real-world applications, advantages, limitations, challenges, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, practical examples, flowcharts, ML diagrams, charts, and relevant images on every slide.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Students & Engineers"
@@ -140,7 +140,7 @@ export const PPT_PROMPTS = [
       "numpy",
       "statistics"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Data Science covering its definition, importance, complete data science lifecycle, data collection, data cleaning and preprocessing, exploratory data analysis (EDA), data visualization, statistics, machine learning, deep learning, popular Python libraries such as NumPy, Pandas, Matplotlib, Seaborn and Scikit-learn, real-world applications, advantages, challenges, career opportunities, and future scope. Use simple explanations, practical examples, relevant diagrams/charts, and a clear flow suitable for students and beginners. Keep the presentation modern, concise, informative, and easy to understand.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Data Science covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, importance, complete data science lifecycle, data collection, data cleaning and preprocessing, exploratory data analysis (EDA), data visualization, statistics, machine learning, deep learning, popular Python libraries such as NumPy, Pandas, Matplotlib, Seaborn and Scikit-learn, real-world applications, advantages, challenges, career opportunities, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, practical examples, relevant diagrams/charts, and a clear flow suitable for students and beginners. Keep the presentation modern, concise, informative, and easy to understand.",
     "template": "education",
     "slideCount": 10,
     "audience": "Students & Beginners"
@@ -159,7 +159,7 @@ export const PPT_PROMPTS = [
       "actuators",
       "embedded"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Internet of Things (IoT) covering its definition, basic architecture, sensors and actuators, connectivity, IoT devices, cloud integration, communication protocols, how IoT works, smart home, smart city, healthcare, agriculture and industrial applications, advantages, challenges, security issues, and future scope. Use simple explanations, real-world examples, architecture diagrams, device illustrations, and relevant IoT images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Internet of Things (IoT) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, basic architecture, sensors and actuators, connectivity, IoT devices, cloud integration, communication protocols, how IoT works, smart home, smart city, healthcare, agriculture and industrial applications, advantages, challenges, security issues, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, real-world examples, architecture diagrams, device illustrations, and relevant IoT images on every slide.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Tech Students & IT Professionals"
@@ -178,7 +178,7 @@ export const PPT_PROMPTS = [
       "distributed ledger",
       "bitcoin"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Blockchain Technology covering its definition, history, basic structure, blocks and transactions, distributed ledger, hashing, consensus mechanisms, cryptocurrency, smart contracts, blockchain types, real-world applications, advantages, limitations, security, challenges, and future scope. Use simple explanations, blockchain diagrams, transaction flowcharts, network illustrations, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Blockchain Technology covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, history, basic structure, blocks and transactions, distributed ledger, hashing, consensus mechanisms, cryptocurrency, smart contracts, blockchain types, real-world applications, advantages, limitations, security, challenges, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, blockchain diagrams, transaction flowcharts, network illustrations, and relevant images on every slide.",
     "template": "finance",
     "slideCount": 9,
     "audience": "Tech & Financial Analysts"
@@ -199,7 +199,7 @@ export const PPT_PROMPTS = [
       "javascript",
       "react"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Web Development covering its definition, how websites work, frontend development, backend development, databases, HTML, CSS, JavaScript, popular frameworks, APIs, server-side programming, responsive design, web security, deployment, real-world applications, career opportunities, and future scope. Use simple explanations, practical examples, website architecture diagrams, coding-related visuals, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Web Development covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, how websites work, frontend development, backend development, databases, HTML, CSS, JavaScript, popular frameworks, APIs, server-side programming, responsive design, web security, deployment, real-world applications, career opportunities, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, practical examples, website architecture diagrams, coding-related visuals, and relevant images on every slide.",
     "template": "startup",
     "slideCount": 10,
     "audience": "Students & Web Developers"
@@ -219,7 +219,7 @@ export const PPT_PROMPTS = [
       "er diagram",
       "normalization"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Database Management System (DBMS) covering its definition, need for databases, database types, relational and non-relational databases, tables, records and fields, keys, SQL, normalization, relationships, transactions, database security, popular DBMS technologies, real-world applications, advantages, limitations, and future scope. Use simple explanations, database diagrams, ER diagrams, SQL examples, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Database Management System (DBMS) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, need for databases, database types, relational and non-relational databases, tables, records and fields, keys, SQL, normalization, relationships, transactions, database security, popular DBMS technologies, real-world applications, advantages, limitations, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, database diagrams, ER diagrams, SQL examples, and relevant images on every slide.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Computer Science Students"
@@ -238,7 +238,7 @@ export const PPT_PROMPTS = [
       "software testing",
       "devops"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Software Engineering covering its definition, importance, software development life cycle, requirement analysis, system design, development, testing, deployment, maintenance, Agile methodology, Waterfall model, DevOps, software testing, project management, quality assurance, real-world examples, challenges, and future scope. Use simple explanations, SDLC flowcharts, methodology diagrams, development-related images, and practical examples on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Software Engineering covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, importance, software development life cycle, requirement analysis, system design, development, testing, deployment, maintenance, Agile methodology, Waterfall model, DevOps, software testing, project management, quality assurance, real-world examples, challenges, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, SDLC flowcharts, methodology diagrams, development-related images, and practical examples on every slide.",
     "template": "corporate",
     "slideCount": 10,
     "audience": "Software Engineers & CS Students"
@@ -258,7 +258,7 @@ export const PPT_PROMPTS = [
       "wan",
       "router"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Computer Networks covering its definition, importance, types of networks such as LAN, MAN and WAN, network topologies, networking devices, OSI model, TCP/IP model, IP addresses, routing, protocols, wireless networks, network security, real-world applications, advantages, challenges, and future technologies. Use simple explanations, network diagrams, topology illustrations, protocol flowcharts, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Computer Networks covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, importance, types of networks such as LAN, MAN and WAN, network topologies, networking devices, OSI model, TCP/IP model, IP addresses, routing, protocols, wireless networks, network security, real-world applications, advantages, challenges, and future technologies. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, network diagrams, topology illustrations, protocol flowcharts, and relevant images on every slide.",
     "template": "dark",
     "slideCount": 9,
     "audience": "IT Students & Network Engineers"
@@ -278,7 +278,7 @@ export const PPT_PROMPTS = [
       "midjourney",
       "prompt engineering"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Generative Artificial Intelligence (Generative AI) covering its definition, how it works, Large Language Models (LLMs), Generative AI models, text generation, image generation, audio and video generation, popular applications, prompt engineering, real-world use cases, advantages, limitations, ethical concerns, copyright and privacy issues, and future scope. Use simple explanations, AI-generated visual concepts, diagrams, examples, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Generative Artificial Intelligence (Generative AI) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, how it works, Large Language Models (LLMs), Generative AI models, text generation, image generation, audio and video generation, popular applications, prompt engineering, real-world use cases, advantages, limitations, ethical concerns, copyright and privacy issues, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, AI-generated visual concepts, diagrams, examples, and relevant images on every slide.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Tech Enthusiasts & Creators"
@@ -297,7 +297,7 @@ export const PPT_PROMPTS = [
       "sensors",
       "actuators"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Robotics covering its definition, history, components of robots, sensors, actuators, controllers, types of robots, industrial robots, humanoid robots, autonomous robots, AI in robotics, applications in healthcare, manufacturing, agriculture and space exploration, advantages, limitations, challenges, and future scope. Use simple explanations, robot diagrams, real-world examples, and relevant robotics images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Robotics covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, history, components of robots, sensors, actuators, controllers, types of robots, industrial robots, humanoid robots, autonomous robots, AI in robotics, applications in healthcare, manufacturing, agriculture and space exploration, advantages, limitations, challenges, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, robot diagrams, real-world examples, and relevant robotics images on every slide.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Engineering Students"
@@ -316,7 +316,7 @@ export const PPT_PROMPTS = [
       "mixed reality",
       "metaverse"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Virtual Reality (VR) and Augmented Reality (AR) covering their definitions, differences, how they work, hardware and software components, VR headsets, AR applications, mixed reality, applications in gaming, education, healthcare, engineering, tourism and entertainment, advantages, limitations, challenges, and future scope. Use immersive visuals, comparison diagrams, practical examples, and relevant VR/AR images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Virtual Reality (VR) and Augmented Reality (AR) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, their definitions, differences, how they work, hardware and software components, VR headsets, AR applications, mixed reality, applications in gaming, education, healthcare, engineering, tourism and entertainment, advantages, limitations, challenges, and future scope. Use immersive visuals, comparison diagrams, practical examples, and relevant VR/AR images on every slide.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Tech Students & Designers"
@@ -335,7 +335,7 @@ export const PPT_PROMPTS = [
       "automation",
       "jenkins"
     ],
-    "prompt": "Create a professional and visually engaging presentation on DevOps covering its definition, importance, relationship between development and operations, DevOps lifecycle, Continuous Integration and Continuous Deployment (CI/CD), version control, automation, monitoring, containerization, Docker, Kubernetes, cloud integration, advantages, challenges, real-world applications, and future scope. Use simple explanations, workflow diagrams, pipeline illustrations, and relevant DevOps images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on DevOps covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, importance, relationship between development and operations, DevOps lifecycle, Continuous Integration and Continuous Deployment (CI/CD), version control, automation, monitoring, containerization, Docker, Kubernetes, cloud integration, advantages, challenges, real-world applications, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, workflow diagrams, pipeline illustrations, and relevant DevOps images on every slide.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "DevOps Engineers & CS Students"
@@ -354,7 +354,7 @@ export const PPT_PROMPTS = [
       "data analytics",
       "data warehouse"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Big Data covering its definition, characteristics of Big Data, the 5 Vs, data sources, structured and unstructured data, data processing, Hadoop, Spark, data storage, analytics, real-world applications in business, healthcare, finance and social media, advantages, challenges, security concerns, and future scope. Use simple explanations, architecture diagrams, charts, data visualizations, and relevant Big Data images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Big Data covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, characteristics of Big Data, the 5 Vs, data sources, structured and unstructured data, data processing, Hadoop, Spark, data storage, analytics, real-world applications in business, healthcare, finance and social media, advantages, challenges, security concerns, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, architecture diagrams, charts, data visualizations, and relevant Big Data images on every slide.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Data Engineers & Analysts"
@@ -373,7 +373,7 @@ export const PPT_PROMPTS = [
       "react native",
       "app development"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Mobile Application Development covering its definition, Android and iOS platforms, native and cross-platform development, UI/UX design, mobile programming languages, popular frameworks, APIs, databases, authentication, mobile security, app testing, deployment to app stores, real-world applications, challenges, and future scope. Use simple explanations, app-development diagrams, smartphone visuals, interface examples, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Mobile Application Development covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, Android and iOS platforms, native and cross-platform development, UI/UX design, mobile programming languages, popular frameworks, APIs, databases, authentication, mobile security, app testing, deployment to app stores, real-world applications, challenges, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, app-development diagrams, smartphone visuals, interface examples, and relevant images on every slide.",
     "template": "startup",
     "slideCount": 9,
     "audience": "App Developers & Students"
@@ -392,7 +392,7 @@ export const PPT_PROMPTS = [
       "chatbots",
       "text processing"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Natural Language Processing (NLP) covering its definition, relationship with Artificial Intelligence and Machine Learning, how NLP works, text preprocessing, tokenization, stemming, lemmatization, sentiment analysis, text classification, chatbots, speech recognition, machine translation, Large Language Models, real-world applications, challenges, and future scope. Use simple explanations, NLP flowcharts, chatbot illustrations, examples, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Natural Language Processing (NLP) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, relationship with Artificial Intelligence and Machine Learning, how NLP works, text preprocessing, tokenization, stemming, lemmatization, sentiment analysis, text classification, chatbots, speech recognition, machine translation, Large Language Models, real-world applications, challenges, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, NLP flowcharts, chatbot illustrations, examples, and relevant images on every slide.",
     "template": "dark",
     "slideCount": 9,
     "audience": "AI & Data Science Students"
@@ -410,7 +410,7 @@ export const PPT_PROMPTS = [
       "future tech",
       "automation"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Future of Technology covering emerging technologies such as Artificial Intelligence, Robotics, Quantum Computing, Biotechnology, Internet of Things, Space Technology, Renewable Energy, Brain-Computer Interfaces and Extended Reality. Explain how these technologies may transform education, healthcare, transportation, business, communication and everyday life, along with their benefits, risks, ethical concerns, challenges, and possible future scenarios. Use futuristic visuals, diagrams, timelines, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Future of Technology covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, emerging technologies such as Artificial Intelligence, Robotics, Quantum Computing, Biotechnology, Internet of Things, Space Technology, Renewable Energy, Brain-Computer Interfaces and Extended Reality. Explain how these technologies may transform education, healthcare, transportation, business, communication and everyday life, along with their benefits, risks, ethical concerns, challenges, and possible future scenarios. Use futuristic visuals, diagrams, timelines, and relevant images on every slide.",
     "template": "dark",
     "slideCount": 10,
     "audience": "General & Tech Audience"
@@ -429,7 +429,7 @@ export const PPT_PROMPTS = [
       "charging station",
       "tesla"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Electric Vehicles (EVs) covering what electric vehicles are, how they work, types of EVs, batteries, electric motors, charging infrastructure, EVs versus petrol and diesel vehicles, environmental impact, advantages and limitations, EV adoption in India, government initiatives, battery recycling, challenges, and the future of electric transportation. Use vehicle images, battery diagrams, comparison charts, charging-station visuals, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Electric Vehicles (EVs) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, what electric vehicles are, how they work, types of EVs, batteries, electric motors, charging infrastructure, EVs versus petrol and diesel vehicles, environmental impact, advantages and limitations, EV adoption in India, government initiatives, battery recycling, challenges, and the future of electric transportation. Use vehicle images, battery diagrams, comparison charts, charging-station visuals, and relevant images on every slide.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Auto & Tech Enthusiasts"
@@ -447,7 +447,7 @@ export const PPT_PROMPTS = [
       "autonomous vehicles",
       "bullet train"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Future of Human Transportation covering electric vehicles, autonomous cars, high-speed rail, hyperloop concepts, flying taxis, drones, smart public transport, sustainable aviation, space transportation, artificial intelligence in transportation, safety, infrastructure, environmental impact, challenges, and possible transportation systems of the future. Use futuristic vehicles, transport diagrams, city illustrations, comparison charts, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Future of Human Transportation covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, electric vehicles, autonomous cars, high-speed rail, hyperloop concepts, flying taxis, drones, smart public transport, sustainable aviation, space transportation, artificial intelligence in transportation, safety, infrastructure, environmental impact, challenges, and possible transportation systems of the future. Use futuristic vehicles, transport diagrams, city illustrations, comparison charts, and relevant images on every slide.",
     "template": "startup",
     "slideCount": 10,
     "audience": "Engineers & Transport Planners"
@@ -468,7 +468,7 @@ export const PPT_PROMPTS = [
       "moon",
       "astronauts"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Space Exploration covering the history of space exploration, important space missions, rockets and spacecraft, satellites, astronauts, the Moon and Mars missions, space stations, contributions of major space agencies, benefits of space research, challenges faced in space exploration, recent developments, and the future of human exploration beyond Earth. Use simple explanations, space diagrams, mission timelines, astronomical visuals, and high-quality space images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Space Exploration covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the history of space exploration, important space missions, rockets and spacecraft, satellites, astronauts, the Moon and Mars missions, space stations, contributions of major space agencies, benefits of space research, challenges faced in space exploration, recent developments, and the future of human exploration beyond Earth. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, space diagrams, mission timelines, astronomical visuals, and high-quality space images on every slide.",
     "template": "education",
     "slideCount": 10,
     "audience": "Science Students & Astronomy Enthusiasts"
@@ -487,7 +487,7 @@ export const PPT_PROMPTS = [
       "astrophysics",
       "einstein"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Black Holes covering their definition, formation, types of black holes, gravity and event horizon, singularity, accretion disks, how black holes are detected, supermassive black holes, famous observations, relationship with Einstein's theory of relativity, mysteries surrounding black holes, and current scientific research. Use simple explanations, space illustrations, diagrams, and relevant astronomical images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Black Holes covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, their definition, formation, types of black holes, gravity and event horizon, singularity, accretion disks, how black holes are detected, supermassive black holes, famous observations, relationship with Einstein's theory of relativity, mysteries surrounding black holes, and current scientific research. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, space illustrations, diagrams, and relevant astronomical images on every slide.",
     "template": "dark",
     "slideCount": 8,
     "audience": "Physics & Astronomy Students"
@@ -505,7 +505,7 @@ export const PPT_PROMPTS = [
       "superposition",
       "entanglement"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Quantum Computing covering its definition, difference between classical and quantum computers, qubits, superposition, entanglement, quantum gates, quantum algorithms, quantum cryptography, applications, current challenges, advantages and limitations, major developments, and future scope. Explain complex concepts in simple language using diagrams, illustrations, examples, and relevant quantum computing images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Quantum Computing covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, difference between classical and quantum computers, qubits, superposition, entanglement, quantum gates, quantum algorithms, quantum cryptography, applications, current challenges, advantages and limitations, major developments, and future scope. Explain complex concepts in simple language using diagrams, illustrations, examples, and relevant quantum computing images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Computer Science & Physics Students"
@@ -524,7 +524,7 @@ export const PPT_PROMPTS = [
       "nervous system",
       "memory"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Human Brain covering its structure, major parts, functions, neurons, nervous system, memory, learning, emotions, decision-making, brain-computer interaction, common neurological disorders, lifestyle factors affecting brain health, scientific discoveries, and future research. Use simple explanations, labeled diagrams, brain illustrations, and relevant scientific images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Human Brain covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its structure, major parts, functions, neurons, nervous system, memory, learning, emotions, decision-making, brain-computer interaction, common neurological disorders, lifestyle factors affecting brain health, scientific discoveries, and future research. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, labeled diagrams, brain illustrations, and relevant scientific images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Biology & Medical Students"
@@ -542,7 +542,7 @@ export const PPT_PROMPTS = [
       "archaeology",
       "anthropology"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Human Evolution covering the concept of evolution, early human ancestors, major stages of human evolution, Australopithecus, Homo habilis, Homo erectus, Neanderthals and Homo sapiens, migration of early humans, development of tools and language, agriculture and civilization, archaeological evidence, and modern scientific understanding. Use timelines, evolutionary diagrams, maps, archaeological illustrations, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Human Evolution covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the concept of evolution, early human ancestors, major stages of human evolution, Australopithecus, Homo habilis, Homo erectus, Neanderthals and Homo sapiens, migration of early humans, development of tools and language, agriculture and civilization, archaeological evidence, and modern scientific understanding. Use timelines, evolutionary diagrams, maps, archaeological illustrations, and relevant images on every slide.",
     "template": "education",
     "slideCount": 8,
     "audience": "Students & Science Enthusiasts"
@@ -561,7 +561,7 @@ export const PPT_PROMPTS = [
       "gaganyaan",
       "satellites"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Indian Space Programme covering its history, establishment of ISRO, early satellite and launch vehicle programmes, major achievements, Chandrayaan missions, Mangalyaan, Aditya-L1, Gaganyaan, satellite technology, communication and navigation satellites, applications in agriculture and disaster management, India's international collaborations, challenges, and future space missions. Use mission timelines, spacecraft diagrams, rocket images, maps, and relevant space visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Indian Space Programme covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its history, establishment of ISRO, early satellite and launch vehicle programmes, major achievements, Chandrayaan missions, Mangalyaan, Aditya-L1, Gaganyaan, satellite technology, communication and navigation satellites, applications in agriculture and disaster management, India's international collaborations, challenges, and future space missions. Use mission timelines, spacecraft diagrams, rocket images, maps, and relevant space visuals on every slide.",
     "template": "education",
     "slideCount": 10,
     "audience": "Science Students & Citizens"
@@ -579,7 +579,7 @@ export const PPT_PROMPTS = [
       "cognitive bias",
       "emotions"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Psychology of Human Behavior covering what psychology studies, factors influencing human behavior, personality, emotions, motivation, learning, memory, social behavior, decision-making, cognitive biases, nature versus nurture, behavioral experiments, everyday applications of psychology, and the importance of understanding human behavior. Use simple explanations, psychological diagrams, examples, illustrations, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Psychology of Human Behavior covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, what psychology studies, factors influencing human behavior, personality, emotions, motivation, learning, memory, social behavior, decision-making, cognitive biases, nature versus nurture, behavioral experiments, everyday applications of psychology, and the importance of understanding human behavior. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, psychological diagrams, examples, illustrations, and relevant images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Psychology Students & Curious Minds"
@@ -598,7 +598,7 @@ export const PPT_PROMPTS = [
       "fusion",
       "radiation"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Nuclear Energy covering atomic energy, nuclear fission, nuclear fusion, how nuclear reactors work, major reactor components, nuclear power generation, peaceful applications of nuclear technology, nuclear medicine, agriculture and industry, advantages, radiation safety, radioactive waste, major challenges, nuclear energy in India, and future possibilities. Use scientifically accurate diagrams, reactor illustrations, energy comparisons, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Nuclear Energy covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, atomic energy, nuclear fission, nuclear fusion, how nuclear reactors work, major reactor components, nuclear power generation, peaceful applications of nuclear technology, nuclear medicine, agriculture and industry, advantages, radiation safety, radioactive waste, major challenges, nuclear energy in India, and future possibilities. Use scientifically accurate diagrams, reactor illustrations, energy comparisons, and relevant images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Physics & Energy Engineers"
@@ -617,7 +617,7 @@ export const PPT_PROMPTS = [
       "human organs",
       "biology"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Secrets of the Human Body covering the major organs, nervous system, immune system, human senses, heartbeat and blood circulation, digestion, hormones, sleep, memory, healing mechanisms, fascinating facts about the human body, and recent scientific discoveries. Use simple explanations, anatomical diagrams, scientific illustrations, interesting facts, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Secrets of the Human Body covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the major organs, nervous system, immune system, human senses, heartbeat and blood circulation, digestion, hormones, sleep, memory, healing mechanisms, fascinating facts about the human body, and recent scientific discoveries. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, anatomical diagrams, scientific illustrations, interesting facts, and relevant images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Medical Students & Science Curious"
@@ -636,7 +636,7 @@ export const PPT_PROMPTS = [
       "relativity",
       "grandfather paradox"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Time Travel: Science or Fiction? covering the concept of time, Einstein's theory of relativity, time dilation, space-time, wormholes, black holes, theoretical possibilities of traveling into the future or past, famous scientific theories, paradoxes such as the grandfather paradox, popular science-fiction examples, current scientific limitations, and whether time travel could ever become possible. Use simple explanations, scientific diagrams, timelines, and futuristic visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Time Travel: Science or Fiction? covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the concept of time, Einstein's theory of relativity, time dilation, space-time, wormholes, black holes, theoretical possibilities of traveling into the future or past, famous scientific theories, paradoxes such as the grandfather paradox, popular science-fiction examples, current scientific limitations, and whether time travel could ever become possible. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, scientific diagrams, timelines, and futuristic visuals on every slide.",
     "template": "dark",
     "slideCount": 8,
     "audience": "Physics Students & Sci-Fi Fans"
@@ -655,7 +655,7 @@ export const PPT_PROMPTS = [
       "seti",
       "drake equation"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Life Beyond Earth covering the conditions required for life, the search for extraterrestrial life, habitable zones, Mars, Europa, Enceladus, exoplanets, biosignatures, SETI, space missions searching for life, extremophiles on Earth, the Drake Equation, scientific evidence and unanswered questions, and the future search for extraterrestrial life. Use space photographs, planet comparisons, scientific diagrams, mission visuals, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Life Beyond Earth covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the conditions required for life, the search for extraterrestrial life, habitable zones, Mars, Europa, Enceladus, exoplanets, biosignatures, SETI, space missions searching for life, extremophiles on Earth, the Drake Equation, scientific evidence and unanswered questions, and the future search for extraterrestrial life. Use space photographs, planet comparisons, scientific diagrams, mission visuals, and relevant images on every slide.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Astronomy Enthusiasts & Students"
@@ -674,7 +674,7 @@ export const PPT_PROMPTS = [
       "tectonic plates",
       "geology"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Volcanoes covering what volcanoes are, Earth's internal structure, how magma forms, types of volcanoes, volcanic eruptions, lava and ash, famous volcanoes, volcanic hazards, effects on humans and the environment, benefits of volcanic activity, prediction and monitoring techniques, disaster preparedness, and major volcanic events in history. Use cross-section diagrams, eruption photographs, maps, timelines, and relevant scientific images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Volcanoes covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, what volcanoes are, Earth's internal structure, how magma forms, types of volcanoes, volcanic eruptions, lava and ash, famous volcanoes, volcanic hazards, effects on humans and the environment, benefits of volcanic activity, prediction and monitoring techniques, disaster preparedness, and major volcanic events in history. Use cross-section diagrams, eruption photographs, maps, timelines, and relevant scientific images on every slide.",
     "template": "education",
     "slideCount": 8,
     "audience": "Geology Students & Earth Scientists"
@@ -693,7 +693,7 @@ export const PPT_PROMPTS = [
       "richter scale",
       "tsunami"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Earthquakes covering the structure of Earth, tectonic plates, causes of earthquakes, faults and seismic waves, magnitude and intensity, earthquake measurement, major historical earthquakes, effects on buildings and communities, earthquake-resistant construction, early warning systems, disaster preparedness, and future challenges. Use tectonic maps, seismic diagrams, building illustrations, statistics, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Earthquakes covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the structure of Earth, tectonic plates, causes of earthquakes, faults and seismic waves, magnitude and intensity, earthquake measurement, major historical earthquakes, effects on buildings and communities, earthquake-resistant construction, early warning systems, disaster preparedness, and future challenges. Use tectonic maps, seismic diagrams, building illustrations, statistics, and relevant images on every slide.",
     "template": "education",
     "slideCount": 8,
     "audience": "Civil Engineers & Geologists"
@@ -711,7 +711,7 @@ export const PPT_PROMPTS = [
       "nightmares",
       "sleep psychology"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Mystery of Dreams covering what dreams are, stages of sleep, REM sleep, why humans dream, major scientific theories, memory and dreams, lucid dreaming, nightmares, recurring dreams, the relationship between dreams and emotions, famous experiments, what science can and cannot explain about dreams, and current research. Use sleep-cycle diagrams, brain illustrations, dream-related visuals, scientific findings, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Mystery of Dreams covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, what dreams are, stages of sleep, REM sleep, why humans dream, major scientific theories, memory and dreams, lucid dreaming, nightmares, recurring dreams, the relationship between dreams and emotions, famous experiments, what science can and cannot explain about dreams, and current research. Use sleep-cycle diagrams, brain illustrations, dream-related visuals, scientific findings, and relevant images on every slide.",
     "template": "dark",
     "slideCount": 8,
     "audience": "Curious Learners & Psychology Students"
@@ -730,7 +730,7 @@ export const PPT_PROMPTS = [
       "dna repair",
       "biological clock"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Why Humans Age covering the biological process of aging, cells and DNA, telomeres, oxidative stress, genetics, cellular repair, changes in muscles and organs, theories of aging, lifestyle factors, healthy aging, modern anti-aging research, biotechnology, ethical questions, and the future of longevity research. Use simple scientific explanations, biological diagrams, timelines, microscopic illustrations, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Why Humans Age covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the biological process of aging, cells and DNA, telomeres, oxidative stress, genetics, cellular repair, changes in muscles and organs, theories of aging, lifestyle factors, healthy aging, modern anti-aging research, biotechnology, ethical questions, and the future of longevity research. Use simple scientific explanations, biological diagrams, timelines, microscopic illustrations, and relevant images on every slide.",
     "template": "education",
     "slideCount": 8,
     "audience": "Medical & Biology Students"
@@ -749,7 +749,7 @@ export const PPT_PROMPTS = [
       "positive psychology",
       "wellbeing"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Science of Happiness covering the meaning of happiness, brain chemistry, dopamine and serotonin, emotions, psychology of well-being, relationships, habits, sleep, exercise, social connections, effects of money and success, positive psychology, scientific studies on happiness, common misconceptions, and practical factors associated with a healthy and fulfilling life. Use simple explanations, brain diagrams, research-based charts, illustrations, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Science of Happiness covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the meaning of happiness, brain chemistry, dopamine and serotonin, emotions, psychology of well-being, relationships, habits, sleep, exercise, social connections, effects of money and success, positive psychology, scientific studies on happiness, common misconceptions, and practical factors associated with a healthy and fulfilling life. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, brain diagrams, research-based charts, illustrations, and relevant images on every slide.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Wellness & Psychology Audience"
@@ -768,7 +768,7 @@ export const PPT_PROMPTS = [
       "insomnia",
       "brain repair"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Science of Sleep covering why humans sleep, sleep cycles, REM and non-REM sleep, the role of the brain, memory consolidation, hormones, dreams, effects of sleep deprivation, sleep disorders, factors affecting sleep quality, importance of healthy sleep, scientific research, and future developments in sleep science. Use sleep-cycle diagrams, brain illustrations, charts, scientific facts, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Science of Sleep covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, why humans sleep, sleep cycles, REM and non-REM sleep, the role of the brain, memory consolidation, hormones, dreams, effects of sleep deprivation, sleep disorders, factors affecting sleep quality, importance of healthy sleep, scientific research, and future developments in sleep science. Use sleep-cycle diagrams, brain illustrations, charts, scientific facts, and relevant images on every slide.",
     "template": "education",
     "slideCount": 8,
     "audience": "Health & Science Students"
@@ -786,7 +786,7 @@ export const PPT_PROMPTS = [
       "mountaineering",
       "space survival"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Human Survival in Extreme Environments covering survival in deserts, polar regions, high mountains, deep oceans and space, how the human body responds to extreme temperature and pressure, survival technologies, protective equipment, food and water challenges, famous expeditions, scientific research, emergency preparedness, and the limits of human survival. Use maps, human-body diagrams, expedition photographs, survival equipment visuals, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Human Survival in Extreme Environments covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, survival in deserts, polar regions, high mountains, deep oceans and space, how the human body responds to extreme temperature and pressure, survival technologies, protective equipment, food and water challenges, famous expeditions, scientific research, emergency preparedness, and the limits of human survival. Use maps, human-body diagrams, expedition photographs, survival equipment visuals, and relevant images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Explorers & Biology Students"
@@ -804,7 +804,7 @@ export const PPT_PROMPTS = [
       "creativity",
       "cognitive power"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Power of the Human Mind covering perception, memory, learning, imagination, creativity, emotions, decision-making, problem-solving, concentration, subconscious processes, cognitive biases, neuroplasticity, extraordinary abilities of the brain, factors that influence thinking, and current neuroscience research. Use brain illustrations, psychological experiments, diagrams, examples, and relevant scientific images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Power of the Human Mind covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, perception, memory, learning, imagination, creativity, emotions, decision-making, problem-solving, concentration, subconscious processes, cognitive biases, neuroplasticity, extraordinary abilities of the brain, factors that influence thinking, and current neuroscience research. Use brain illustrations, psychological experiments, diagrams, examples, and relevant scientific images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Psychology & Mind Enthusiasts"
@@ -822,7 +822,7 @@ export const PPT_PROMPTS = [
       "gelotology",
       "stress relief"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Why Humans Laugh covering the science and psychology of laughter, how the brain produces laughter, different theories of humor, emotional and social functions of laughter, contagious laughter, laughter and stress, laughter in different cultures, the role of laughter in relationships, scientific research, unusual facts, and what laughter reveals about human behavior. Use brain diagrams, psychological illustrations, interesting examples, research findings, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Why Humans Laugh covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the science and psychology of laughter, how the brain produces laughter, different theories of humor, emotional and social functions of laughter, contagious laughter, laughter and stress, laughter in different cultures, the role of laughter in relationships, scientific research, unusual facts, and what laughter reveals about human behavior. Use brain diagrams, psychological illustrations, interesting examples, research findings, and relevant images on every slide.",
     "template": "education",
     "slideCount": 8,
     "audience": "Psychology Students & Curious Minds"
@@ -841,7 +841,7 @@ export const PPT_PROMPTS = [
       "phobias",
       "anxiety"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Science of Fear covering what fear is, how the brain detects danger, the amygdala, fight-or-flight response, hormones involved in fear, different types of fear, learned and instinctive fears, phobias, fear and decision-making, fear in animals, benefits of fear for survival, managing fear, and current scientific research. Use brain diagrams, physiological illustrations, examples, charts, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Science of Fear covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, what fear is, how the brain detects danger, the amygdala, fight-or-flight response, hormones involved in fear, different types of fear, learned and instinctive fears, phobias, fear and decision-making, fear in animals, benefits of fear for survival, managing fear, and current scientific research. Use brain diagrams, physiological illustrations, examples, charts, and relevant images on every slide.",
     "template": "education",
     "slideCount": 8,
     "audience": "Biology & Psychology Students"
@@ -860,7 +860,7 @@ export const PPT_PROMPTS = [
       "cosmology",
       "galaxies"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Secrets of the Universe covering the origin of the universe, Big Bang theory, galaxies, stars, planets, dark matter, dark energy, black holes, cosmic expansion, antimatter, gravitational waves, the possibility of extraterrestrial life, major discoveries, unanswered questions, and the future of astronomy. Use stunning astronomical visuals, scientific diagrams, timelines, space photographs, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Secrets of the Universe covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the origin of the universe, Big Bang theory, galaxies, stars, planets, dark matter, dark energy, black holes, cosmic expansion, antimatter, gravitational waves, the possibility of extraterrestrial life, major discoveries, unanswered questions, and the future of astronomy. Use stunning astronomical visuals, scientific diagrams, timelines, space photographs, and relevant images on every slide.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Physics & Astronomy Enthusiasts"
@@ -879,7 +879,7 @@ export const PPT_PROMPTS = [
       "hearing",
       "smell"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Mysteries of the Human Senses covering vision, hearing, smell, taste, touch, how sensory organs work, how the brain interprets sensory information, optical illusions, sensory adaptation, unusual human sensory abilities, differences between humans and animals, sensory disorders, scientific discoveries, and future research. Use anatomical diagrams, optical illusions, brain illustrations, experiments, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Mysteries of the Human Senses covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, vision, hearing, smell, taste, touch, how sensory organs work, how the brain interprets sensory information, optical illusions, sensory adaptation, unusual human sensory abilities, differences between humans and animals, sensory disorders, scientific discoveries, and future research. Use anatomical diagrams, optical illusions, brain illustrations, experiments, and relevant images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Biology Students & Science Enthusiasts"
@@ -897,7 +897,7 @@ export const PPT_PROMPTS = [
       "independence",
       "history of india"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Indian Freedom Movement covering the background of British rule, major events, important movements, prominent freedom fighters, the Non-Cooperation Movement, Civil Disobedience Movement, Quit India Movement, revolutionary activities, role of women, contribution of different regions and communities, independence in 1947, major challenges, and its historical significance. Use a clear timeline, historical photographs, maps, portraits, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Indian Freedom Movement covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the background of British rule, major events, important movements, prominent freedom fighters, the Non-Cooperation Movement, Civil Disobedience Movement, Quit India Movement, revolutionary activities, role of women, contribution of different regions and communities, independence in 1947, major challenges, and its historical significance. Use a clear timeline, historical photographs, maps, portraits, and relevant images on every slide.",
     "template": "education",
     "slideCount": 10,
     "audience": "History Students & General Audience"
@@ -916,7 +916,7 @@ export const PPT_PROMPTS = [
       "dr ambedkar",
       "polity"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Constitution of India covering its historical background, Constituent Assembly, making of the Constitution, Preamble, Fundamental Rights, Fundamental Duties, Directive Principles, Union and State governments, Parliament, judiciary, federal structure, constitutional amendments, importance of the Constitution, and its role in Indian democracy. Use simple explanations, constitutional diagrams, timelines, and relevant historical images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Constitution of India covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its historical background, Constituent Assembly, making of the Constitution, Preamble, Fundamental Rights, Fundamental Duties, Directive Principles, Union and State governments, Parliament, judiciary, federal structure, constitutional amendments, importance of the Constitution, and its role in Indian democracy. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, constitutional diagrams, timelines, and relevant historical images on every slide.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Polity Students & Citizens"
@@ -935,7 +935,7 @@ export const PPT_PROMPTS = [
       "defence system",
       "drdo"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Indian Defence System covering the Indian Army, Navy and Air Force, their roles and responsibilities, defence organization, modern military technology, border security, disaster relief operations, defence research, major achievements, training and discipline, cybersecurity and modern warfare, challenges, and future modernization. Use informative diagrams, maps, equipment images, and relevant defence visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Indian Defence System covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the Indian Army, Navy and Air Force, their roles and responsibilities, defence organization, modern military technology, border security, disaster relief operations, defence research, major achievements, training and discipline, cybersecurity and modern warfare, challenges, and future modernization. Use informative diagrams, maps, equipment images, and relevant defence visuals on every slide.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Defence Aspirants & Students"
@@ -954,7 +954,7 @@ export const PPT_PROMPTS = [
       "indian art",
       "traditions"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Indian Culture and Heritage covering India's cultural diversity, languages, religions, traditions, festivals, classical dances, music, art, architecture, food, traditional clothing, historical monuments, UNESCO heritage sites, regional cultures, cultural preservation, and the importance of Indian heritage in the modern world. Use maps, historical photographs, cultural illustrations, monuments, traditional art, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Indian Culture and Heritage covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, India's cultural diversity, languages, religions, traditions, festivals, classical dances, music, art, architecture, food, traditional clothing, historical monuments, UNESCO heritage sites, regional cultures, cultural preservation, and the importance of Indian heritage in the modern world. Use maps, historical photographs, cultural illustrations, monuments, traditional art, and relevant images on every slide.",
     "template": "education",
     "slideCount": 10,
     "audience": "Students & Tourists"
@@ -973,7 +973,7 @@ export const PPT_PROMPTS = [
       "crops",
       "farmers"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Agriculture in India covering the importance of agriculture, major crops, agricultural regions, farming methods, irrigation, monsoon dependency, Green Revolution, modern agricultural technology, organic farming, agricultural markets, challenges faced by farmers, climate change impacts, government initiatives, food security, and the future of Indian agriculture. Use maps, crop images, charts, farming photographs, and informative diagrams on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Agriculture in India covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the importance of agriculture, major crops, agricultural regions, farming methods, irrigation, monsoon dependency, Green Revolution, modern agricultural technology, organic farming, agricultural markets, challenges faced by farmers, climate change impacts, government initiatives, food security, and the future of Indian agriculture. Use maps, crop images, charts, farming photographs, and informative diagrams on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Students & Agri-Specialists"
@@ -991,7 +991,7 @@ export const PPT_PROMPTS = [
       "cyclone",
       "emergency preparedness"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Disaster Management covering the meaning and types of disasters, natural and man-made disasters, earthquakes, floods, cyclones, landslides, fires and industrial accidents, disaster preparedness, risk assessment, emergency response, rescue operations, rehabilitation, role of government and communities, early warning systems, technology in disaster management, and disaster prevention strategies. Use maps, disaster diagrams, emergency-response flowcharts, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Disaster Management covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the meaning and types of disasters, natural and man-made disasters, earthquakes, floods, cyclones, landslides, fires and industrial accidents, disaster preparedness, risk assessment, emergency response, rescue operations, rehabilitation, role of government and communities, early warning systems, technology in disaster management, and disaster prevention strategies. Use maps, disaster diagrams, emergency-response flowcharts, and relevant images on every slide.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Students & Safety Officers"
@@ -1011,7 +1011,7 @@ export const PPT_PROMPTS = [
       "durga puja",
       "traditions"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Indian Festivals covering the diversity of festivals across India, their historical and cultural significance, major festivals such as Diwali, Holi, Eid, Christmas, Pongal, Onam, Baisakhi, Ganesh Chaturthi and Durga Puja, regional traditions, food, music, clothing, social importance, economic impact, environmental concerns, and changing festival traditions in modern India. Use authentic cultural photographs, maps, festival illustrations, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Indian Festivals covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the diversity of festivals across India, their historical and cultural significance, major festivals such as Diwali, Holi, Eid, Christmas, Pongal, Onam, Baisakhi, Ganesh Chaturthi and Durga Puja, regional traditions, food, music, clothing, social importance, economic impact, environmental concerns, and changing festival traditions in modern India. Use authentic cultural photographs, maps, festival illustrations, and relevant images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Cultural Enthusiasts & Students"
@@ -1030,7 +1030,7 @@ export const PPT_PROMPTS = [
       "ancient mathematics",
       "metallurgy"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Ancient Indian Science and Technology covering mathematics, astronomy, medicine, metallurgy, architecture, water management, agriculture, ancient universities, important scholars, major scientific contributions, archaeological evidence, and the influence of ancient Indian knowledge on later scientific development. Clearly distinguish historically established evidence from traditional claims, and use timelines, manuscripts, monuments, scientific diagrams, and relevant historical images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Ancient Indian Science and Technology covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, mathematics, astronomy, medicine, metallurgy, architecture, water management, agriculture, ancient universities, important scholars, major scientific contributions, archaeological evidence, and the influence of ancient Indian knowledge on later scientific development. Clearly distinguish historically established evidence from traditional claims, and use timelines, manuscripts, monuments, scientific diagrams, and relevant historical images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "History & Science Students"
@@ -1049,7 +1049,7 @@ export const PPT_PROMPTS = [
       "freedom",
       "human rights commission"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Human Rights covering the meaning and importance of human rights, fundamental principles, Universal Declaration of Human Rights, civil and political rights, social and economic rights, children's rights, women's rights, freedom and equality, constitutional protections in India, responsibilities of citizens, major challenges, and the role of national and international institutions. Use simple explanations, historical timelines, infographics, symbols, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Human Rights covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the meaning and importance of human rights, fundamental principles, Universal Declaration of Human Rights, civil and political rights, social and economic rights, children's rights, women's rights, freedom and equality, constitutional protections in India, responsibilities of citizens, major challenges, and the role of national and international institutions. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, historical timelines, infographics, symbols, and relevant images on every slide.",
     "template": "corporate",
     "slideCount": 8,
     "audience": "Law Students & Citizens"
@@ -1068,7 +1068,7 @@ export const PPT_PROMPTS = [
       "screen addiction",
       "digital wellness"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Psychology of Social Media covering why people use social media, dopamine and reward systems, likes and notifications, attention and algorithms, social comparison, FOMO, online identity, influencer culture, echo chambers, misinformation, benefits and risks, effects on relationships and productivity, and strategies for healthy digital habits. Use simple psychological concepts, diagrams, examples, charts, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Psychology of Social Media covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, why people use social media, dopamine and reward systems, likes and notifications, attention and algorithms, social comparison, FOMO, online identity, influencer culture, echo chambers, misinformation, benefits and risks, effects on relationships and productivity, and strategies for healthy digital habits. Use simple psychological concepts, diagrams, examples, charts, and relevant images on every slide.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Youth, Parents & Educators"
@@ -1086,7 +1086,7 @@ export const PPT_PROMPTS = [
       "agriculture evolution",
       "gastronomy"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Food and Human Civilization covering the origins of cooking, hunter-gatherer diets, development of agriculture, domestication of plants and animals, spices and ancient trade routes, food and culture, evolution of cooking technologies, industrial food production, fast food, nutrition, food security, sustainability, and how food has influenced the development of human societies. Use historical illustrations, maps, food photographs, timelines, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Food and Human Civilization covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the origins of cooking, hunter-gatherer diets, development of agriculture, domestication of plants and animals, spices and ancient trade routes, food and culture, evolution of cooking technologies, industrial food production, fast food, nutrition, food security, sustainability, and how food has influenced the development of human societies. Use historical illustrations, maps, food photographs, timelines, and relevant images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "History & Culinary Students"
@@ -1104,7 +1104,7 @@ export const PPT_PROMPTS = [
       "humanity future",
       "future society"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Future of Human Civilization covering population growth, urbanization, artificial intelligence, automation, climate change, renewable energy, biotechnology, space exploration, future cities, changing jobs and education, human longevity, global challenges, ethical questions, possible future scenarios, and the technologies and decisions that may shape humanity's future. Use futuristic city visuals, timelines, infographics, scientific illustrations, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Future of Human Civilization covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, population growth, urbanization, artificial intelligence, automation, climate change, renewable energy, biotechnology, space exploration, future cities, changing jobs and education, human longevity, global challenges, ethical questions, possible future scenarios, and the technologies and decisions that may shape humanity's future. Use futuristic city visuals, timelines, infographics, scientific illustrations, and relevant images on every slide.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Futurists & Thinkers"
@@ -1124,7 +1124,7 @@ export const PPT_PROMPTS = [
       "rome",
       "archaeology"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Ancient Civilizations covering the origins of early civilizations, Mesopotamia, Ancient Egypt, Indus Valley Civilization, Ancient China, Greece and Rome, their cities, writing systems, architecture, science, technology, trade, social structures, cultural achievements, decline and transformation, archaeological discoveries, and their influence on modern civilization. Use historical maps, timelines, archaeological photographs, monuments, artifacts, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Ancient Civilizations covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the origins of early civilizations, Mesopotamia, Ancient Egypt, Indus Valley Civilization, Ancient China, Greece and Rome, their cities, writing systems, architecture, science, technology, trade, social structures, cultural achievements, decline and transformation, archaeological discoveries, and their influence on modern civilization. Use historical maps, timelines, archaeological photographs, monuments, artifacts, and relevant images on every slide.",
     "template": "education",
     "slideCount": 10,
     "audience": "History Students"
@@ -1143,7 +1143,7 @@ export const PPT_PROMPTS = [
       "internet history",
       "electricity"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Great Inventions That Changed the World covering the wheel, printing press, compass, steam engine, electricity, telephone, automobile, airplane, radio, television, computer, internet, modern medical inventions, and other transformative technologies. Explain how each invention changed human life, communication, transportation, industry and society. Use historical timelines, inventor portraits, invention photographs, diagrams, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Great Inventions That Changed the World covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the wheel, printing press, compass, steam engine, electricity, telephone, automobile, airplane, radio, television, computer, internet, modern medical inventions, and other transformative technologies. Explain how each invention changed human life, communication, transportation, industry and society. Use historical timelines, inventor portraits, invention photographs, diagrams, and relevant images on every slide.",
     "template": "education",
     "slideCount": 10,
     "audience": "History & Tech Students"
@@ -1161,7 +1161,7 @@ export const PPT_PROMPTS = [
       "diaspora",
       "demographics"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Human Migration covering why humans migrate, prehistoric human migration out of Africa, major migration routes, migration caused by climate, war, economy and natural disasters, historical migrations, cultural exchange, effects on societies, migration in the modern world, challenges faced by migrants, and future migration trends. Use world maps, migration-route diagrams, historical timelines, statistics, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Human Migration covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, why humans migrate, prehistoric human migration out of Africa, major migration routes, migration caused by climate, war, economy and natural disasters, historical migrations, cultural exchange, effects on societies, migration in the modern world, challenges faced by migrants, and future migration trends. Use world maps, migration-route diagrams, historical timelines, statistics, and relevant images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Geography & History Students"
@@ -1180,7 +1180,7 @@ export const PPT_PROMPTS = [
       "mohenjo daro",
       "archaeology"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Lost Cities of the World covering the concept of lost cities, ancient civilizations, Mohenjo-daro, Pompeii, Machu Picchu, Petra, Angkor, ancient Egyptian cities, possible causes of abandonment, archaeological discoveries, modern excavation techniques, mysteries surrounding lost cities, and what these discoveries teach us about ancient civilizations. Use archaeological photographs, maps, reconstructions, timelines, artifacts, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Lost Cities of the World covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the concept of lost cities, ancient civilizations, Mohenjo-daro, Pompeii, Machu Picchu, Petra, Angkor, ancient Egyptian cities, possible causes of abandonment, archaeological discoveries, modern excavation techniques, mysteries surrounding lost cities, and what these discoveries teach us about ancient civilizations. Use archaeological photographs, maps, reconstructions, timelines, artifacts, and relevant images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Archaeology & History Fans"
@@ -1198,7 +1198,7 @@ export const PPT_PROMPTS = [
       "social perception",
       "halo effect"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Psychology of First Impressions covering how people form first impressions, facial expressions, body language, voice, clothing, appearance, confidence, unconscious judgments, confirmation bias, stereotypes, social perception, first impressions in interviews and relationships, whether first impressions can change, scientific experiments, and practical insights. Use psychological diagrams, examples, illustrations, research findings, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Psychology of First Impressions covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, how people form first impressions, facial expressions, body language, voice, clothing, appearance, confidence, unconscious judgments, confirmation bias, stereotypes, social perception, first impressions in interviews and relationships, whether first impressions can change, scientific experiments, and practical insights. Use psychological diagrams, examples, illustrations, research findings, and relevant images on every slide.",
     "template": "corporate",
     "slideCount": 8,
     "audience": "Students, Job Seekers & Professionals"
@@ -1216,7 +1216,7 @@ export const PPT_PROMPTS = [
       "writing systems",
       "dialects"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Story of Human Language covering the origin and evolution of language, early communication, development of speech, writing systems, major language families, how languages change, endangered languages, multilingualism, language and culture, sign languages, modern communication, and possible future changes in human language. Use world language maps, historical scripts, timelines, communication illustrations, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Story of Human Language covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the origin and evolution of language, early communication, development of speech, writing systems, major language families, how languages change, endangered languages, multilingualism, language and culture, sign languages, modern communication, and possible future changes in human language. Use world language maps, historical scripts, timelines, communication illustrations, and relevant images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Linguistics & History Students"
@@ -1234,7 +1234,7 @@ export const PPT_PROMPTS = [
       "environment",
       "glaciers"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Climate Change covering its definition, causes, greenhouse gases, global warming, effects on weather and ecosystems, melting glaciers, rising sea levels, impact on agriculture and human health, climate change in India, renewable energy, mitigation and adaptation strategies, government initiatives, challenges, and future solutions. Use simple explanations, climate charts, maps, diagrams, real-world examples, and relevant environmental images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Climate Change covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, causes, greenhouse gases, global warming, effects on weather and ecosystems, melting glaciers, rising sea levels, impact on agriculture and human health, climate change in India, renewable energy, mitigation and adaptation strategies, government initiatives, challenges, and future solutions. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, climate charts, maps, diagrams, real-world examples, and relevant environmental images on every slide.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Students & Environmentalists"
@@ -1253,7 +1253,7 @@ export const PPT_PROMPTS = [
       "esg",
       "environment"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Renewable Energy covering its definition, importance, solar energy, wind energy, hydropower, biomass energy, geothermal energy, advantages and disadvantages of each source, applications, energy storage, renewable energy in India, environmental benefits, challenges, and future scope. Use simple explanations, comparison charts, energy diagrams, real-world examples, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Renewable Energy covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, importance, solar energy, wind energy, hydropower, biomass energy, geothermal energy, advantages and disadvantages of each source, applications, energy storage, renewable energy in India, environmental benefits, challenges, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, comparison charts, energy diagrams, real-world examples, and relevant images on every slide.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Sustainability Committee & Students"
@@ -1271,7 +1271,7 @@ export const PPT_PROMPTS = [
       "water scarcity",
       "environment"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Water Conservation covering the importance of water, sources of freshwater, water scarcity, groundwater depletion, causes of water wastage, rainwater harvesting, watershed management, efficient irrigation, water recycling, conservation methods at home and in agriculture, India's water challenges, successful conservation examples, and future solutions. Use water-cycle diagrams, maps, statistics, before-and-after visuals, and relevant environmental images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Water Conservation covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the importance of water, sources of freshwater, water scarcity, groundwater depletion, causes of water wastage, rainwater harvesting, watershed management, efficient irrigation, water recycling, conservation methods at home and in agriculture, India's water challenges, successful conservation examples, and future solutions. Use water-cycle diagrams, maps, statistics, before-and-after visuals, and relevant environmental images on every slide.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Students & Environmentalists"
@@ -1290,7 +1290,7 @@ export const PPT_PROMPTS = [
       "ocean pollution",
       "marine biology"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Oceans and Marine Life covering the importance of oceans, ocean zones, marine ecosystems, coral reefs, marine biodiversity, fascinating sea animals, food chains, ocean currents, pollution, plastic waste, overfishing, climate change, conservation efforts, protected marine areas, and the future of ocean exploration. Use underwater photographs, ecosystem diagrams, maps, charts, and relevant marine-life images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Oceans and Marine Life covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the importance of oceans, ocean zones, marine ecosystems, coral reefs, marine biodiversity, fascinating sea animals, food chains, ocean currents, pollution, plastic waste, overfishing, climate change, conservation efforts, protected marine areas, and the future of ocean exploration. Use underwater photographs, ecosystem diagrams, maps, charts, and relevant marine-life images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Biology Students & Ocean Lovers"
@@ -1309,7 +1309,7 @@ export const PPT_PROMPTS = [
       "climate of india",
       "weather"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Indian Monsoon covering what monsoons are, factors controlling the Indian monsoon, southwest and northeast monsoons, onset and withdrawal, monsoon winds, rainfall distribution, role of the Himalayas and Indian Ocean, impact on agriculture and economy, floods and droughts, El Niño and La Niña, climate change, forecasting, and the importance of monsoon rainfall for India. Use maps, weather diagrams, rainfall charts, satellite imagery, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Indian Monsoon covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, what monsoons are, factors controlling the Indian monsoon, southwest and northeast monsoons, onset and withdrawal, monsoon winds, rainfall distribution, role of the Himalayas and Indian Ocean, impact on agriculture and economy, floods and droughts, El Niño and La Niña, climate change, forecasting, and the importance of monsoon rainfall for India. Use maps, weather diagrams, rainfall charts, satellite imagery, and relevant images on every slide.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Geography Students & Farmers"
@@ -1327,7 +1327,7 @@ export const PPT_PROMPTS = [
       "project tiger",
       "biodiversity"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Wildlife Conservation covering biodiversity, importance of wildlife, endangered species, habitat destruction, poaching, human-wildlife conflict, national parks, wildlife sanctuaries, tiger and elephant conservation, conservation organizations, community participation, laws and protected areas, successful conservation examples, major challenges, and future strategies. Use wildlife photographs, habitat maps, population charts, conservation diagrams, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Wildlife Conservation covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, biodiversity, importance of wildlife, endangered species, habitat destruction, poaching, human-wildlife conflict, national parks, wildlife sanctuaries, tiger and elephant conservation, conservation organizations, community participation, laws and protected areas, successful conservation examples, major challenges, and future strategies. Use wildlife photographs, habitat maps, population charts, conservation diagrams, and relevant images on every slide.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Wildlife Lovers & Environmentalists"
@@ -1345,7 +1345,7 @@ export const PPT_PROMPTS = [
       "coastal ecosystems",
       "oceanography"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Indian Ocean covering its geography, major seas and islands, ocean currents, climate, marine biodiversity, important ports and trade routes, fisheries, natural resources, strategic importance, coastal communities, maritime security, pollution, climate change, and India's role in the Indian Ocean region. Use maps, satellite images, ocean diagrams, maritime photographs, and relevant visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Indian Ocean covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its geography, major seas and islands, ocean currents, climate, marine biodiversity, important ports and trade routes, fisheries, natural resources, strategic importance, coastal communities, maritime security, pollution, climate change, and India's role in the Indian Ocean region. Use maps, satellite images, ocean diagrams, maritime photographs, and relevant visuals on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Geography & Defense Analysts"
@@ -1363,7 +1363,7 @@ export const PPT_PROMPTS = [
       "mariana trench",
       "deep sea"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Deep Ocean covering ocean zones, extreme pressure and darkness, temperature, unusual marine organisms, bioluminescence, deep-sea ecosystems, hydrothermal vents, underwater exploration technology, unexplored regions, scientific discoveries, natural resources, environmental threats, and the future of deep-sea exploration. Use underwater photographs, ocean-depth diagrams, maps, exploration technology visuals, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Deep Ocean covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, ocean zones, extreme pressure and darkness, temperature, unusual marine organisms, bioluminescence, deep-sea ecosystems, hydrothermal vents, underwater exploration technology, unexplored regions, scientific discoveries, natural resources, environmental threats, and the future of deep-sea exploration. Use underwater photographs, ocean-depth diagrams, maps, exploration technology visuals, and relevant images on every slide.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Oceanographers & Science Students"
@@ -1381,7 +1381,7 @@ export const PPT_PROMPTS = [
       "food security",
       "hydroponics"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Future of Food covering population growth and food demand, sustainable agriculture, vertical farming, hydroponics, lab-grown meat, plant-based foods, alternative proteins, genetically modified crops, food technology, AI and robotics in agriculture, food waste reduction, climate change, food security, ethical concerns, and possible future food systems. Use futuristic food visuals, farm diagrams, comparison charts, technology illustrations, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Future of Food covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, population growth and food demand, sustainable agriculture, vertical farming, hydroponics, lab-grown meat, plant-based foods, alternative proteins, genetically modified crops, food technology, AI and robotics in agriculture, food waste reduction, climate change, food security, ethical concerns, and possible future food systems. Use futuristic food visuals, farm diagrams, comparison charts, technology illustrations, and relevant images on every slide.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Agri-Tech & Food Scientists"
@@ -1400,7 +1400,7 @@ export const PPT_PROMPTS = [
       "business plan",
       "venture capital"
     ],
-    "prompt": "Create a compelling 10-slide investor pitch deck covering market problem, innovative product solution, target market TAM/SAM, monetization business model, competitive advantage, financial projections, and funding ask.",
+    "prompt": "Create a compelling 10-slide investor pitch deck covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, market problem, innovative product solution, target market TAM/SAM, monetization business model, competitive advantage, financial projections, and funding ask.",
     "template": "startup",
     "slideCount": 10,
     "audience": "Venture Capitalists & Angel Investors"
@@ -1418,7 +1418,7 @@ export const PPT_PROMPTS = [
       "kpi",
       "quarterly"
     ],
-    "prompt": "Create an 8-slide executive presentation for Quarterly Business Review summarizing Q3 revenue targets, operational metrics, top wins, key lessons learned, and strategic goals for next quarter.",
+    "prompt": "Create an 8-slide executive presentation for Quarterly Business Review summarizing Q3 revenue targets, operational metrics, top wins, key lessons learned, and strategic goals for next quarter. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 8,
     "audience": "Board of Directors & Executives"
@@ -1436,7 +1436,7 @@ export const PPT_PROMPTS = [
       "growth marketing",
       "social media"
     ],
-    "prompt": "Create an 8-slide digital marketing strategy presentation covering omnichannel acquisition, AI-generated content workflows, customer funnel optimization, paid search/social strategy, and ROAS metrics.",
+    "prompt": "Create an 8-slide digital marketing strategy presentation covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, omnichannel acquisition, AI-generated content workflows, customer funnel optimization, paid search/social strategy, and ROAS metrics.",
     "template": "startup",
     "slideCount": 8,
     "audience": "Marketing & Growth Team"
@@ -1455,7 +1455,7 @@ export const PPT_PROMPTS = [
       "payments",
       "digital banking"
     ],
-    "prompt": "Create a 9-slide presentation on fintech innovations, open banking APIs, AI fraud detection systems, embedded finance, and mobile payment revolution.",
+    "prompt": "Create a 9-slide presentation on fintech innovations, open banking APIs, AI fraud detection systems, embedded finance, and mobile payment revolution. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "finance",
     "slideCount": 9,
     "audience": "Financial Analysts & Fintech Partners"
@@ -1474,7 +1474,7 @@ export const PPT_PROMPTS = [
       "fintech",
       "online banking"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Digital Economy covering its definition, evolution, digital payments, e-commerce, online banking, digital businesses, gig economy, role of technology, opportunities for entrepreneurs, impact on traditional businesses, cybersecurity and privacy concerns, digital inclusion, India's digital economy, challenges, and future scope. Use simple explanations, statistics, charts, infographics, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Digital Economy covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, evolution, digital payments, e-commerce, online banking, digital businesses, gig economy, role of technology, opportunities for entrepreneurs, impact on traditional businesses, cybersecurity and privacy concerns, digital inclusion, India's digital economy, challenges, and future scope. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, statistics, charts, infographics, and relevant images on every slide.",
     "template": "finance",
     "slideCount": 9,
     "audience": "Business Students & Entrepreneurs"
@@ -1492,7 +1492,7 @@ export const PPT_PROMPTS = [
       "travel",
       "world heritage"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Indian Tourism covering India's geographical and cultural diversity, historical tourism, religious tourism, wildlife tourism, adventure tourism, medical tourism, eco-tourism, famous destinations, UNESCO World Heritage Sites, economic importance of tourism, employment generation, challenges, responsible tourism, and future opportunities. Use maps, destination photographs, monuments, landscapes, and relevant tourism images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Indian Tourism covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, India's geographical and cultural diversity, historical tourism, religious tourism, wildlife tourism, adventure tourism, medical tourism, eco-tourism, famous destinations, UNESCO World Heritage Sites, economic importance of tourism, employment generation, challenges, responsible tourism, and future opportunities. Use maps, destination photographs, monuments, landscapes, and relevant tourism images on every slide.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Tourism Students & Travelers"
@@ -1511,7 +1511,7 @@ export const PPT_PROMPTS = [
       "inflation",
       "taxation"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Indian Economy covering its basic structure, agriculture, industry and services sectors, GDP, employment, inflation, taxation, banking, digital payments, startups, exports and imports, infrastructure, economic reforms, India's position in the global economy, major challenges, and future growth opportunities. Use simple explanations, economic charts, graphs, statistics, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Indian Economy covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its basic structure, agriculture, industry and services sectors, GDP, employment, inflation, taxation, banking, digital payments, startups, exports and imports, infrastructure, economic reforms, India's position in the global economy, major challenges, and future growth opportunities. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, economic charts, graphs, statistics, and relevant images on every slide.",
     "template": "finance",
     "slideCount": 10,
     "audience": "Economics Students & Analysts"
@@ -1530,7 +1530,7 @@ export const PPT_PROMPTS = [
       "locomotives",
       "irctc"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Indian Railways covering its history, development, railway zones, important railway routes, locomotives, railway stations, high-speed and semi-high-speed trains, electrification, railway bridges and tunnels, economic importance, employment, safety systems, technological modernization, environmental initiatives, challenges, and future projects. Use railway maps, train photographs, infrastructure diagrams, statistics, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Indian Railways covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its history, development, railway zones, important railway routes, locomotives, railway stations, high-speed and semi-high-speed trains, electrification, railway bridges and tunnels, economic importance, employment, safety systems, technological modernization, environmental initiatives, challenges, and future projects. Use railway maps, train photographs, infrastructure diagrams, statistics, and relevant images on every slide.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Transport & Engineering Students"
@@ -1550,7 +1550,7 @@ export const PPT_PROMPTS = [
       "currency",
       "personal finance"
     ],
-    "prompt": "Create a professional and visually engaging presentation on How Money Works covering the meaning and history of money, barter systems, coins and paper currency, banks, central banks, interest rates, inflation, loans, credit, digital payments, monetary policy, how money moves through an economy, personal finance basics, economic challenges, and the future of money. Use simple examples, flowcharts, economic diagrams, charts, and relevant financial images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on How Money Works covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the meaning and history of money, barter systems, coins and paper currency, banks, central banks, interest rates, inflation, loans, credit, digital payments, monetary policy, how money moves through an economy, personal finance basics, economic challenges, and the future of money. Use simple examples, flowcharts, economic diagrams, charts, and relevant financial images on every slide.",
     "template": "finance",
     "slideCount": 9,
     "audience": "Finance & Economics Beginners"
@@ -1568,7 +1568,7 @@ export const PPT_PROMPTS = [
       "ai in education",
       "smart classroom"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Future of Education covering traditional versus modern education, online learning, digital classrooms, artificial intelligence in education, personalized learning, virtual and augmented reality, smart classrooms, skill-based education, lifelong learning, changing teacher and student roles, opportunities and challenges, digital divide, and possible future education models. Use futuristic classroom visuals, diagrams, technology illustrations, and relevant images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Future of Education covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, traditional versus modern education, online learning, digital classrooms, artificial intelligence in education, personalized learning, virtual and augmented reality, smart classrooms, skill-based education, lifelong learning, changing teacher and student roles, opportunities and challenges, digital divide, and possible future education models. Use futuristic classroom visuals, diagrams, technology illustrations, and relevant images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Teachers, Students & Educators"
@@ -1587,7 +1587,7 @@ export const PPT_PROMPTS = [
       "pedagogy",
       "curriculum"
     ],
-    "prompt": "Create a professional and visually engaging presentation on STEM & STEAM Education covering the transition from STEM to STEAM, importance of experiential learning, interdisciplinary projects, critical thinking, coding and robotics in schools, integrating arts with science, real-world problem solving, career pathways, challenges in implementation, and future trends in modern education. Use simple explanations, educational infographics, project flowcharts, and relevant classroom visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on STEM & STEAM Education covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the transition from STEM to STEAM, importance of experiential learning, interdisciplinary projects, critical thinking, coding and robotics in schools, integrating arts with science, real-world problem solving, career pathways, challenges in implementation, and future trends in modern education. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, educational infographics, project flowcharts, and relevant classroom visuals on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Teachers, Students & Policy Makers"
@@ -1606,7 +1606,7 @@ export const PPT_PROMPTS = [
       "mind mapping",
       "exam preparation"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Effective Study & Learning Techniques covering the science of learning, memory retention, active recall vs passive reading, spaced repetition algorithms, the Pomodoro technique, mind mapping, Feynman technique, exam preparation strategies, overcoming procrastination, study-life balance, and digital study tools. Use clear diagrams, study habit flowcharts, comparison charts, and student-focused illustrations on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Effective Study & Learning Techniques covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the science of learning, memory retention, active recall vs passive reading, spaced repetition algorithms, the Pomodoro technique, mind mapping, Feynman technique, exam preparation strategies, overcoming procrastination, study-life balance, and digital study tools. Use clear diagrams, study habit flowcharts, comparison charts, and student-focused illustrations on every slide.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Students & Academic Counselors"
@@ -1626,7 +1626,7 @@ export const PPT_PROMPTS = [
       "gamification",
       "remote learning"
     ],
-    "prompt": "Create a professional and visually engaging presentation on E-Learning and EdTech covering the rise of online platforms, Learning Management Systems (LMS), MOOCs, gamified learning, micro-credentials, personalized learning paths, blended learning models, role of AI in EdTech, accessibility, advantages and challenges, and the future of digital degrees. Use platform architecture diagrams, learning flowcharts, infographics, and relevant EdTech images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on E-Learning and EdTech covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the rise of online platforms, Learning Management Systems (LMS), MOOCs, gamified learning, micro-credentials, personalized learning paths, blended learning models, role of AI in EdTech, accessibility, advantages and challenges, and the future of digital degrees. Use platform architecture diagrams, learning flowcharts, infographics, and relevant EdTech images on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Educators, Students & EdTech Entrepreneurs"
@@ -1645,7 +1645,7 @@ export const PPT_PROMPTS = [
       "compounding interest",
       "debt management"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Financial Literacy for Students covering money management basics, budgeting techniques (50/30/20 rule), saving habits, power of compound interest, understanding credit scores and student loans, basic investment options, fraud prevention, digital banking safety, and building long-term financial independence. Use simple financial charts, budgeting flowcharts, real-world examples, and clear visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Financial Literacy for Students covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, money management basics, budgeting techniques (50/30/20 rule), saving habits, power of compound interest, understanding credit scores and student loans, basic investment options, fraud prevention, digital banking safety, and building long-term financial independence. Use simple financial charts, budgeting flowcharts, real-world examples, and clear visuals on every slide.",
     "template": "finance",
     "slideCount": 9,
     "audience": "High School & University Students"
@@ -1664,7 +1664,7 @@ export const PPT_PROMPTS = [
       "cold chain",
       "freight"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Supply Chain and Logistics Management covering supply chain fundamentals, procurement, inventory management, warehousing, transport systems, cold chain logistics, supply chain visibility, risk management, IoT and AI in logistics, sustainability in supply chains, and future trends. Use supply chain flowcharts, logistics diagrams, key performance metrics, and industry images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Supply Chain and Logistics Management covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, supply chain fundamentals, procurement, inventory management, warehousing, transport systems, cold chain logistics, supply chain visibility, risk management, IoT and AI in logistics, sustainability in supply chains, and future trends. Use supply chain flowcharts, logistics diagrams, key performance metrics, and industry images on every slide.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Supply Chain Managers & Business Students"
@@ -1683,7 +1683,7 @@ export const PPT_PROMPTS = [
       "conversion rate",
       "customer acquisition"
     ],
-    "prompt": "Create a professional and visually engaging presentation on E-Commerce and D2C Business Models covering market growth, D2C vs marketplace models, store creation, payment gateways, checkout optimization, omnichannel marketing, customer retention, logistics & fulfillment, data analytics, and future e-commerce trends. Use conversion funnel diagrams, business model comparison charts, and modern retail visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on E-Commerce and D2C Business Models covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, market growth, D2C vs marketplace models, store creation, payment gateways, checkout optimization, omnichannel marketing, customer retention, logistics & fulfillment, data analytics, and future e-commerce trends. Use conversion funnel diagrams, business model comparison charts, and modern retail visuals on every slide.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Entrepreneurs & E-Commerce Professionals"
@@ -1702,7 +1702,7 @@ export const PPT_PROMPTS = [
       "corporate culture",
       "conflict resolution"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Modern Leadership and People Management covering core leadership styles, emotional intelligence (EQ), effective communication, managing remote/hybrid teams, delegation, conflict resolution, building inclusive team culture, employee motivation, and continuous mentorship. Use leadership frameworks, management matrix diagrams, team illustrations, and business infographics on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Modern Leadership and People Management covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, core leadership styles, emotional intelligence (EQ), effective communication, managing remote/hybrid teams, delegation, conflict resolution, building inclusive team culture, employee motivation, and continuous mentorship. Use leadership frameworks, management matrix diagrams, team illustrations, and business infographics on every slide.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Managers, Team Leads & HR Executives"
@@ -1721,7 +1721,7 @@ export const PPT_PROMPTS = [
       "green business",
       "csr"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Corporate ESG & Sustainability covering Environmental, Social, and Governance pillars, carbon neutrality goals, sustainable reporting frameworks, ethical supply chains, social impact, corporate governance, ESG investing trends, regulatory compliance, and business benefits of sustainability. Use ESG framework diagrams, reporting matrices, green business illustrations, and corporate charts on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Corporate ESG & Sustainability covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Environmental, Social, and Governance pillars, carbon neutrality goals, sustainable reporting frameworks, ethical supply chains, social impact, corporate governance, ESG investing trends, regulatory compliance, and business benefits of sustainability. Use ESG framework diagrams, reporting matrices, green business illustrations, and corporate charts on every slide.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Corporate Executives & ESG Officers"
@@ -1740,7 +1740,7 @@ export const PPT_PROMPTS = [
       "passive solar",
       "eco friendly construction"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Green Buildings and Sustainable Architecture covering principles of eco-friendly building design, energy efficiency, passive solar techniques, renewable energy integration, sustainable building materials, water recycling systems, LEED certification, smart building automation, indoor air quality, net-zero energy structures, and case studies of famous sustainable buildings. Use architectural diagrams, energy flowcharts, material comparisons, and high-quality structural images on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Green Buildings and Sustainable Architecture covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, principles of eco-friendly building design, energy efficiency, passive solar techniques, renewable energy integration, sustainable building materials, water recycling systems, LEED certification, smart building automation, indoor air quality, net-zero energy structures, and case studies of famous sustainable buildings. Use architectural diagrams, energy flowcharts, material comparisons, and high-quality structural images on every slide.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Architects, Civil Engineers & Urban Planners"
@@ -1759,7 +1759,7 @@ export const PPT_PROMPTS = [
       "extended producer responsibility",
       "waste management"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Circular Economy and Zero Waste covering linear vs circular economic models, design for longevity, recycling and upcycling, industrial symbiosis, e-waste management, single-use plastic reduction, business models driving zero-waste, policy interventions, community engagement, and environmental impact. Use circular flow diagrams, waste hierarchy charts, product lifecycle illustrations, and environmental infographics on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Circular Economy and Zero Waste covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, linear vs circular economic models, design for longevity, recycling and upcycling, industrial symbiosis, e-waste management, single-use plastic reduction, business models driving zero-waste, policy interventions, community engagement, and environmental impact. Use circular flow diagrams, waste hierarchy charts, product lifecycle illustrations, and environmental infographics on every slide.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Sustainability Specialists & Policy Makers"
@@ -1779,7 +1779,7 @@ export const PPT_PROMPTS = [
       "air purifiers",
       "environmental health"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Air Pollution and Air Quality Management covering sources of air pollution, particulate matter (PM2.5 & PM10), smog formation, Air Quality Index (AQI) ratings, respiratory health impacts, industrial emissions control, urban greening, clean air technologies, electric mobility solutions, and government action plans. Use AQI chart visuals, health impact diagrams, pollution source maps, and environmental charts on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Air Pollution and Air Quality Management covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, sources of air pollution, particulate matter (PM2.5 & PM10), smog formation, Air Quality Index (AQI) ratings, respiratory health impacts, industrial emissions control, urban greening, clean air technologies, electric mobility solutions, and government action plans. Use AQI chart visuals, health impact diagrams, pollution source maps, and environmental charts on every slide.",
     "template": "education",
     "slideCount": 8,
     "audience": "Environmental Researchers & Public Health Workers"
@@ -1799,7 +1799,7 @@ export const PPT_PROMPTS = [
       "design system",
       "usability"
     ],
-    "prompt": "Create a professional and visually engaging presentation on UI/UX Design Principles covering user-centered design, research methodologies, user personas, information architecture, wireframing and prototyping tools (Figma/Adobe XD), visual hierarchy, accessibility (WCAG), usability testing, design systems, micro-interactions, and emerging UX trends in AI and spatial computing. Use UI mockup illustrations, design process flowcharts, interactive wireframe diagrams, and visual examples on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on UI/UX Design Principles covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, user-centered design, research methodologies, user personas, information architecture, wireframing and prototyping tools (Figma/Adobe XD), visual hierarchy, accessibility (WCAG), usability testing, design systems, micro-interactions, and emerging UX trends in AI and spatial computing. Use UI mockup illustrations, design process flowcharts, interactive wireframe diagrams, and visual examples on every slide.",
     "template": "startup",
     "slideCount": 10,
     "audience": "UI/UX Designers & Product Managers"
@@ -1818,7 +1818,7 @@ export const PPT_PROMPTS = [
       "malware analysis",
       "threat hunting"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Digital Forensics and Incident Response covering investigation lifecycles, evidence gathering, disk and memory forensics, network forensic analysis, malware reverse engineering, chain of custody, legal compliance, threat hunting methodologies, incident containment, and case studies. Use forensic process flowcharts, evidence handling diagrams, technical security metrics, and investigative visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Digital Forensics and Incident Response covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, investigation lifecycles, evidence gathering, disk and memory forensics, network forensic analysis, malware reverse engineering, chain of custody, legal compliance, threat hunting methodologies, incident containment, and case studies. Use forensic process flowcharts, evidence handling diagrams, technical security metrics, and investigative visuals on every slide.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Cybersecurity Specialists & Security Analysts"
@@ -1838,7 +1838,7 @@ export const PPT_PROMPTS = [
       "biotechnology",
       "gene therapy"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Genetics & CRISPR Gene Editing covering DNA fundamentals, human genome project, mechanism of CRISPR-Cas9, targeted gene modification, bio-medical applications, disease treatment, agricultural bio-engineering, bio-ethical controversies, safety regulation, and the future of genetic medicine. Use double-helix diagrams, molecular flowcharts, gene editing illustrations, and bio-tech visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Genetics & CRISPR Gene Editing covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, DNA fundamentals, human genome project, mechanism of CRISPR-Cas9, targeted gene modification, bio-medical applications, disease treatment, agricultural bio-engineering, bio-ethical controversies, safety regulation, and the future of genetic medicine. Use double-helix diagrams, molecular flowcharts, gene editing illustrations, and bio-tech visuals on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Biology & Biotech Students"
@@ -1858,7 +1858,7 @@ export const PPT_PROMPTS = [
       "moral philosophy",
       "critical thinking"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Introduction to Philosophy & Ethics covering the main branches of philosophy (metaphysics, epistemology, ethics, logic), ancient and modern thinkers (Socrates, Aristotle, Kant, Mill), ethical frameworks (deontology, utilitarianism, virtue ethics), thought experiments (Trolley Problem), practical ethics in technology and society, and developing critical thinking skills. Use philosophical timelines, decision tree diagrams, quote callouts, and classical illustrations on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Introduction to Philosophy & Ethics covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the main branches of philosophy (metaphysics, epistemology, ethics, logic), ancient and modern thinkers (Socrates, Aristotle, Kant, Mill), ethical frameworks (deontology, utilitarianism, virtue ethics), thought experiments (Trolley Problem), practical ethics in technology and society, and developing critical thinking skills. Use philosophical timelines, decision tree diagrams, quote callouts, and classical illustrations on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Philosophy Students & General Audience"
@@ -1878,7 +1878,7 @@ export const PPT_PROMPTS = [
       "privacy",
       "online safety"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Personal Cyber Hygiene & Online Security covering password security, two-factor authentication (2FA), recognizing phishing attacks, secure Wi-Fi usage, social media privacy settings, malware defense, data backup strategies, and practical tips for staying safe online. Use clear security infographics, threat flowcharts, checklist visuals, and privacy illustrations on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Personal Cyber Hygiene & Online Security covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, password security, two-factor authentication (2FA), recognizing phishing attacks, secure Wi-Fi usage, social media privacy settings, malware defense, data backup strategies, and practical tips for staying safe online. Use clear security infographics, threat flowcharts, checklist visuals, and privacy illustrations on every slide.",
     "template": "dark",
     "slideCount": 8,
     "audience": "General Public, Students & Employees"
@@ -1898,7 +1898,7 @@ export const PPT_PROMPTS = [
       "open source licensing",
       "community"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Open Source Software & Community covering the history of open source, difference between open source and proprietary software, Linux ecosystem, Git and GitHub workflow, open-source licenses (MIT, GPL, Apache), how to contribute to open-source projects, and business models around open source. Use version control diagrams, community flowcharts, and software developer illustrations on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Open Source Software & Community covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the history of open source, difference between open source and proprietary software, Linux ecosystem, Git and GitHub workflow, open-source licenses (MIT, GPL, Apache), how to contribute to open-source projects, and business models around open source. Use version control diagrams, community flowcharts, and software developer illustrations on every slide.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Developers, Students & Tech Enthusiasts"
@@ -1918,7 +1918,7 @@ export const PPT_PROMPTS = [
       "3d graphics",
       "game physics"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Game Development & Engine Architecture covering the game development pipeline, game loops, game engines (Unity, Unreal Engine), 2D vs 3D graphics, physics engines, AI in games, sound design, game monetization models, and career paths in the gaming industry. Use game pipeline diagrams, engine architecture charts, asset flow visuals, and gaming graphics on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Game Development & Engine Architecture covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the game development pipeline, game loops, game engines (Unity, Unreal Engine), 2D vs 3D graphics, physics engines, AI in games, sound design, game monetization models, and career paths in the gaming industry. Use game pipeline diagrams, engine architecture charts, asset flow visuals, and gaming graphics on every slide.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Aspiring Game Developers & Tech Students"
@@ -1937,7 +1937,7 @@ export const PPT_PROMPTS = [
       "shors algorithm",
       "encryption"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Quantum Cryptography & Post-Quantum Security covering traditional encryption limitations, quantum threats to RSA/ECC, Shor's algorithm, Quantum Key Distribution (QKD), Heisenberg uncertainty principle in security, lattice-based cryptography, post-quantum standardization, and future secure communications. Use quantum physics diagrams, encryption flowcharts, security comparison matrices, and futuristic visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Quantum Cryptography & Post-Quantum Security covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, traditional encryption limitations, quantum threats to RSA/ECC, Shor's algorithm, Quantum Key Distribution (QKD), Heisenberg uncertainty principle in security, lattice-based cryptography, post-quantum standardization, and future secure communications. Use quantum physics diagrams, encryption flowcharts, security comparison matrices, and futuristic visuals on every slide.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Cybersecurity Experts & Quantum Researchers"
@@ -1955,7 +1955,7 @@ export const PPT_PROMPTS = [
       "wind aerodynamics",
       "thermodynamics"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Physics of Renewable Energy covering energy conversion principles, photovoltaic effect in solar cells, wind turbine aerodynamics (Betz limit), hydroelectric power physics, geothermal thermodynamics, energy storage physics (batteries, pumped hydro), efficiency limits, and future breakthroughs in energy physics. Use energy conversion flowcharts, physics formulas/diagrams, solar cell cross-sections, and technical visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Physics of Renewable Energy covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, energy conversion principles, photovoltaic effect in solar cells, wind turbine aerodynamics (Betz limit), hydroelectric power physics, geothermal thermodynamics, energy storage physics (batteries, pumped hydro), efficiency limits, and future breakthroughs in energy physics. Use energy conversion flowcharts, physics formulas/diagrams, solar cell cross-sections, and technical visuals on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Physics & Engineering Students"
@@ -1974,7 +1974,7 @@ export const PPT_PROMPTS = [
       "biosignatures",
       "extraterrestrial life"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Astrobiology & Exoplanet Exploration covering what astrobiology is, habitable Goldilocks zones, exoplanet detection methods (transit method, radial velocity), James Webb Space Telescope discoveries, extremophiles on Earth, atmospheric biosignatures, and potential ocean worlds like Europa and Enceladus. Use planetary orbit diagrams, telescope visuals, light spectrum charts, and space illustrations on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Astrobiology & Exoplanet Exploration covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, what astrobiology is, habitable Goldilocks zones, exoplanet detection methods (transit method, radial velocity), James Webb Space Telescope discoveries, extremophiles on Earth, atmospheric biosignatures, and potential ocean worlds like Europa and Enceladus. Use planetary orbit diagrams, telescope visuals, light spectrum charts, and space illustrations on every slide.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Astronomy Students & Science Enthusiasts"
@@ -1993,7 +1993,7 @@ export const PPT_PROMPTS = [
       "habit formation",
       "brain recovery"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Neuroplasticity & Brain Adaptation covering structural vs functional neuroplasticity, synaptic pruning, neurogenesis, how learning rewires the brain, habit formation loops, stroke rehabilitation, mindfulness impact on brain structure, and cognitive enhancement. Use neuron network diagrams, brain mapping visuals, habit loop flowcharts, and neuroscience illustrations on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Neuroplasticity & Brain Adaptation covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, structural vs functional neuroplasticity, synaptic pruning, neurogenesis, how learning rewires the brain, habit formation loops, stroke rehabilitation, mindfulness impact on brain structure, and cognitive enhancement. Use neuron network diagrams, brain mapping visuals, habit loop flowcharts, and neuroscience illustrations on every slide.",
     "template": "education",
     "slideCount": 8,
     "audience": "Medical Students, Psychologists & Learners"
@@ -2012,7 +2012,7 @@ export const PPT_PROMPTS = [
       "automation",
       "cyber physical systems"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Four Industrial Revolutions covering the First (steam power & mechanization), Second (electricity & mass production), Third (computing & internet automation), and Fourth Industrial Revolution (Industry 4.0: AI, IoT, robotics, 3D printing). Compare social, economic, and technological impacts across eras and discuss Industry 5.0 concepts. Use historical timelines, comparative charts, factory illustrations, and technological evolution diagrams on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Four Industrial Revolutions covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the First (steam power & mechanization), Second (electricity & mass production), Third (computing & internet automation), and Fourth Industrial Revolution (Industry 4.0: AI, IoT, robotics, 3D printing). Compare social, economic, and technological impacts across eras and discuss Industry 5.0 concepts. Use historical timelines, comparative charts, factory illustrations, and technological evolution diagrams on every slide.",
     "template": "corporate",
     "slideCount": 10,
     "audience": "History, Business & Engineering Students"
@@ -2032,7 +2032,7 @@ export const PPT_PROMPTS = [
       "echo chambers",
       "bias"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Media Literacy & Fighting Misinformation covering types of misinformation and disinformation, deepfakes and AI synthetic media, echo chambers and filter bubbles, cognitive biases in news consumption, verification and fact-checking techniques, source evaluation, and building a healthy news diet. Use media analysis flowcharts, fact-checking checklists, network echo chamber diagrams, and real-world examples on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Media Literacy & Fighting Misinformation covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, types of misinformation and disinformation, deepfakes and AI synthetic media, echo chambers and filter bubbles, cognitive biases in news consumption, verification and fact-checking techniques, source evaluation, and building a healthy news diet. Use media analysis flowcharts, fact-checking checklists, network echo chamber diagrams, and real-world examples on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Students, Educators & Journalists"
@@ -2052,7 +2052,7 @@ export const PPT_PROMPTS = [
       "pompeii",
       "ancient artifacts"
     ],
-    "prompt": "Create a professional and visually engaging presentation on the Greatest Archaeological Discoveries covering the Rosetta Stone, Tutankhamun's Tomb, Terracotta Army, Dead Sea Scrolls, Pompeii excavations, Machu Picchu, and modern LIDAR technology in jungle excavations. Highlight how each discovery unlocked secrets of ancient human history. Use discovery timelines, excavation maps, artifact photographs, and historical illustrations on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on the Greatest Archaeological Discoveries covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the Rosetta Stone, Tutankhamun's Tomb, Terracotta Army, Dead Sea Scrolls, Pompeii excavations, Machu Picchu, and modern LIDAR technology in jungle excavations. Highlight how each discovery unlocked secrets of ancient human history. Use discovery timelines, excavation maps, artifact photographs, and historical illustrations on every slide.",
     "template": "education",
     "slideCount": 10,
     "audience": "History & Archaeology Enthusiasts"
@@ -2071,7 +2071,7 @@ export const PPT_PROMPTS = [
       "habitat loss",
       "rewilding"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Biodiversity Loss & Extinction Crisis covering ecosystem services, drivers of biodiversity loss (habitat destruction, climate change, pollution, invasive species), the Sixth Mass Extinction, IUCN Red List categories, key indicator species, rewilding initiatives, biodiversity corridors, and international conservation frameworks. Use biodiversity maps, species extinction charts, ecosystem food webs, and wildlife visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Biodiversity Loss & Extinction Crisis covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, ecosystem services, drivers of biodiversity loss (habitat destruction, climate change, pollution, invasive species), the Sixth Mass Extinction, IUCN Red List categories, key indicator species, rewilding initiatives, biodiversity corridors, and international conservation frameworks. Use biodiversity maps, species extinction charts, ecosystem food webs, and wildlife visuals on every slide.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Environmentalists & Biology Students"
@@ -2090,7 +2090,7 @@ export const PPT_PROMPTS = [
       "ocean clean up",
       "single use plastic"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Ocean Plastic Pollution & Clean-Up Tech covering sources of ocean plastic, microplastics and nanoplastics, the Great Pacific Garbage Patch, impact on marine life and human food chains, innovative ocean clean-up technologies (barrier systems, river interceptors), circular plastic alternatives, and global plastic treaties. Use ocean pollution maps, plastic lifecycle flowcharts, cleanup technology diagrams, and environmental infographics on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Ocean Plastic Pollution & Clean-Up Tech covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, sources of ocean plastic, microplastics and nanoplastics, the Great Pacific Garbage Patch, impact on marine life and human food chains, innovative ocean clean-up technologies (barrier systems, river interceptors), circular plastic alternatives, and global plastic treaties. Use ocean pollution maps, plastic lifecycle flowcharts, cleanup technology diagrams, and environmental infographics on every slide.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Environmental Advocates & Marine Researchers"
@@ -2110,7 +2110,7 @@ export const PPT_PROMPTS = [
       "agile product",
       "user stories"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Product Management & Product Strategy covering product discovery, defining Minimum Viable Products (MVPs), creating product roadmaps, writing effective user stories, OKRs and product metrics (CAC, LTV, Churn), Agile product delivery, prioritization frameworks (RICE, Kano model), and product-led growth. Use product roadmap diagrams, prioritization matrices, lifecycle charts, and business flowcharts on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Product Management & Product Strategy covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, product discovery, defining Minimum Viable Products (MVPs), creating product roadmaps, writing effective user stories, OKRs and product metrics (CAC, LTV, Churn), Agile product delivery, prioritization frameworks (RICE, Kano model), and product-led growth. Use product roadmap diagrams, prioritization matrices, lifecycle charts, and business flowcharts on every slide.",
     "template": "startup",
     "slideCount": 10,
     "audience": "Product Managers, Founders & Tech Teams"
@@ -2129,7 +2129,7 @@ export const PPT_PROMPTS = [
       "independent contractor",
       "platform work"
     ],
-    "prompt": "Create a professional and visually engaging presentation on The Gig Economy & Freelance Revolution covering the growth of platform-based work, digital nomadism, benefits and flexibility for workers, challenges (lack of benefits, income instability), platform business models, legal classifications of gig workers, building a successful freelance career, and the future of work. Use market growth charts, worker demographic visuals, platform comparison matrices, and remote work illustrations on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on The Gig Economy & Freelance Revolution covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the growth of platform-based work, digital nomadism, benefits and flexibility for workers, challenges (lack of benefits, income instability), platform business models, legal classifications of gig workers, building a successful freelance career, and the future of work. Use market growth charts, worker demographic visuals, platform comparison matrices, and remote work illustrations on every slide.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Freelancers, Gig Workers & Business Students"
@@ -2148,7 +2148,7 @@ export const PPT_PROMPTS = [
       "royalties",
       "brand scaling"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Franchising & Business Expansion covering what franchising is, franchisor vs franchisee roles, franchise fee structures and royalties, evaluating franchise opportunities, brand standardization and operational manuals, legal requirements, famous franchise case studies (McDonald's, Subway), and scaling a business through franchising. Use franchise model flowcharts, royalty structure diagrams, expansion maps, and business visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Franchising & Business Expansion covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, what franchising is, franchisor vs franchisee roles, franchise fee structures and royalties, evaluating franchise opportunities, brand standardization and operational manuals, legal requirements, famous franchise case studies (McDonald's, Subway), and scaling a business through franchising. Use franchise model flowcharts, royalty structure diagrams, expansion maps, and business visuals on every slide.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Entrepreneurs, Investors & Business Students"
@@ -2167,7 +2167,7 @@ export const PPT_PROMPTS = [
       "child development",
       "kindergarten"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Early Childhood & Play-Based Learning covering brain development in early years (0-6), benefits of play-based learning, Montessori and Reggio Emilia philosophies, motor skills development, early literacy and numeracy, social-emotional learning, role of parents and educators, and designing engaging learning environments. Use developmental milestone charts, learning activity illustrations, classroom design diagrams, and child education visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Early Childhood & Play-Based Learning covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, brain development in early years (0-6), benefits of play-based learning, Montessori and Reggio Emilia philosophies, motor skills development, early literacy and numeracy, social-emotional learning, role of parents and educators, and designing engaging learning environments. Use developmental milestone charts, learning activity illustrations, classroom design diagrams, and child education visuals on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Early Childhood Educators, Parents & Teachers"
@@ -2186,7 +2186,7 @@ export const PPT_PROMPTS = [
       "blooms taxonomy",
       "analytical thinking"
     ],
-    "prompt": "Create a professional and visually engaging presentation on Teaching Critical Thinking & Problem Solving covering Bloom's Taxonomy, the Socratic questioning method, inquiry-based learning frameworks, analyzing arguments and logical fallacies, problem-solving methodologies (design thinking in education), classroom debate techniques, and assessing critical thinking skills. Use Bloom's taxonomy pyramid diagrams, questioning flowcharts, problem-solving matrix visuals, and educational infographics on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Teaching Critical Thinking & Problem Solving covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Bloom's Taxonomy, the Socratic questioning method, inquiry-based learning frameworks, analyzing arguments and logical fallacies, problem-solving methodologies (design thinking in education), classroom debate techniques, and assessing critical thinking skills. Use Bloom's taxonomy pyramid diagrams, questioning flowcharts, problem-solving matrix visuals, and educational infographics on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Educators, Curriculum Designers & Students"
@@ -2205,7 +2205,7 @@ export const PPT_PROMPTS = [
       "cardiology",
       "heart attack"
     ],
-    "prompt": "Create a professional presentation on Cardiovascular Health covering heart anatomy, blood circulation, common diseases (hypertension, CAD, heart attack), risk factors, cholesterol management, lifestyle habits for a healthy heart, diagnostic tests, and modern cardiac treatments. Include medical diagrams, health flowcharts, and clear visuals on every slide.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Cardiovascular Health covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, heart anatomy, blood circulation, common diseases (hypertension, CAD, heart attack), risk factors, cholesterol management, lifestyle habits for a healthy heart, diagnostic tests, and modern cardiac treatments. Include medical diagrams, health flowcharts, and clear visuals on every slide.",
     "template": "education",
     "slideCount": 9,
     "audience": "Medical Students, Nurses & General Public"
@@ -2224,7 +2224,7 @@ export const PPT_PROMPTS = [
       "blood sugar",
       "glucose"
     ],
-    "prompt": "Create a detailed presentation on Diabetes Management explaining Type 1 and Type 2 diabetes, insulin resistance, symptoms, glucose monitoring, dietary management, exercise, long-term health risks, and prevention strategies. Include flowcharts of glucose regulation and healthy lifestyle guidelines.",
+    "prompt": "Create a detailed presentation on Diabetes Management explaining Type 1 and Type 2 diabetes, insulin resistance, symptoms, glucose monitoring, dietary management, exercise, long-term health risks, and prevention strategies. Include flowcharts of glucose regulation and healthy lifestyle guidelines. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Diabetic Patients, Health Educators & Students"
@@ -2244,7 +2244,7 @@ export const PPT_PROMPTS = [
       "mindfulness",
       "stigma"
     ],
-    "prompt": "Create an empathetic and informative presentation on Mental Health Awareness covering common conditions like anxiety and depression, recognizing warning signs, psychological therapy modalities (CBT, DBT), breaking societal stigmas, self-care routines, and seeking professional help. Use warm, reassuring visuals and crisis resources.",
+    "prompt": "Create an empathetic and informative presentation on Mental Health Awareness covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, common conditions like anxiety and depression, recognizing warning signs, psychological therapy modalities (CBT, DBT), breaking societal stigmas, self-care routines, and seeking professional help. Use warm, reassuring visuals and crisis resources.",
     "template": "minimal",
     "slideCount": 10,
     "audience": "Students, Corporate Employees & Community Groups"
@@ -2263,7 +2263,7 @@ export const PPT_PROMPTS = [
       "gut health",
       "caloric balance"
     ],
-    "prompt": "Create a visually engaging presentation on Human Nutrition covering carbohydrates, proteins, fats, essential vitamins and minerals, gut microbiome health, reading food labels, debunking diet myths, and building a balanced meal plate. Include nutrition pyramids, food source infographics, and meal planning charts.",
+    "prompt": "Create an executive-level, professional, and visually engaging presentation on Human Nutrition covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, carbohydrates, proteins, fats, essential vitamins and minerals, gut microbiome health, reading food labels, debunking diet myths, and building a balanced meal plate. Include nutrition pyramids, food source infographics, and meal planning charts.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Nutritionists, Fitness Enthusiasts & Students"
@@ -2282,7 +2282,7 @@ export const PPT_PROMPTS = [
       "mrna vaccine",
       "pathogens"
     ],
-    "prompt": "Create an educational presentation on Immunology & Vaccine Science covering innate vs adaptive immunity, T-cells and B-cells, antibody production, historical impact of vaccines, modern vaccine technologies (mRNA, viral vector), herd immunity, and addressing vaccine hesitancy. Use biological diagrams and medical illustrations.",
+    "prompt": "Create an educational presentation on Immunology & Vaccine Science covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, innate vs adaptive immunity, T-cells and B-cells, antibody production, historical impact of vaccines, modern vaccine technologies (mRNA, viral vector), herd immunity, and addressing vaccine hesitancy. Use biological diagrams and medical illustrations.",
     "template": "education",
     "slideCount": 10,
     "audience": "Biology Students, Healthcare Workers & Public"
@@ -2301,7 +2301,7 @@ export const PPT_PROMPTS = [
       "car-t cell",
       "early detection"
     ],
-    "prompt": "Create an informative presentation on Cancer Biology covering cellular mutations, tumor progression, benign vs malignant tumors, cancer risk factors, screening & early detection, traditional treatments (surgery, chemo, radiation), and cutting-edge immunotherapies (CAR-T, targeted therapy). Use cellular diagrams and medical charts.",
+    "prompt": "Create an informative presentation on Cancer Biology covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, cellular mutations, tumor progression, benign vs malignant tumors, cancer risk factors, screening & early detection, traditional treatments (surgery, chemo, radiation), and cutting-edge immunotherapies (CAR-T, targeted therapy). Use cellular diagrams and medical charts.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Medical & Biotech Students, Researchers"
@@ -2320,7 +2320,7 @@ export const PPT_PROMPTS = [
       "rem sleep",
       "melatonin"
     ],
-    "prompt": "Create a presentation on Sleep Medicine explaining sleep physiology, circadian rhythm regulation, sleep stages, common disorders (insomnia, CPAP for sleep apnea), cognitive behavioral therapy for insomnia (CBT-I), and actionable sleep hygiene practices. Include sleep stage graphs and circadian biological clock visuals.",
+    "prompt": "Create a presentation on Sleep Medicine explaining sleep physiology, circadian rhythm regulation, sleep stages, common disorders (insomnia, CPAP for sleep apnea), cognitive behavioral therapy for insomnia (CBT-I), and actionable sleep hygiene practices. Include sleep stage graphs and circadian biological clock visuals. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 8,
     "audience": "Health Professionals & General Audience"
@@ -2339,7 +2339,7 @@ export const PPT_PROMPTS = [
       "pharmacokinetics",
       "pharmaceuticals"
     ],
-    "prompt": "Create a comprehensive presentation on Pharmacology & Drug Discovery detailing target identification, drug synthesis, preclinical testing, Phase I-IV clinical trials, regulatory approval, pharmacokinetics (ADME), and drug safety monitoring. Use drug development pipelines and clinical trial milestone diagrams.",
+    "prompt": "Create a comprehensive presentation on Pharmacology & Drug Discovery detailing target identification, drug synthesis, preclinical testing, Phase I-IV clinical trials, regulatory approval, pharmacokinetics (ADME), and drug safety monitoring. Use drug development pipelines and clinical trial milestone diagrams. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Pharmacy Students & Biotech Professionals"
@@ -2358,7 +2358,7 @@ export const PPT_PROMPTS = [
       "electronic health records",
       "ehealth"
     ],
-    "prompt": "Create a presentation on Telemedicine & Digital Health covering virtual consultations, IoT medical wearables (smartwatches, continuous glucose monitors), AI-assisted diagnostic tools, Electronic Health Records (EHR), patient privacy (HIPAA), and future trends in remote patient care. Include telehealth workflow charts and digital health ecosystem diagrams.",
+    "prompt": "Create a presentation on Telemedicine & Digital Health covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, virtual consultations, IoT medical wearables (smartwatches, continuous glucose monitors), AI-assisted diagnostic tools, Electronic Health Records (EHR), patient privacy (HIPAA), and future trends in remote patient care. Include telehealth workflow charts and digital health ecosystem diagrams.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Healthcare Administrators, Tech Founders & Doctors"
@@ -2377,7 +2377,7 @@ export const PPT_PROMPTS = [
       "who",
       "pandemic preparedness"
     ],
-    "prompt": "Create a presentation on Public Health & Epidemiology covering principles of disease surveillance, basic reproduction number (R0), outbreak investigation steps, contact tracing, social determinants of health, global health organizations (WHO, CDC), and pandemic preparedness strategies. Use epidemic curves and disease transmission maps.",
+    "prompt": "Create a presentation on Public Health & Epidemiology covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, principles of disease surveillance, basic reproduction number (R0), outbreak investigation steps, contact tracing, social determinants of health, global health organizations (WHO, CDC), and pandemic preparedness strategies. Use epidemic curves and disease transmission maps.",
     "template": "education",
     "slideCount": 9,
     "audience": "Public Health Officers, Policy Makers & Students"
@@ -2396,7 +2396,7 @@ export const PPT_PROMPTS = [
       "vaccination",
       "childhood diseases"
     ],
-    "prompt": "Create a presentation on Pediatric Health covering physical and cognitive growth milestones, infant nutrition and breastfeeding, childhood immunization schedules, common pediatric illnesses, safety & injury prevention, and promoting mental well-being in children. Include growth charts and milestone timelines.",
+    "prompt": "Create a presentation on Pediatric Health covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, physical and cognitive growth milestones, infant nutrition and breastfeeding, childhood immunization schedules, common pediatric illnesses, safety & injury prevention, and promoting mental well-being in children. Include growth charts and milestone timelines.",
     "template": "education",
     "slideCount": 9,
     "audience": "Parents, Pediatric Nurses & Childcare Workers"
@@ -2416,7 +2416,7 @@ export const PPT_PROMPTS = [
       "elder care",
       "longevity"
     ],
-    "prompt": "Create a presentation on Geriatric Medicine discussing age-related health changes, neurodegenerative conditions (Alzheimer's, Parkinson's), bone health and fall prevention, polypharmacy management, palliative care, and strategies for promoting independence and quality of life in senior citizens. Use care management flowcharts.",
+    "prompt": "Create a presentation on Geriatric Medicine discussing age-related health changes, neurodegenerative conditions (Alzheimer's, Parkinson's), bone health and fall prevention, polypharmacy management, palliative care, and strategies for promoting independence and quality of life in senior citizens. Use care management flowcharts. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Geriatric Caregivers, Doctors & Families"
@@ -2435,7 +2435,7 @@ export const PPT_PROMPTS = [
       "orthodontics",
       "dental hygiene"
     ],
-    "prompt": "Create an educational presentation on Dentistry & Oral Health covering tooth anatomy, plaque formation and cavities, periodontal (gum) disease, cosmetic and restorative dentistry, orthodontics, oral cancer screening, and preventative hygiene habits. Include dental anatomical diagrams and hygiene step-by-step visuals.",
+    "prompt": "Create an educational presentation on Dentistry & Oral Health covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, tooth anatomy, plaque formation and cavities, periodontal (gum) disease, cosmetic and restorative dentistry, orthodontics, oral cancer screening, and preventative hygiene habits. Include dental anatomical diagrams and hygiene step-by-step visuals.",
     "template": "education",
     "slideCount": 8,
     "audience": "Dental Students, Hygienists & Patients"
@@ -2455,7 +2455,7 @@ export const PPT_PROMPTS = [
       "bleeding control",
       "aed"
     ],
-    "prompt": "Create an action-oriented presentation on First Aid & Emergency Response covering primary assessment (DRABC), performing CPR and using an AED, Heimlich maneuver for choking, severe bleeding control, burn care, fracture stabilization, and snakebite first aid. Include step-by-step emergency action diagrams and safety icons.",
+    "prompt": "Create an action-oriented presentation on First Aid & Emergency Response covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, primary assessment (DRABC), performing CPR and using an AED, Heimlich maneuver for choking, severe bleeding control, burn care, fracture stabilization, and snakebite first aid. Include step-by-step emergency action diagrams and safety icons.",
     "template": "corporate",
     "slideCount": 10,
     "audience": "First Responders, School Teachers & Office Safety Officers"
@@ -2474,7 +2474,7 @@ export const PPT_PROMPTS = [
       "biomechanics",
       "athletic recovery"
     ],
-    "prompt": "Create a presentation on Sports Medicine & Physical Rehabilitation covering common sports injuries (sprains, ACL tears, concussions), biomechanics of athletic movement, injury prevention strategies, physical therapy modalities, RICE protocol, and return-to-sport evaluation. Include joint movement diagrams and rehabilitation exercise flowcharts.",
+    "prompt": "Create a presentation on Sports Medicine & Physical Rehabilitation covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, common sports injuries (sprains, ACL tears, concussions), biomechanics of athletic movement, injury prevention strategies, physical therapy modalities, RICE protocol, and return-to-sport evaluation. Include joint movement diagrams and rehabilitation exercise flowcharts.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Physiotherapists, Coaches & Athletes"
@@ -2494,7 +2494,7 @@ export const PPT_PROMPTS = [
       "eczema",
       "dermatologist"
     ],
-    "prompt": "Create a presentation on Dermatology & Skin Health explaining skin anatomy, common skin conditions (acne, eczema, psoriasis), UV radiation damage and skin cancer prevention (ABCDE criteria for melanoma), skincare active ingredients (retinoids, vitamin C, SPF), and cosmetic dermatology treatments. Include skin layer diagrams and protection guides.",
+    "prompt": "Create a presentation on Dermatology & Skin Health explaining skin anatomy, common skin conditions (acne, eczema, psoriasis), UV radiation damage and skin cancer prevention (ABCDE criteria for melanoma), skincare active ingredients (retinoids, vitamin C, SPF), and cosmetic dermatology treatments. Include skin layer diagrams and protection guides. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Dermatology Students, Estheticians & Patients"
@@ -2512,7 +2512,7 @@ export const PPT_PROMPTS = [
       "dna sequencing",
       "genetic testing"
     ],
-    "prompt": "Create a presentation on Genomic Medicine & Personalized Healthcare covering high-throughput DNA sequencing, identifying genetic disease risks, pharmacogenomics (tailoring drugs to genetic profiles), gene therapy successes, direct-to-consumer genetic testing, and ethical considerations. Include DNA sequencing flowcharts and precision medicine comparison charts.",
+    "prompt": "Create a presentation on Genomic Medicine & Personalized Healthcare covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, high-throughput DNA sequencing, identifying genetic disease risks, pharmacogenomics (tailoring drugs to genetic profiles), gene therapy successes, direct-to-consumer genetic testing, and ethical considerations. Include DNA sequencing flowcharts and precision medicine comparison charts.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Genetic Counselors, Researchers & Biotech Executives"
@@ -2532,7 +2532,7 @@ export const PPT_PROMPTS = [
       "lasik",
       "digital eye strain"
     ],
-    "prompt": "Create a presentation on Ophthalmology & Vision Care covering eye anatomy, refractive errors (myopia, hyperopia, astigmatism), age-related eye conditions (cataracts, macular degeneration, glaucoma), corrective surgeries (LASIK), and preventing digital eye strain (20-20-20 rule). Include optical diagrams and vision testing visual aids.",
+    "prompt": "Create a presentation on Ophthalmology & Vision Care covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, eye anatomy, refractive errors (myopia, hyperopia, astigmatism), age-related eye conditions (cataracts, macular degeneration, glaucoma), corrective surgeries (LASIK), and preventing digital eye strain (20-20-20 rule). Include optical diagrams and vision testing visual aids.",
     "template": "education",
     "slideCount": 8,
     "audience": "Optometry Students, Eye Care Patients & Office Workers"
@@ -2551,7 +2551,7 @@ export const PPT_PROMPTS = [
       "mammography",
       "reproductive wellness"
     ],
-    "prompt": "Create a supportive and informative presentation on Women's Health covering hormonal health, menstrual cycle phases, Polycystic Ovary Syndrome (PCOS), maternal care and prenatal nutrition, menopause management, and preventative screenings (Pap smear, mammograms). Include health cycle diagrams and wellness roadmaps.",
+    "prompt": "Create a supportive and informative presentation on Women's Health covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, hormonal health, menstrual cycle phases, Polycystic Ovary Syndrome (PCOS), maternal care and prenatal nutrition, menopause management, and preventative screenings (Pap smear, mammograms). Include health cycle diagrams and wellness roadmaps.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Women's Health Advocates, Doctors & General Public"
@@ -2569,7 +2569,7 @@ export const PPT_PROMPTS = [
       "cardiovascular risk",
       "mens mental health"
     ],
-    "prompt": "Create a practical presentation on Men's Health covering key risk factors, prostate health and PSA screening, maintaining healthy testosterone levels, heart disease prevention, overcoming barriers to mental health support, and age-appropriate physical fitness routines. Use structured health charts and risk assessment guides.",
+    "prompt": "Create a practical presentation on Men's Health covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, key risk factors, prostate health and PSA screening, maintaining healthy testosterone levels, heart disease prevention, overcoming barriers to mental health support, and age-appropriate physical fitness routines. Use structured health charts and risk assessment guides.",
     "template": "corporate",
     "slideCount": 8,
     "audience": "Men's Health Groups, Physicians & General Public"
@@ -2588,7 +2588,7 @@ export const PPT_PROMPTS = [
       "lead poisoning",
       "occupational safety"
     ],
-    "prompt": "Create a presentation on Environmental Health & Toxicology covering exposure pathways for environmental toxins, heavy metal toxicity (lead, mercury), endocrine disruptors in plastics, industrial worker hazards, indoor air pollutants, and regulatory standards for safe air and drinking water. Use toxicology exposure diagrams and safety standards tables.",
+    "prompt": "Create a presentation on Environmental Health & Toxicology covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, exposure pathways for environmental toxins, heavy metal toxicity (lead, mercury), endocrine disruptors in plastics, industrial worker hazards, indoor air pollutants, and regulatory standards for safe air and drinking water. Use toxicology exposure diagrams and safety standards tables.",
     "template": "education",
     "slideCount": 9,
     "audience": "Environmental Health Officers & Safety Inspectors"
@@ -2608,7 +2608,7 @@ export const PPT_PROMPTS = [
       "gut microbiome",
       "digestive system"
     ],
-    "prompt": "Create a presentation on Gastroenterology & Digestive Health covering the digestive tract anatomy, gut microbiome functions, common disorders (GERD, IBS, Inflammatory Bowel Disease), dietary fiber and probiotics, liver health, and endoscopy diagnostic procedures. Include digestive system diagrams and gut health guidelines.",
+    "prompt": "Create a presentation on Gastroenterology & Digestive Health covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the digestive tract anatomy, gut microbiome functions, common disorders (GERD, IBS, Inflammatory Bowel Disease), dietary fiber and probiotics, liver health, and endoscopy diagnostic procedures. Include digestive system diagrams and gut health guidelines.",
     "template": "education",
     "slideCount": 9,
     "audience": "Gastroenterology Students, Dietitians & Patients"
@@ -2627,7 +2627,7 @@ export const PPT_PROMPTS = [
       "naturopathy",
       "mind body medicine"
     ],
-    "prompt": "Create a presentation on Integrative & Holistic Medicine covering the philosophy of treating the whole person (mind, body, spirit), combining evidence-based complementary therapies (acupuncture, yoga, herbal medicine) with conventional medical treatments, managing chronic pain, and evaluating scientific evidence for alternative remedies.",
+    "prompt": "Create a presentation on Integrative & Holistic Medicine covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the philosophy of treating the whole person (mind, body, spirit), combining evidence-based complementary therapies (acupuncture, yoga, herbal medicine) with conventional medical treatments, managing chronic pain, and evaluating scientific evidence for alternative remedies.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Healthcare Providers & Holistic Health Practitioners"
@@ -2647,7 +2647,7 @@ export const PPT_PROMPTS = [
       "euthanasia",
       "patient rights"
     ],
-    "prompt": "Create a thoughtful presentation on Medical Ethics & Bioethics covering the 4 core principles (autonomy, beneficence, non-maleficence, justice), obtaining informed consent, confidentiality, ethical dilemmas in organ allocation, genetic editing ethics, and end-of-life decision-making. Include ethical case study analysis flowcharts.",
+    "prompt": "Create a thoughtful presentation on Medical Ethics & Bioethics covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the 4 core principles (autonomy, beneficence, non-maleficence, justice), obtaining informed consent, confidentiality, ethical dilemmas in organ allocation, genetic editing ethics, and end-of-life decision-making. Include ethical case study analysis flowcharts.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Medical Students, Ethics Committees & Healthcare Workers"
@@ -2666,7 +2666,7 @@ export const PPT_PROMPTS = [
       "recovery",
       "behavioral addiction"
     ],
-    "prompt": "Create a compassionate presentation on Addiction Science & Recovery covering the neurobiology of reward pathways (dopamine hijacking), chemical dependence vs behavioral addictions, stages of change model, evidence-based treatments (MAT, behavioral therapy), harm reduction strategies, and supporting long-term recovery. Use neuro-pathway diagrams and recovery timeline models.",
+    "prompt": "Create a compassionate presentation on Addiction Science & Recovery covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the neurobiology of reward pathways (dopamine hijacking), chemical dependence vs behavioral addictions, stages of change model, evidence-based treatments (MAT, behavioral therapy), harm reduction strategies, and supporting long-term recovery. Use neuro-pathway diagrams and recovery timeline models.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Counselors, Social Workers & Community Advocates"
@@ -2686,7 +2686,7 @@ export const PPT_PROMPTS = [
       "surrealism",
       "pop art"
     ],
-    "prompt": "Create a visually rich presentation on Western Art History covering major periods from Classical Antiquity, Renaissance masters (Leonardo, Michelangelo), Impressionism (Monet), Cubism (Picasso), Surrealism (Dalí), to Pop Art (Warhol). Include iconic masterpiece artwork high-res visuals and style comparison timelines.",
+    "prompt": "Create a visually rich presentation on Western Art History covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, major periods from Classical Antiquity, Renaissance masters (Leonardo, Michelangelo), Impressionism (Monet), Cubism (Picasso), Surrealism (Dalí), to Pop Art (Warhol). Include iconic masterpiece artwork high-res visuals and style comparison timelines.",
     "template": "education",
     "slideCount": 10,
     "audience": "Art History Students & Gallery Enthusiasts"
@@ -2705,7 +2705,7 @@ export const PPT_PROMPTS = [
       "branding",
       "layout design"
     ],
-    "prompt": "Create an essential presentation on Graphic Design Fundamentals explaining color theory (RGB vs CMYK, color harmony), typography anatomy, layout balance and grid systems, contrast, alignment, whitespace, and building visual hierarchy in digital and print media. Include side-by-side design examples and grid layout mockups.",
+    "prompt": "Create an essential presentation on Graphic Design Fundamentals explaining color theory (RGB vs CMYK, color harmony), typography anatomy, layout balance and grid systems, contrast, alignment, whitespace, and building visual hierarchy in digital and print media. Include side-by-side design examples and grid layout mockups. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Beginner Graphic Designers, Marketers & Creators"
@@ -2725,7 +2725,7 @@ export const PPT_PROMPTS = [
       "harmony",
       "chord progression"
     ],
-    "prompt": "Create an accessible presentation on Music Theory Basics covering staff notation, major and minor scales, interval structures, building triads and 7th chords, circle of fifths, rhythm & time signatures, and common pop/classical chord progressions. Include piano keyboard diagrams and musical staff notations.",
+    "prompt": "Create an accessible presentation on Music Theory Basics covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, staff notation, major and minor scales, interval structures, building triads and 7th chords, circle of fifths, rhythm & time signatures, and common pop/classical chord progressions. Include piano keyboard diagrams and musical staff notations.",
     "template": "education",
     "slideCount": 9,
     "audience": "Music Students, Songwriters & Instrumentalists"
@@ -2744,7 +2744,7 @@ export const PPT_PROMPTS = [
       "color grading",
       "director"
     ],
-    "prompt": "Create a cinematic presentation on Cinematography & Directing covering camera shot types (wide, medium, close-up), rule of thirds and framing, 3-point lighting setups, camera movement techniques (tracking, pan, tilt), color grading moods, and visual storytelling principles. Include film frame examples and lighting diagrams.",
+    "prompt": "Create a cinematic presentation on Cinematography & Directing covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, camera shot types (wide, medium, close-up), rule of thirds and framing, 3-point lighting setups, camera movement techniques (tracking, pan, tilt), color grading moods, and visual storytelling principles. Include film frame examples and lighting diagrams.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Film Students, Videographers & Content Creators"
@@ -2764,7 +2764,7 @@ export const PPT_PROMPTS = [
       "brutalism",
       "building design"
     ],
-    "prompt": "Create a visual presentation on Architectural History spanning Gothic cathedrals, Renaissance domes, Baroque ornamentation, Neoclassical columns, Bauhaus modernism, mid-century modern, Brutalism, and parametric contemporary architecture. Include photos of famous landmarks and architectural structural diagrams.",
+    "prompt": "Create a visual presentation on Architectural History spanning Gothic cathedrals, Renaissance domes, Baroque ornamentation, Neoclassical columns, Bauhaus modernism, mid-century modern, Brutalism, and parametric contemporary architecture. Include photos of famous landmarks and architectural structural diagrams. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 10,
     "audience": "Architecture Students & Urban Historians"
@@ -2784,7 +2784,7 @@ export const PPT_PROMPTS = [
       "portrait photography",
       "composition"
     ],
-    "prompt": "Create a stunning presentation on Photography Mastery explaining the Exposure Triangle (Aperture, Shutter Speed, ISO), controlling depth of field, motion blur vs freezing action, lens selection, natural vs studio lighting, and compositional rules (leading lines, golden ratio). Include sample photographic exposure comparison grids.",
+    "prompt": "Create a stunning presentation on Photography Mastery explaining the Exposure Triangle (Aperture, Shutter Speed, ISO), controlling depth of field, motion blur vs freezing action, lens selection, natural vs studio lighting, and compositional rules (leading lines, golden ratio). Include sample photographic exposure comparison grids. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Photographers & Visual Artists"
@@ -2803,7 +2803,7 @@ export const PPT_PROMPTS = [
       "fashion history",
       "sustainable fashion"
     ],
-    "prompt": "Create a stylish presentation on Fashion Design covering historical fashion eras (20s flapper, 50s Dior New Look, 90s minimalism), textile types and garment construction, moodboard creation, haute couture vs ready-to-wear, sustainable fashion ethics, and famous fashion houses. Include fashion sketch illustrations and textile charts.",
+    "prompt": "Create a stylish presentation on Fashion Design covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, historical fashion eras (20s flapper, 50s Dior New Look, 90s minimalism), textile types and garment construction, moodboard creation, haute couture vs ready-to-wear, sustainable fashion ethics, and famous fashion houses. Include fashion sketch illustrations and textile charts.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Fashion Students, Designers & Stylists"
@@ -2823,7 +2823,7 @@ export const PPT_PROMPTS = [
       "rendering",
       "vfx"
     ],
-    "prompt": "Create a technical art presentation on 3D Animation & CGI production detailing polygonal modeling, UV unwrapping, texturing & shading, character rigging, 12 principles of animation, lighting, rendering engines (Cycles, Arnold), and VFX compositing. Include wireframe 3D model visuals and pipeline flowcharts.",
+    "prompt": "Create a technical art presentation on 3D Animation & CGI production detailing polygonal modeling, UV unwrapping, texturing & shading, character rigging, 12 principles of animation, lighting, rendering engines (Cycles, Arnold), and VFX compositing. Include wireframe 3D model visuals and pipeline flowcharts. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 10,
     "audience": "3D Animators, VFX Artists & Game Artists"
@@ -2842,7 +2842,7 @@ export const PPT_PROMPTS = [
       "installation art",
       "digital sculpting"
     ],
-    "prompt": "Create an artistic presentation on Sculpture & 3D Fine Art covering traditional subtractive carving (marble), additive modeling (clay, wax), lost-wax bronze casting process, modern kinetic and installation art, and digital 3D sculpting (ZBrush). Include photos of famous historical and contemporary sculptures.",
+    "prompt": "Create an artistic presentation on Sculpture & 3D Fine Art covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, traditional subtractive carving (marble), additive modeling (clay, wax), lost-wax bronze casting process, modern kinetic and installation art, and digital 3D sculpting (ZBrush). Include photos of famous historical and contemporary sculptures.",
     "template": "education",
     "slideCount": 9,
     "audience": "Art Students & Museum Visitors"
@@ -2862,7 +2862,7 @@ export const PPT_PROMPTS = [
       "set design",
       "stage lighting"
     ],
-    "prompt": "Create a theatrical presentation on Theater Production covering acting techniques (Method acting, Meisner technique), stage layouts (proscenium, thrust, arena), set design engineering, theatrical lighting design, costume design, sound engineering, and directing classic plays. Include stage floorplan diagrams and set design sketches.",
+    "prompt": "Create a theatrical presentation on Theater Production covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, acting techniques (Method acting, Meisner technique), stage layouts (proscenium, thrust, arena), set design engineering, theatrical lighting design, costume design, sound engineering, and directing classic plays. Include stage floorplan diagrams and set design sketches.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Drama Students, Theater Directors & Actors"
@@ -2882,7 +2882,7 @@ export const PPT_PROMPTS = [
       "concerto",
       "baroque music"
     ],
-    "prompt": "Create an inspiring presentation on Classical Music Eras profiling the Baroque era (Bach, Vivaldi), Classical era (Mozart, Haydn), Romantic era (Beethoven, Chopin, Tchaikovsky), and 20th Century Modernism (Stravinsky). Explain orchestral instruments, symphonic structure, and musical evolution.",
+    "prompt": "Create an inspiring presentation on Classical Music Eras profiling the Baroque era (Bach, Vivaldi), Classical era (Mozart, Haydn), Romantic era (Beethoven, Chopin, Tchaikovsky), and 20th Century Modernism (Stravinsky). Explain orchestral instruments, symphonic structure, and musical evolution. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Musicology Students & Classical Music Lovers"
@@ -2901,7 +2901,7 @@ export const PPT_PROMPTS = [
       "procreate",
       "character design"
     ],
-    "prompt": "Create a visual presentation on Digital Art & Concept Illustration covering software tools (Photoshop, Procreate), setting up drawing tablets, brush customization, color theory application, light and value rendering, concept art pipelines for movies/games, and selling digital art online. Include step-by-step painting process breakdowns.",
+    "prompt": "Create a visual presentation on Digital Art & Concept Illustration covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, software tools (Photoshop, Procreate), setting up drawing tablets, brush customization, color theory application, light and value rendering, concept art pipelines for movies/games, and selling digital art online. Include step-by-step painting process breakdowns.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Digital Illustrators & Concept Artists"
@@ -2921,7 +2921,7 @@ export const PPT_PROMPTS = [
       "kathakali",
       "nATYA SHASTRA"
     ],
-    "prompt": "Create a culturally rich presentation on Indian Classical Dance Forms covering Natya Shastra foundations, 8 recognized classical dances (Bharatanatyam, Kathak, Odissi, Kathakali, Kuchipudi, Manipuri, Mohiniyattam, Sattriya), hand mudras, facial expressions (Abhinaya), costumes, and musical accompaniment. Include costume photos and mudra diagrams.",
+    "prompt": "Create a culturally rich presentation on Indian Classical Dance Forms covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Natya Shastra foundations, 8 recognized classical dances (Bharatanatyam, Kathak, Odissi, Kathakali, Kuchipudi, Manipuri, Mohiniyattam, Sattriya), hand mudras, facial expressions (Abhinaya), costumes, and musical accompaniment. Include costume photos and mudra diagrams.",
     "template": "education",
     "slideCount": 10,
     "audience": "Dance Students, Cultural Scholars & Enthusiasts"
@@ -2940,7 +2940,7 @@ export const PPT_PROMPTS = [
       "brush lettering",
       "hand lettering"
     ],
-    "prompt": "Create an elegant presentation on Calligraphy & Hand Lettering covering historical scripts (Uncial, Copperplate, Gothic), Islamic Arabic calligraphy traditions, Asian ink calligraphy, modern brush pen lettering, nib types & inks, and converting hand lettering into digital vector fonts. Include stroke-order guides and script specimens.",
+    "prompt": "Create an elegant presentation on Calligraphy & Hand Lettering covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, historical scripts (Uncial, Copperplate, Gothic), Islamic Arabic calligraphy traditions, Asian ink calligraphy, modern brush pen lettering, nib types & inks, and converting hand lettering into digital vector fonts. Include stroke-order guides and script specimens.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Calligraphers, Designers & Hobbyists"
@@ -2959,7 +2959,7 @@ export const PPT_PROMPTS = [
       "home decor",
       "ergonomics"
     ],
-    "prompt": "Create a stylish presentation on Interior Design & Space Planning explaining design styles (Minimalist, Industrial, Scandinavian, Bohemian), space planning ergonomics, 3 lighting layers (ambient, task, accent), material selection, color psychology in living spaces, and 3D floorplan rendering tools. Include moodboard layouts and floorplan diagrams.",
+    "prompt": "Create a stylish presentation on Interior Design & Space Planning explaining design styles (Minimalist, Industrial, Scandinavian, Bohemian), space planning ergonomics, 3 lighting layers (ambient, task, accent), material selection, color psychology in living spaces, and 3D floorplan rendering tools. Include moodboard layouts and floorplan diagrams. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Interior Designers, Homeowners & Architects"
@@ -2978,7 +2978,7 @@ export const PPT_PROMPTS = [
       "kiln firing",
       "clay sculpture"
     ],
-    "prompt": "Create a craft-centered presentation on Pottery & Ceramic Artistry covering clay bodies (earthenware, stoneware, porcelain), hand-building techniques (pinch, coil, slab), pottery wheel throwing process, ceramic glazing chemistry, firing stages (bisque and glaze firings in kilns), and famous pottery cultures. Include process photo series.",
+    "prompt": "Create a craft-centered presentation on Pottery & Ceramic Artistry covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, clay bodies (earthenware, stoneware, porcelain), hand-building techniques (pinch, coil, slab), pottery wheel throwing process, ceramic glazing chemistry, firing stages (bisque and glaze firings in kilns), and famous pottery cultures. Include process photo series.",
     "template": "education",
     "slideCount": 8,
     "audience": "Potters, Crafters & Fine Art Students"
@@ -2997,7 +2997,7 @@ export const PPT_PROMPTS = [
       "nft art",
       "art curation"
     ],
-    "prompt": "Create a provocative presentation on Contemporary & Avant-Garde Art detailing post-1970s movements, Conceptual Art (Duchamp's legacy), Street Art & Graffiti (Banksy, Basquiat), Performance & Video Art, NFT crypto art, and how modern galleries curate controversial artworks. Include controversial artwork case studies.",
+    "prompt": "Create a provocative presentation on Contemporary & Avant-Garde Art detailing post-1970s movements, Conceptual Art (Duchamp's legacy), Street Art & Graffiti (Banksy, Basquiat), Performance & Video Art, NFT crypto art, and how modern galleries curate controversial artworks. Include controversial artwork case studies. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Art Critics, Gallery Curators & Collectors"
@@ -3017,7 +3017,7 @@ export const PPT_PROMPTS = [
       "synthesizer",
       "daw"
     ],
-    "prompt": "Create a technical presentation on Sound Design & Audio Engineering covering Digital Audio Workstations (Pro Tools, Ableton), acoustic treatment, microphone polar patterns, Foley sound effect creation for movies, subtractive/FM synthesis, mixing EQ/compression, and final mastering. Include audio signal chain flowcharts.",
+    "prompt": "Create a technical presentation on Sound Design & Audio Engineering covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Digital Audio Workstations (Pro Tools, Ableton), acoustic treatment, microphone polar patterns, Foley sound effect creation for movies, subtractive/FM synthesis, mixing EQ/compression, and final mastering. Include audio signal chain flowcharts.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Audio Engineers, Producers & Sound Designers"
@@ -3036,7 +3036,7 @@ export const PPT_PROMPTS = [
       "handicrafts",
       "cultural preservation"
     ],
-    "prompt": "Create a colorful presentation on Global Folk Art & Indigenous Crafts showcasing Madhubani and Warli painting from India, Mexican Alebrijes and Papel Picado, African tribal wood masks, Japanese Kintsugi, Indigenous Australian dot painting, and preserving traditional craftsmanship against industrialization. Include traditional art motifs.",
+    "prompt": "Create a colorful presentation on Global Folk Art & Indigenous Crafts showcasing Madhubani and Warli painting from India, Mexican Alebrijes and Papel Picado, African tribal wood masks, Japanese Kintsugi, Indigenous Australian dot painting, and preserving traditional craftsmanship against industrialization. Include traditional art motifs. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Cultural Heritage Researchers & Art Enthusiasts"
@@ -3055,7 +3055,7 @@ export const PPT_PROMPTS = [
       "improvisation",
       "louis armstrong"
     ],
-    "prompt": "Create a soulful presentation on Jazz Music Evolution tracing origins in African-American blues and ragtime in New Orleans, Swing big bands (Duke Ellington), Bebop revolution (Charlie Parker, Dizzy Gillespie), Cool Jazz (Miles Davis), Fusion, and the art of musical improvisation. Include jazz timeline visuals and legendary artist profiles.",
+    "prompt": "Create a soulful presentation on Jazz Music Evolution tracing origins in African-American blues and ragtime in New Orleans, Swing big bands (Duke Ellington), Bebop revolution (Charlie Parker, Dizzy Gillespie), Cool Jazz (Miles Davis), Fusion, and the art of musical improvisation. Include jazz timeline visuals and legendary artist profiles. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Jazz Musicians, Music Students & Historians"
@@ -3074,7 +3074,7 @@ export const PPT_PROMPTS = [
       "cad",
       "design thinking"
     ],
-    "prompt": "Create a clean presentation on Industrial & Product Design covering Dieter Rams' 10 Principles of Good Design, user-centric product research, sketching and CAD modeling (SolidWorks, Fusion 360), rapid 3D print prototyping, injection molding manufacturing, and sustainable product design. Include product teardown and prototype photos.",
+    "prompt": "Create a clean presentation on Industrial & Product Design covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Dieter Rams' 10 Principles of Good Design, user-centric product research, sketching and CAD modeling (SolidWorks, Fusion 360), rapid 3D print prototyping, injection molding manufacturing, and sustainable product design. Include product teardown and prototype photos.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Industrial Designers & Hardware Engineers"
@@ -3093,7 +3093,7 @@ export const PPT_PROMPTS = [
       "character design",
       "storyboarding"
     ],
-    "prompt": "Create an action-packed presentation on Comic & Manga Storytelling explaining comic scriptwriting, character turnarounds, panel layout and gutters (closure effect), camera pacing, screentones and inking, speech balloon lettering, and publishing indie webcomics vs traditional Manga. Include page layout breakdown diagrams.",
+    "prompt": "Create an action-packed presentation on Comic & Manga Storytelling explaining comic scriptwriting, character turnarounds, panel layout and gutters (closure effect), camera pacing, screentones and inking, speech balloon lettering, and publishing indie webcomics vs traditional Manga. Include page layout breakdown diagrams. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Comic Artists, Mangaka & Illustrators"
@@ -3111,7 +3111,7 @@ export const PPT_PROMPTS = [
       "tessellation",
       "origami engineering"
     ],
-    "prompt": "Create a fascinating presentation on Origami & Paper Folding covering Akira Yoshizawa's notation system, modular origami, tessellations, mathematical geometry behind paper folding, and modern engineering applications of origami (space solar panels, medical stents, deployable structures). Include crease pattern diagrams and origami step guides.",
+    "prompt": "Create a fascinating presentation on Origami & Paper Folding covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Akira Yoshizawa's notation system, modular origami, tessellations, mathematical geometry behind paper folding, and modern engineering applications of origami (space solar panels, medical stents, deployable structures). Include crease pattern diagrams and origami step guides.",
     "template": "education",
     "slideCount": 8,
     "audience": "Mathematicians, Engineers & Origami Enthusiasts"
@@ -3130,7 +3130,7 @@ export const PPT_PROMPTS = [
       "dialogue",
       "character arc"
     ],
-    "prompt": "Create a narrative-focused presentation on Screenwriting explaining the Three-Act Structure, Joseph Campbell's Hero's Journey, creating compelling character arcs, writing authentic dialogue, scene beats & pacing, formatting industry-standard scripts (Final Draft), and pitching screenplays. Include story arc diagrams and script page examples.",
+    "prompt": "Create a narrative-focused presentation on Screenwriting explaining the Three-Act Structure, Joseph Campbell's Hero's Journey, creating compelling character arcs, writing authentic dialogue, scene beats & pacing, formatting industry-standard scripts (Final Draft), and pitching screenplays. Include story arc diagrams and script page examples. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Screenwriters, Authors & Directors"
@@ -3149,7 +3149,7 @@ export const PPT_PROMPTS = [
       "lottie",
       "after effects"
     ],
-    "prompt": "Create a dynamic presentation on UI Motion Design covering functional vs decorative animation, easing curves (cubic-bezier), micro-interactions (button feedback, loading spinners), Lottie file exports, spatial interface motion, and performance guidelines for mobile/web interfaces. Include animated UI transition breakdowns.",
+    "prompt": "Create a dynamic presentation on UI Motion Design covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, functional vs decorative animation, easing curves (cubic-bezier), micro-interactions (button feedback, loading spinners), Lottie file exports, spatial interface motion, and performance guidelines for mobile/web interfaces. Include animated UI transition breakdowns.",
     "template": "startup",
     "slideCount": 9,
     "audience": "UI/UX Designers & Motion Graphics Artists"
@@ -3168,7 +3168,7 @@ export const PPT_PROMPTS = [
       "vipassana",
       "mental clarity"
     ],
-    "prompt": "Create a peaceful presentation on Mindfulness & Meditation explaining the science of stress reduction (lowering cortisol), breathwork techniques (Box breathing, 4-7-8), Mindfulness-Based Stress Reduction (MBSR), Vipassana body scan, overcoming brain chatter, and establishing a sustainable daily meditation habit. Include practice steps.",
+    "prompt": "Create a peaceful presentation on Mindfulness & Meditation explaining the science of stress reduction (lowering cortisol), breathwork techniques (Box breathing, 4-7-8), Mindfulness-Based Stress Reduction (MBSR), Vipassana body scan, overcoming brain chatter, and establishing a sustainable daily meditation habit. Include practice steps. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Wellness Seekers, Corporate Employees & Individuals"
@@ -3187,7 +3187,7 @@ export const PPT_PROMPTS = [
       "gtd",
       "pomodoro"
     ],
-    "prompt": "Create an empowering presentation on Time Management Systems detailing the Eisenhower Urgent/Important Matrix, David Allen's Getting Things Done (GTD) framework, Time Blocking on calendars, eliminating distraction, managing energy over time, and tools like Notion and Todoist. Include system framework diagrams.",
+    "prompt": "Create an empowering presentation on Time Management Systems detailing the Eisenhower Urgent/Important Matrix, David Allen's Getting Things Done (GTD) framework, Time Blocking on calendars, eliminating distraction, managing energy over time, and tools like Notion and Todoist. Include system framework diagrams. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Professionals, Students & Entrepreneurs"
@@ -3206,7 +3206,7 @@ export const PPT_PROMPTS = [
       "resilience",
       "dichotomy of control"
     ],
-    "prompt": "Create a practical presentation on Stoicism for Modern Life exploring core teachings of Marcus Aurelius, Seneca, and Epictetus. Explain the Dichotomy of Control, Amor Fati, Memento Mori, managing anger and anxiety, daily journaling practices, and building unshakeable mental resilience in challenging times.",
+    "prompt": "Create a practical presentation on Stoicism for Modern Life exploring core teachings of Marcus Aurelius, Seneca, and Epictetus. Explain the Dichotomy of Control, Amor Fati, Memento Mori, managing anger and anxiety, daily journaling practices, and building unshakeable mental resilience in challenging times. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Seekers of Mental Resilience & General Public"
@@ -3225,7 +3225,7 @@ export const PPT_PROMPTS = [
       "progressive overload",
       "bodybuilding"
     ],
-    "prompt": "Create a science-based presentation on Strength Training & Hypertrophy explaining progressive overload mechanisms, compound vs isolation lifts (squat, bench, deadlift), mechanical tension and muscle damage, protein synthesis timing, workout splits (Push/Pull/Legs), and avoiding overtraining. Include muscle group charts.",
+    "prompt": "Create a science-based presentation on Strength Training & Hypertrophy explaining progressive overload mechanisms, compound vs isolation lifts (squat, bench, deadlift), mechanical tension and muscle damage, protein synthesis timing, workout splits (Push/Pull/Legs), and avoiding overtraining. Include muscle group charts. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Gym-goers, Personal Trainers & Fitness Enthusiasts"
@@ -3244,7 +3244,7 @@ export const PPT_PROMPTS = [
       "self discipline",
       "routine"
     ],
-    "prompt": "Create a transformational presentation on the Science of Habit Building explaining Charles Duhigg and James Clear frameworks: Cue, Craving, Response, Reward. Cover identity-based habits, 2-minute rule, habit stacking, environment design, friction reduction, and breaking destructive addiction loops. Include habit tracking templates.",
+    "prompt": "Create a transformational presentation on the Science of Habit Building explaining Charles Duhigg and James Clear frameworks: Cue, Craving, Response, Reward. Cover identity-based habits, 2-minute rule, habit stacking, environment design, friction reduction, and breaking destructive addiction loops. Include habit tracking templates. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Individuals Seeking Personal Growth & Coaches"
@@ -3263,7 +3263,7 @@ export const PPT_PROMPTS = [
       "body language",
       "toastmasters"
     ],
-    "prompt": "Create a high-impact presentation on Public Speaking Mastery covering overcoming stage fear (glossophobia), structuring a speech with hook and call-to-action, vocal pitch and pacing modulation, non-verbal body language, handling Q&A sessions, and storytelling techniques used by TED speakers. Include speech outline blueprints.",
+    "prompt": "Create a high-impact presentation on Public Speaking Mastery covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, overcoming stage fear (glossophobia), structuring a speech with hook and call-to-action, vocal pitch and pacing modulation, non-verbal body language, handling Q&A sessions, and storytelling techniques used by TED speakers. Include speech outline blueprints.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Professionals, Students & Public Speakers"
@@ -3282,7 +3282,7 @@ export const PPT_PROMPTS = [
       "index funds",
       "passive income"
     ],
-    "prompt": "Create a strategic presentation on the FIRE (Financial Independence, Retire Early) movement explaining LeanFIRE vs FatFIRE, calculating your FIRE number, achieving 50%+ savings rates, investing in broad low-cost index funds, 4% safe withdrawal rule, and creating multiple passive income streams. Include compound interest growth charts.",
+    "prompt": "Create a strategic presentation on the FIRE (Financial Independence, Retire Early) movement explaining LeanFIRE vs FatFIRE, calculating your FIRE number, achieving 50%+ savings rates, investing in broad low-cost index funds, 4% safe withdrawal rule, and creating multiple passive income streams. Include compound interest growth charts. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "finance",
     "slideCount": 9,
     "audience": "Young Professionals & Financial Planners"
@@ -3301,7 +3301,7 @@ export const PPT_PROMPTS = [
       "intentional living",
       "essentialism"
     ],
-    "prompt": "Create a serene presentation on Minimalism & Intentional Living covering physical decluttering (Marie Kondo method), digital decluttering (inbox zero, phone boundaries), capsule wardrobes, essentialism in commitments, reducing consumerism, and reclaiming time and focus for what truly matters.",
+    "prompt": "Create a serene presentation on Minimalism & Intentional Living covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, physical decluttering (Marie Kondo method), digital decluttering (inbox zero, phone boundaries), capsule wardrobes, essentialism in commitments, reducing consumerism, and reclaiming time and focus for what truly matters.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Overwhelmed Professionals & General Audience"
@@ -3321,7 +3321,7 @@ export const PPT_PROMPTS = [
       "flexibility",
       "wellness"
     ],
-    "prompt": "Create a holistic presentation on Yoga Philosophy & Practice detailing Patanjali's 8 Limbs of Yoga (Yama, Niyama, Asana, Pranayama, etc.), physical benefits of core poses, breath control (Pranayama), chakra alignment, safety and alignment principles, and integrating yoga into a daily routine. Include pose illustrations.",
+    "prompt": "Create a holistic presentation on Yoga Philosophy & Practice detailing Patanjali's 8 Limbs of Yoga (Yama, Niyama, Asana, Pranayama, etc.), physical benefits of core poses, breath control (Pranayama), chakra alignment, safety and alignment principles, and integrating yoga into a daily routine. Include pose illustrations. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Yoga Practitioners, Teachers & Wellness Enthusiasts"
@@ -3340,7 +3340,7 @@ export const PPT_PROMPTS = [
       "emotional regulation",
       "relationships"
     ],
-    "prompt": "Create a deep presentation on Emotional Intelligence (EQ) covering Daniel Goleman's 5 components: Self-Awareness, Self-Regulation, Internal Motivation, Empathy, and Social Skills. Explain recognizing emotional triggers, active listening, managing conflicts compassionately, and elevating EQ over IQ in life success. Include EQ self-assessment visual framework.",
+    "prompt": "Create a deep presentation on Emotional Intelligence (EQ) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Daniel Goleman's 5 components: Self-Awareness, Self-Regulation, Internal Motivation, Empathy, and Social Skills. Explain recognizing emotional triggers, active listening, managing conflicts compassionately, and elevating EQ over IQ in life success. Include EQ self-assessment visual framework.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Leaders, Couples, Students & Individuals"
@@ -3359,7 +3359,7 @@ export const PPT_PROMPTS = [
       "longevity",
       "cellular repair"
     ],
-    "prompt": "Create a science-backed presentation on Intermittent Fasting & Autophagy detailing popular protocols (16/8, 5:2, OMAD), Nobel Prize-winning cellular autophagy mechanisms, improving insulin sensitivity, fat loss vs muscle retention, who should avoid fasting, and how to break fasts safely. Include fasting timeline stages.",
+    "prompt": "Create a science-backed presentation on Intermittent Fasting & Autophagy detailing popular protocols (16/8, 5:2, OMAD), Nobel Prize-winning cellular autophagy mechanisms, improving insulin sensitivity, fat loss vs muscle retention, who should avoid fasting, and how to break fasts safely. Include fasting timeline stages. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 8,
     "audience": "Health Seekers, Dieters & Biohackers"
@@ -3379,7 +3379,7 @@ export const PPT_PROMPTS = [
       "hrv",
       "nmn"
     ],
-    "prompt": "Create an innovative presentation on Biohacking & Longevity optimizing healthspan over lifespan. Cover cold water immersion (Wim Hof), saunas, Heart Rate Variability (HRV) tracking, NMN/NAD+ supplements, blue-light blocking, red light therapy, and data-driven biohacking experiments. Include healthspan vs lifespan comparison charts.",
+    "prompt": "Create an innovative presentation on Biohacking & Longevity optimizing healthspan over lifespan. Cover cold water immersion (Wim Hof), saunas, Heart Rate Variability (HRV) tracking, NMN/NAD+ supplements, blue-light blocking, red light therapy, and data-driven biohacking experiments. Include healthspan vs lifespan comparison charts. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Biohackers, Tech Executives & Health Enthusiasts"
@@ -3398,7 +3398,7 @@ export const PPT_PROMPTS = [
       "gratitude journal",
       "mental clarity"
     ],
-    "prompt": "Create a reflective presentation on Journaling Methods covering Julia Cameron's Morning Pages, Ryder Carroll's Bullet Journal (BuJo) system, Gratitude Journaling, Stoic evening reviews, and Brain Dumping for anxiety relief. Include page layout templates and habit tracker designs.",
+    "prompt": "Create a reflective presentation on Journaling Methods covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Julia Cameron's Morning Pages, Ryder Carroll's Bullet Journal (BuJo) system, Gratitude Journaling, Stoic evening reviews, and Brain Dumping for anxiety relief. Include page layout templates and habit tracker designs.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Writers, Creatives & Stressed Individuals"
@@ -3417,7 +3417,7 @@ export const PPT_PROMPTS = [
       "boundaries",
       "mental exhaustion"
     ],
-    "prompt": "Create a vital presentation on Overcoming Burnout explaining World Health Organization criteria for occupational burnout, identifying physical/emotional exhaustion signs, establishing firm work-home boundaries, saying 'no' gracefully, taking true digital detoxes, and rebuilding personal vitality.",
+    "prompt": "Create a vital presentation on Overcoming Burnout explaining World Health Organization criteria for occupational burnout, identifying physical/emotional exhaustion signs, establishing firm work-home boundaries, saying 'no' gracefully, taking true digital detoxes, and rebuilding personal vitality. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Corporate Workers, Executives & Freelancers"
@@ -3436,7 +3436,7 @@ export const PPT_PROMPTS = [
       "running shoes",
       "endurance"
     ],
-    "prompt": "Create an athletic presentation on Running & Marathon Training covering proper foot strike biomechanics, Zone 2 low-heart-rate endurance building, 16-week marathon training plans, fueling with carbs/electrolytes on long runs, choosing running shoes, and preventing shin splints/runner's knee. Include weekly mileage ramp-up charts.",
+    "prompt": "Create an athletic presentation on Running & Marathon Training covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, proper foot strike biomechanics, Zone 2 low-heart-rate endurance building, 16-week marathon training plans, fueling with carbs/electrolytes on long runs, choosing running shoes, and preventing shin splints/runner's knee. Include weekly mileage ramp-up charts.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Runners, Triathletes & Fitness Coaches"
@@ -3455,7 +3455,7 @@ export const PPT_PROMPTS = [
       "organic vegetables",
       "soil health"
     ],
-    "prompt": "Create a green presentation on Home Gardening & Urban Agriculture covering soil composition & organic composting, seed germination, growing vegetables in small spaces/balconies, natural pest deterrents, rainwater harvesting for plants, and mental health benefits of gardening. Include plant care calendars.",
+    "prompt": "Create a green presentation on Home Gardening & Urban Agriculture covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, soil composition & organic composting, seed germination, growing vegetables in small spaces/balconies, natural pest deterrents, rainwater harvesting for plants, and mental health benefits of gardening. Include plant care calendars.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Homeowners, Urbanites & Eco-Lovers"
@@ -3474,7 +3474,7 @@ export const PPT_PROMPTS = [
       "plumbing basics",
       "home maintenance"
     ],
-    "prompt": "Create a practical presentation on DIY Home Improvement covering essential hand & power tools every homeowner needs, safety gear (eye/ear protection), drywall patching, interior painting techniques (cutting in, rolling), fixing simple plumbing leaks, and budgeting DIY projects. Include step-by-step repair guides.",
+    "prompt": "Create a practical presentation on DIY Home Improvement covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, essential hand & power tools every homeowner needs, safety gear (eye/ear protection), drywall patching, interior painting techniques (cutting in, rolling), fixing simple plumbing leaks, and budgeting DIY projects. Include step-by-step repair guides.",
     "template": "corporate",
     "slideCount": 8,
     "audience": "Homeowners, Handymen & DIY Enthusiasts"
@@ -3493,7 +3493,7 @@ export const PPT_PROMPTS = [
       "pet nutrition",
       "vet checkup"
     ],
-    "prompt": "Create a heartwarming presentation on Pet Care & Dog Training covering positive reinforcement techniques (clicker training), understanding canine body language, optimal pet nutrition, routine vet preventative care, socialization, and addressing separation anxiety. Include behavior chart visual aids.",
+    "prompt": "Create a heartwarming presentation on Pet Care & Dog Training covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, positive reinforcement techniques (clicker training), understanding canine body language, optimal pet nutrition, routine vet preventative care, socialization, and addressing separation anxiety. Include behavior chart visual aids.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Pet Owners, Dog Trainers & Animal Shelter Volunteers"
@@ -3511,7 +3511,7 @@ export const PPT_PROMPTS = [
       "packing light",
       "responsible travel"
     ],
-    "prompt": "Create an inspiring presentation on Sustainable Travel & Ecotourism covering carbon footprint reduction (train over flight), Leave No Trace principles in nature, choosing eco-certified lodgings, supporting indigenous local businesses, ethical wildlife interactions, and ultra-light travel packing strategies. Include eco-travel checklists.",
+    "prompt": "Create an inspiring presentation on Sustainable Travel & Ecotourism covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, carbon footprint reduction (train over flight), Leave No Trace principles in nature, choosing eco-certified lodgings, supporting indigenous local businesses, ethical wildlife interactions, and ultra-light travel packing strategies. Include eco-travel checklists.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Backpackers, Travelers & Eco-Tourists"
@@ -3530,7 +3530,7 @@ export const PPT_PROMPTS = [
       "batna",
       "communication"
     ],
-    "prompt": "Create a compelling presentation on the Art of Negotiation & Persuasion exploring FBI negotiator Chris Voss techniques: Tactical Empathy, Mirroring, Labeling, Calibrated Questions, and identifying BATNA (Best Alternative to a Negotiated Agreement). Apply principles to salary raises, purchasing, and interpersonal disputes. Include dialogue scripts.",
+    "prompt": "Create a compelling presentation on the Art of Negotiation & Persuasion exploring FBI negotiator Chris Voss techniques: Tactical Empathy, Mirroring, Labeling, Calibrated Questions, and identifying BATNA (Best Alternative to a Negotiated Agreement). Apply principles to salary raises, purchasing, and interpersonal disputes. Include dialogue scripts. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Salespeople, Job Seekers & Professionals"
@@ -3549,7 +3549,7 @@ export const PPT_PROMPTS = [
       "gluten",
       "baking"
     ],
-    "prompt": "Create a mouth-watering presentation on Sourdough & Culinary Baking Science covering wild yeast starter cultivation, baker's math & hydration percentages, autolyse and gluten development, bulk fermentation stages, scoring techniques, and achieving optimal oven spring. Include baking process timelines.",
+    "prompt": "Create a mouth-watering presentation on Sourdough & Culinary Baking Science covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, wild yeast starter cultivation, baker's math & hydration percentages, autolyse and gluten development, bulk fermentation stages, scoring techniques, and achieving optimal oven spring. Include baking process timelines.",
     "template": "education",
     "slideCount": 9,
     "audience": "Bakers, Culinary Students & Home Chefs"
@@ -3568,7 +3568,7 @@ export const PPT_PROMPTS = [
       "mnemonics",
       "accelerated learning"
     ],
-    "prompt": "Create an intellectual presentation on Speed Reading & Memory Hacks covering eliminating subvocalization, using visual pacers, chunking text, constructing a Memory Palace (Method of Loci), Peg systems, and mnemonic devices for rapid learning and retention. Include memory exercise examples.",
+    "prompt": "Create an intellectual presentation on Speed Reading & Memory Hacks covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, eliminating subvocalization, using visual pacers, chunking text, constructing a Memory Palace (Method of Loci), Peg systems, and mnemonic devices for rapid learning and retention. Include memory exercise examples.",
     "template": "education",
     "slideCount": 8,
     "audience": "Students, Researchers & Lifelong Learners"
@@ -3586,7 +3586,7 @@ export const PPT_PROMPTS = [
       "dressing well",
       "color analysis"
     ],
-    "prompt": "Create a chic presentation on Personal Style & Capsule Wardrobe detailing seasonal color analysis, understanding body proportions, building a 30-piece versatile capsule wardrobe for work and leisure, garment care and tailoring, and dressing with confidence without fast fashion waste. Include wardrobe matrix graphics.",
+    "prompt": "Create a chic presentation on Personal Style & Capsule Wardrobe detailing seasonal color analysis, understanding body proportions, building a 30-piece versatile capsule wardrobe for work and leisure, garment care and tailoring, and dressing with confidence without fast fashion waste. Include wardrobe matrix graphics. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Style-conscious Individuals & Fashion Beginners"
@@ -3605,7 +3605,7 @@ export const PPT_PROMPTS = [
       "coffee beans",
       "latte art"
     ],
-    "prompt": "Create an aromatic presentation on Coffee Science & Barista Crafts covering Arabica vs Robusta bean origins, roasting profiles, extraction variables (grind size, water temp, pressure), mastering Pour-Over (V60, Chemex) and Espresso, steaming micro-foam for latte art, and specialty coffee tasting notes. Include extraction chart visuals.",
+    "prompt": "Create an aromatic presentation on Coffee Science & Barista Crafts covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Arabica vs Robusta bean origins, roasting profiles, extraction variables (grind size, water temp, pressure), mastering Pour-Over (V60, Chemex) and Espresso, steaming micro-foam for latte art, and specialty coffee tasting notes. Include extraction chart visuals.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Coffee Enthusiasts, Baristas & Cafe Owners"
@@ -3624,7 +3624,7 @@ export const PPT_PROMPTS = [
       "parent child bond",
       "family"
     ],
-    "prompt": "Create a compassionate presentation on Positive Parenting covering emotion coaching over punishment, setting firm respectful boundaries, navigating toddler tantrums and teenage independence, active empathetic listening, encouraging autonomy, and maintaining parent self-care. Include parent-child communication scripts.",
+    "prompt": "Create a compassionate presentation on Positive Parenting covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, emotion coaching over punishment, setting firm respectful boundaries, navigating toddler tantrums and teenage independence, active empathetic listening, encouraging autonomy, and maintaining parent self-care. Include parent-child communication scripts.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Parents, Caregivers & Family Counselors"
@@ -3643,7 +3643,7 @@ export const PPT_PROMPTS = [
       "judicial review",
       "supreme court"
     ],
-    "prompt": "Create an authoritative presentation on Constitutional Law & Civil Liberties covering separation of powers, judicial review, freedom of speech and press, equal protection clause, due process of law, fundamental privacy rights, and landmark Supreme Court decisions shaping society. Include legal framework hierarchy diagrams.",
+    "prompt": "Create an authoritative presentation on Constitutional Law & Civil Liberties covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, separation of powers, judicial review, freedom of speech and press, equal protection clause, due process of law, fundamental privacy rights, and landmark Supreme Court decisions shaping society. Include legal framework hierarchy diagrams.",
     "template": "corporate",
     "slideCount": 10,
     "audience": "Law Students, Attorneys & Civics Educators"
@@ -3663,7 +3663,7 @@ export const PPT_PROMPTS = [
       "trade secrets",
       "licensing"
     ],
-    "prompt": "Create a comprehensive presentation on Intellectual Property (IP) Law explaining the 4 main IP pillars: Patents (utility vs design), Trademarks (brand protection), Copyrights (artistic creations), and Trade Secrets. Cover IP registration, licensing agreements, fair use doctrine, and international IP enforcement (WIPO). Include IP comparison tables.",
+    "prompt": "Create a comprehensive presentation on Intellectual Property (IP) Law explaining the 4 main IP pillars: Patents (utility vs design), Trademarks (brand protection), Copyrights (artistic creations), and Trade Secrets. Cover IP registration, licensing agreements, fair use doctrine, and international IP enforcement (WIPO). Include IP comparison tables. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Entrepreneurs, Inventors, Artists & Business Owners"
@@ -3683,7 +3683,7 @@ export const PPT_PROMPTS = [
       "cybercrime law",
       "privacy regulation"
     ],
-    "prompt": "Create a crucial presentation on Cyber Law & Data Privacy Regulations covering General Data Protection Regulation (GDPR), CCPA, India's DPDP Act, data subject rights (right to be forgotten), corporate data breach notification requirements, cloud compliance, and legal penalties for non-compliance. Include compliance readiness flowcharts.",
+    "prompt": "Create a crucial presentation on Cyber Law & Data Privacy Regulations covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, General Data Protection Regulation (GDPR), CCPA, India's DPDP Act, data subject rights (right to be forgotten), corporate data breach notification requirements, cloud compliance, and legal penalties for non-compliance. Include compliance readiness flowcharts.",
     "template": "corporate",
     "slideCount": 10,
     "audience": "Legal Counsel, CTOs, Compliance Officers & Students"
@@ -3703,7 +3703,7 @@ export const PPT_PROMPTS = [
       "trial",
       "prosecution"
     ],
-    "prompt": "Create an informative presentation on Criminal Law & Judicial Procedure detailing elements of crime (Actus Reus and Mens Rea), police investigation & arrest procedures, rights of accused persons, bail hearings, plea bargaining, trial proceedings, burden of proof (beyond reasonable doubt), and sentencing guidelines. Include criminal trial flowcharts.",
+    "prompt": "Create an informative presentation on Criminal Law & Judicial Procedure detailing elements of crime (Actus Reus and Mens Rea), police investigation & arrest procedures, rights of accused persons, bail hearings, plea bargaining, trial proceedings, burden of proof (beyond reasonable doubt), and sentencing guidelines. Include criminal trial flowcharts. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 10,
     "audience": "Law Students, Paralegals & Law Enforcement Aspirants"
@@ -3722,7 +3722,7 @@ export const PPT_PROMPTS = [
       "shareholder rights",
       "compliance"
     ],
-    "prompt": "Create a business legal presentation on Corporate Law & Mergers & Acquisitions covering corporate entity structures (LLC, Inc, Pvt Ltd), fiduciary duties of directors (care and loyalty), shareholder agreements, M&A deal structures, due diligence checklists, antitrust approvals, and corporate restructuring. Include M&A process timelines.",
+    "prompt": "Create a business legal presentation on Corporate Law & Mergers & Acquisitions covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, corporate entity structures (LLC, Inc, Pvt Ltd), fiduciary duties of directors (care and loyalty), shareholder agreements, M&A deal structures, due diligence checklists, antitrust approvals, and corporate restructuring. Include M&A process timelines.",
     "template": "corporate",
     "slideCount": 10,
     "audience": "Corporate Lawyers, Business Executives & Investment Bankers"
@@ -3741,7 +3741,7 @@ export const PPT_PROMPTS = [
       "treaties",
       "diplomatic immunity"
     ],
-    "prompt": "Create an insightful presentation on Public International Law covering sources of international law (treaties, customary law), United Nations charter, International Court of Justice (ICJ), diplomatic immunity, laws of armed conflict (Geneva Conventions), state sovereignty, and enforcing international sanctions. Include UN organ organizational charts.",
+    "prompt": "Create an insightful presentation on Public International Law covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, sources of international law (treaties, customary law), United Nations charter, International Court of Justice (ICJ), diplomatic immunity, laws of armed conflict (Geneva Conventions), state sovereignty, and enforcing international sanctions. Include UN organ organizational charts.",
     "template": "education",
     "slideCount": 10,
     "audience": "International Relations & Law Students, Diplomats"
@@ -3760,7 +3760,7 @@ export const PPT_PROMPTS = [
       "carbon credits",
       "green litigation"
     ],
-    "prompt": "Create an impactful presentation on Environmental Law & Climate Policy covering global accords (Paris Agreement, Kyoto Protocol), Environmental Impact Assessment (EIA) mandates, pollution control legislation, public trust doctrine, carbon trading mechanisms, National Green Tribunal (NGT) rulings, and climate litigation against corporations.",
+    "prompt": "Create an impactful presentation on Environmental Law & Climate Policy covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, global accords (Paris Agreement, Kyoto Protocol), Environmental Impact Assessment (EIA) mandates, pollution control legislation, public trust doctrine, carbon trading mechanisms, National Green Tribunal (NGT) rulings, and climate litigation against corporations.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Environmental Lawyers, Policy Analysts & Activists"
@@ -3779,7 +3779,7 @@ export const PPT_PROMPTS = [
       "posh act",
       "unions"
     ],
-    "prompt": "Create a vital legal presentation on Labor & Employment Law covering employee vs independent contractor classification, employment contracts, minimum wage & overtime rules, workplace harassment protection (POSH), wrongful termination standards, severance agreements, and collective bargaining/union rights. Include workplace policy compliance checklists.",
+    "prompt": "Create a vital legal presentation on Labor & Employment Law covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, employee vs independent contractor classification, employment contracts, minimum wage & overtime rules, workplace harassment protection (POSH), wrongful termination standards, severance agreements, and collective bargaining/union rights. Include workplace policy compliance checklists.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "HR Managers, Labor Lawyers & Employees"
@@ -3798,7 +3798,7 @@ export const PPT_PROMPTS = [
       "breach of contract",
       "indemnity"
     ],
-    "prompt": "Create a practical legal presentation on Contract Law & Agreement Drafting detailing essential elements of a valid contract (Offer, Acceptance, Consideration, Capacity), key clauses (Indemnity, Limitation of Liability, Termination, Force Majeure, Governing Law), common drafting mistakes, and remedies for breach of contract. Include contract clause breakdowns.",
+    "prompt": "Create a practical legal presentation on Contract Law & Agreement Drafting detailing essential elements of a valid contract (Offer, Acceptance, Consideration, Capacity), key clauses (Indemnity, Limitation of Liability, Termination, Force Majeure, Governing Law), common drafting mistakes, and remedies for breach of contract. Include contract clause breakdowns. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Lawyers, Business Managers & Contract Specialists"
@@ -3817,7 +3817,7 @@ export const PPT_PROMPTS = [
       "human rights court",
       "amnesty"
     ],
-    "prompt": "Create an inspiring presentation on International Human Rights Law examining Universal Declaration of Human Rights (UDHR), International Covenant on Civil and Political Rights (ICCPR), European Court of Human Rights, refugee protection protocols, conventions against torture and genocide, and human rights advocacy NGO work. Include human rights framework visual maps.",
+    "prompt": "Create an inspiring presentation on International Human Rights Law examining Universal Declaration of Human Rights (UDHR), International Covenant on Civil and Political Rights (ICCPR), European Court of Human Rights, refugee protection protocols, conventions against torture and genocide, and human rights advocacy NGO work. Include human rights framework visual maps. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Human Rights Advocates, NGO Workers & Students"
@@ -3836,7 +3836,7 @@ export const PPT_PROMPTS = [
       "adoption law",
       "prenup"
     ],
-    "prompt": "Create an empathetic legal presentation on Family Law covering marriage registration, ground for divorce, legal standards for child custody (best interests of the child), spousal maintenance & alimony calculations, adoption legal processes, protection against domestic violence, and prenuptial agreements. Include custody arrangement flowcharts.",
+    "prompt": "Create an empathetic legal presentation on Family Law covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, marriage registration, ground for divorce, legal standards for child custody (best interests of the child), spousal maintenance & alimony calculations, adoption legal processes, protection against domestic violence, and prenuptial agreements. Include custody arrangement flowcharts.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Family Law Attorneys, Mediators & Clients"
@@ -3856,7 +3856,7 @@ export const PPT_PROMPTS = [
       "mortgage law",
       "rera"
     ],
-    "prompt": "Create a property presentation on Real Estate Law & Property Rights covering land title verification, deeds and conveyancing, landlord-tenant rights and eviction laws, zoning codes, mortgage foreclosures, property boundary disputes, and real estate regulatory frameworks (RERA). Include real estate transaction flowcharts.",
+    "prompt": "Create a property presentation on Real Estate Law & Property Rights covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, land title verification, deeds and conveyancing, landlord-tenant rights and eviction laws, zoning codes, mortgage foreclosures, property boundary disputes, and real estate regulatory frameworks (RERA). Include real estate transaction flowcharts.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Real Estate Agents, Property Buyers & Attorneys"
@@ -3875,7 +3875,7 @@ export const PPT_PROMPTS = [
       "tax audit",
       "tax havens"
     ],
-    "prompt": "Create a structured presentation on Taxation Law covering principles of taxation (equity, certainty), Income Tax structure, Goods and Services Tax (GST/VAT), corporate tax deductions, transfer pricing, tax avoidance vs tax evasion, international tax treaties (OECD BEPS), and tax audit defense. Include tax flow diagrams.",
+    "prompt": "Create a structured presentation on Taxation Law covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, principles of taxation (equity, certainty), Income Tax structure, Goods and Services Tax (GST/VAT), corporate tax deductions, transfer pricing, tax avoidance vs tax evasion, international tax treaties (OECD BEPS), and tax audit defense. Include tax flow diagrams.",
     "template": "finance",
     "slideCount": 10,
     "audience": "Tax Attorneys, Chartered Accountants & CFOs"
@@ -3894,7 +3894,7 @@ export const PPT_PROMPTS = [
       "shipping law",
       "maritime piracy"
     ],
-    "prompt": "Create an intriguing presentation on Maritime & Admiralty Law covering UN Convention on the Law of the Sea (UNCLOS), territorial waters vs Exclusive Economic Zones (EEZ), charterparties and bills of lading, marine insurance, vessel salvage rights, collisions at sea, and anti-piracy maritime enforcement. Include ocean boundary map diagrams.",
+    "prompt": "Create an intriguing presentation on Maritime & Admiralty Law covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, UN Convention on the Law of the Sea (UNCLOS), territorial waters vs Exclusive Economic Zones (EEZ), charterparties and bills of lading, marine insurance, vessel salvage rights, collisions at sea, and anti-piracy maritime enforcement. Include ocean boundary map diagrams.",
     "template": "education",
     "slideCount": 9,
     "audience": "Maritime Lawyers, Shipping Executives & Naval Officers"
@@ -3914,7 +3914,7 @@ export const PPT_PROMPTS = [
       "talent contract",
       "fair use"
     ],
-    "prompt": "Create an engaging presentation on Media & Entertainment Law covering defamation (libel vs slander), right of publicity, music synchronization licensing, talent contract negotiations, film distribution agreements, censorship standards, and fair use defense for news/satire. Include media contract lifecycle charts.",
+    "prompt": "Create an engaging presentation on Media & Entertainment Law covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, defamation (libel vs slander), right of publicity, music synchronization licensing, talent contract negotiations, film distribution agreements, censorship standards, and fair use defense for news/satire. Include media contract lifecycle charts.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Media Executives, Journalists, Creators & Entertainment Lawyers"
@@ -3933,7 +3933,7 @@ export const PPT_PROMPTS = [
       "algorithmic bias",
       "autonomous liability"
     ],
-    "prompt": "Create a cutting-edge presentation on AI Regulation & Legal Frameworks detailing the EU AI Act risk categories, copyright ownership of AI-generated content, liability for autonomous systems (self-driving car accidents, medical AI errors), deepfake legislation, and preventing algorithmic discrimination. Include AI legal risk matrices.",
+    "prompt": "Create a cutting-edge presentation on AI Regulation & Legal Frameworks detailing the EU AI Act risk categories, copyright ownership of AI-generated content, liability for autonomous systems (self-driving car accidents, medical AI errors), deepfake legislation, and preventing algorithmic discrimination. Include AI legal risk matrices. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Tech Lawyers, AI Developers, Policy Makers & Ethicists"
@@ -3952,7 +3952,7 @@ export const PPT_PROMPTS = [
       "arbitral award",
       "conciliation"
     ],
-    "prompt": "Create an efficient legal presentation on Alternative Dispute Resolution (ADR) detailing arbitration vs litigation, drafting effective arbitration clauses, the mediation process, role of neutral mediators, enforcing international arbitral awards under New York Convention, and reducing court backlog. Include ADR process comparison flowcharts.",
+    "prompt": "Create an efficient legal presentation on Alternative Dispute Resolution (ADR) detailing arbitration vs litigation, drafting effective arbitration clauses, the mediation process, role of neutral mediators, enforcing international arbitral awards under New York Convention, and reducing court backlog. Include ADR process comparison flowcharts. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Corporate Counsel, Arbitrators, Mediators & Litigators"
@@ -3970,7 +3970,7 @@ export const PPT_PROMPTS = [
       "standard of care",
       "patient consent"
     ],
-    "prompt": "Create a critical legal presentation on Healthcare Law & Medical Malpractice covering proving medical negligence (duty, breach, causation, damages), standard of care benchmarks, hospital vicarious liability, informed consent legal requirements, medical record privacy, and defensive medicine practices. Include negligence evaluation flowcharts.",
+    "prompt": "Create a critical legal presentation on Healthcare Law & Medical Malpractice covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, proving medical negligence (duty, breach, causation, damages), standard of care benchmarks, hospital vicarious liability, informed consent legal requirements, medical record privacy, and defensive medicine practices. Include negligence evaluation flowcharts.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Medical Defense Attorneys, Hospital Administrators & Doctors"
@@ -3990,7 +3990,7 @@ export const PPT_PROMPTS = [
       "basel iii",
       "anti money laundering"
     ],
-    "prompt": "Create a high-level legal presentation on Banking & Financial Services Regulation covering central banking oversight, Anti-Money Laundering (AML) & Know Your Customer (KYC) requirements, SEC securities regulations, Basel III capital adequacy accords, insider trading prosecution, and regulating fintech/crypto platforms. Include compliance framework diagrams.",
+    "prompt": "Create a high-level legal presentation on Banking & Financial Services Regulation covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, central banking oversight, Anti-Money Laundering (AML) & Know Your Customer (KYC) requirements, SEC securities regulations, Basel III capital adequacy accords, insider trading prosecution, and regulating fintech/crypto platforms. Include compliance framework diagrams.",
     "template": "finance",
     "slideCount": 10,
     "audience": "Banking Compliance Officers, Financial Lawyers & Regulators"
@@ -4009,7 +4009,7 @@ export const PPT_PROMPTS = [
       "artemis accords",
       "space governance"
     ],
-    "prompt": "Create a visionary legal presentation on Space Law & Outer Space Governance covering Outer Space Treaty 1967 fundamentals (non-militarization, common heritage of mankind), liability for satellite collisions and space debris, legal status of commercial asteroid mining, space tourism regulation, and the Artemis Accords. Include orbital space jurisdiction maps.",
+    "prompt": "Create a visionary legal presentation on Space Law & Outer Space Governance covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Outer Space Treaty 1967 fundamentals (non-militarization, common heritage of mankind), liability for satellite collisions and space debris, legal status of commercial asteroid mining, space tourism regulation, and the Artemis Accords. Include orbital space jurisdiction maps.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Space Lawyers, Aerospace Executives & Policy Researchers"
@@ -4027,7 +4027,7 @@ export const PPT_PROMPTS = [
       "product liability",
       "consumer court"
     ],
-    "prompt": "Create an empowering legal presentation on Consumer Protection Laws covering consumer rights against defective goods and deficient services, false advertising and deceptive trade practices, product liability standards, e-commerce return & refund rights, and filing claims in Consumer Disputes Redressal Commissions. Include consumer complaint step-by-step guides.",
+    "prompt": "Create an empowering legal presentation on Consumer Protection Laws covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, consumer rights against defective goods and deficient services, false advertising and deceptive trade practices, product liability standards, e-commerce return & refund rights, and filing claims in Consumer Disputes Redressal Commissions. Include consumer complaint step-by-step guides.",
     "template": "corporate",
     "slideCount": 8,
     "audience": "Consumers, Consumer Rights Activists & Legal Clinics"
@@ -4047,7 +4047,7 @@ export const PPT_PROMPTS = [
       "naturalization",
       "deportation"
     ],
-    "prompt": "Create a global legal presentation on Immigration & Citizenship Law covering work visas and permanent residency pathways, asylum and refugee law criteria, deportation defense and due process rights, naturalization requirements, dual citizenship rules, and border security policy impacts. Include visa application lifecycle charts.",
+    "prompt": "Create a global legal presentation on Immigration & Citizenship Law covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, work visas and permanent residency pathways, asylum and refugee law criteria, deportation defense and due process rights, naturalization requirements, dual citizenship rules, and border security policy impacts. Include visa application lifecycle charts.",
     "template": "education",
     "slideCount": 9,
     "audience": "Immigration Lawyers, Applicants & NGO Workers"
@@ -4066,7 +4066,7 @@ export const PPT_PROMPTS = [
       "electoral commission",
       "democracy"
     ],
-    "prompt": "Create a vital legal presentation on Election Law & Democratic Integrity covering voting rights legislation, campaign finance rules (PACs and disclosure), redistricting standards and gerrymandering court challenges, election administration security, resolving contested election results, and the role of independent Electoral Commissions. Include election process flowcharts.",
+    "prompt": "Create a vital legal presentation on Election Law & Democratic Integrity covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, voting rights legislation, campaign finance rules (PACs and disclosure), redistricting standards and gerrymandering court challenges, election administration security, resolving contested election results, and the role of independent Electoral Commissions. Include election process flowcharts.",
     "template": "education",
     "slideCount": 9,
     "audience": "Political Scientists, Election Observers, Lawyers & Citizens"
@@ -4084,7 +4084,7 @@ export const PPT_PROMPTS = [
       "class action",
       "corporate risk"
     ],
-    "prompt": "Create an urgent legal presentation on Data Breach Litigation & Corporate Risk covering shareholder class-action lawsuits after data leaks, legalities of paying ransomware ransoms, cyber insurance policy claim disputes, board of director liability for poor security, and post-breach forensic disclosure duties. Include risk mitigation checklists.",
+    "prompt": "Create an urgent legal presentation on Data Breach Litigation & Corporate Risk covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, shareholder class-action lawsuits after data leaks, legalities of paying ransomware ransoms, cyber insurance policy claim disputes, board of director liability for poor security, and post-breach forensic disclosure duties. Include risk mitigation checklists.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Chief Risk Officers, Corporate Lawyers & CISOs"
@@ -4102,7 +4102,7 @@ export const PPT_PROMPTS = [
       "wildlife protection act",
       "animal personhood"
     ],
-    "prompt": "Create a compassionate legal presentation on Animal Rights & Welfare Legislation covering anti-cruelty laws, the legal status of animals (property vs non-human persons), regulating lab testing and factory farming, endangered species legal protections, and landmark habeas corpus petitions for captive primates/elephants. Include animal law timeline visuals.",
+    "prompt": "Create a compassionate legal presentation on Animal Rights & Welfare Legislation covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, anti-cruelty laws, the legal status of animals (property vs non-human persons), regulating lab testing and factory farming, endangered species legal protections, and landmark habeas corpus petitions for captive primates/elephants. Include animal law timeline visuals.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Animal Advocates, Environmental Lawyers & Veterinary Students"
@@ -4122,7 +4122,7 @@ export const PPT_PROMPTS = [
       "container security",
       "vulnerability management"
     ],
-    "prompt": "Create a technical presentation on DevSecOps & Cloud Security Integration detailing the shift-left security movement, integrating SAST and DAST in CI/CD pipelines, container vulnerability scanning (Trivy), IAM least-privilege principles, and cloud compliance monitoring.",
+    "prompt": "Create a technical presentation on DevSecOps & Cloud Security Integration detailing the shift-left security movement, integrating SAST and DAST in CI/CD pipelines, container vulnerability scanning (Trivy), IAM least-privilege principles, and cloud compliance monitoring. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 9,
     "audience": "DevOps Engineers, CISOs & Cloud Architects"
@@ -4142,7 +4142,7 @@ export const PPT_PROMPTS = [
       "istio",
       "event driven"
     ],
-    "prompt": "Create a software architecture presentation on Microservices & API Gateways comparing monolithic vs microservices patterns, API design (REST vs GraphQL vs gRPC), service mesh (Istio), event-driven architecture (Kafka), and resilience patterns (circuit breakers, rate limiting).",
+    "prompt": "Create a software architecture presentation on Microservices & API Gateways comparing monolithic vs microservices patterns, API design (REST vs GraphQL vs gRPC), service mesh (Istio), event-driven architecture (Kafka), and resilience patterns (circuit breakers, rate limiting). Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Software Architects & Backend Engineers"
@@ -4160,7 +4160,7 @@ export const PPT_PROMPTS = [
       "cryogenics",
       "quantum error correction"
     ],
-    "prompt": "Create an advanced tech presentation on Quantum Hardware Architectures comparing superconducting qubits (IBM/Google), trapped ion systems, topological qubits, dilution refrigerators, quantum noise, and surface code error correction algorithms.",
+    "prompt": "Create an advanced tech presentation on Quantum Hardware Architectures comparing superconducting qubits (IBM/Google), trapped ion systems, topological qubits, dilution refrigerators, quantum noise, and surface code error correction algorithms. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Quantum Engineers & Physics Researchers"
@@ -4180,7 +4180,7 @@ export const PPT_PROMPTS = [
       "solidity",
       "decentralized"
     ],
-    "prompt": "Create a forward-looking tech presentation on Web3 & Decentralized Web covering InterPlanetary File System (IPFS), building decentralized applications (dApps), Decentralized Autonomous Organizations (DAOs), smart contract security audits, and Zero-Knowledge Proofs (ZK-Rollups).",
+    "prompt": "Create a forward-looking tech presentation on Web3 & Decentralized Web covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, InterPlanetary File System (IPFS), building decentralized applications (dApps), Decentralized Autonomous Organizations (DAOs), smart contract security audits, and Zero-Knowledge Proofs (ZK-Rollups).",
     "template": "startup",
     "slideCount": 9,
     "audience": "Web3 Developers, Crypto Enthusiasts & Founders"
@@ -4200,7 +4200,7 @@ export const PPT_PROMPTS = [
       "arm cortex",
       "firmware"
     ],
-    "prompt": "Create an engineering presentation on Embedded Systems & Real-Time Operating Systems (RTOS) covering microcontroller architectures (ARM Cortex-M), memory constraints, task scheduling in FreeRTOS, interrupt handling, GPIO/SPI/I2C protocols, and writing safe firmware for IoT.",
+    "prompt": "Create an engineering presentation on Embedded Systems & Real-Time Operating Systems (RTOS) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, microcontroller architectures (ARM Cortex-M), memory constraints, task scheduling in FreeRTOS, interrupt handling, GPIO/SPI/I2C protocols, and writing safe firmware for IoT.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Embedded Systems Engineers & Hardware Developers"
@@ -4219,7 +4219,7 @@ export const PPT_PROMPTS = [
       "plane detection",
       "ar ux"
     ],
-    "prompt": "Create an immersive tech presentation on Mobile Augmented Reality (ARKit & ARCore) explaining VIO spatial tracking, surface plane detection, anchoring 3D objects in physical space, occlusion, lighting estimation, and AR user interface design guidelines.",
+    "prompt": "Create an immersive tech presentation on Mobile Augmented Reality (ARKit & ARCore) explaining VIO spatial tracking, surface plane detection, anchoring 3D objects in physical space, occlusion, lighting estimation, and AR user interface design guidelines. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Mobile AR Developers & UX Designers"
@@ -4238,7 +4238,7 @@ export const PPT_PROMPTS = [
       "cron",
       "shell script"
     ],
-    "prompt": "Create a hands-on IT presentation on Linux System Administration & Bash Scripting covering Linux directory structure (FHS), file permissions (chmod/chown), process management, systemd services, automated cron jobs, log analysis, and writing robust Bash scripts.",
+    "prompt": "Create a hands-on IT presentation on Linux System Administration & Bash Scripting covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Linux directory structure (FHS), file permissions (chmod/chown), process management, systemd services, automated cron jobs, log analysis, and writing robust Bash scripts.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "System Administrators, Linux Users & IT Support"
@@ -4258,7 +4258,7 @@ export const PPT_PROMPTS = [
       "brain computer interface",
       "bci"
     ],
-    "prompt": "Create a futuristic presentation on Human-Computer Interaction (HCI) exploring the evolution from CLI/GUI to Natural User Interfaces (NUI), voice user interfaces (VUI), eye-tracking, advanced haptic feedback, accessibility standards, and non-invasive Brain-Computer Interfaces (BCI).",
+    "prompt": "Create a futuristic presentation on Human-Computer Interaction (HCI) exploring the evolution from CLI/GUI to Natural User Interfaces (NUI), voice user interfaces (VUI), eye-tracking, advanced haptic feedback, accessibility standards, and non-invasive Brain-Computer Interfaces (BCI). Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "HCI Researchers, Product Designers & Engineers"
@@ -4278,7 +4278,7 @@ export const PPT_PROMPTS = [
       "chromadb",
       "semantic search"
     ],
-    "prompt": "Create an cutting-edge AI presentation on Vector Databases & Retrieval-Augmented Generation (RAG) explaining vector embeddings, cosine similarity, HNSW indexing, vector DBs (Pinecone, Chroma, Qdrant), building end-to-end RAG pipelines for LLMs, and chunking strategies.",
+    "prompt": "Create an cutting-edge AI presentation on Vector Databases & Retrieval-Augmented Generation (RAG) explaining vector embeddings, cosine similarity, HNSW indexing, vector DBs (Pinecone, Chroma, Qdrant), building end-to-end RAG pipelines for LLMs, and chunking strategies. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 10,
     "audience": "AI Engineers, Data Scientists & Software Developers"
@@ -4298,7 +4298,7 @@ export const PPT_PROMPTS = [
       "self driving cars",
       "tesla autopolit"
     ],
-    "prompt": "Create a technical presentation on Autonomous Vehicles & Sensor Fusion explaining SAE Levels 1-5, LiDAR vs camera-only perception, RADAR sensor fusion, SLAM mapping, path planning algorithms, deep neural networks for object detection, and safety fail-safes.",
+    "prompt": "Create a technical presentation on Autonomous Vehicles & Sensor Fusion explaining SAE Levels 1-5, LiDAR vs camera-only perception, RADAR sensor fusion, SLAM mapping, path planning algorithms, deep neural networks for object detection, and safety fail-safes. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Automotive Engineers, Robotics Researchers & Tech Enthusiasts"
@@ -4318,7 +4318,7 @@ export const PPT_PROMPTS = [
       "distributed database",
       "cockroachdb"
     ],
-    "prompt": "Create a high-performance database presentation on Scaling & Sharding covering vertical vs horizontal scaling, primary-replica replication, database sharding strategies (hash vs range), CAP Theorem trade-offs, ACID transactions vs BASE consistency, and distributed SQL (CockroachDB).",
+    "prompt": "Create a high-performance database presentation on Scaling & Sharding covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, vertical vs horizontal scaling, primary-replica replication, database sharding strategies (hash vs range), CAP Theorem trade-offs, ACID transactions vs BASE consistency, and distributed SQL (CockroachDB).",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Database Administrators & Systems Engineers"
@@ -4338,7 +4338,7 @@ export const PPT_PROMPTS = [
       "gpu pipeline",
       "directx"
     ],
-    "prompt": "Create a visual computing presentation on Computer Graphics & Real-Time Ray Tracing covering the graphics pipeline (vertex/fragment shaders), rasterization limits, bounding volume hierarchies (BVH), ray-triangle intersection, path tracing photorealism, and hardware-accelerated RT cores.",
+    "prompt": "Create a visual computing presentation on Computer Graphics & Real-Time Ray Tracing covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the graphics pipeline (vertex/fragment shaders), rasterization limits, bounding volume hierarchies (BVH), ray-triangle intersection, path tracing photorealism, and hardware-accelerated RT cores.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Graphics Programmers & Game Engine Developers"
@@ -4357,7 +4357,7 @@ export const PPT_PROMPTS = [
       "ai training",
       "data augmentation"
     ],
-    "prompt": "Create an AI methodology presentation on Synthetic Data Generation detailing generating photorealistic or structured data using GANs, diffusion models, and physics simulators (NVIDIA Omniverse), bypassing data privacy laws, mitigating class imbalance, and training robust AI models.",
+    "prompt": "Create an AI methodology presentation on Synthetic Data Generation detailing generating photorealistic or structured data using GANs, diffusion models, and physics simulators (NVIDIA Omniverse), bypassing data privacy laws, mitigating class imbalance, and training robust AI models. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Machine Learning Engineers & Data Privacy Officers"
@@ -4377,7 +4377,7 @@ export const PPT_PROMPTS = [
       "observability",
       "prometheus"
     ],
-    "prompt": "Create an operational IT presentation on Site Reliability Engineering (SRE) & Observability covering Service Level Objectives (SLOs) and SLAs, managing error budgets, the 3 pillars of observability (Metrics, Logs, Traces), Prometheus/Grafana monitoring, blameless post-mortems, and on-call rotation management.",
+    "prompt": "Create an operational IT presentation on Site Reliability Engineering (SRE) & Observability covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Service Level Objectives (SLOs) and SLAs, managing error budgets, the 3 pillars of observability (Metrics, Logs, Traces), Prometheus/Grafana monitoring, blameless post-mortems, and on-call rotation management.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "SREs, System Administrators & Engineering Leads"
@@ -4397,7 +4397,7 @@ export const PPT_PROMPTS = [
       "parser",
       "type system"
     ],
-    "prompt": "Create a computer science presentation on Compiler Design explaining lexical analysis, parsing and Abstract Syntax Trees (AST), type checking, intermediate representations (LLVM IR), optimization passes, target machine code generation, and garbage collection mechanisms.",
+    "prompt": "Create a computer science presentation on Compiler Design explaining lexical analysis, parsing and Abstract Syntax Trees (AST), type checking, intermediate representations (LLVM IR), optimization passes, target machine code generation, and garbage collection mechanisms. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Computer Science Students & Language Creators"
@@ -4416,7 +4416,7 @@ export const PPT_PROMPTS = [
       "bluetooth low energy",
       "smartwatch tech"
     ],
-    "prompt": "Create a hardware tech presentation on Wearable Technology & Health Sensors covering photoplethysmography (PPG) pulse sensors, 9-axis IMU accelerometers, Bluetooth Low Energy (BLE) protocol, ultra-low power microcontroller states, biometric algorithms, and FDA medical device approval considerations.",
+    "prompt": "Create a hardware tech presentation on Wearable Technology & Health Sensors covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, photoplethysmography (PPG) pulse sensors, 9-axis IMU accelerometers, Bluetooth Low Energy (BLE) protocol, ultra-low power microcontroller states, biometric algorithms, and FDA medical device approval considerations.",
     "template": "startup",
     "slideCount": 8,
     "audience": "Hardware Product Managers & Biomedical Engineers"
@@ -4435,7 +4435,7 @@ export const PPT_PROMPTS = [
       "urdf",
       "robotics software"
     ],
-    "prompt": "Create a robotics software presentation on Robot Operating System (ROS 2) covering pub/sub node architecture, ROS services and actions, URDF robot modeling, Gazebo simulation testing, forward and inverse kinematics calculations, and obstacle avoidance navigation stacks.",
+    "prompt": "Create a robotics software presentation on Robot Operating System (ROS 2) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, pub/sub node architecture, ROS services and actions, URDF robot modeling, Gazebo simulation testing, forward and inverse kinematics calculations, and obstacle avoidance navigation stacks.",
     "template": "dark",
     "slideCount": 10,
     "audience": "Robotics Engineers & Mechatronics Students"
@@ -4454,7 +4454,7 @@ export const PPT_PROMPTS = [
       "space internet",
       "low earth orbit"
     ],
-    "prompt": "Create a space communications presentation on Satellite Internet & LEO Constellations detailing Low Earth Orbit mechanics vs Geostationary orbits, phased array beamforming antennas, inter-satellite laser links, orbital decay, frequency allocation, and bridging the global digital divide.",
+    "prompt": "Create a space communications presentation on Satellite Internet & LEO Constellations detailing Low Earth Orbit mechanics vs Geostationary orbits, phased array beamforming antennas, inter-satellite laser links, orbital decay, frequency allocation, and bridging the global digital divide. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "dark",
     "slideCount": 9,
     "audience": "Telecom Engineers, Space Enthusiasts & IT Analysts"
@@ -4474,7 +4474,7 @@ export const PPT_PROMPTS = [
       "whisper ai",
       "audio ai"
     ],
-    "prompt": "Create an audio AI presentation on Automatic Speech Recognition (ASR) & Voice AI covering converting audio waveforms to Mel-spectrograms, transformer-based speech models (OpenAI Whisper), neural Text-to-Speech (TTS) synthesis, noise suppression, and real-time voice latency optimization.",
+    "prompt": "Create an audio AI presentation on Automatic Speech Recognition (ASR) & Voice AI covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, converting audio waveforms to Mel-spectrograms, transformer-based speech models (OpenAI Whisper), neural Text-to-Speech (TTS) synthesis, noise suppression, and real-time voice latency optimization.",
     "template": "dark",
     "slideCount": 9,
     "audience": "AI Researchers & Voice Application Developers"
@@ -4492,7 +4492,7 @@ export const PPT_PROMPTS = [
       "identity aware proxy",
       "software defined perimeter"
     ],
-    "prompt": "Create an enterprise security presentation on Zero Trust Architecture explaining the core principle 'Never Trust, Always Verify', identity and device posture verification, network micro-segmentation, Software-Defined Perimeter (SDP), and replacing legacy VPNs with Zero Trust Network Access (ZTNA).",
+    "prompt": "Create an enterprise security presentation on Zero Trust Architecture explaining the core principle 'Never Trust, Always Verify', identity and device posture verification, network micro-segmentation, Software-Defined Perimeter (SDP), and replacing legacy VPNs with Zero Trust Network Access (ZTNA). Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Network Security Engineers & Enterprise IT Directors"
@@ -4511,7 +4511,7 @@ export const PPT_PROMPTS = [
       "einstein relativity",
       "black hole collision"
     ],
-    "prompt": "Create an astrophysics presentation on Gravitational Waves & LIGO detailing Einstein's 1916 prediction, laser interferometer detection mechanisms measuring sub-atomic distances, observing black hole and neutron star collisions, and the new era of multi-messenger astronomy.",
+    "prompt": "Create an astrophysics presentation on Gravitational Waves & LIGO detailing Einstein's 1916 prediction, laser interferometer detection mechanisms measuring sub-atomic distances, observing black hole and neutron star collisions, and the new era of multi-messenger astronomy. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Physics Students & Astronomy Enthusiasts"
@@ -4530,7 +4530,7 @@ export const PPT_PROMPTS = [
       "biofuels",
       "biofoundry"
     ],
-    "prompt": "Create a biotechnology presentation on Synthetic Biology covering designing artificial genetic circuits, metabolic engineering of yeast/bacteria to produce pharmaceuticals and biofuels, bio-materials (spider silk, lab-grown leather), and ethical oversight of synthetic organisms.",
+    "prompt": "Create a biotechnology presentation on Synthetic Biology covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, designing artificial genetic circuits, metabolic engineering of yeast/bacteria to produce pharmaceuticals and biofuels, bio-materials (spider silk, lab-grown leather), and ethical oversight of synthetic organisms.",
     "template": "education",
     "slideCount": 10,
     "audience": "Biotech Researchers, Geneticists & Students"
@@ -4549,7 +4549,7 @@ export const PPT_PROMPTS = [
       "continental drift",
       "mantle convection"
     ],
-    "prompt": "Create a geology presentation on Plate Tectonics exploring Wegener's continental drift hypothesis, mantle convection currents, convergent/divergent/transform plate boundaries, mountain formation (Himalayas), ocean trenches, and supercontinent cycles over Earth's 4.5 billion year history.",
+    "prompt": "Create a geology presentation on Plate Tectonics exploring Wegener's continental drift hypothesis, mantle convection currents, convergent/divergent/transform plate boundaries, mountain formation (Himalayas), ocean trenches, and supercontinent cycles over Earth's 4.5 billion year history. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Geology Students & Earth Science Enthusiasts"
@@ -4568,7 +4568,7 @@ export const PPT_PROMPTS = [
       "quarks",
       "standard model"
     ],
-    "prompt": "Create a high-energy physics presentation on Particle Physics & CERN explaining the Standard Model of elementary particles (quarks, leptons, gauge bosons), the 27km Large Hadron Collider ring, detecting the Higgs Boson particle, and searching for dark matter and supersymmetry.",
+    "prompt": "Create a high-energy physics presentation on Particle Physics & CERN explaining the Standard Model of elementary particles (quarks, leptons, gauge bosons), the 27km Large Hadron Collider ring, detecting the Higgs Boson particle, and searching for dark matter and supersymmetry. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 10,
     "audience": "Physics Majors & Science Enthusiasts"
@@ -4587,7 +4587,7 @@ export const PPT_PROMPTS = [
       "tissue engineering",
       "organoids"
     ],
-    "prompt": "Create a medical science presentation on Stem Cell Biology exploring embryonic vs Induced Pluripotent Stem Cells (iPSCs), Yamanaka factors, tissue engineering for organ replacement, growing 3D brain/kidney organoids for drug testing, and bioethical regulatory frameworks.",
+    "prompt": "Create a medical science presentation on Stem Cell Biology exploring embryonic vs Induced Pluripotent Stem Cells (iPSCs), Yamanaka factors, tissue engineering for organ replacement, growing 3D brain/kidney organoids for drug testing, and bioethical regulatory frameworks. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Biomedical Students, Doctors & Researchers"
@@ -4606,7 +4606,7 @@ export const PPT_PROMPTS = [
       "quantum materials",
       "zero resistance"
     ],
-    "prompt": "Create a materials science presentation on Superconductivity detailing zero electrical resistance below critical temperature, the Meissner effect (magnetic levitation), BCS theory and Cooper pairs, High-Temperature Superconductors (HTS), Maglev train tech, and the quest for room-temperature ambient pressure superconductors.",
+    "prompt": "Create a materials science presentation on Superconductivity detailing zero electrical resistance below critical temperature, the Meissner effect (magnetic levitation), BCS theory and Cooper pairs, High-Temperature Superconductors (HTS), Maglev train tech, and the quest for room-temperature ambient pressure superconductors. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Materials Scientists, Physicists & Engineers"
@@ -4625,7 +4625,7 @@ export const PPT_PROMPTS = [
       "ocean ph",
       "shellfish"
     ],
-    "prompt": "Create an environmental chemistry presentation on Ocean Acidification explaining how oceans absorb 30% of human CO2 emissions, chemical formation of carbonic acid, declining ocean pH levels, destruction of calcium carbonate shells in plankton/corals, and cascading marine ecosystem collapses.",
+    "prompt": "Create an environmental chemistry presentation on Ocean Acidification explaining how oceans absorb 30% of human CO2 emissions, chemical formation of carbonic acid, declining ocean pH levels, destruction of calcium carbonate shells in plankton/corals, and cascading marine ecosystem collapses. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 8,
     "audience": "Marine Chemists, Environmental Science Students"
@@ -4644,7 +4644,7 @@ export const PPT_PROMPTS = [
       "aurora borealis",
       "geomagnetic storm"
     ],
-    "prompt": "Create a space science presentation on Solar Flares & Space Weather covering the Sun's 11-year magnetic cycle, Coronal Mass Ejections (CMEs), Earth's magnetosphere shield, Aurora Borealis physics, and risks of severe geomagnetic storms to GPS satellites, astronaut safety, and terrestrial power grids.",
+    "prompt": "Create a space science presentation on Solar Flares & Space Weather covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, the Sun's 11-year magnetic cycle, Coronal Mass Ejections (CMEs), Earth's magnetosphere shield, Aurora Borealis physics, and risks of severe geomagnetic storms to GPS satellites, astronaut safety, and terrestrial power grids.",
     "template": "education",
     "slideCount": 9,
     "audience": "Space Physicists, Satellite Operators & Science Students"
@@ -4662,7 +4662,7 @@ export const PPT_PROMPTS = [
       "gene expression",
       "transgenerational genetics"
     ],
-    "prompt": "Create a molecular biology presentation on Epigenetics exploring how environmental factors (diet, stress, toxins) turn genes on/off without altering the underlying DNA sequence. Explain DNA methylation, histone modification, microRNAs, and evidence for transgenerational epigenetic inheritance.",
+    "prompt": "Create a molecular biology presentation on Epigenetics exploring how environmental factors (diet, stress, toxins) turn genes on/off without altering the underlying DNA sequence. Explain DNA methylation, histone modification, microRNAs, and evidence for transgenerational epigenetic inheritance. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Genetics Students, Biologists & Researchers"
@@ -4681,7 +4681,7 @@ export const PPT_PROMPTS = [
       "plant biochemistry",
       "artificial photosynthesis"
     ],
-    "prompt": "Create a biochemistry presentation on Photosynthesis detailing Light-Dependent Reactions in thylakoids, Photosystems I & II, ATP synthesis, the Light-Independent Calvin Cycle, Rubisco efficiency challenges, C3 vs C4 vs CAM plant adaptations, and bio-engineering artificial photosynthesis for clean hydrogen generation.",
+    "prompt": "Create a biochemistry presentation on Photosynthesis detailing Light-Dependent Reactions in thylakoids, Photosystems I & II, ATP synthesis, the Light-Independent Calvin Cycle, Rubisco efficiency challenges, C3 vs C4 vs CAM plant adaptations, and bio-engineering artificial photosynthesis for clean hydrogen generation. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Biochemistry Majors, Botanists & Researchers"
@@ -4700,7 +4700,7 @@ export const PPT_PROMPTS = [
       "heat engine",
       "arrow of time"
     ],
-    "prompt": "Create a fundamental physics presentation on the Laws of Thermodynamics covering Energy Conservation (1st Law), Entropy and spontaneous processes (2nd Law), Absolute Zero (3rd Law), Thermal Equilibrium (Zeroth Law), Carnot engine efficiency limits, and physical implications for the fate of the universe.",
+    "prompt": "Create a fundamental physics presentation on the Laws of Thermodynamics covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Energy Conservation (1st Law), Entropy and spontaneous processes (2nd Law), Absolute Zero (3rd Law), Thermal Equilibrium (Zeroth Law), Carnot engine efficiency limits, and physical implications for the fate of the universe.",
     "template": "education",
     "slideCount": 9,
     "audience": "Physics & Mechanical Engineering Students"
@@ -4719,7 +4719,7 @@ export const PPT_PROMPTS = [
       "mesozoic era",
       "dinosaur extinction"
     ],
-    "prompt": "Create an exciting earth science presentation on Paleontology & Dinosaurs covering fossilization mechanisms, Mesozoic eras (Triassic, Jurassic, Cretaceous), major dinosaur clades, the 66-million-year-old Chicxulub asteroid impact event, iridium layer evidence, and how theropod dinosaurs evolved into modern birds.",
+    "prompt": "Create an exciting earth science presentation on Paleontology & Dinosaurs covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, fossilization mechanisms, Mesozoic eras (Triassic, Jurassic, Cretaceous), major dinosaur clades, the 66-million-year-old Chicxulub asteroid impact event, iridium layer evidence, and how theropod dinosaurs evolved into modern birds.",
     "template": "education",
     "slideCount": 9,
     "audience": "Paleontology Enthusiasts, Geology Students & Public"
@@ -4738,7 +4738,7 @@ export const PPT_PROMPTS = [
       "nhej",
       "hdr repair"
     ],
-    "prompt": "Create a deep-dive biochemistry presentation on CRISPR-Cas9 detailing bacterial adaptive immune origins, single guide RNA (sgRNA) design, Protospacer Adjacent Motif (PAM) recognition, Cas9 endonuclease double-strand DNA cleavage, and cellular repair pathways (NHEJ vs HDR).",
+    "prompt": "Create a deep-dive biochemistry presentation on CRISPR-Cas9 detailing bacterial adaptive immune origins, single guide RNA (sgRNA) design, Protospacer Adjacent Motif (PAM) recognition, Cas9 endonuclease double-strand DNA cleavage, and cellular repair pathways (NHEJ vs HDR). Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Molecular Biologists, Biochemists & Researchers"
@@ -4757,7 +4757,7 @@ export const PPT_PROMPTS = [
       "turbulence",
       "boundary layer"
     ],
-    "prompt": "Create a physics & engineering presentation on Fluid Dynamics & Aerodynamics covering laminar vs turbulent flow, Bernoulli's principle, airfoil lift generation, boundary layer separation, drag coefficient reduction, and the unsolved million-dollar Navier-Stokes existence and smoothness problem.",
+    "prompt": "Create a physics & engineering presentation on Fluid Dynamics & Aerodynamics covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, laminar vs turbulent flow, Bernoulli's principle, airfoil lift generation, boundary layer separation, drag coefficient reduction, and the unsolved million-dollar Navier-Stokes existence and smoothness problem.",
     "template": "education",
     "slideCount": 10,
     "audience": "Aerospace Engineers, Physicists & Applied Mathematicians"
@@ -4776,7 +4776,7 @@ export const PPT_PROMPTS = [
       "gut flora",
       "microbiota"
     ],
-    "prompt": "Create a neuroscience presentation on The Gut-Brain Axis exploring how trillions of gut bacteria communicate with the central nervous system via the vagus nerve, produce 90% of the body's serotonin, synthesize short-chain fatty acids (butyrate), and influence mood, anxiety, and neuro-inflammation.",
+    "prompt": "Create a neuroscience presentation on The Gut-Brain Axis exploring how trillions of gut bacteria communicate with the central nervous system via the vagus nerve, produce 90% of the body's serotonin, synthesize short-chain fatty acids (butyrate), and influence mood, anxiety, and neuro-inflammation. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Neuroscientists, Microbiologists, Doctors & Students"
@@ -4794,7 +4794,7 @@ export const PPT_PROMPTS = [
       "type ia supernovae",
       "cosmological constant"
     ],
-    "prompt": "Create a cosmology presentation on Dark Energy & Cosmic Expansion detailing the 1998 Nobel Prize discovery of accelerating expansion using Type Ia Supernovae, Einstein's Cosmological Constant (Lambda), measuring the Hubble Constant tension, and future cosmic end scenarios (Big Freeze vs Big Rip).",
+    "prompt": "Create a cosmology presentation on Dark Energy & Cosmic Expansion detailing the 1998 Nobel Prize discovery of accelerating expansion using Type Ia Supernovae, Einstein's Cosmological Constant (Lambda), measuring the Hubble Constant tension, and future cosmic end scenarios (Big Freeze vs Big Rip). Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Astrophysicists & Cosmology Enthusiasts"
@@ -4813,7 +4813,7 @@ export const PPT_PROMPTS = [
       "quantum physics",
       "nobel prize 2022"
     ],
-    "prompt": "Create a quantum mechanics presentation on Quantum Entanglement & Bell's Theorem examining Einstein's 'spooky action at a distance', John Bell's mathematical inequality testing local realism, Aspect/Clauser/Zeilinger Nobel-winning experiments, and applications in quantum teleportation.",
+    "prompt": "Create a quantum mechanics presentation on Quantum Entanglement & Bell's Theorem examining Einstein's 'spooky action at a distance', John Bell's mathematical inequality testing local realism, Aspect/Clauser/Zeilinger Nobel-winning experiments, and applications in quantum teleportation. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Quantum Physicists, Philosophers of Science & Students"
@@ -4832,7 +4832,7 @@ export const PPT_PROMPTS = [
       "doppler radar",
       "weather forecasting"
     ],
-    "prompt": "Create a meteorology presentation on Atmospheric Science explaining global atmospheric circulation cells (Hadley, Ferrel, Polar), Coriolis deflection, jet stream dynamics, high/low pressure systems, Doppler weather radar principles, and supercomputer numerical weather prediction models.",
+    "prompt": "Create a meteorology presentation on Atmospheric Science explaining global atmospheric circulation cells (Hadley, Ferrel, Polar), Coriolis deflection, jet stream dynamics, high/low pressure systems, Doppler weather radar principles, and supercomputer numerical weather prediction models. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Meteorology Students, Climate Scientists & General Audience"
@@ -4851,7 +4851,7 @@ export const PPT_PROMPTS = [
       "deuterium tritium",
       "clean energy"
     ],
-    "prompt": "Create an energy science presentation on Nuclear Fusion & Tokamak Technology explaining recreating solar core temperatures (150M°C), magnetic confinement in Tokamaks (ITER project), inertial confinement laser fusion (Lawrence Livermore NIF breakthrough), net energy gain (Q > 1), and clean limitless zero-carbon power.",
+    "prompt": "Create an energy science presentation on Nuclear Fusion & Tokamak Technology explaining recreating solar core temperatures (150M°C), magnetic confinement in Tokamaks (ITER project), inertial confinement laser fusion (Lawrence Livermore NIF breakthrough), net energy gain (Q > 1), and clean limitless zero-carbon power. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 10,
     "audience": "Nuclear Engineers, Energy Researchers & Physicists"
@@ -4870,7 +4870,7 @@ export const PPT_PROMPTS = [
       "taq polymerase",
       "extreme biology"
     ],
-    "prompt": "Create a biological science presentation on Extremophiles covering organisms surviving in extreme heat (hydrothermal vents), extreme cold (Antarctica), high salinity, and intense radiation (Deinococcus radiodurans), famous tardigrade resilience, industrial applications of Taq polymerase, and implications for life on Mars.",
+    "prompt": "Create a biological science presentation on Extremophiles covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, organisms surviving in extreme heat (hydrothermal vents), extreme cold (Antarctica), high salinity, and intense radiation (Deinococcus radiodurans), famous tardigrade resilience, industrial applications of Taq polymerase, and implications for life on Mars.",
     "template": "education",
     "slideCount": 9,
     "audience": "Microbiologists, Astrobiologists & Biology Students"
@@ -4890,7 +4890,7 @@ export const PPT_PROMPTS = [
       "space race",
       "ussr"
     ],
-    "prompt": "Create a geopolitical history presentation on The Cold War detailing ideological conflict between US Capitalism and USSR Communism, NATO vs Warsaw Pact, Mutually Assured Destruction (MAD), Cuban Missile Crisis, proxy wars (Korea, Vietnam), Space Race, and the collapse of the Soviet Union.",
+    "prompt": "Create a geopolitical history presentation on The Cold War detailing ideological conflict between US Capitalism and USSR Communism, NATO vs Warsaw Pact, Mutually Assured Destruction (MAD), Cuban Missile Crisis, proxy wars (Korea, Vietnam), Space Race, and the collapse of the Soviet Union. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 10,
     "audience": "History & Political Science Students"
@@ -4909,7 +4909,7 @@ export const PPT_PROMPTS = [
       "cultural exchange",
       "ancient history"
     ],
-    "prompt": "Create a rich historical presentation on The Ancient Silk Road examining overland and maritime trade networks connecting China, Central Asia, India, Persia, and the Mediterranean. Cover commodities traded (silk, spices, porcelain), cultural and religious exchanges (Buddhism, Islam), disease spread (Black Death), and its legacy.",
+    "prompt": "Create a rich historical presentation on The Ancient Silk Road examining overland and maritime trade networks connecting China, Central Asia, India, Persia, and the Mediterranean. Cover commodities traded (silk, spices, porcelain), cultural and religious exchanges (Buddhism, Islam), disease spread (Black Death), and its legacy. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "World History & Economics Students"
@@ -4928,7 +4928,7 @@ export const PPT_PROMPTS = [
       "napoleon",
       "liberty equality fraternity"
     ],
-    "prompt": "Create a historical analysis presentation on The French Revolution & Enlightenment exploring philosophies of Voltaire, Rousseau, and Montesquieu, financial collapse of the monarchy, Storming of the Bastille, Declaration of the Rights of Man, Reign of Terror under Robespierre, and Napoleon Bonaparte's rise.",
+    "prompt": "Create a historical analysis presentation on The French Revolution & Enlightenment exploring philosophies of Voltaire, Rousseau, and Montesquieu, financial collapse of the monarchy, Storming of the Bastille, Declaration of the Rights of Man, Reign of Terror under Robespierre, and Napoleon Bonaparte's rise. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 10,
     "audience": "European History Students & Scholars"
@@ -4947,7 +4947,7 @@ export const PPT_PROMPTS = [
       "roman republic",
       "fall of rome"
     ],
-    "prompt": "Create a classic history presentation on The Roman Empire covering Republic government structure, Julius Caesar's assassination, Augustus and the Pax Romana, Roman engineering (aqueducts, roads, Colosseum), military organization, conversion to Christianity, and internal/external causes of the Western Empire's fall.",
+    "prompt": "Create a classic history presentation on The Roman Empire covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Republic government structure, Julius Caesar's assassination, Augustus and the Pax Romana, Roman engineering (aqueducts, roads, Colosseum), military organization, conversion to Christianity, and internal/external causes of the Western Empire's fall.",
     "template": "education",
     "slideCount": 10,
     "audience": "Ancient History Students & Classics Enthusiasts"
@@ -4966,7 +4966,7 @@ export const PPT_PROMPTS = [
       "humanism",
       "medici"
     ],
-    "prompt": "Create a cultural history presentation on The Renaissance in 14th-17th Century Europe examining Florence as the birthplace, Medici financial patronage, Humanist philosophy shifting away from medieval scholasticism, technological disruption of Gutenberg's printing press, and polymath achievements of Da Vinci and Galileo.",
+    "prompt": "Create a cultural history presentation on The Renaissance in 14th-17th Century Europe examining Florence as the birthplace, Medici financial patronage, Humanist philosophy shifting away from medieval scholasticism, technological disruption of Gutenberg's printing press, and polymath achievements of Da Vinci and Galileo. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Art & Cultural History Students"
@@ -4985,7 +4985,7 @@ export const PPT_PROMPTS = [
       "racial equality",
       "non violent protest"
     ],
-    "prompt": "Create an inspiring social history presentation on The American Civil Rights Movement covering Jim Crow segregation laws, Rosa Parks & Montgomery Bus Boycott, Martin Luther King Jr's non-violent philosophy, March on Washington, 1964 Civil Rights Act & 1965 Voting Rights Act, and ongoing civil rights advocacy.",
+    "prompt": "Create an inspiring social history presentation on The American Civil Rights Movement covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Jim Crow segregation laws, Rosa Parks & Montgomery Bus Boycott, Martin Luther King Jr's non-violent philosophy, March on Washington, 1964 Civil Rights Act & 1965 Voting Rights Act, and ongoing civil rights advocacy.",
     "template": "education",
     "slideCount": 10,
     "audience": "Sociology, History & Civics Students"
@@ -5004,7 +5004,7 @@ export const PPT_PROMPTS = [
       "working class",
       "factory system"
     ],
-    "prompt": "Create a social history presentation on the Consequences of the Industrial Revolution exploring rapid urbanization, grim factory working conditions, child labor exploitation, emergence of labor unions and strikes, rise of the industrial middle class, public health crises, and social reform movements.",
+    "prompt": "Create a social history presentation on the Consequences of the Industrial Revolution exploring rapid urbanization, grim factory working conditions, child labor exploitation, emergence of labor unions and strikes, rise of the industrial middle class, public health crises, and social reform movements. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "History & Sociology Students"
@@ -5024,7 +5024,7 @@ export const PPT_PROMPTS = [
       "neil armstrong",
       "nasa"
     ],
-    "prompt": "Create an exciting historical presentation on The Space Race detailing Soviet early victories (Sputnik 1 in 1957, Yuri Gagarin in 1961), Kennedy's moon challenge, NASA Gemini and Apollo engineering feats, the July 1969 Apollo 11 moon landing, and transitioning into Apollo-Soyuz cooperative space diplomacy.",
+    "prompt": "Create an exciting historical presentation on The Space Race detailing Soviet early victories (Sputnik 1 in 1957, Yuri Gagarin in 1961), Kennedy's moon challenge, NASA Gemini and Apollo engineering feats, the July 1969 Apollo 11 moon landing, and transitioning into Apollo-Soyuz cooperative space diplomacy. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 10,
     "audience": "Space History Enthusiasts & Students"
@@ -5044,7 +5044,7 @@ export const PPT_PROMPTS = [
       "meiji restoration",
       "japanese history"
     ],
-    "prompt": "Create a cultural history presentation on Feudal Japan & The Samurai detailing the Kamakura to Tokugawa Shogunates, the social class hierarchy (Samurai, Farmers, Artisans, Merchants), Bushido code of honor, katans and armor, castle architecture, and the rapid modernizing Meiji Restoration of 1868.",
+    "prompt": "Create a cultural history presentation on Feudal Japan & The Samurai detailing the Kamakura to Tokugawa Shogunates, the social class hierarchy (Samurai, Farmers, Artisans, Merchants), Bushido code of honor, katans and armor, castle architecture, and the rapid modernizing Meiji Restoration of 1868. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Japanese History & Culture Enthusiasts"
@@ -5063,7 +5063,7 @@ export const PPT_PROMPTS = [
       "diaspora",
       "local identity"
     ],
-    "prompt": "Create a sociological presentation on Globalization & Cultural Impact examining international economic integration, global media distribution, cultural homogenization vs hyper-localization, spread of languages and cuisine, digital diasporas, and preserving local indigenous identity in a hyper-connected world.",
+    "prompt": "Create a sociological presentation on Globalization & Cultural Impact examining international economic integration, global media distribution, cultural homogenization vs hyper-localization, spread of languages and cuisine, digital diasporas, and preserving local indigenous identity in a hyper-connected world. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Sociology & International Relations Students"
@@ -5082,7 +5082,7 @@ export const PPT_PROMPTS = [
       "seneca falls",
       "feminism history"
     ],
-    "prompt": "Create an inspiring presentation on Women's Suffrage History examining early conventions (Seneca Falls 1848), militant British Suffragette tactics, passing of the 19th Amendment in the US (1920), global timelines of women's voting rights (New Zealand first in 1893), and key feminist pioneers.",
+    "prompt": "Create an inspiring presentation on Women's Suffrage History examining early conventions (Seneca Falls 1848), militant British Suffragette tactics, passing of the 19th Amendment in the US (1920), global timelines of women's voting rights (New Zealand first in 1893), and key feminist pioneers. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "History & Gender Studies Students"
@@ -5102,7 +5102,7 @@ export const PPT_PROMPTS = [
       "tenochtitlan",
       "pyramids"
     ],
-    "prompt": "Create a historical presentation on Mesoamerican Civilizations comparing Maya mathematical and astronomical mastery, Aztec empire power and capital city Tenochtitlan, Inca Andean road and terrace engineering at Machu Picchu, writing systems, complex religions, and the devastating Spanish conquistador contact.",
+    "prompt": "Create a historical presentation on Mesoamerican Civilizations comparing Maya mathematical and astronomical mastery, Aztec empire power and capital city Tenochtitlan, Inca Andean road and terrace engineering at Machu Picchu, writing systems, complex religions, and the devastating Spanish conquistador contact. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 10,
     "audience": "Archaeology & World History Students"
@@ -5121,7 +5121,7 @@ export const PPT_PROMPTS = [
       "maritime exploration",
       "astrolabe"
     ],
-    "prompt": "Create a historical presentation on The Age of Discovery detailing 15th-17th century European maritime expansion (Vasco da Gama, Columbus, Magellan), navigational innovations (astrolabe, caravel ship), maps, the Columbian Exchange of crops/diseases, and colonial empire establishment.",
+    "prompt": "Create a historical presentation on The Age of Discovery detailing 15th-17th century European maritime expansion (Vasco da Gama, Columbus, Magellan), navigational innovations (astrolabe, caravel ship), maps, the Columbian Exchange of crops/diseases, and colonial empire establishment. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "History Students & Maritime Historians"
@@ -5140,7 +5140,7 @@ export const PPT_PROMPTS = [
       "medici banking",
       "bitcoin history"
     ],
-    "prompt": "Create an economic history presentation on The Evolution of Money tracing primitive barter systems, commodity money (shells, salt), first minted Lydian gold coins, Song Dynasty invention of paper banknote currency, Renaissance Italian Medici central banking, US gold standard abandonment, and digital cryptocurrency.",
+    "prompt": "Create an economic history presentation on The Evolution of Money tracing primitive barter systems, commodity money (shells, salt), first minted Lydian gold coins, Song Dynasty invention of paper banknote currency, Renaissance Italian Medici central banking, US gold standard abandonment, and digital cryptocurrency. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "finance",
     "slideCount": 10,
     "audience": "Economics & History Students"
@@ -5159,7 +5159,7 @@ export const PPT_PROMPTS = [
       "keynesian economics",
       "dust bowl"
     ],
-    "prompt": "Create a socio-economic history presentation on The Great Depression analyzing the 1929 Wall Street stock crash, bank panics, Dust Bowl agricultural disaster, mass unemployment, Keynesian economic interventions, and Franklin D. Roosevelt's landmark New Deal social safety net programs.",
+    "prompt": "Create a socio-economic history presentation on The Great Depression analyzing the 1929 Wall Street stock crash, bank panics, Dust Bowl agricultural disaster, mass unemployment, Keynesian economic interventions, and Franklin D. Roosevelt's landmark New Deal social safety net programs. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Economics & US History Students"
@@ -5179,7 +5179,7 @@ export const PPT_PROMPTS = [
       "anesthesia",
       "hippocrates"
     ],
-    "prompt": "Create a medical history presentation detailing ancient healing practices (trepanning, humoral theory), Hippocratic Oath, Renaissance anatomical discoveries (Vesalius), Joseph Lister's antiseptics, Louis Pasteur's Germ Theory of Disease, William Morton's ether anesthesia, and Alexander Fleming's penicillin miracle.",
+    "prompt": "Create a medical history presentation detailing ancient healing practices (trepanning, humoral theory), Hippocratic Oath, Renaissance anatomical discoveries (Vesalius), Joseph Lister's antiseptics, Louis Pasteur's Germ Theory of Disease, William Morton's ether anesthesia, and Alexander Fleming's penicillin miracle. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 10,
     "audience": "Medical History Students & Healthcare Professionals"
@@ -5198,7 +5198,7 @@ export const PPT_PROMPTS = [
       "humanitarian aid",
       "conflict resolution"
     ],
-    "prompt": "Create a political science presentation on United Nations Peacekeeping examining the deployment of UN Blue Helmets, principles of consent/impartiality/non-use of force, UNHCR refugee camp management, disaster relief operations, famous success stories, and structural geopolitical limitations.",
+    "prompt": "Create a political science presentation on United Nations Peacekeeping examining the deployment of UN Blue Helmets, principles of consent/impartiality/non-use of force, UNHCR refugee camp management, disaster relief operations, famous success stories, and structural geopolitical limitations. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "International Relations & Political Science Students"
@@ -5217,7 +5217,7 @@ export const PPT_PROMPTS = [
       "pentagon papers",
       "fourth estate"
     ],
-    "prompt": "Create a journalism history presentation on Press Freedom & Investigative Reporting explaining the concepts of the Fourth Estate, constitutional protections, landmark investigative exposures (Watergate scandal, Pentagon Papers, Panama Papers), whistleblowing, and defending journalists in authoritarian regimes.",
+    "prompt": "Create a journalism history presentation on Press Freedom & Investigative Reporting explaining the concepts of the Fourth Estate, constitutional protections, landmark investigative exposures (Watergate scandal, Pentagon Papers, Panama Papers), whistleblowing, and defending journalists in authoritarian regimes. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Journalism Students, Reporters & Advocates"
@@ -5236,7 +5236,7 @@ export const PPT_PROMPTS = [
       "nalanda",
       "school history"
     ],
-    "prompt": "Create an educational history presentation detailing ancient learning academies (Plato's Academy, Nalanda, Taxila), medieval European university origins (Bologna, Oxford), the 19th-century Industrial Prussian school model of age-grading and standardized testing, and progressive modern educational reforms.",
+    "prompt": "Create an educational history presentation detailing ancient learning academies (Plato's Academy, Nalanda, Taxila), medieval European university origins (Bologna, Oxford), the 19th-century Industrial Prussian school model of age-grading and standardized testing, and progressive modern educational reforms. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Educators, Pedagogy Students & Historians"
@@ -5255,7 +5255,7 @@ export const PPT_PROMPTS = [
       "garden city",
       "smart city design"
     ],
-    "prompt": "Create an urban history presentation on The Evolution of Urban Planning exploring ancient grid layouts (Mohenjo-daro, Roman camps), Baron Haussmann's 19th-century overhaul of Paris, Ebenezer Howard's Garden City concept, automobile-centric suburban sprawl, and modern sustainable Smart City designs.",
+    "prompt": "Create an urban history presentation on The Evolution of Urban Planning exploring ancient grid layouts (Mohenjo-daro, Roman camps), Baron Haussmann's 19th-century overhaul of Paris, Ebenezer Howard's Garden City concept, automobile-centric suburban sprawl, and modern sustainable Smart City designs. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 10,
     "audience": "Urban Planners, Architects & Historians"
@@ -5274,7 +5274,7 @@ export const PPT_PROMPTS = [
       "cap table",
       "valuation"
     ],
-    "prompt": "Create a finance presentation on Venture Capital Due Diligence detailing evaluating startup pitch decks, technology audits, legal and financial due diligence, understanding Term Sheet mechanics (pre-money vs post-money valuation, anti-dilution, liquidation preferences), and managing cap tables.",
+    "prompt": "Create a finance presentation on Venture Capital Due Diligence detailing evaluating startup pitch decks, technology audits, legal and financial due diligence, understanding Term Sheet mechanics (pre-money vs post-money valuation, anti-dilution, liquidation preferences), and managing cap tables. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "finance",
     "slideCount": 10,
     "audience": "Startup Founders, VC Associates & Angel Investors"
@@ -5293,7 +5293,7 @@ export const PPT_PROMPTS = [
       "branding",
       "marketing strategy"
     ],
-    "prompt": "Create a marketing presentation on Brand Strategy & Positioning covering defining brand vision and purpose, constructing a brand positioning statement matrix, choosing brand archetypes, building brand architecture (monolithic vs house of brands), and measuring Keller's Brand Equity model.",
+    "prompt": "Create a marketing presentation on Brand Strategy & Positioning covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, defining brand vision and purpose, constructing a brand positioning statement matrix, choosing brand archetypes, building brand architecture (monolithic vs house of brands), and measuring Keller's Brand Equity model.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Brand Managers, Marketing Directors & Agency Executives"
@@ -5312,7 +5312,7 @@ export const PPT_PROMPTS = [
       "viral coefficient",
       "growth marketing"
     ],
-    "prompt": "Create a modern growth marketing presentation on Growth Hacking & the AARRR Pirate Metrics Funnel covering optimizing Acquisition channels, frictionless Activation onboarding, boosting Retention rates, building Referral viral loops (K-factor > 1), and maximizing Lifetime Revenue.",
+    "prompt": "Create a modern growth marketing presentation on Growth Hacking & the AARRR Pirate Metrics Funnel covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, optimizing Acquisition channels, frictionless Activation onboarding, boosting Retention rates, building Referral viral loops (K-factor > 1), and maximizing Lifetime Revenue.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Growth Marketers, Startup Founders & Product Leads"
@@ -5332,7 +5332,7 @@ export const PPT_PROMPTS = [
       "crm",
       "sales funnel"
     ],
-    "prompt": "Create a B2B sales strategy presentation covering Enterprise Sales Pipeline Management, BANT lead qualification (Budget, Authority, Need, Timeline), Neil Rackham's SPIN Selling method (Situation, Problem, Implication, Need-payoff), overcoming objections, and CRM pipeline forecasting.",
+    "prompt": "Create a B2B sales strategy presentation covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, Enterprise Sales Pipeline Management, BANT lead qualification (Budget, Authority, Need, Timeline), Neil Rackham's SPIN Selling method (Situation, Problem, Implication, Need-payoff), overcoming objections, and CRM pipeline forecasting.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "B2B Sales Reps, Account Executives & Sales Directors"
@@ -5350,7 +5350,7 @@ export const PPT_PROMPTS = [
       "corporate restructuring",
       "pmi"
     ],
-    "prompt": "Create a corporate strategy presentation on Post-Merger Integration (PMI) covering executing Day 1 integration, capturing cost and revenue synergies, aligning corporate cultures, migrating legacy IT infrastructure, and retaining key talent during corporate restructuring.",
+    "prompt": "Create a corporate strategy presentation on Post-Merger Integration (PMI) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, executing Day 1 integration, capturing cost and revenue synergies, aligning corporate cultures, migrating legacy IT infrastructure, and retaining key talent during corporate restructuring.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "M&A Executives, Strategy Consultants & Corporate Leaders"
@@ -5369,7 +5369,7 @@ export const PPT_PROMPTS = [
       "risk mitigation",
       "compliance"
     ],
-    "prompt": "Create an executive presentation on Enterprise Risk Management (ERM) using the COSO ERM framework. Cover identifying operational, financial, strategic, and reputational risks, building heat map risk matrices, establishing corporate risk appetite, and executing risk mitigation vs transfer (insurance).",
+    "prompt": "Create an executive presentation on Enterprise Risk Management (ERM) using the COSO ERM framework. Cover identifying operational, financial, strategic, and reputational risks, building heat map risk matrices, establishing corporate risk appetite, and executing risk mitigation vs transfer (insurance). Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Chief Risk Officers, Board Members & Internal Auditors"
@@ -5387,7 +5387,7 @@ export const PPT_PROMPTS = [
       "value proposition canvas",
       "alex osterwalder"
     ],
-    "prompt": "Create a business design presentation on Value Proposition Canvas (Osterwalder model) exploring mapping customer jobs, pains, and desired gains against product features, pain relievers, and gain creators to achieve verifiable Product-Market Fit.",
+    "prompt": "Create a business design presentation on Value Proposition Canvas (Osterwalder model) exploring mapping customer jobs, pains, and desired gains against product features, pain relievers, and gain creators to achieve verifiable Product-Market Fit. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "startup",
     "slideCount": 8,
     "audience": "Entrepreneurs, Product Managers & Innovation Leads"
@@ -5406,7 +5406,7 @@ export const PPT_PROMPTS = [
       "customer health score",
       "retention"
     ],
-    "prompt": "Create a SaaS business presentation on Customer Success & Churn Reduction detailing proactive onboarding workflows, building Customer Health Scores, tracking Net Promoter Score (NPS), driving upsells and expansion revenue, and increasing Net Revenue Retention (NRR).",
+    "prompt": "Create a SaaS business presentation on Customer Success & Churn Reduction detailing proactive onboarding workflows, building Customer Health Scores, tracking Net Promoter Score (NPS), driving upsells and expansion revenue, and increasing Net Revenue Retention (NRR). Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Customer Success Managers, SaaS Founders & Account Managers"
@@ -5424,7 +5424,7 @@ export const PPT_PROMPTS = [
       "franchisee training",
       "brand scaling"
     ],
-    "prompt": "Create a retail business presentation on Franchise System Expansion Strategy detailing establishing profitable unit economics, drafting comprehensive Master Franchise Agreements, writing standard Operating Manuals, setting up franchisee training academies, and quality control auditing.",
+    "prompt": "Create a retail business presentation on Franchise System Expansion Strategy detailing establishing profitable unit economics, drafting comprehensive Master Franchise Agreements, writing standard Operating Manuals, setting up franchisee training academies, and quality control auditing. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Franchisors, Retail Directors & Business Growth Consultants"
@@ -5443,7 +5443,7 @@ export const PPT_PROMPTS = [
       "anchoring",
       "kahneman"
     ],
-    "prompt": "Create a captivating business psychology presentation on Behavioral Economics exploring Daniel Kahneman & Richard Thaler concepts: Prospect Theory, Loss Aversion, Anchoring Effect, Choice Architecture, Default Bias, and designing subtle 'Nudges' that ethically drive consumer decisions.",
+    "prompt": "Create a captivating business psychology presentation on Behavioral Economics exploring Daniel Kahneman & Richard Thaler concepts: Prospect Theory, Loss Aversion, Anchoring Effect, Choice Architecture, Default Bias, and designing subtle 'Nudges' that ethically drive consumer decisions. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Marketers, UX Designers, Product Managers & Economists"
@@ -5462,7 +5462,7 @@ export const PPT_PROMPTS = [
       "debt workout",
       "cash burn"
     ],
-    "prompt": "Create a high-stakes business presentation on Corporate Turnaround Strategy detailing diagnosing distressed companies, immediate 90-day cash burn containment, debt restructuring with creditors, shedding non-core assets, operational rightsizing, and restoring investor confidence.",
+    "prompt": "Create a high-stakes business presentation on Corporate Turnaround Strategy detailing diagnosing distressed companies, immediate 90-day cash burn containment, debt restructuring with creditors, shedding non-core assets, operational rightsizing, and restoring investor confidence. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Turnaround Consultants, CFOs & Restructuring Specialists"
@@ -5481,7 +5481,7 @@ export const PPT_PROMPTS = [
       "real estate modeling",
       "commercial real estate"
     ],
-    "prompt": "Create a real estate finance presentation on Real Estate Investment Analysis detailing calculating Net Operating Income (NOI), Capitalization Rates (Cap Rates), Cash-on-Cash Return, Internal Rate of Return (IRR), evaluating commercial vs residential property, and Real Estate Investment Trusts (REITs).",
+    "prompt": "Create a real estate finance presentation on Real Estate Investment Analysis detailing calculating Net Operating Income (NOI), Capitalization Rates (Cap Rates), Cash-on-Cash Return, Internal Rate of Return (IRR), evaluating commercial vs residential property, and Real Estate Investment Trusts (REITs). Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "finance",
     "slideCount": 10,
     "audience": "Real Estate Investors, Analysts & Developers"
@@ -5500,7 +5500,7 @@ export const PPT_PROMPTS = [
       "customs clearance",
       "forex risk"
     ],
-    "prompt": "Create an international business presentation on Cross-Border Trade detailing Incoterms 2020 (FOB, CIF, DDP), international payment methods (Letters of Credit), customs documentation & compliance, navigating import tariffs, and managing foreign exchange rate risk.",
+    "prompt": "Create an international business presentation on Cross-Border Trade detailing Incoterms 2020 (FOB, CIF, DDP), international payment methods (Letters of Credit), customs documentation & compliance, navigating import tariffs, and managing foreign exchange rate risk. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Export-Import Managers, International Trade Consultants"
@@ -5519,7 +5519,7 @@ export const PPT_PROMPTS = [
       "saas pricing",
       "price elasticity"
     ],
-    "prompt": "Create a revenue strategy presentation on Pricing Strategy & Monetization Models exploring Cost-Plus vs Competitor vs Value-Based pricing, designing tiered SaaS packages, Freemium conversion loops, Dynamic surge pricing algorithms, and calculating Price Elasticity of Demand.",
+    "prompt": "Create a revenue strategy presentation on Pricing Strategy & Monetization Models exploring Cost-Plus vs Competitor vs Value-Based pricing, designing tiered SaaS packages, Freemium conversion loops, Dynamic surge pricing algorithms, and calculating Price Elasticity of Demand. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "startup",
     "slideCount": 9,
     "audience": "Product Managers, Monetization Leads & Business Executives"
@@ -5538,7 +5538,7 @@ export const PPT_PROMPTS = [
       "major gifts",
       "ngo management"
     ],
-    "prompt": "Create an impactful NGO management presentation on Nonprofit Fundraising & Grant Writing covering building a donor pyramid, writing persuasive grant proposals (problem statement, methodology, budget), communicating social impact metrics, and cultivating major individual donors.",
+    "prompt": "Create an impactful NGO management presentation on Nonprofit Fundraising & Grant Writing covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, building a donor pyramid, writing persuasive grant proposals (problem statement, methodology, budget), communicating social impact metrics, and cultivating major individual donors.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Nonprofit Directors, NGO Founders & Fundraisers"
@@ -5556,7 +5556,7 @@ export const PPT_PROMPTS = [
       "neurodiversity",
       "pedagogy"
     ],
-    "prompt": "Create a teacher professional development presentation on Differentiated Instruction detailing adapting content, process, and product based on student readiness and interest, implementing Universal Design for Learning (UDL) frameworks, and supporting neurodiverse learners.",
+    "prompt": "Create a teacher professional development presentation on Differentiated Instruction detailing adapting content, process, and product based on student readiness and interest, implementing Universal Design for Learning (UDL) frameworks, and supporting neurodiverse learners. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "K-12 Teachers, School Administrators & Pedagogy Students"
@@ -5575,7 +5575,7 @@ export const PPT_PROMPTS = [
       "feedback",
       "grading"
     ],
-    "prompt": "Create an educational assessment presentation comparing Formative (learning checks, exit tickets) vs Summative (final exams) evaluations, designing objective analytic rubrics, authentic performance task assessment, and giving constructive actionable feedback to students.",
+    "prompt": "Create an educational assessment presentation comparing Formative (learning checks, exit tickets) vs Summative (final exams) evaluations, designing objective analytic rubrics, authentic performance task assessment, and giving constructive actionable feedback to students. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Educators, Curriculum Specialists & Academic Directors"
@@ -5594,7 +5594,7 @@ export const PPT_PROMPTS = [
       "quest based learning",
       "motivation"
     ],
-    "prompt": "Create an innovative EdTech presentation on Gamified Learning exploring integrating game mechanics into curricula: Points/Badges/Leaderboards (PBL), quest-based learning paths, instant feedback loops, narrative storytelling in lessons, and balancing intrinsic vs extrinsic motivation.",
+    "prompt": "Create an innovative EdTech presentation on Gamified Learning exploring integrating game mechanics into curricula: Points/Badges/Leaderboards (PBL), quest-based learning paths, instant feedback loops, narrative storytelling in lessons, and balancing intrinsic vs extrinsic motivation. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "EdTech Designers, Teachers & Instructional Designers"
@@ -5612,7 +5612,7 @@ export const PPT_PROMPTS = [
       "station rotation",
       "hybrid education"
     ],
-    "prompt": "Create a modern teaching presentation on The Flipped Classroom & Blended Learning Models detailing moving lecture content to homework videos, utilizing in-class time for collaborative active problem-solving, station rotation models, and facilitating self-paced student learning.",
+    "prompt": "Create a modern teaching presentation on The Flipped Classroom & Blended Learning Models detailing moving lecture content to homework videos, utilizing in-class time for collaborative active problem-solving, station rotation models, and facilitating self-paced student learning. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "High School & College Instructors, EdTech Specialists"
@@ -5630,7 +5630,7 @@ export const PPT_PROMPTS = [
       "emotional literacy",
       "classroom management"
     ],
-    "prompt": "Create a holistic education presentation on Social-Emotional Learning (SEL) exploring CASEL's 5 core competencies: Self-Awareness, Self-Management, Social Awareness, Relationship Skills, and Responsible Decision-Making. Include SEL integration into daily school routines.",
+    "prompt": "Create a holistic education presentation on Social-Emotional Learning (SEL) exploring CASEL's 5 core competencies: Self-Awareness, Self-Management, Social Awareness, Relationship Skills, and Responsible Decision-Making. Include SEL integration into daily school routines. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "School Counselors, Teachers & Parents"
@@ -5648,7 +5648,7 @@ export const PPT_PROMPTS = [
       "inquiry based",
       "hands on learning"
     ],
-    "prompt": "Create a progressive education presentation on Project-Based Learning (PBL) detailing crafting open-ended Driving Questions, guiding sustained student inquiry, integrating multi-subject standards, facilitating student reflection, and culminating in authentic public presentations.",
+    "prompt": "Create a progressive education presentation on Project-Based Learning (PBL) detailing crafting open-ended Driving Questions, guiding sustained student inquiry, integrating multi-subject standards, facilitating student reflection, and culminating in authentic public presentations. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "K-12 Educators, School Reformers & Curriculum Leads"
@@ -5666,7 +5666,7 @@ export const PPT_PROMPTS = [
       "de escalation",
       "classroom culture"
     ],
-    "prompt": "Create a practical teaching presentation on Classroom Management & Positive Culture covering establishing clear routines on Day 1, implementing Positive Behavioral Interventions and Supports (PBIS), non-verbal redirection cues, conflict de-escalation, and fostering a safe learning environment.",
+    "prompt": "Create a practical teaching presentation on Classroom Management & Positive Culture covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, establishing clear routines on Day 1, implementing Positive Behavioral Interventions and Supports (PBIS), non-verbal redirection cues, conflict de-escalation, and fostering a safe learning environment.",
     "template": "education",
     "slideCount": 9,
     "audience": "New Teachers, Student Teachers & Mentors"
@@ -5684,7 +5684,7 @@ export const PPT_PROMPTS = [
       "corporate training",
       "instructional design"
     ],
-    "prompt": "Create a professional development presentation on Adult Learning Theory (Andragogy) detailing Malcolm Knowles' 6 principles: need to know, self-concept, prior experience, readiness, orientation to learning, and intrinsic motivation. Apply to designing effective corporate training workshops.",
+    "prompt": "Create a professional development presentation on Adult Learning Theory (Andragogy) detailing Malcolm Knowles' 6 principles: need to know, self-concept, prior experience, readiness, orientation to learning, and intrinsic motivation. Apply to designing effective corporate training workshops. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 9,
     "audience": "Corporate Trainers, HR L&D Managers & Instructional Designers"
@@ -5702,7 +5702,7 @@ export const PPT_PROMPTS = [
       "learning objectives",
       "curriculum design"
     ],
-    "prompt": "Create an instructional design presentation on the ADDIE Framework detailing conducting Needs Analysis, designing learning objectives (Mager's model), developing course materials, implementing training, and evaluating via Kirkpatrick's 4 levels of evaluation.",
+    "prompt": "Create an instructional design presentation on the ADDIE Framework detailing conducting Needs Analysis, designing learning objectives (Mager's model), developing course materials, implementing training, and evaluating via Kirkpatrick's 4 levels of evaluation. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "corporate",
     "slideCount": 10,
     "audience": "Instructional Designers, Curriculum Developers & L&D Teams"
@@ -5720,7 +5720,7 @@ export const PPT_PROMPTS = [
       "assistive technology",
       "accommodations"
     ],
-    "prompt": "Create a special education presentation on Inclusive Education & IEP Management covering writing measurable Individualized Education Program (IEP) goals, differentiating accommodations vs modifications, implementing assistive technology tools, and co-teaching models.",
+    "prompt": "Create a special education presentation on Inclusive Education & IEP Management covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, writing measurable Individualized Education Program (IEP) goals, differentiating accommodations vs modifications, implementing assistive technology tools, and co-teaching models.",
     "template": "education",
     "slideCount": 9,
     "audience": "Special Education Teachers, Mainstream Teachers & Parents"
@@ -5738,7 +5738,7 @@ export const PPT_PROMPTS = [
       "online safety",
       "screen time"
     ],
-    "prompt": "Create a student-centered presentation on Digital Citizenship covering maintaining a clean digital footprint, cyberbullying prevention and reporting, respecting digital copyright, protecting personal data online, and managing healthy screen time balances.",
+    "prompt": "Create a student-centered presentation on Digital Citizenship covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, maintaining a clean digital footprint, cyberbullying prevention and reporting, respecting digital copyright, protecting personal data online, and managing healthy screen time balances.",
     "template": "education",
     "slideCount": 8,
     "audience": "Middle & High School Students, Educators & Parents"
@@ -5756,7 +5756,7 @@ export const PPT_PROMPTS = [
       "tactile learning",
       "child centered"
     ],
-    "prompt": "Create a foundational pedagogy presentation on Montessori Education exploring Maria Montessori's philosophy: the Prepared Environment, self-directed activity, hands-on tactile learning materials (sensorial, practical life, math beads), multi-age classrooms, and freedom within limits.",
+    "prompt": "Create a foundational pedagogy presentation on Montessori Education exploring Maria Montessori's philosophy: the Prepared Environment, self-directed activity, hands-on tactile learning materials (sensorial, practical life, math beads), multi-age classrooms, and freedom within limits. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Montessori Teachers, Parents & Education Researchers"
@@ -5774,7 +5774,7 @@ export const PPT_PROMPTS = [
       "think pair share",
       "group work"
     ],
-    "prompt": "Create an active learning presentation on Collaborative Learning & Peer Tutoring detailing structuring high-functioning student groups, implementing the Jigsaw classroom method, Think-Pair-Share protocols, reciprocal teaching roles, and establishing individual vs group accountability.",
+    "prompt": "Create an active learning presentation on Collaborative Learning & Peer Tutoring detailing structuring high-functioning student groups, implementing the Jigsaw classroom method, Think-Pair-Share protocols, reciprocal teaching roles, and establishing individual vs group accountability. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 8,
     "audience": "K-12 Teachers & College Professors"
@@ -5792,7 +5792,7 @@ export const PPT_PROMPTS = [
       "ai plagiarism",
       "future of grading"
     ],
-    "prompt": "Create a timely academic presentation on AI in Education exploring ChatGPT's impact on homework, evaluating AI detector limitations, re-thinking traditional essay assignments towards oral exams and in-class writing, teaching ethical AI use to students, and leveraging AI for personalized tutoring.",
+    "prompt": "Create a timely academic presentation on AI in Education exploring ChatGPT's impact on homework, evaluating AI detector limitations, re-thinking traditional essay assignments towards oral exams and in-class writing, teaching ethical AI use to students, and leveraging AI for personalized tutoring. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 10,
     "audience": "Educators, University Deans & Policy Makers"
@@ -5810,7 +5810,7 @@ export const PPT_PROMPTS = [
       "experiential learning",
       "environmental stewardship"
     ],
-    "prompt": "Create a refreshing pedagogy presentation on Forest Schools & Nature-Based Education exploring outdoor immersive learning, calculated risk management (climbing, tools), fostering environmental stewardship, sensory stimulation in nature, and physical/mental health benefits of outdoor classrooms.",
+    "prompt": "Create a refreshing pedagogy presentation on Forest Schools & Nature-Based Education exploring outdoor immersive learning, calculated risk management (climbing, tools), fostering environmental stewardship, sensory stimulation in nature, and physical/mental health benefits of outdoor classrooms. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Outdoor Educators, Forest School Leaders & Parents"
@@ -5829,7 +5829,7 @@ export const PPT_PROMPTS = [
       "mineralization",
       "net zero"
     ],
-    "prompt": "Create an environmental engineering presentation on Carbon Capture & Storage (CCS) detailing Direct Air Capture (DAC) technology, chemical solvents, underground geological mineralization (Climeworks in Iceland), point-source industrial capture, and economic viability of carbon removal.",
+    "prompt": "Create an environmental engineering presentation on Carbon Capture & Storage (CCS) detailing Direct Air Capture (DAC) technology, chemical solvents, underground geological mineralization (Climeworks in Iceland), point-source industrial capture, and economic viability of carbon removal. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Environmental Engineers, Climate Tech Investors & Policy Makers"
@@ -5847,7 +5847,7 @@ export const PPT_PROMPTS = [
       "plastic pollution",
       "trophic transfer"
     ],
-    "prompt": "Create a scientific environmental presentation on Microplastics detailing primary (beads) vs secondary (breakdown) microplastics, transport through soil and freshwater to oceans, bioaccumulation in fish, discovery in human blood and placenta, and innovative membrane filtration technology.",
+    "prompt": "Create a scientific environmental presentation on Microplastics detailing primary (beads) vs secondary (breakdown) microplastics, transport through soil and freshwater to oceans, bioaccumulation in fish, discovery in human blood and placenta, and innovative membrane filtration technology. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Environmental Scientists, Toxicologists & Public"
@@ -5865,7 +5865,7 @@ export const PPT_PROMPTS = [
       "thermokarst",
       "climate tipping points"
     ],
-    "prompt": "Create a climate science presentation on Arctic Permafrost Thaw exploring thermokarst lake formation, microbial decomposition of ancient frozen organic matter releasing methane and CO2, ocean floor methane clathrate risks, and self-reinforcing global warming feedback loops.",
+    "prompt": "Create a climate science presentation on Arctic Permafrost Thaw exploring thermokarst lake formation, microbial decomposition of ancient frozen organic matter releasing methane and CO2, ocean floor methane clathrate risks, and self-reinforcing global warming feedback loops. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Climate Scientists, Geologists & Environmentalists"
@@ -5884,7 +5884,7 @@ export const PPT_PROMPTS = [
       "virtual power plant",
       "grid stability"
     ],
-    "prompt": "Create a clean energy infrastructure presentation on Smart Grids & Energy Storage addressing renewable intermittency, grid-scale battery storage chemistries (LFP, Redox Flow, Sodium-ion), Virtual Power Plants (VPPs), smart meters, and demand-response load balancing.",
+    "prompt": "Create a clean energy infrastructure presentation on Smart Grids & Energy Storage addressing renewable intermittency, grid-scale battery storage chemistries (LFP, Redox Flow, Sodium-ion), Virtual Power Plants (VPPs), smart meters, and demand-response load balancing. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Energy Engineers, Utility Executives & Clean Tech Founders"
@@ -5903,7 +5903,7 @@ export const PPT_PROMPTS = [
       "indigenous lands",
       "biodiversity"
     ],
-    "prompt": "Create a crucial conservation presentation on Amazon Deforestation detailing the rainforest's role as the Earth's lungs and water pump, drivers of destruction (cattle ranching, soy, logging), the 20-25% deforestation tipping point to savanna conversion, and indigenous territory guardianship.",
+    "prompt": "Create a crucial conservation presentation on Amazon Deforestation detailing the rainforest's role as the Earth's lungs and water pump, drivers of destruction (cattle ranching, soy, logging), the 20-25% deforestation tipping point to savanna conversion, and indigenous territory guardianship. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Conservationists, Geographers & General Audience"
@@ -5922,7 +5922,7 @@ export const PPT_PROMPTS = [
       "soil health",
       "carbon farming"
     ],
-    "prompt": "Create an eco-farming presentation on Regenerative Agriculture & Permaculture contrasting industrial chemical agriculture with regenerative soil practices: no-till farming, cover cropping, holistic rotational livestock grazing, restoring soil microbiomes, and pulling carbon into topsoil.",
+    "prompt": "Create an eco-farming presentation on Regenerative Agriculture & Permaculture contrasting industrial chemical agriculture with regenerative soil practices: no-till farming, cover cropping, holistic rotational livestock grazing, restoring soil microbiomes, and pulling carbon into topsoil. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Farmers, Agronomists & Environmental Advocates"
@@ -5940,7 +5940,7 @@ export const PPT_PROMPTS = [
       "cool pavement",
       "urban climate adaptation"
     ],
-    "prompt": "Create an urban climate presentation on Urban Heat Island (UHI) Effect explaining why concrete/asphalt cities are 5-10°C hotter than rural surroundings, satellite thermal mapping, health impacts on vulnerable populations, and mitigation: green roofs, tree canopy expansion, and reflective cool pavements.",
+    "prompt": "Create an urban climate presentation on Urban Heat Island (UHI) Effect explaining why concrete/asphalt cities are 5-10°C hotter than rural surroundings, satellite thermal mapping, health impacts on vulnerable populations, and mitigation: green roofs, tree canopy expansion, and reflective cool pavements. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 8,
     "audience": "Urban Planners, Landscape Architects & Environmental Health Officials"
@@ -5958,7 +5958,7 @@ export const PPT_PROMPTS = [
       "brine environmental impact",
       "freshwater"
     ],
-    "prompt": "Create a water engineering presentation on Desalination & Water Scarcity exploring global freshwater depletion, Reverse Osmosis (RO) membrane technology, energy intensity, environmental risks of hypersaline brine discharge into oceans, and next-gen solar-powered desalination innovations.",
+    "prompt": "Create a water engineering presentation on Desalination & Water Scarcity exploring global freshwater depletion, Reverse Osmosis (RO) membrane technology, energy intensity, environmental risks of hypersaline brine discharge into oceans, and next-gen solar-powered desalination innovations. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "education",
     "slideCount": 9,
     "audience": "Water Engineers, Environmental Policy Makers & Students"
@@ -5976,7 +5976,7 @@ export const PPT_PROMPTS = [
       "ecosystem restoration",
       "apex predators"
     ],
-    "prompt": "Create a thrilling ecology presentation on Rewilding & Apex Predator Reintroduction examining the famous Yellowstone National Park wolf reintroduction causing a beneficial trophic cascade altering river flows, beaver engineering of wetland ecosystems, and restoring self-sustaining wild nature.",
+    "prompt": "Create a thrilling ecology presentation on Rewilding & Apex Predator Reintroduction examining the famous Yellowstone National Park wolf reintroduction causing a beneficial trophic cascade altering river flows, beaver engineering of wetland ecosystems, and restoring self-sustaining wild nature. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Ecologists, Wildlife Enthusiasts & Conservationists"
@@ -5994,7 +5994,7 @@ export const PPT_PROMPTS = [
       "sustainable fashion",
       "clothing recycling"
     ],
-    "prompt": "Create an eye-opening environmental presentation on Fast Fashion & Textile Waste detailing 100 billion annual garment production, toxic synthetic dye runoff, massive water usage for cotton, clothing dumps in Chile's Atacama desert, micro-plastic shedding in washing, and circular closed-loop textile recycling solutions.",
+    "prompt": "Create an eye-opening environmental presentation on Fast Fashion & Textile Waste detailing 100 billion annual garment production, toxic synthetic dye runoff, massive water usage for cotton, clothing dumps in Chile's Atacama desert, micro-plastic shedding in washing, and circular closed-loop textile recycling solutions. Include an explicit 'Introduction & Executive Context' slide and 'Presentation Overview & Agenda' slide with structured section headings.",
     "template": "minimal",
     "slideCount": 9,
     "audience": "Consumers, Fashion Students & Environmental Activists"
