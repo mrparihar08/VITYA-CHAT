@@ -53,35 +53,66 @@ export const PageShell = ({
   badge,
   wide = false,
   className = "",
+  headerExtra = null,
+  titleExtra = null,
+  hideBrandRow = false,
+  plain = false,
 }) => {
   return (
-    <div style={styles.page} className="page-shell">
-      <div style={styles.bgOrbA} />
-      <div style={styles.bgOrbB} />
-      <div style={styles.bgGrid} />
+    <div
+      style={
+        plain
+          ? { minHeight: "auto", padding: 0, background: "transparent" }
+          : styles.page
+      }
+      className="page-shell"
+    >
+      {!plain && <div style={styles.bgOrbA} />}
+      {!plain && <div style={styles.bgOrbB} />}
+      {!plain && <div style={styles.bgGrid} />}
 
       <div
         style={wide ? styles.shellWide : styles.shell}
         className={`page-shell-inner ${className}`.trim()}
       >
-        <div style={styles.brandRow}>
-          <div style={styles.brandMark}>V</div>
-          <div style={{ minWidth: 0 }}>
-            <div style={styles.brandName}>Vitya.AI</div>
-            <div style={styles.brandTag}>Finance assistant workspace</div>
+        {!hideBrandRow && (
+          <div style={{ ...styles.brandRow, justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={styles.brandMark}>V</div>
+              <div style={{ minWidth: 0 }}>
+                <div style={styles.brandName}>Vitya.AI</div>
+                <div style={styles.brandTag}>Finance assistant workspace</div>
+              </div>
+            </div>
+            {headerExtra}
           </div>
-        </div>
+        )}
 
-        <div style={styles.card} className="page-shell-card">
-          {badge ? <div style={styles.badge}>{badge}</div> : null}
-          {title ? <h1 style={styles.title}>{title}</h1> : null}
-          {subtitle ? <p style={styles.subtitle}>{subtitle}</p> : null}
+        <div
+          style={
+            plain
+              ? { background: "transparent", border: "none", boxShadow: "none", padding: 0 }
+              : styles.card
+          }
+          className={plain ? "" : "page-shell-card"}
+        >
+          {(badge || title || titleExtra || subtitle) && (
+            <div style={{ marginBottom: 16 }}>
+              {badge ? <div style={styles.badge}>{badge}</div> : null}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                {title ? <h1 style={styles.title}>{title}</h1> : <div />}
+                {titleExtra}
+              </div>
+              {subtitle ? <p style={{ ...styles.subtitle, margin: "6px 0 0" }}>{subtitle}</p> : null}
+            </div>
+          )}
           {children}
         </div>
       </div>
     </div>
   );
 };
+
 
 export const Input = ({ style, className = "", ...props }) => (
   <input {...props} className={className} style={{ ...styles.input, ...style }} />
@@ -184,12 +215,12 @@ export const styles = {
     alignItems: "flex-start",
     justifyContent: "center",
     padding: "clamp(16px, 3vw, 32px)",
-    background:
-      "radial-gradient(circle at top, #1a2440 0%, #0b1020 48%, #070b14 100%)",
+    background: "var(--bg-gradient, radial-gradient(circle at top, #1a2440 0%, #0b1020 48%, #070b14 100%))",
     color: "#fff",
     fontFamily:
       "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     scrollbarGutter: "stable",
+    transition: "background 0.3s ease",
   },
   bgOrbA: {
     position: "absolute",
@@ -197,9 +228,10 @@ export const styles = {
     width: 320,
     height: 320,
     borderRadius: "50%",
-    background: "rgba(139,92,246,0.18)",
+    background: "var(--orb-glow-a, rgba(139,92,246,0.18))",
     filter: "blur(50px)",
     pointerEvents: "none",
+    transition: "background 0.3s ease",
   },
   bgOrbB: {
     position: "absolute",
@@ -207,9 +239,10 @@ export const styles = {
     width: 280,
     height: 280,
     borderRadius: "50%",
-    background: "rgba(56,189,248,0.12)",
+    background: "var(--orb-glow-b, rgba(56,189,248,0.12))",
     filter: "blur(50px)",
     pointerEvents: "none",
+    transition: "background 0.3s ease",
   },
   bgGrid: {
     position: "absolute",
@@ -249,9 +282,10 @@ export const styles = {
     placeItems: "center",
     fontWeight: 800,
     letterSpacing: "-0.04em",
-    background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
-    boxShadow: "0 14px 30px rgba(99,102,241,0.28)",
+    background: "var(--accent-gradient, linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%))",
+    boxShadow: "0 14px 30px var(--accent-shadow, rgba(99,102,241,0.28))",
     flexShrink: 0,
+    transition: "background 0.3s ease",
   },
   brandName: {
     fontSize: 18,
@@ -267,12 +301,13 @@ export const styles = {
   card: {
     borderRadius: 28,
     padding: "clamp(18px, 3vw, 28px)",
-    background: "rgba(15, 20, 36, 0.82)",
-    border: "1px solid rgba(255,255,255,0.08)",
+    background: "var(--card-bg, rgba(15, 20, 36, 0.82))",
+    border: "1px solid var(--card-border, rgba(255,255,255,0.08))",
     boxShadow: "0 24px 70px rgba(0,0,0,0.38)",
     backdropFilter: "blur(18px)",
     WebkitBackdropFilter: "blur(18px)",
     overflow: "hidden",
+    transition: "background 0.3s ease, border-color 0.3s ease",
   },
   badge: {
     display: "inline-flex",
@@ -312,9 +347,10 @@ export const styles = {
     overflow: "hidden",
     borderRadius: 26,
     padding: 22,
-    border: "1px solid rgba(255,255,255,0.08)",
-    background: "linear-gradient(180deg, rgba(24,20,40,0.85), rgba(16,14,28,0.78))",
+    border: "1px solid var(--card-border, rgba(255,255,255,0.08))",
+    background: "var(--sidebar-bg, linear-gradient(180deg, rgba(24,20,40,0.85), rgba(16,14,28,0.78)))",
     minHeight: 420,
+    transition: "background 0.3s ease",
   },
   sideGlowA: {
     position: "absolute",
@@ -322,7 +358,7 @@ export const styles = {
     width: 180,
     height: 180,
     borderRadius: "50%",
-    background: "rgba(139,92,246,0.16)",
+    background: "var(--orb-glow-a, rgba(139,92,246,0.16))",
     filter: "blur(40px)",
   },
   sideGlowB: {
@@ -331,7 +367,7 @@ export const styles = {
     width: 180,
     height: 180,
     borderRadius: "50%",
-    background: "rgba(56,189,248,0.10)",
+    background: "var(--orb-glow-b, rgba(56,189,248,0.10))",
     filter: "blur(40px)",
   },
   sideBadge: {
@@ -386,8 +422,8 @@ export const styles = {
     width: 10,
     height: 10,
     borderRadius: "50%",
-    background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
-    boxShadow: "0 0 0 4px rgba(139,92,246,0.12)",
+    background: "var(--accent-gradient, linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%))",
+    boxShadow: "0 0 0 4px var(--orb-glow-a, rgba(139,92,246,0.12))",
     flexShrink: 0,
   },
   formPanel: {
@@ -410,7 +446,7 @@ export const styles = {
     width: "100%",
     height: 50,
     borderRadius: 16,
-    border: "1px solid rgba(255,255,255,0.10)",
+    border: "1px solid var(--card-border, rgba(255,255,255,0.10))",
     background: "rgba(255,255,255,0.05)",
     color: "#fff",
     padding: "0 16px",
@@ -423,7 +459,7 @@ export const styles = {
     width: "100%",
     minHeight: 118,
     borderRadius: 16,
-    border: "1px solid rgba(255,255,255,0.10)",
+    border: "1px solid var(--card-border, rgba(255,255,255,0.10))",
     background: "rgba(255,255,255,0.05)",
     color: "#fff",
     padding: "14px 16px",
@@ -442,9 +478,9 @@ export const styles = {
     cursor: "pointer",
     fontWeight: 750,
     color: "#fff",
-    background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
-    boxShadow: "0 12px 26px rgba(99,102,241,0.28)",
-    transition: "transform 0.18s ease, opacity 0.2s ease, box-shadow 0.2s ease",
+    background: "var(--accent-gradient, linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%))",
+    boxShadow: "0 12px 26px var(--accent-shadow, rgba(99,102,241,0.28))",
+    transition: "transform 0.18s ease, opacity 0.2s ease, box-shadow 0.2s ease, background 0.3s ease",
     padding: "12px 16px",
   },
   buttonSecondary: {

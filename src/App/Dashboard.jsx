@@ -13,6 +13,7 @@ import FilesApp from "../components/apps/FilesApp";
 import TasksApp from "../components/apps/TasksApp";
 import SettingsApp from "../components/apps/SettingsApp";
 import AnalyticsApp from "../components/apps/AnalyticsApp";
+import Profile from "../components/auth/Profile";
 
 const APP_REGISTRY = [
   {
@@ -318,17 +319,11 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
 
   const handleTabClick = useCallback(
     (tab) => {
-      if (tab === "profile") {
-        navigate("/profile");
-        closeSidebarIfMobile();
-        return;
-      }
-
       const convId = tab === "chat" ? activeConversationId : null;
       updateNavigationState(tab, null, convId);
       closeSidebarIfMobile();
     },
-    [navigate, closeSidebarIfMobile, activeConversationId, updateNavigationState]
+    [closeSidebarIfMobile, activeConversationId, updateNavigationState]
   );
 
   const handleNewChat = useCallback(async () => {
@@ -547,8 +542,10 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           )}
 
           <div className="topbarText">
-            <h1>Dashboard</h1>
-            <p>Welcome back, {user?.name || "User"}</p>
+            <div className="brandWrap">
+              <h2 className="brand">Vitya.AI</h2>
+              <p>Welcome back, {user?.name || "User"}</p>
+            </div>
           </div>
 
           <button
@@ -623,6 +620,12 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
               )}
 
               {activeApp && renderAppPanel()}
+            </section>
+          )}
+
+          {activeTab === "profile" && (
+            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+              <Profile insideDashboard={true} />
             </section>
           )}
         </main>

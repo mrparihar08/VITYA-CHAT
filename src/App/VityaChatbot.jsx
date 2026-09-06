@@ -814,29 +814,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         .chat-scroll { scrollbar-width: none; -ms-overflow-style: none; }
       `}</style>
 
-      <header style={styles.topbar}>
-        <div style={styles.brandBlock}>
-          <div style={styles.brandBadge}>V</div>
-          <div>
-            <div style={styles.brandTitle}>Vitya.AI</div>
-            <div style={styles.brandSub}>Smart assistant workspace</div>
-          </div>
-        </div>
-
-        <div style={styles.topbarRight}>
-          <div style={styles.modePill}>
-            <span style={styles.statusDot} />
-            {MODES.find((m) => m.key === mode)?.label || "Chat"} mode
-          </div>
-
-          <button
-            onClick={() => setVoiceEnabled((v) => !v)}
-            style={styles.topbarIconBtn}
-            title={voiceEnabled ? "Voice on" : "Voice off"}
-          >
-            <img src={voiceEnabled ? "/mic.png" : "/mic-off.png"} alt="voice" style={styles.topbarIcon} />
-          </button>
-        </div>
+      <header>
       </header>
 
       <main style={styles.main}>
@@ -845,9 +823,6 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
             <section style={styles.emptyState}>
               <div style={styles.emptyCard}>
                 <div style={styles.heroTitle}>What can I help you with today?</div>
-                <div style={styles.heroSub}>
-                  Ask anything, generate charts, search news or Wikipedia, and create files from the same workspace.
-                </div>
 
                 <div style={styles.promptGrid}>
                   {randomPrompts.map((item) => (
@@ -1092,7 +1067,7 @@ const styles = {
     boxSizing: "border-box",
     minHeight: 0,
   },
-  emptyState: { flex: 1, display: "grid", placeItems: "center", minHeight: "calc(100vh - 250px)" },
+  emptyState: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "calc(100vh - 250px)" },
   emptyCard: {
     width: "min(780px, 100%)",
     padding: 28,
@@ -1102,12 +1077,17 @@ const styles = {
     boxShadow: "0 18px 40px rgba(0,0,0,0.22)",
     backdropFilter: "blur(16px)",
     textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
   },
   heroTitle: {
     fontSize: "clamp(30px, 4vw, 52px)",
     fontWeight: 800,
     lineHeight: 1.05,
     letterSpacing: "-0.04em",
+    textAlign: "center",
   },
   heroSub: {
     marginTop: 12,
@@ -1117,18 +1097,30 @@ const styles = {
     maxWidth: 640,
     marginLeft: "auto",
     marginRight: "auto",
+    textAlign: "center",
   },
-  promptGrid: { marginTop: 22, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 },
+  promptGrid: {
+    marginTop: 22,
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+    maxWidth: 760,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
   promptBtn: {
-    padding: "14px 14px",
-    borderRadius: 16,
-    border: "1px solid rgba(255,255,255,0.08)",
-    background: "rgba(255,255,255,0.05)",
+    padding: "14px 20px",
+    borderRadius: 18,
+    border: "1px solid rgba(255,255,255,0.10)",
+    background: "rgba(255,255,255,0.06)",
     color: "#fff",
     cursor: "pointer",
-    textAlign: "left",
+    textAlign: "center",
     fontWeight: 600,
     lineHeight: 1.45,
+    transition: "all 0.2s ease",
   },
   messageRow: { display: "flex", width: "100%" },
   messageStack: { display: "flex", flexDirection: "column", gap: 8, width: "fit-content", maxWidth: "100%" },

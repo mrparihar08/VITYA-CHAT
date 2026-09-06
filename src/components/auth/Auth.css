@@ -66,3 +66,404 @@
     border-radius: 22px !important;
   }
 }
+
+/* ====================================
+   VITYA.AI PROFILE REDESIGN STYLES
+   ==================================== */
+.vitya-profile-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.vitya-settings-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.vitya-settings-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: rotate(30deg);
+}
+
+.vitya-profile-top-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.pro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  color: #fbbf24;
+  font-size: 13px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.vitya-profile-card {
+  background: linear-gradient(145deg, rgba(20, 26, 48, 0.95), rgba(13, 17, 34, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(16px);
+  margin-bottom: 20px;
+}
+
+.vitya-user-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.vitya-avatar-wrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.vitya-avatar-box {
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.3);
+  overflow: hidden;
+}
+
+.vitya-avatar-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vitya-camera-btn {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1e293b;
+  border: 2px solid #0f172a;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.vitya-camera-btn:hover {
+  background: #334155;
+  transform: scale(1.08);
+}
+
+.vitya-user-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.vitya-user-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.vitya-user-name {
+  font-size: 22px;
+  font-weight: 850;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.vitya-username {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 2px;
+}
+
+.vitya-email-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 6px;
+  word-break: break-all;
+}
+
+.vitya-bio-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 10px;
+  line-height: 1.4;
+}
+
+.vitya-edit-icon-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.vitya-edit-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.vitya-stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vitya-stat-tile {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vitya-stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.vitya-stat-content {
+  min-width: 0;
+}
+
+.vitya-stat-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.vitya-stat-value {
+  font-size: 14px;
+  font-weight: 750;
+  color: #ffffff;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vitya-green-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+  display: inline-block;
+}
+
+.vitya-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.vitya-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(20, 26, 48, 0.7), rgba(13, 17, 34, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vitya-menu-item:hover {
+  background: linear-gradient(145deg, rgba(30, 38, 68, 0.9), rgba(20, 26, 48, 0.9));
+  border-color: rgba(139, 92, 246, 0.3);
+  transform: translateX(2px);
+}
+
+.vitya-menu-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.vitya-menu-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.vitya-menu-title {
+  font-size: 15px;
+  font-weight: 750;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.vitya-menu-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 3px;
+}
+
+.vitya-menu-chevron {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 700;
+}
+
+.vitya-action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.vitya-btn-outline {
+  min-height: 52px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  font-weight: 750;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vitya-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.vitya-btn-purple {
+  min-height: 52px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  color: #ffffff;
+  font-weight: 750;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(139, 92, 246, 0.3);
+  transition: all 0.2s ease;
+}
+
+.vitya-btn-purple:hover {
+  box-shadow: 0 14px 28px rgba(139, 92, 246, 0.45);
+  transform: translateY(-1px);
+}
+
+/* LAPTOP & DESKTOP SCREEN OPTIMIZATIONS */
+.vitya-laptop-grid {
+  display: grid;
+  grid-template-columns: minmax(360px, 440px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.vitya-laptop-grid .vitya-stat-tiles {
+  gap: 8px;
+}
+
+.vitya-laptop-grid .vitya-stat-tile {
+  padding: 10px 8px;
+  gap: 8px;
+}
+
+.vitya-laptop-grid .vitya-stat-icon {
+  width: 32px;
+  height: 32px;
+  font-size: 15px;
+  border-radius: 10px;
+}
+
+.vitya-laptop-grid .vitya-stat-label {
+  font-size: 10px;
+}
+
+.vitya-laptop-grid .vitya-stat-value {
+  font-size: 13px;
+}
+
+@media (max-width: 1024px) {
+  .vitya-laptop-grid {
+    grid-template-columns: 1fr;
+  }
+  .vitya-stat-tiles {
+    grid-template-columns: 1fr;
+  }
+  .vitya-action-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+

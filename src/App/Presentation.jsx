@@ -1217,8 +1217,15 @@ export default function PresentationGenerator() {
         {/* HEADER BAR */}
         <div className="ppt-header-bar">
           <div className="ppt-header-title">
-            <h1>Presentation Studio & AI Generator</h1>
-            <p>Direct Edited Plan Compilation & Export (.pptx / .pdf)</p>
+            <h1 className="btn-ui">Presentation Studio</h1>
+            <button
+                className="btn-ui secondary sm"
+                onClick={handleResetPlanToDefault}
+                title="Start a fresh presentation deck"
+                style={{ fontSize: 16, padding: "4px 8px" }}
+              >
+                 + New
+              </button>
           </div>
 
           <div className="ppt-header-controls">
@@ -1228,40 +1235,33 @@ export default function PresentationGenerator() {
                 className={`btn-ui sm ${currentStep === 1 ? "primary" : "secondary"}`}
                 onClick={() => setCurrentStep(1)}
               >
-                Topic Setup
+                Topic 
               </button>
               <button
                 className={`btn-ui sm ${currentStep === 2 ? "primary" : "secondary"}`}
                 onClick={() => setCurrentStep(2)}
               >
-                Slide Editor {plan?.slides?.length ? `(${plan.slides.length})` : ""}
+                Editor {plan?.slides?.length ? `(${plan.slides.length})` : ""}
               </button>
-              <button
-                className="btn-ui secondary sm"
-                onClick={handleResetPlanToDefault}
-                title="Start a fresh presentation deck"
-                style={{ fontSize: 11, padding: "4px 8px" }}
-              >
-                ✨ + New Deck
-              </button>
+              
             </div>
 
             {/* EXPORT FORMAT SELECTOR */}
             <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.3)", padding: "4px 10px", borderRadius: 10, border: "1px solid var(--panel-border)" }}>
-              <span style={{ fontSize: 11, fontWeight: "bold", color: "#c084fc", whiteSpace: "nowrap" }}>Format:</span>
+              <span style={{ fontSize: 11, fontWeight: "bold", color: "#c084fc", whiteSpace: "nowrap" }}></span>
               <select
                 value={exportFormat}
                 onChange={(e) => setExportFormat(e.target.value)}
                 style={{ background: "transparent", border: "none", color: "#fff", fontWeight: "bold", fontSize: 12, outline: "none", cursor: "pointer", whiteSpace: "nowrap" }}
               >
-                <option value="pptx" style={{ background: "#0f172a" }}>📊 Presentation (.pptx)</option>
-                <option value="pdf" style={{ background: "#0f172a" }}>📄 Doc(.pdf)</option>
+                <option value="pptx" style={{ background: "#0f172a" }}>Presentation</option>
+                <option value="pdf" style={{ background: "#0f172a" }}>📄Doc</option>
               </select>
             </div>
 
             {plan?.slides?.length ? (
               <button className="btn-ui secondary" onClick={startPresentationMode}>
-                📺 Present
+                📺 View
               </button>
             ) : null}
           </div>

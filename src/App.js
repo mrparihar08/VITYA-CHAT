@@ -12,13 +12,21 @@ import {
   Dashboard,
   Register,
   Login,
-  Profile,
   ProfileEdit,
   ForgotPassword,
   ResetPassword,
 } from "./App/index";
 
+import {
+  SecurityPrivacyPage,
+  SubscriptionPage,
+  NotificationsPage,
+  AppearancePage,
+  AboutPage,
+} from "./components/profile";
+
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import "./App.css";
 
 // ==============================
@@ -153,6 +161,11 @@ const PageTitleUpdater = () => {
     else if (path.startsWith("/reset-password")) title = "Reset Password | Vitya AI";
     else if (path.startsWith("/profile/edit")) title = "Edit Profile | Vitya AI";
     else if (path.startsWith("/profile")) title = "Profile | Vitya AI";
+    else if (path.startsWith("/settings/security")) title = "Security & Privacy | Vitya AI";
+    else if (path.startsWith("/settings/subscription")) title = "Subscription | Vitya AI";
+    else if (path.startsWith("/settings/notifications")) title = "Notifications | Vitya AI";
+    else if (path.startsWith("/settings/appearance")) title = "Appearance | Vitya AI";
+    else if (path.startsWith("/settings/about")) title = "About Vitya AI | Vitya AI";
     else if (path.startsWith("/presentation")) title = "Presentation Studio | Vitya AI";
     else if (path.startsWith("/chatbot")) title = "AI Assistant | Vitya AI";
     else if (path.startsWith("/apps")) title = "Apps Workspace | Vitya AI";
@@ -262,12 +275,12 @@ function AppRoutes() {
           }
         />
 
-        {/* PROTECTED PROFILE ROUTES */}
+        {/* PROTECTED PROFILE & SETTINGS ROUTES */}
         <Route
           path="/profile"
           element={
             <PrivateRoute>
-              <Profile />
+              <Dashboard initialTab="profile" />
             </PrivateRoute>
           }
         />
@@ -276,6 +289,46 @@ function AppRoutes() {
           element={
             <PrivateRoute>
               <ProfileEdit />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings/security"
+          element={
+            <PrivateRoute>
+              <SecurityPrivacyPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings/subscription"
+          element={
+            <PrivateRoute>
+              <SubscriptionPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings/notifications"
+          element={
+            <PrivateRoute>
+              <NotificationsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings/appearance"
+          element={
+            <PrivateRoute>
+              <AppearancePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings/about"
+          element={
+            <PrivateRoute>
+              <AboutPage />
             </PrivateRoute>
           }
         />
@@ -301,11 +354,13 @@ function AppRoutes() {
 function App() {
   return (
     <GlobalErrorBoundary>
-      <AuthProvider>
-        <Router>
-          <AppRoutes />
-        </Router>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Router>
+            <AppRoutes />
+          </Router>
+        </AuthProvider>
+      </ThemeProvider>
     </GlobalErrorBoundary>
   );
 }
