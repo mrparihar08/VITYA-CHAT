@@ -49,7 +49,8 @@ export function NotificationsPage() {
   return (
     <PageShell
       title="Notifications & Alerts"
-      subtitle="Customize how and when Vitya.AI sends you alerts."
+      subtitle="Manage your email, security, and AI notification preferences."
+      backPath="/settings"
       wide
     >
       <div style={{ display: "grid", gap: 20 }}>

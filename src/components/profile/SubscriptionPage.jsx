@@ -43,7 +43,8 @@ export function SubscriptionPage() {
   return (
     <PageShell
       title="Subscription & Billing"
-      subtitle="View your active tier, monitor usage, and manage your plan."
+      subtitle="Manage your subscription plan, billing details, and API quotas."
+      backPath="/settings"
       wide
     >
       <div style={{ display: "grid", gap: 20 }}>

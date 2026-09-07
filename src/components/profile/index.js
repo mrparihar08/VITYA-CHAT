@@ -3,3 +3,5 @@ export { SubscriptionPage } from "./SubscriptionPage";
 export { NotificationsPage } from "./NotificationsPage";
 export { AppearancePage } from "./AppearancePage";
 export { AboutPage } from "./AboutPage";
+export { HelpSupportPage } from "./HelpSupportPage";
+export { SettingsPage } from "./SettingsPage";

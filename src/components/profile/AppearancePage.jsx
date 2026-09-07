@@ -20,6 +20,7 @@ export function AppearancePage() {
     <PageShell
       title="Appearance & Theme"
       subtitle="Customize the visual look, color themes, and display settings of Vitya.AI."
+      backPath="/settings"
       wide
     >
       <div style={{ display: "grid", gap: 20 }}>

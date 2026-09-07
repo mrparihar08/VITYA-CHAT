@@ -48,6 +48,7 @@ export function SecurityPrivacyPage() {
     <PageShell
       title="Security & Privacy"
       subtitle="Manage your password, authentication, and data privacy."
+      backPath="/settings"
       wide
     >
       <div style={{ display: "grid", gap: 20 }}>

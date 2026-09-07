@@ -9,6 +9,7 @@ export function AboutPage() {
     <PageShell
       title="About Vitya.AI"
       subtitle="Version information, workspace features, legal terms, and support contacts."
+      backPath="/settings"
       wide
     >
       <div style={{ display: "grid", gap: 20 }}>

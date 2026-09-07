@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   api,
   API_BASE_URL as API_URL,
@@ -57,7 +58,9 @@ export const PageShell = ({
   titleExtra = null,
   hideBrandRow = false,
   plain = false,
+  backPath = null,
 }) => {
+  const navigate = useNavigate();
   return (
     <div
       style={
@@ -100,7 +103,18 @@ export const PageShell = ({
             <div style={{ marginBottom: 16 }}>
               {badge ? <div style={styles.badge}>{badge}</div> : null}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                {title ? <h1 style={styles.title}>{title}</h1> : <div />}
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  {backPath && (
+                    <button
+                      type="button"
+                      className="vitya-pageshell-back-btn"
+                      onClick={() => navigate(backPath)}
+                    >
+                      ← Back
+                    </button>
+                  )}
+                  {title ? <h1 style={styles.title}>{title}</h1> : null}
+                </div>
                 {titleExtra}
               </div>
               {subtitle ? <p style={{ ...styles.subtitle, margin: "6px 0 0" }}>{subtitle}</p> : null}

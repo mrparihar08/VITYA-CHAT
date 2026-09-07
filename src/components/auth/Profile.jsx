@@ -166,11 +166,19 @@ export function Profile({ insideDashboard = false }) {
       action: () => navigate("/settings/appearance"),
     },
     {
+      id: "help",
+      icon: "❓",
+      bg: "rgba(16, 185, 129, 0.15)",
+      title: "Help & Support",
+      sub: "FAQs, AI support & contact",
+      action: () => navigate("/settings/help"),
+    },
+    {
       id: "about",
       icon: "ℹ️",
       bg: "rgba(14, 165, 233, 0.15)",
       title: "About Vitya.AI",
-      sub: "Version, legal, help and support",
+      sub: "Version, release notes & legal",
       action: () => navigate("/settings/about"),
     },
   ];
@@ -206,7 +214,7 @@ export function Profile({ insideDashboard = false }) {
       {/* MAIN USER PROFILE CARD */}
       <div className="vitya-profile-card">
         <div className="vitya-user-header">
-          <div className="vitya-avatar-wrapper">
+          <div className="vitya-main-avatar-wrapper">
             <div className="vitya-avatar-box">
               {profile?.profile_pic ? (
                 <img

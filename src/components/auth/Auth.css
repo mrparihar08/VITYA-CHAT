@@ -131,63 +131,73 @@
 
 .vitya-user-header {
   display: flex;
-  align-items: flex-start;
-  gap: 18px;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
 }
 
-.vitya-avatar-wrapper {
+.vitya-main-avatar-wrapper {
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: 84px;
+  height: 84px;
   flex-shrink: 0;
+  border-radius: 24px;
 }
 
 .vitya-avatar-box {
-  width: 80px;
-  height: 80px;
+  width: 84px;
+  height: 84px;
   border-radius: 24px;
   background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 32px;
   font-weight: 800;
   color: #ffffff;
-  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
   overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.15);
 }
 
 .vitya-avatar-box img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .vitya-camera-btn {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
-  width: 32px;
-  height: 32px;
+  bottom: -2px;
+  right: -2px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: #1e293b;
-  border: 2px solid #0f172a;
+  background: #6366f1;
+  border: 2.5px solid #0f1526;
   color: #ffffff;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   transition: transform 0.2s ease, background 0.2s ease;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  z-index: 10;
 }
 
 .vitya-camera-btn:hover {
-  background: #334155;
-  transform: scale(1.08);
+  background: #8b5cf6;
+  transform: scale(1.1);
 }
 
 .vitya-user-meta {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .vitya-user-name-row {
@@ -203,32 +213,38 @@
   color: #ffffff;
   margin: 0;
   line-height: 1.2;
+  word-break: break-word;
 }
 
 .vitya-username {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.55);
-  margin-top: 2px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #a78bfa;
 }
 
 .vitya-email-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.65);
-  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 2px;
   word-break: break-all;
 }
 
 .vitya-bio-row {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.85);
-  margin-top: 10px;
-  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.88);
+  margin-top: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: fit-content;
+  max-width: 100%;
 }
 
 .vitya-edit-icon-btn {
@@ -464,6 +480,254 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* SUBPAGE & HELP SUPPORT STYLES */
+.vitya-subpage-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.margin-top-20 {
+  margin-top: 20px;
+}
+
+.margin-top-12 {
+  margin-top: 12px;
+}
+
+.vitya-help-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.vitya-help-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  cursor: pointer;
+  transition: all 0.22s ease;
+  position: relative;
+}
+
+.vitya-help-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(139, 92, 246, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.vitya-help-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: rgba(139, 92, 246, 0.15);
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.vitya-help-info h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 750;
+  color: #ffffff;
+}
+
+.vitya-help-info p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.vitya-help-arrow {
+  margin-left: auto;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.vitya-help-card:hover .vitya-help-arrow {
+  color: #8b5cf6;
+  transform: translateX(4px);
+}
+
+.status-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.vitya-search-box-wrap {
+  position: relative;
+  margin-top: 16px;
+  margin-bottom: 20px;
+}
+
+.search-glass-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.vitya-help-search-input {
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 14.5px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.vitya-help-search-input:focus {
+  border-color: #8b5cf6;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.vitya-faq-accordion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vitya-faq-item {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.vitya-faq-item.open {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.vitya-faq-question-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.faq-category-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.faq-question-text {
+  margin: 0;
+  flex: 1;
+  font-size: 15px;
+  font-weight: 650;
+  color: #ffffff;
+}
+
+.faq-toggle-icon {
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.vitya-faq-answer-body {
+  padding: 0 18px 16px 18px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+.vitya-contact-form {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .form-row-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vitya-success-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #ffffff;
+  margin-top: 16px;
+}
+
+.vitya-success-banner h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #10b981;
+}
+
+.vitya-success-banner p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.vitya-pageshell-back-btn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.vitya-pageshell-back-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(139, 92, 246, 0.4);
+  transform: translateX(-2px);
+}
+
 
 
 

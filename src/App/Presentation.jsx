@@ -367,7 +367,6 @@ export default function PresentationGenerator() {
     }
   };
   const [loadingPlan, setLoadingPlan] = useState(false);
-  const [loadingGenerate, setLoadingGenerate] = useState(false);
   const [error, setError] = useState("");
 
   // Presenter View State
@@ -585,11 +584,6 @@ export default function PresentationGenerator() {
     } finally {
       setLoadingPlan(false);
     }
-  };
-
-  // Generate Final PPT / PDF File FROM EDITED PLAN
-  const generatePpt = async () => {
-    await savePresentation();
   };
 
   // SLIDE MANAGEMENT HANDLERS ✏️
@@ -1308,7 +1302,7 @@ export default function PresentationGenerator() {
             searchResults={searchResults}
             isSearching={isSearching}
             loadingPlan={loadingPlan}
-            loadingGenerate={isSaving || loadingGenerate}
+            loadingGenerate={isSaving}
             error={error || saveError}
             fetchPlan={fetchPlan}
             handlePerformSearch={handlePerformSearch}

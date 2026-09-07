@@ -14,6 +14,17 @@ import TasksApp from "../components/apps/TasksApp";
 import SettingsApp from "../components/apps/SettingsApp";
 import AnalyticsApp from "../components/apps/AnalyticsApp";
 import Profile from "../components/auth/Profile";
+import ProfileEdit from "../components/auth/ProfileEdit";
+import Sidebar from "../components/sidebar/Sidebar";
+import {
+  SettingsPage,
+  HelpSupportPage,
+  SecurityPrivacyPage,
+  SubscriptionPage,
+  NotificationsPage,
+  AppearancePage,
+  AboutPage,
+} from "../components/profile";
 
 const APP_REGISTRY = [
   {
@@ -22,6 +33,8 @@ const APP_REGISTRY = [
     desc: "Quick notes and ideas",
     icon: "📝",
     type: "internal",
+    category: "workspace",
+    iconBg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
     component: NotesApp,
   },
   {
@@ -30,6 +43,8 @@ const APP_REGISTRY = [
     desc: "Meetings and events",
     icon: "📅",
     type: "internal",
+    category: "workspace",
+    iconBg: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
     component: CalendarApp,
   },
   {
@@ -38,6 +53,8 @@ const APP_REGISTRY = [
     desc: "Manage documents",
     icon: "📁",
     type: "internal",
+    category: "workspace",
+    iconBg: "linear-gradient(135deg, #eab308 0%, #ca8a04 100%)",
     component: FilesApp,
   },
   {
@@ -46,6 +63,8 @@ const APP_REGISTRY = [
     desc: "Track your work",
     icon: "✅",
     type: "internal",
+    category: "workspace",
+    iconBg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
     component: TasksApp,
   },
   {
@@ -54,6 +73,8 @@ const APP_REGISTRY = [
     desc: "View activity stats",
     icon: "📊",
     type: "internal",
+    category: "workspace",
+    iconBg: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
     component: AnalyticsApp,
   },
   {
@@ -62,22 +83,78 @@ const APP_REGISTRY = [
     desc: "App preferences",
     icon: "⚙️",
     type: "internal",
+    category: "workspace",
+    iconBg: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
     component: SettingsApp,
+  },
+  {
+    id: "vitya-expense",
+    name: "Vitya.Expense",
+    desc: "Track expenses & finance",
+    icon: "💸",
+    type: "external",
+    category: "vitya",
+    iconBg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+    url: "https://vitya-expense.onrender.com",
+  },
+  {
+    id: "Security-vitya",
+    name: "Vitya Tourist Security",
+    desc: "Tourist safety & security web",
+    icon: "🛡️",
+    type: "external",
+    category: "vitya",
+    iconBg: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+    url: "https://security-vitya.onrender.com",
+  },
+  {
+    id: "vitya-admin-dashboard",
+    name: "Vitya Admin",
+    desc: "Admin control dashboard",
+    icon: "⚡",
+    type: "external",
+    category: "vitya",
+    iconBg: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+    url: "https://admin-vitya.onrender.com",
+  },
+  {
+    id: "vitya-tourist-travel-assistant",
+    name: "Vitya Assistant",
+    desc: "Travel assistant web",
+    icon: "🧭",
+    type: "external",
+    category: "vitya",
+    iconBg: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+    url: "https://tourist-vitya.onrender.com",
+  },
+  {
+    id: "vitya-monitor",
+    name: "Vitya Monitor",
+    desc: "Real-time monitor web",
+    icon: "📡",
+    type: "external",
+    category: "vitya",
+    iconBg: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
+    url: "https://monitor-vitya.onrender.com",
   },
   {
     id: "gmail",
     name: "Gmail",
-    desc: "Open Gmail",
+    desc: "Open Gmail web",
     icon: "📧",
     type: "external",
+    category: "google",
+    iconBg: "linear-gradient(135deg, #ea4335 0%, #c5221f 100%)",
     url: "https://mail.google.com/",
   },
   {
     id: "drive",
     name: "Google Drive",
-    desc: "Open Drive",
+    desc: "Open Drive cloud storage",
     icon: "🗂️",
     type: "external",
+    category: "google",
+    iconBg: "linear-gradient(135deg, #fbbc04 0%, #f29900 100%)",
     url: "https://drive.google.com/",
   },
   {
@@ -86,47 +163,9 @@ const APP_REGISTRY = [
     desc: "Open Calendar web",
     icon: "🌐",
     type: "external",
+    category: "google",
+    iconBg: "linear-gradient(135deg, #4285f4 0%, #1a73e8 100%)",
     url: "https://calendar.google.com/",
-  },
-  {
-    id: "vitya-expense",
-    name: "Vitya.Expense",
-    desc: "Open Expense web",
-    icon: "v",
-    type: "external",
-    url: "https://vitya-expense.onrender.com",
-  },
-  {
-    id: "Security-vitya",
-    name: "Vitya Tourist Security",
-    desc: "Open Tourist Security Web",
-    icon: "S",
-    type: "external",
-    url: "https://security-vitya.onrender.com",
-  },
-  {
-    id: "vitya-admin-dashboard",
-    name: "Vitya.admin",
-    desc: "Open Admin Dashboard",
-    icon: "A",
-    type: "external",
-    url: "https://admin-vitya.onrender.com",
-  },
-  {
-    id: "vitya-tourist-travel-assistant",
-    name: "Vitya.assistant",
-    desc: "Open Travel Assistant web",
-    icon: "T",
-    type: "external",
-    url: "https://tourist-vitya.onrender.com",
-  },
-  {
-    id: "vitya-monitor",
-    name: "Vitya",
-    desc: "Open Monitor web",
-    icon: "M",
-    type: "external",
-    url: "https://monitor-vitya.onrender.com",
   },
 ];
 
@@ -137,7 +176,7 @@ const safeReadArrayLength = (key) => {
   if (typeof window === "undefined") return 0;
 
   try {
-    const raw = window.localStorage.getItem(key);
+    const raw = window.localStorage.getItem(`vitya_${key}`) || window.localStorage.getItem(key);
     if (!raw) return 0;
 
     const parsed = JSON.parse(raw);
@@ -351,6 +390,14 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
     [updateNavigationState]
   );
 
+  const handleQuickToolClick = useCallback(
+    (toolType) => {
+      updateNavigationState("chat", null, activeConversationId);
+      closeSidebarIfMobile();
+    },
+    [activeConversationId, closeSidebarIfMobile, updateNavigationState]
+  );
+
   const filteredApps = useMemo(() => {
     const q = searchText.trim().toLowerCase();
     if (!q) return APP_REGISTRY;
@@ -386,21 +433,33 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
     if (currentApp.type === "external") {
       return (
         <div className="appPanel">
-          <div className="panelHeader">
+          <div className="appPanelTopBar">
             <button className="backBtn" onClick={() => updateNavigationState("apps", null, null)}>
-              ← Back
+              ← Back to Apps
             </button>
-            <h2>{currentApp.name}</h2>
-            <p>{currentApp.desc}</p>
+            <div className="appBreadcrumb">
+              <span>Apps</span> <span className="bcSep">/</span> <strong className="bcCurrent">{currentApp.name}</strong>
+            </div>
+          </div>
+
+          <div className="panelHeader">
+            <div className="appHeaderIconBox" style={{ background: currentApp.iconBg }}>
+              {currentApp.icon}
+            </div>
+            <div>
+              <h2>{currentApp.name}</h2>
+              <p>{currentApp.desc}</p>
+            </div>
           </div>
 
           <button
             className="smallBtn"
+            style={{ marginTop: 12 }}
             onClick={() =>
               window.open(currentApp.url, "_blank", "noopener,noreferrer")
             }
           >
-            Open app
+            Open {currentApp.name} ↗
           </button>
         </div>
       );
@@ -410,13 +469,26 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
 
     return (
       <div className="appPanel">
-        <div className="panelHeader">
+        <div className="appPanelTopBar">
           <button className="backBtn" onClick={() => updateNavigationState("apps", null, null)}>
-            ← Back
+            ← Back to Apps
           </button>
-          <h2>{currentApp.name}</h2>
-          <p>{currentApp.desc}</p>
+          <div className="appBreadcrumb">
+            <span>Apps</span> <span className="bcSep">/</span> <strong className="bcCurrent">{currentApp.name}</strong>
+          </div>
         </div>
+
+        {currentApp.id !== "analytics" && (
+          <div className="panelHeader">
+            <div className="appHeaderIconBox" style={{ background: currentApp.iconBg }}>
+              {currentApp.icon}
+            </div>
+            <div>
+              <h2>{currentApp.name}</h2>
+              <p>{currentApp.desc}</p>
+            </div>
+          </div>
+        )}
 
         <div className="miniAppContent">
           <ErrorBoundary>
@@ -437,97 +509,20 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
         <div className="overlay" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-        <div className="sidebarHeader">
-          <div className="sidebarTop">
-            <img src="/logo.png" alt="Vitya.AI logo" className="logo" />
-            <div className="brandWrap">
-              <h2 className="brand">Vitya.AI</h2>
-              <p className="brandText">AI Assistant</p>
-            </div>
-          </div>
-
-          {isMobile && (
-            <button
-              className="sidebarCloseBtn"
-              onClick={() => setSidebarOpen(false)}
-              aria-label="Close sidebar"
-            >
-              ×
-            </button>
-          )}
-        </div>
-
-        <div className="sidebarSearch">
-          <input
-            type="text"
-            placeholder="Search apps..."
-            className="searchInput"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-        </div>
-
-        <button className="newChatBtn" onClick={handleNewChat}>
-          + New Chat
-        </button>
-
-        <nav className="nav">
-          <button
-            className={`navItem ${activeTab === "chat" ? "active" : ""}`}
-            onClick={() => handleTabClick("chat")}
-          >
-            Chat
-          </button>
-          <button
-            className={`navItem ${
-              activeTab === "presentation" ? "active" : ""
-            }`}
-            onClick={() => handleTabClick("presentation")}
-          >
-            Presentation
-          </button>
-          <button
-            className={`navItem ${activeTab === "apps" ? "active" : ""}`}
-            onClick={() => handleTabClick("apps")}
-          >
-            Apps
-          </button>
-          <button
-            className={`navItem ${activeTab === "history" ? "active" : ""}`}
-            onClick={() => handleTabClick("history")}
-          >
-            History
-          </button>
-          <button
-            className={`navItem ${activeTab === "profile" ? "active" : ""}`}
-            onClick={() => handleTabClick("profile")}
-          >
-            Profile
-          </button>
-        </nav>
-
-        <div
-          className="sidebarProfile"
-          onClick={() => handleTabClick("profile")}
-          role="button"
-          tabIndex={0}
-        >
-          <img
-            src={profilePicSrc}
-            alt="Profile"
-            className="profileImg"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = defaultAvatar;
-            }}
-          />
-          <div className="profileInfo">
-            <div className="profileName">{user?.name || "Profile"}</div>
-            <div className="profileEmail">{user?.email || "User account"}</div>
-          </div>
-        </div>
-      </aside>
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        isMobile={isMobile}
+        activeTab={activeTab}
+        handleTabClick={handleTabClick}
+        handleNewChat={handleNewChat}
+        searchText={searchText}
+        setSearchText={setSearchText}
+        user={user}
+        profilePicSrc={profilePicSrc}
+        defaultAvatar={defaultAvatar}
+        onQuickToolClick={handleQuickToolClick}
+      />
 
       <div className="mainWrap">
         <header className="topbar">
@@ -592,40 +587,101 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
 
           {activeTab === "apps" && (
             <section className="contentCard">
-              <div className="sectionHeader">
-                <div>
-                  <h2>Apps</h2>
-                  <p className="mutedText">
-                    {filteredApps.length} app
-                    {filteredApps.length !== 1 ? "s" : ""} available
-                  </p>
-                </div>
-              </div>
+              {!activeApp ? (
+                <>
+                  <div className="sectionHeader">
+                    <div>
+                      <h2>Apps Workspace</h2>
+                      <p className="mutedText">
+                        {filteredApps.length} app
+                        {filteredApps.length !== 1 ? "s" : ""} available
+                      </p>
+                    </div>
+                  </div>
 
-              {!activeApp && (
-                <div className="appsGrid">
-                  {filteredApps.map((app) => (
-                    <button
-                      key={app.id}
-                      className="appCard"
-                      onClick={() => openApp(app)}
-                    >
-                      <span className="appIcon">{app.icon}</span>
-                      <h3>{app.name}</h3>
-                      <p>{app.desc}</p>
-                      {app.type === "external" && <small>External app</small>}
-                    </button>
-                  ))}
-                </div>
+                  <div className="appsGrid">
+                    {filteredApps.map((app) => (
+                      <button
+                        key={app.id}
+                        className="appCard"
+                        onClick={() => openApp(app)}
+                      >
+                        <div
+                          className="appIconBox"
+                          style={{ background: app.iconBg || "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)" }}
+                        >
+                          <span className="appIcon">{app.icon}</span>
+                        </div>
+                        <h3>{app.name}</h3>
+                        <p>{app.desc}</p>
+                        <small className={`appBadge ${app.category || "external"}`}>
+                          {app.category === "workspace"
+                            ? "Workspace Tool"
+                            : app.category === "vitya"
+                            ? "Vitya App"
+                            : "External App"}
+                        </small>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                renderAppPanel()
               )}
-
-              {activeApp && renderAppPanel()}
             </section>
           )}
 
           {activeTab === "profile" && (
             <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
               <Profile insideDashboard={true} />
+            </section>
+          )}
+
+          {activeTab === "profile/edit" && (
+            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+              <ProfileEdit insideDashboard={true} />
+            </section>
+          )}
+
+          {activeTab === "settings" && (
+            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+              <SettingsPage plain={true} insideDashboard={true} />
+            </section>
+          )}
+
+          {(activeTab === "help" || activeTab === "settings/help") && (
+            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+              <HelpSupportPage insideDashboard={true} />
+            </section>
+          )}
+
+          {activeTab === "settings/security" && (
+            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+              <SecurityPrivacyPage insideDashboard={true} />
+            </section>
+          )}
+
+          {activeTab === "settings/subscription" && (
+            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+              <SubscriptionPage insideDashboard={true} />
+            </section>
+          )}
+
+          {activeTab === "settings/notifications" && (
+            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+              <NotificationsPage insideDashboard={true} />
+            </section>
+          )}
+
+          {activeTab === "settings/appearance" && (
+            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+              <AppearancePage insideDashboard={true} />
+            </section>
+          )}
+
+          {activeTab === "settings/about" && (
+            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+              <AboutPage insideDashboard={true} />
             </section>
           )}
         </main>

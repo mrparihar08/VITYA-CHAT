@@ -59,8 +59,22 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [applyThemeToDocument]);
 
+  const cycleTheme = useCallback(() => {
+    const keys = Object.keys(THEME_PRESETS);
+    setThemeState((prevTheme) => {
+      const currentIndex = keys.indexOf(prevTheme);
+      const nextIndex = (currentIndex + 1) % keys.length;
+      const nextTheme = keys[nextIndex];
+      if (typeof window !== "undefined") {
+        localStorage.setItem("vitya_theme", nextTheme);
+      }
+      applyThemeToDocument(nextTheme);
+      return nextTheme;
+    });
+  }, [applyThemeToDocument]);
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, presets: THEME_PRESETS }}>
+    <ThemeContext.Provider value={{ theme, setTheme, cycleTheme, presets: THEME_PRESETS }}>
       {children}
     </ThemeContext.Provider>
   );

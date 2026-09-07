@@ -449,16 +449,6 @@ export default function PresentationEditor({
     }
   }, [downloadUrl]);
 
-  const scrollCarousel = (direction) => {
-    if (carouselRef.current) {
-      const scrollAmount = carouselRef.current.clientWidth * 0.8;
-      carouselRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
-
   const handleDirectDownload = async (e) => {
     e?.preventDefault();
     if (typeof downloadSavedPresentation === "function" && downloadUrl) {

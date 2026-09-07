@@ -12,18 +12,9 @@ import {
   Dashboard,
   Register,
   Login,
-  ProfileEdit,
   ForgotPassword,
   ResetPassword,
 } from "./App/index";
-
-import {
-  SecurityPrivacyPage,
-  SubscriptionPage,
-  NotificationsPage,
-  AppearancePage,
-  AboutPage,
-} from "./components/profile";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -166,6 +157,8 @@ const PageTitleUpdater = () => {
     else if (path.startsWith("/settings/notifications")) title = "Notifications | Vitya AI";
     else if (path.startsWith("/settings/appearance")) title = "Appearance | Vitya AI";
     else if (path.startsWith("/settings/about")) title = "About Vitya AI | Vitya AI";
+    else if (path.startsWith("/settings/help")) title = "Help & Support | Vitya AI";
+    else if (path.startsWith("/settings")) title = "Settings | Vitya AI";
     else if (path.startsWith("/presentation")) title = "Presentation Studio | Vitya AI";
     else if (path.startsWith("/chatbot")) title = "AI Assistant | Vitya AI";
     else if (path.startsWith("/apps")) title = "Apps Workspace | Vitya AI";
@@ -288,7 +281,15 @@ function AppRoutes() {
           path="/profile/edit"
           element={
             <PrivateRoute>
-              <ProfileEdit />
+              <Dashboard initialTab="profile/edit" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="settings" />
             </PrivateRoute>
           }
         />
@@ -296,7 +297,7 @@ function AppRoutes() {
           path="/settings/security"
           element={
             <PrivateRoute>
-              <SecurityPrivacyPage />
+              <Dashboard initialTab="settings/security" />
             </PrivateRoute>
           }
         />
@@ -304,7 +305,7 @@ function AppRoutes() {
           path="/settings/subscription"
           element={
             <PrivateRoute>
-              <SubscriptionPage />
+              <Dashboard initialTab="settings/subscription" />
             </PrivateRoute>
           }
         />
@@ -312,7 +313,7 @@ function AppRoutes() {
           path="/settings/notifications"
           element={
             <PrivateRoute>
-              <NotificationsPage />
+              <Dashboard initialTab="settings/notifications" />
             </PrivateRoute>
           }
         />
@@ -320,7 +321,7 @@ function AppRoutes() {
           path="/settings/appearance"
           element={
             <PrivateRoute>
-              <AppearancePage />
+              <Dashboard initialTab="settings/appearance" />
             </PrivateRoute>
           }
         />
@@ -328,7 +329,15 @@ function AppRoutes() {
           path="/settings/about"
           element={
             <PrivateRoute>
-              <AboutPage />
+              <Dashboard initialTab="settings/about" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings/help"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="settings/help" />
             </PrivateRoute>
           }
         />

@@ -28,13 +28,6 @@ const CHAT_TYPES = new Set([
 
 const MEDIA_TYPES = new Set(["image", "qr", "barcode"]);
 
-const MODES = [
-  { key: "chat", label: "Chat", hint: "Default mode" },
-  { key: "news", label: "News", hint: "Latest updates" },
-  { key: "wiki", label: "Wikipedia", hint: "Search knowledge" },
-  { key: "file", label: "Create File", hint: "Generate PPT output" },
-];
-
 const PPT_DEFAULTS = {
   include_title_slide: true,
   allow_bullets: true,
