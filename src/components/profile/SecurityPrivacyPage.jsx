@@ -3,13 +3,12 @@ import { useNavigate } from "react-router-dom";
 import {
   PageShell,
   Input,
-  Button,
   PasswordField,
   FieldLabel,
-  styles,
 } from "../auth/AuthCommon";
+import "../auth/Auth.css";
 
-export function SecurityPrivacyPage() {
+export function SecurityPrivacyPage({ insideDashboard = false }) {
   const navigate = useNavigate();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -18,68 +17,86 @@ export function SecurityPrivacyPage() {
   const [showNew, setShowNew] = useState(false);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(""), 3500);
+  };
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
     if (!currentPassword || !newPassword || !confirmPassword) {
-      alert("Please fill in all password fields.");
+      showToast("Please fill in all password fields.");
       return;
     }
     if (newPassword !== confirmPassword) {
-      alert("New password and confirm password do not match.");
+      showToast("New password and confirm password do not match.");
       return;
     }
     if (newPassword.length < 6) {
-      alert("Password must be at least 6 characters long.");
+      showToast("Password must be at least 6 characters long.");
       return;
     }
 
     setSavingPassword(true);
     setTimeout(() => {
-      alert("Password updated successfully!");
+      showToast("Password updated successfully!");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       setSavingPassword(false);
-    }, 800);
+    }, 600);
   };
 
   return (
     <PageShell
       title="Security & Privacy"
-      subtitle="Manage your password, authentication, and data privacy."
-      backPath="/settings"
-      wide
+      subtitle="Manage your password, 2FA authentication, and data privacy."
+      plain={insideDashboard}
+      hideBrandRow={insideDashboard}
+      wide={true}
     >
-      <div style={{ display: "grid", gap: 20 }}>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => navigate("/profile")}
-          style={{ width: "fit-content" }}
-        >
-          ← Back to Profile
-        </Button>
+      <div className="vitya-profile-edit-container">
+        {toastMsg && <div className="vitya-settings-toast">✓ {toastMsg}</div>}
+
+        <div className="vitya-profile-top-nav">
+          <button
+            type="button"
+            className="backBtn"
+            onClick={() => navigate(insideDashboard ? "/dashboard?tab=profile" : "/profile")}
+          >
+            ← Back to Profile
+          </button>
+          <div className="appBreadcrumb">
+            <span>Profile</span> <span className="bcSep">/</span> <strong className="bcCurrent">Security & Privacy</strong>
+          </div>
+        </div>
 
         {/* CHANGE PASSWORD */}
-        <div style={styles.profileMain}>
-          <h3 style={styles.mainHeading}>🔐 Change Password</h3>
-          <p style={styles.mainSubheading}>
-            Update your password regularly to keep your Vitya.AI account secure.
-          </p>
+        <div className="vitya-settings-card">
+          <div className="vitya-card-header">
+            <div className="vitya-header-icon bg-purple">🔐</div>
+            <div className="vitya-header-title-block">
+              <h3>Change Password</h3>
+              <p>Update your password regularly to keep your Vitya.AI account secure</p>
+            </div>
+          </div>
 
-          <form onSubmit={handlePasswordSubmit} style={{ marginTop: 16, display: "grid", gap: 14 }}>
-            <FieldLabel label="Current Password">
-              <PasswordField
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Enter current password"
-                show={showCurrent}
-                toggleShow={() => setShowCurrent(!showCurrent)}
-              />
-            </FieldLabel>
+          <form onSubmit={handlePasswordSubmit} className="vitya-edit-form-grid">
+            <div className="vitya-input-group full-width">
+              <FieldLabel label="Current Password">
+                <PasswordField
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Enter current password"
+                  show={showCurrent}
+                  toggleShow={() => setShowCurrent(!showCurrent)}
+                />
+              </FieldLabel>
+            </div>
 
-            <div style={styles.fieldGrid} className="field-grid">
+            <div className="vitya-input-group">
               <FieldLabel label="New Password">
                 <PasswordField
                   value={newPassword}
@@ -89,7 +106,9 @@ export function SecurityPrivacyPage() {
                   toggleShow={() => setShowNew(!showNew)}
                 />
               </FieldLabel>
+            </div>
 
+            <div className="vitya-input-group">
               <FieldLabel label="Confirm New Password">
                 <Input
                   type="password"
@@ -100,82 +119,58 @@ export function SecurityPrivacyPage() {
               </FieldLabel>
             </div>
 
-            <Button
-              type="submit"
-              disabled={savingPassword}
-              style={{ width: "fit-content", padding: "12px 24px" }}
-            >
-              {savingPassword ? "Updating Password..." : "Update Password"}
-            </Button>
+            <div className="vitya-input-group full-width" style={{ marginTop: 8 }}>
+              <button
+                type="submit"
+                className="vitya-save-btn"
+                disabled={savingPassword}
+                style={{ width: "fit-content" }}
+              >
+                {savingPassword ? "Updating Password..." : "Update Password"}
+              </button>
+            </div>
           </form>
         </div>
 
         {/* TWO-FACTOR AUTHENTICATION */}
-        <div style={styles.profileMain}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <h3 style={styles.mainHeading}>🛡️ Two-Factor Authentication (2FA)</h3>
-              <p style={styles.mainSubheading}>
-                Add an extra layer of security to your account using an authenticator app.
-              </p>
+        <div className="vitya-settings-card">
+          <div className="vitya-card-header">
+            <div className="vitya-header-icon bg-blue">🛡️</div>
+            <div className="vitya-header-title-block">
+              <h3>Two-Factor Authentication (2FA)</h3>
+              <p>Add an extra layer of security to your account using an authenticator app</p>
             </div>
-            <Button
+          </div>
+
+          <div className="vitya-setting-item item-toggle" style={{ padding: "8px 0 0" }}>
+            <div className="item-left">
+              <span className="item-icon">📱</span>
+              <span className="item-label">
+                {twoFactorEnabled ? "2FA Protection Active" : "2FA Protection Disabled"}
+              </span>
+            </div>
+            <button
               type="button"
-              variant={twoFactorEnabled ? "secondary" : "primary"}
+              className="vitya-save-btn"
+              style={{
+                background: twoFactorEnabled
+                  ? "rgba(239,68,68,0.2)"
+                  : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                border: twoFactorEnabled ? "1px solid rgba(239,68,68,0.4)" : "none",
+                fontSize: 13,
+                padding: "8px 16px",
+              }}
               onClick={() => {
                 setTwoFactorEnabled(!twoFactorEnabled);
-                alert(
+                showToast(
                   !twoFactorEnabled
-                    ? "Two-Factor Authentication has been enabled!"
-                    : "Two-Factor Authentication has been disabled."
+                    ? "Two-Factor Authentication Enabled!"
+                    : "Two-Factor Authentication Disabled!"
                 );
               }}
-              style={{ minWidth: 110 }}
             >
               {twoFactorEnabled ? "Disable 2FA" : "Enable 2FA"}
-            </Button>
-          </div>
-        </div>
-
-        {/* ACTIVE SESSIONS & DATA CONTROL */}
-        <div style={styles.profileMain}>
-          <h3 style={styles.mainHeading}>💻 Active Sessions & Data Controls</h3>
-          <p style={styles.mainSubheading}>
-            Manage your logged-in devices and download your account data backup.
-          </p>
-
-          <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
-            <div className="vitya-menu-item" style={{ cursor: "default" }}>
-              <div className="vitya-menu-left">
-                <div className="vitya-menu-icon-box" style={{ background: "rgba(34, 197, 94, 0.15)" }}>
-                  🌐
-                </div>
-                <div>
-                  <div className="vitya-menu-title">Current Web Browser (Active Now)</div>
-                  <div className="vitya-menu-sub">Windows • Chrome • India</div>
-                </div>
-              </div>
-              <div className="vitya-stat-value">
-                <span className="vitya-green-dot" /> Online
-              </div>
-            </div>
-
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => alert("Downloading account data archive…")}
-              >
-                📥 Download Account Data
-              </Button>
-              <Button
-                type="button"
-                variant="danger"
-                onClick={() => alert("Logged out from all other active sessions.")}
-              >
-                🚪 Revoke Other Sessions
-              </Button>
-            </div>
+            </button>
           </div>
         </div>
       </div>

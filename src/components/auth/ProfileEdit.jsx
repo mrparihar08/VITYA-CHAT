@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -8,14 +8,10 @@ import {
   resolveAssetUrl,
   handleApiError,
   PageShell,
-  FieldLabel,
-  Input,
-  Textarea,
-  Button,
-  styles,
 } from "./AuthCommon";
+import "./Auth.css";
 
-export function ProfileEdit() {
+export function ProfileEdit({ insideDashboard = false }) {
   const { token, logout, updateUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({
@@ -27,9 +23,15 @@ export function ProfileEdit() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [editing, setEditing] = useState(false);
   const [filePreview, setFilePreview] = useState("");
+  const [toastMsg, setToastMsg] = useState("");
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
+
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(""), 3500);
+  };
 
   useEffect(() => {
     if (!token) {
@@ -57,7 +59,7 @@ export function ProfileEdit() {
           logout();
           navigate("/login");
         } else {
-          alert(handleApiError(err));
+          showToast(handleApiError(err));
         }
       } finally {
         setLoading(false);
@@ -73,14 +75,13 @@ export function ProfileEdit() {
       setFilePreview(url);
       return () => URL.revokeObjectURL(url);
     }
-
     setFilePreview("");
     return undefined;
   }, [form.profile_pic]);
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
-    if (saving || !editing) return;
+    if (saving) return;
     setSaving(true);
 
     try {
@@ -89,19 +90,15 @@ export function ProfileEdit() {
       if (form.name.trim() !== (profile?.name || "")) {
         payload.append("name", form.name.trim());
       }
-
       if (form.username.trim() !== (profile?.username || "")) {
         payload.append("username", form.username.trim());
       }
-
       if (form.email.trim() !== (profile?.email || "")) {
         payload.append("email", form.email.trim());
       }
-
       if ((form.bio || "").trim() !== (profile?.bio || "")) {
         payload.append("bio", form.bio.trim());
       }
-
       if (form.profile_pic instanceof File) {
         payload.append("profile_pic", form.profile_pic);
       }
@@ -116,202 +113,213 @@ export function ProfileEdit() {
 
       if (updated) {
         setProfile(updated);
-        setForm({
+        setForm((prev) => ({
+          ...prev,
           name: updated.name || "",
           username: updated.username || "",
           email: updated.email || "",
           bio: updated.bio || "",
           profile_pic: updated.profile_pic || "",
-        });
+        }));
         saveUserToStorage(updated);
         updateUser(updated);
       }
 
-      alert(res.data?.message || "Profile updated successfully");
-      setEditing(false);
+      showToast(res.data?.message || "Profile updated successfully!");
     } catch (err) {
-      alert(handleApiError(err));
+      showToast(handleApiError(err));
     } finally {
       setSaving(false);
     }
   };
 
+  const previewSrc =
+    filePreview || resolveAssetUrl(profile?.profile_pic || "/profile.png");
+  const userInitial = (form.name || form.username || "P").charAt(0).toUpperCase();
+
   if (loading) {
     return (
       <PageShell
-        badge="Profile"
-        title="Loading..."
-        subtitle="Fetching your account details."
+        title="Loading Profile..."
+        subtitle="Fetching user details."
+        plain={insideDashboard}
+        hideBrandRow={insideDashboard}
         wide
       >
-        <div style={styles.loadingBlock}>
-          <div style={styles.spinner} />
-          <div style={styles.loadingText}>Loading profile…</div>
+        <div style={{ textAlign: "center", padding: "40px 0", color: "rgba(255,255,255,0.7)" }}>
+          Loading profile...
         </div>
       </PageShell>
     );
   }
 
-  const previewSrc = filePreview || resolveAssetUrl(profile?.profile_pic || "/profile.png");
-
   return (
     <PageShell
-      badge="Profile Edit"
-      title="Edit Profile"
-      subtitle="Update your account information."
-      wide
+      title="Edit Account Profile"
+      subtitle="Update your personal details, avatar, bio, and credentials."
+      plain={insideDashboard}
+      hideBrandRow={insideDashboard}
+      wide={true}
     >
-      <Button
-        type="button"
-        variant="secondary"
-        onClick={() => navigate("/")}
-        style={{ width: "fit-content" }}
-      >
-        ← Home
-      </Button>
+      <div className="vitya-profile-edit-container">
+        {toastMsg && <div className="vitya-settings-toast">✓ {toastMsg}</div>}
 
-      <br />
-      <br />
-
-      <main style={styles.profileMain}>
-        <div style={styles.mainTopBar}>
-          <div>
-            <h3 style={styles.mainHeading}>
-              {editing ? "Editing mode" : "Preview mode"}
-            </h3>
-            <p style={styles.mainSubheading}>
-              {editing
-                ? "Make your changes and save them."
-                : "Click Edit Profile to unlock the fields."}
-            </p>
-          </div>
-
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {!editing && (
-              <Button
-                type="button"
-                onClick={() => setEditing(true)}
-                style={{ minWidth: 120 }}
-              >
-                Edit Profile
-              </Button>
-            )}
-            <div style={styles.mainChip}>
-              {editing ? "Unsaved changes allowed" : "Read only"}
-            </div>
+        {/* TOP BAR WITH BACK BUTTON */}
+        <div className="vitya-profile-top-nav">
+          <button
+            type="button"
+            className="backBtn"
+            onClick={() => navigate(insideDashboard ? "/dashboard?tab=profile" : "/profile")}
+          >
+            ← Back to Profile
+          </button>
+          <div className="appBreadcrumb">
+            <span>Profile</span> <span className="bcSep">/</span> <strong className="bcCurrent">Edit Account</strong>
           </div>
         </div>
 
-        <form onSubmit={handleUpdateProfile} style={styles.profileForm}>
-          <div style={styles.fieldGrid} className="field-grid">
-            <FieldLabel label="Full Name">
-              <Input
-                type="text"
-                placeholder="Full Name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                disabled={!editing}
-              />
-            </FieldLabel>
+        <form onSubmit={handleUpdateProfile} className="vitya-profile-edit-form">
+          {/* HEADER CARD: AVATAR EDIT & NAME HEADER */}
+          <div className="vitya-profile-card vitya-edit-avatar-card">
+            <div className="vitya-user-header">
+              <div className="vitya-main-avatar-wrapper">
+                <div className="vitya-avatar-box">
+                  {previewSrc ? (
+                    <img
+                      src={previewSrc}
+                      alt="Avatar Preview"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <span>{userInitial}</span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="vitya-camera-btn"
+                  onClick={() => fileInputRef.current?.click()}
+                  title="Upload new profile picture"
+                >
+                  📷
+                </button>
+              </div>
 
-            <FieldLabel label="Username">
-              <Input
-                type="text"
-                placeholder="Username"
-                value={form.username}
-                onChange={(e) => setForm({ ...form, username: e.target.value })}
-                disabled={!editing}
-              />
-            </FieldLabel>
-          </div>
+              <div className="vitya-user-meta" style={{ flex: 1 }}>
+                <h2 className="vitya-user-name">{form.name || "User Profile"}</h2>
+                <div className="vitya-username">@{form.username || "username"}</div>
+                <div className="vitya-avatar-hint">
+                  Click the camera icon on your avatar to upload a new profile image (JPG, PNG up to 5MB).
+                </div>
+              </div>
 
-          <div style={styles.fieldGrid} className="field-grid">
-            <FieldLabel label="Email">
-              <Input
-                type="email"
-                placeholder="Email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                disabled={!editing}
-              />
-            </FieldLabel>
-
-            <FieldLabel label="Profile Picture">
               <input
                 type="file"
+                ref={fileInputRef}
                 accept="image/*"
                 onChange={(e) =>
                   setForm({ ...form, profile_pic: e.target.files?.[0] || null })
                 }
-                disabled={!editing}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "12px",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.05)",
-                  color: "#fff",
-                  cursor: editing ? "pointer" : "not-allowed",
-                }}
+                style={{ display: "none" }}
               />
+            </div>
+          </div>
 
-              {(filePreview || profile?.profile_pic) && (
-                <div style={{ marginTop: 12 }}>
-                  <img
-                    src={previewSrc}
-                    alt="Profile Preview"
-                    style={{
-                      width: 90,
-                      height: 90,
-                      borderRadius: "50%",
-                      objectFit: "cover",
-                      border: "2px solid rgba(255,255,255,0.2)",
-                    }}
+          {/* FORM GRID SECTION */}
+          <div className="vitya-settings-card">
+            <div className="vitya-card-header">
+              <div className="vitya-header-icon bg-purple">👤</div>
+              <div className="vitya-header-title-block">
+                <h3>Personal Details</h3>
+                <p>Update your public display name, email, and handle</p>
+              </div>
+            </div>
+
+            <div className="vitya-edit-form-grid">
+              <div className="vitya-input-group">
+                <label className="vitya-input-label">Full Name</label>
+                <input
+                  type="text"
+                  className="vitya-edit-input"
+                  placeholder="Enter your full name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="vitya-input-group">
+                <label className="vitya-input-label">Username</label>
+                <div className="vitya-input-prefix-wrap">
+                  <span className="vitya-prefix">@</span>
+                  <input
+                    type="text"
+                    className="vitya-edit-input with-prefix"
+                    placeholder="username"
+                    value={form.username}
+                    onChange={(e) => setForm({ ...form, username: e.target.value })}
+                    required
                   />
                 </div>
-              )}
-            </FieldLabel>
+              </div>
+
+              <div className="vitya-input-group">
+                <label className="vitya-input-label">Email Address</label>
+                <input
+                  type="email"
+                  className="vitya-edit-input"
+                  placeholder="name@domain.com"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="vitya-input-group">
+                <label className="vitya-input-label">Role / Account Tier</label>
+                <input
+                  type="text"
+                  className="vitya-edit-input"
+                  value={profile?.role || "Founder & AI Developer"}
+                  disabled
+                  style={{ opacity: 0.75 }}
+                />
+              </div>
+
+              <div className="vitya-input-group full-width">
+                <label className="vitya-input-label">Bio / Personal Description</label>
+                <textarea
+                  rows={4}
+                  className="vitya-edit-textarea"
+                  placeholder="Write a brief bio about yourself..."
+                  value={form.bio}
+                  onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                />
+              </div>
+            </div>
           </div>
 
-          <FieldLabel label="Bio">
-            <Textarea
-              rows={4}
-              placeholder="Bio"
-              value={form.bio}
-              onChange={(e) => setForm({ ...form, bio: e.target.value })}
-              disabled={!editing}
-            />
-          </FieldLabel>
-
-          <div style={styles.actionRow}>
-            <Button
+          {/* ACTION BUTTONS ROW */}
+          <div className="vitya-edit-actions-row">
+            <button
               type="submit"
-              disabled={saving || !editing}
-              style={{ flex: 1, minWidth: 160 }}
+              className="vitya-save-btn"
+              disabled={saving}
             >
-              {saving ? "Saving..." : "Save Changes"}
-            </Button>
+              {saving ? "Saving Changes..." : "💾 Save Profile Changes"}
+            </button>
 
-            <Button
+            <button
               type="button"
-              variant="secondary"
-              onClick={() => {
-                setEditing(false);
-                setForm({
-                  name: profile?.name || "",
-                  username: profile?.username || "",
-                  email: profile?.email || "",
-                  bio: profile?.bio || "",
-                  profile_pic: profile?.profile_pic || "",
-                });
-              }}
-              style={{ flex: 1, minWidth: 160 }}
+              className="vitya-cancel-btn"
+              onClick={() => navigate(insideDashboard ? "/dashboard?tab=profile" : "/profile")}
             >
               Cancel
-            </Button>
+            </button>
           </div>
         </form>
-      </main>
+      </div>
     </PageShell>
   );
 }

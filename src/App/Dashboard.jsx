@@ -303,6 +303,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
     const cParam = searchParams.get("c");
 
     const tab =
+      propTab ||
       tabParam ||
       (typeof window !== "undefined"
         ? localStorage.getItem("vitya_activeTab")
@@ -310,7 +311,8 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
       "chat";
     const app =
       tab === "apps"
-        ? appParam ||
+        ? propApp ||
+          appParam ||
           (typeof window !== "undefined"
             ? localStorage.getItem("vitya_activeApp")
             : null)
@@ -326,7 +328,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
     setActiveTabState(tab);
     setActiveAppState(app);
     setActiveConversationIdState(c);
-  }, [searchParams]);
+  }, [propTab, propApp, searchParams]);
 
   const analyticsData = useMemo(
     () => ({

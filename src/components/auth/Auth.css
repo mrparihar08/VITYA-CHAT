@@ -728,6 +728,149 @@
   transform: translateX(-2px);
 }
 
+/* ====================================
+   PROFILE EDIT STYLES
+   ==================================== */
+.vitya-profile-edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  padding-bottom: 30px;
+}
+
+.vitya-profile-top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vitya-avatar-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.vitya-edit-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.vitya-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vitya-input-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.vitya-input-label {
+  font-size: 13px;
+  font-weight: 650;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.vitya-edit-input,
+.vitya-edit-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.vitya-edit-textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.vitya-edit-input:focus,
+.vitya-edit-textarea:focus {
+  border-color: rgba(139, 92, 246, 0.8);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.18);
+}
+
+.vitya-input-prefix-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.vitya-prefix {
+  position: absolute;
+  left: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.vitya-edit-input.with-prefix {
+  padding-left: 30px;
+}
+
+.vitya-edit-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.vitya-save-btn {
+  padding: 12px 24px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
+  transition: all 0.2s ease;
+}
+
+.vitya-save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.5);
+}
+
+.vitya-save-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.vitya-cancel-btn {
+  padding: 12px 24px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vitya-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
 
 
 

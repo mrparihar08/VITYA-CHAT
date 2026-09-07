@@ -41,7 +41,7 @@ const FAQS = [
   },
 ];
 
-export function HelpSupportPage() {
+export function HelpSupportPage({ insideDashboard = false }) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [openFaq, setOpenFaq] = useState(null);
@@ -76,9 +76,24 @@ export function HelpSupportPage() {
     <PageShell
       title="Help & Support"
       subtitle="Find answers, read documentation, or contact our support team."
-      backPath="/dashboard"
+      plain={insideDashboard}
+      hideBrandRow={insideDashboard}
+      wide={true}
     >
       <div className="vitya-subpage-container">
+        <div className="vitya-profile-top-nav" style={{ marginBottom: 16 }}>
+          <button
+            type="button"
+            className="backBtn"
+            onClick={() => navigate(insideDashboard ? "/dashboard?tab=profile" : "/profile")}
+          >
+            ← Back to Profile
+          </button>
+          <div className="appBreadcrumb">
+            <span>Profile</span> <span className="bcSep">/</span> <strong className="bcCurrent">Help & Support</strong>
+          </div>
+        </div>
+
         {/* QUICK CONTACT / ACTION HERO CARDS */}
         <div className="vitya-help-hero-grid">
           <div

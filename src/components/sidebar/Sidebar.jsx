@@ -224,7 +224,9 @@ export default function Sidebar({
       {/* 4. MAIN NAVIGATION */}
       <nav className="vitya-sidebar-nav">
         {navItems.map((item) => {
-          const isActive = activeTab === item.key;
+          const isActive =
+            activeTab === item.key ||
+            (item.key === "profile" && (activeTab || "").startsWith("profile"));
           return (
             <button
               key={item.key}
@@ -263,18 +265,24 @@ export default function Sidebar({
       {/* 6. SECONDARY SETTINGS MENU */}
       <div className="vitya-secondary-menu">
         <button
-          className="vitya-nav-item"
+          className={`vitya-nav-item ${(activeTab || "").startsWith("settings") && activeTab !== "settings/help" ? "active" : ""}`}
           onClick={() => handleTabClick("settings")}
         >
+          {((activeTab || "").startsWith("settings") && activeTab !== "settings/help") && (
+            <div className="vitya-active-indicator" />
+          )}
           <span className="vitya-nav-icon"><SettingsIcon /></span>
           <span className="vitya-nav-label">Settings</span>
           <ChevronRight />
         </button>
 
         <button
-          className="vitya-nav-item"
+          className={`vitya-nav-item ${activeTab === "help" || activeTab === "settings/help" ? "active" : ""}`}
           onClick={() => handleTabClick("help")}
         >
+          {(activeTab === "help" || activeTab === "settings/help") && (
+            <div className="vitya-active-indicator" />
+          )}
           <span className="vitya-nav-icon"><HelpIcon /></span>
           <span className="vitya-nav-label">Help & Support</span>
           <ChevronRight />

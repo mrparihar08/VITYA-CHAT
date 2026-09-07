@@ -1,9 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageShell, Button, styles } from "../auth/AuthCommon";
+import { PageShell } from "../auth/AuthCommon";
+import "../auth/Auth.css";
 
-export function SubscriptionPage() {
+export function SubscriptionPage({ insideDashboard = false }) {
   const navigate = useNavigate();
+  const [toastMsg, setToastMsg] = useState("");
+
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(""), 3500);
+  };
 
   const plans = [
     {
@@ -44,36 +51,43 @@ export function SubscriptionPage() {
     <PageShell
       title="Subscription & Billing"
       subtitle="Manage your subscription plan, billing details, and API quotas."
-      backPath="/settings"
-      wide
+      plain={insideDashboard}
+      hideBrandRow={insideDashboard}
+      wide={true}
     >
-      <div style={{ display: "grid", gap: 20 }}>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => navigate("/profile")}
-          style={{ width: "fit-content" }}
-        >
-          ← Back to Profile
-        </Button>
+      <div className="vitya-profile-edit-container">
+        {toastMsg && <div className="vitya-settings-toast">✓ {toastMsg}</div>}
+
+        <div className="vitya-profile-top-nav">
+          <button
+            type="button"
+            className="backBtn"
+            onClick={() => navigate(insideDashboard ? "/dashboard?tab=profile" : "/profile")}
+          >
+            ← Back to Profile
+          </button>
+          <div className="appBreadcrumb">
+            <span>Profile</span> <span className="bcSep">/</span> <strong className="bcCurrent">Subscription & Billing</strong>
+          </div>
+        </div>
 
         {/* ACTIVE PLAN SUMMARY */}
-        <div className="vitya-profile-card" style={{ marginBottom: 0 }}>
+        <div className="vitya-profile-card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
             <div>
               <div className="pro-badge" style={{ marginBottom: 8 }}>👑 Pro User Tier</div>
-              <h2 style={{ fontSize: 24, margin: "4px 0", color: "#fff" }}>Your Current Plan: Pro User</h2>
-              <p style={{ color: "rgba(255,255,255,0.6)", margin: 0, fontSize: 14 }}>
+              <h2 style={{ fontSize: 22, margin: "4px 0", color: "#fff" }}>Your Current Plan: Pro User</h2>
+              <p style={{ color: "rgba(255,255,255,0.6)", margin: 0, fontSize: 13.5 }}>
                 Renews automatically on <strong style={{ color: "#fff" }}>September 30, 2026</strong>.
               </p>
             </div>
-            <Button
+            <button
               type="button"
-              onClick={() => alert("Billing management portal opened!")}
-              style={{ minWidth: 150 }}
+              className="vitya-save-btn"
+              onClick={() => showToast("Billing portal opened!")}
             >
               💳 Manage Billing
-            </Button>
+            </button>
           </div>
 
           {/* USAGE METRICS */}
@@ -97,71 +111,43 @@ export function SubscriptionPage() {
                 <div style={{ width: "42%", height: "100%", background: "linear-gradient(90deg, #3b82f6, #60a5fa)" }} />
               </div>
             </div>
-
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "rgba(255,255,255,0.8)", marginBottom: 6 }}>
-                <span>📁 Cloud Workspace Storage</span>
-                <span>2.4 GB / 10 GB (24%)</span>
-              </div>
-              <div style={{ height: 8, borderRadius: 4, background: "rgba(255,255,255,0.1)", overflow: "hidden" }}>
-                <div style={{ width: "24%", height: "100%", background: "linear-gradient(90deg, #10b981, #34d399)" }} />
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* PLAN TIERS */}
-        <div style={styles.profileMain}>
-          <h3 style={styles.mainHeading}>💎 Choose Your Plan</h3>
-          <p style={styles.mainSubheading}>
-            Select the plan that best fits your workflow requirements.
-          </p>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16, marginTop: 18 }}>
-            {plans.map((p, idx) => (
-              <div
-                key={idx}
-                style={{
-                  background: p.current ? "rgba(139, 92, 246, 0.12)" : "rgba(255, 255, 255, 0.03)",
-                  border: p.current ? "1px solid rgba(139, 92, 246, 0.5)" : "1px solid rgba(255, 255, 255, 0.08)",
-                  borderRadius: 20,
-                  padding: 20,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                }}
-              >
-                <div>
-                  {p.badge && <div className="pro-badge" style={{ marginBottom: 10 }}>{p.badge}</div>}
-                  <h4 style={{ fontSize: 20, margin: "0 0 6px", color: "#fff" }}>{p.name}</h4>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: "#c4b5fd", marginBottom: 8 }}>{p.price}</div>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{p.desc}</p>
-
-                  <ul style={{ paddingLeft: 18, marginTop: 14, fontSize: 13, color: "rgba(255,255,255,0.8)", lineHeight: 1.8 }}>
-                    {p.features.map((f, fIdx) => (
-                      <li key={fIdx}>{f}</li>
-                    ))}
-                  </ul>
+        {/* PLAN TIERS GRID */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 16 }}>
+          {plans.map((p) => (
+            <div key={p.name} className="vitya-settings-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <h3 style={{ fontSize: 18, color: "#fff", margin: 0 }}>{p.name}</h3>
+                  {p.badge && <span className="pro-badge" style={{ fontSize: 11, padding: "3px 8px" }}>{p.badge}</span>}
                 </div>
-
-                <div style={{ marginTop: 18 }}>
-                  {p.current ? (
-                    <Button type="button" variant="secondary" disabled style={{ width: "100%" }}>
-                      Current Plan
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      onClick={() => alert(`Upgrading to ${p.name}…`)}
-                      style={{ width: "100%" }}
-                    >
-                      Choose {p.name}
-                    </Button>
-                  )}
-                </div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: "#c4b5fd", margin: "10px 0" }}>{p.price}</div>
+                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{p.desc}</p>
+                <ul style={{ paddingLeft: 18, margin: "14px 0", fontSize: 13, color: "rgba(255,255,255,0.8)", lineHeight: 1.8 }}>
+                  {p.features.map((f) => (
+                    <li key={f}>{f}</li>
+                  ))}
+                </ul>
               </div>
-            ))}
-          </div>
+              <button
+                type="button"
+                className="vitya-save-btn"
+                disabled={p.current}
+                style={{
+                  width: "100%",
+                  marginTop: 14,
+                  opacity: p.current ? 0.6 : 1,
+                  background: p.current ? "rgba(255,255,255,0.08)" : undefined,
+                  border: p.current ? "1px solid rgba(255,255,255,0.15)" : undefined,
+                }}
+                onClick={() => showToast(`Selected plan: ${p.name}`)}
+              >
+                {p.current ? "Current Plan" : "Upgrade Plan"}
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </PageShell>

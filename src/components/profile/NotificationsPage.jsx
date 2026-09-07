@@ -1,45 +1,46 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageShell, Button, styles } from "../auth/AuthCommon";
+import { PageShell } from "../auth/AuthCommon";
+import "../auth/Auth.css";
 
-export function NotificationsPage() {
+export function NotificationsPage({ insideDashboard = false }) {
   const navigate = useNavigate();
   const [emailAlerts, setEmailAlerts] = useState(true);
   const [securityAlerts, setSecurityAlerts] = useState(true);
   const [aiUpdates, setAiUpdates] = useState(true);
   const [marketing, setMarketing] = useState(false);
-  const [frequency, setFrequency] = useState("realtime");
-  const [saved, setSaved] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => {
-      alert("Notification preferences saved successfully!");
-      setSaved(false);
-    }, 400);
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(""), 3500);
   };
 
   const notificationOptions = [
     {
+      id: "security",
       title: "🛡️ Security & Account Alerts",
       desc: "Receive immediate notifications for new logins, password changes, and 2FA activities.",
       checked: securityAlerts,
       onChange: setSecurityAlerts,
     },
     {
+      id: "email",
       title: "📧 Email Digest & Summaries",
       desc: "Get periodic financial reports and chat history summaries delivered to your inbox.",
       checked: emailAlerts,
       onChange: setEmailAlerts,
     },
     {
+      id: "ai",
       title: "🤖 AI Assistant & Product Updates",
       desc: "Stay notified when new AI models, presentation tools, or apps are released.",
       checked: aiUpdates,
       onChange: setAiUpdates,
     },
     {
-      title: "🎁 Tips & Promotional Offers",
+      id: "tips",
+      title: "🎁 Tips & Productivity Offers",
       desc: "Occasional updates about productivity tips and special Vitya.AI workspace features.",
       checked: marketing,
       onChange: setMarketing,
@@ -50,76 +51,58 @@ export function NotificationsPage() {
     <PageShell
       title="Notifications & Alerts"
       subtitle="Manage your email, security, and AI notification preferences."
-      backPath="/settings"
-      wide
+      plain={insideDashboard}
+      hideBrandRow={insideDashboard}
+      wide={true}
     >
-      <div style={{ display: "grid", gap: 20 }}>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => navigate("/profile")}
-          style={{ width: "fit-content" }}
-        >
-          ← Back to Profile
-        </Button>
+      <div className="vitya-profile-edit-container">
+        {toastMsg && <div className="vitya-settings-toast">✓ {toastMsg}</div>}
 
-        <div style={styles.profileMain}>
-          <h3 style={styles.mainHeading}>🔔 Alert Preferences</h3>
-          <p style={styles.mainSubheading}>
-            Toggle notification channels on or off according to your preference.
-          </p>
+        <div className="vitya-profile-top-nav">
+          <button
+            type="button"
+            className="backBtn"
+            onClick={() => navigate(insideDashboard ? "/dashboard?tab=profile" : "/profile")}
+          >
+            ← Back to Profile
+          </button>
+          <div className="appBreadcrumb">
+            <span>Profile</span> <span className="bcSep">/</span> <strong className="bcCurrent">Notifications & Alerts</strong>
+          </div>
+        </div>
 
-          <div style={{ display: "grid", gap: 14, marginTop: 18 }}>
-            {notificationOptions.map((opt, idx) => (
-              <div
-                key={idx}
-                className="vitya-menu-item"
-                onClick={() => opt.onChange(!opt.checked)}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="vitya-menu-left">
+        <div className="vitya-settings-card">
+          <div className="vitya-card-header">
+            <div className="vitya-header-icon bg-amber">🔔</div>
+            <div className="vitya-header-title-block">
+              <h3>Notification Preferences</h3>
+              <p>Toggle individual alerts and summary reports</p>
+            </div>
+          </div>
+
+          <div className="vitya-settings-list">
+            {notificationOptions.map((opt) => (
+              <div key={opt.id} className="vitya-setting-item item-toggle">
+                <div className="item-left" style={{ flex: 1, paddingRight: 16 }}>
+                  <span className="item-icon" style={{ fontSize: 20 }}>{opt.title.split(" ")[0]}</span>
                   <div>
-                    <div className="vitya-menu-title">{opt.title}</div>
-                    <div className="vitya-menu-sub">{opt.desc}</div>
+                    <div className="item-label">{opt.title.substring(opt.title.indexOf(" ") + 1)}</div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{opt.desc}</div>
                   </div>
                 </div>
-                <input
-                  type="checkbox"
-                  checked={opt.checked}
-                  onChange={(e) => opt.onChange(e.target.checked)}
-                  style={{ width: 20, height: 20, cursor: "pointer", accentColor: "#8b5cf6" }}
-                />
+                <label className="vitya-switch">
+                  <input
+                    type="checkbox"
+                    checked={opt.checked}
+                    onChange={(e) => {
+                      opt.onChange(e.target.checked);
+                      showToast(`${opt.title.substring(opt.title.indexOf(" ") + 1)} ${e.target.checked ? "Enabled" : "Disabled"}`);
+                    }}
+                  />
+                  <span className="slider round" />
+                </label>
               </div>
             ))}
-          </div>
-
-          <h3 style={{ ...styles.mainHeading, marginTop: 28 }}>⏱️ Notification Frequency</h3>
-          <p style={styles.mainSubheading}>
-            Choose how frequently non-critical notification summaries should be sent.
-          </p>
-
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
-            {[
-              { id: "realtime", label: "⚡ Real-time (Instant)" },
-              { id: "daily", label: "📅 Daily Digest" },
-              { id: "weekly", label: "🗓️ Weekly Summary" },
-            ].map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                className={frequency === f.id ? "vitya-btn-purple" : "vitya-btn-outline"}
-                onClick={() => setFrequency(f.id)}
-                style={{ padding: "10px 18px", minHeight: 44, fontSize: 14 }}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-
-          <div style={{ marginTop: 24 }}>
-            <Button type="button" onClick={handleSave} disabled={saved} style={{ padding: "12px 24px" }}>
-              {saved ? "Saving..." : "Save Preferences"}
-            </Button>
           </div>
         </div>
       </div>

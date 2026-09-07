@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
-import QUICK_PROMPTS from "../components/data/quickPrompts";
-import { getRandomPrompts } from "../components/utils/randomPrompt";
 import ChatCharts from "../components/chatbot/ChatCharts";
 import ChatInput from "../components/chatbot/ChatInput";
 import { API_BASE_URL } from "../services/api";
@@ -222,9 +220,6 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [plusOpen, setPlusOpen] = useState(false);
   const [mode, setMode] = useState("chat");
-  const [randomPrompts] = useState(
-    () => getRandomPrompts(QUICK_PROMPTS, 4)
-  );
 
   const token = useMemo(() => {
     try {
@@ -815,14 +810,62 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
           {showLanding ? (
             <section style={styles.emptyState}>
               <div style={styles.emptyCard}>
+                <div className="vitya-chat-hero-badge">⚡ VITYA GPT-5 OMNI • PRO ACTIVE</div>
                 <div style={styles.heroTitle}>What can I help you with today?</div>
+                <p className="vitya-chat-hero-sub">
+                  Ask any question, brainstorm ideas, debug code, or generate slide decks in seconds.
+                </p>
 
-                <div style={styles.promptGrid}>
-                  {randomPrompts.map((item) => (
-                    <button key={item} style={styles.promptBtn} onClick={() => sendMessage(item)}>
-                      {item}
-                    </button>
-                  ))}
+                <div className="vitya-chat-starter-grid">
+                  <div
+                    className="vitya-starter-card"
+                    onClick={() => sendMessage("Explain Recursion with a clear Python code example")}
+                  >
+                    <div className="starter-icon-box bg-purple">💡</div>
+                    <div className="starter-card-body">
+                      <h4>Brainstorm & Learn</h4>
+                      <p>Explain Recursion with code example</p>
+                    </div>
+                  </div>
+
+                  <div
+                    className="vitya-starter-card"
+                    onClick={() => sendMessage("Debug and optimize Python code for web scraping")}
+                  >
+                    <div className="starter-icon-box bg-blue">💻</div>
+                    <div className="starter-card-body">
+                      <h4>Code & Debug</h4>
+                      <p>Debug Python scraping script</p>
+                    </div>
+                  </div>
+
+                  <div
+                    className="vitya-starter-card"
+                    onClick={() => {
+                      openMode("wiki");
+                      sendMessage("Quantum Computing");
+                    }}
+                  >
+                    <div className="starter-icon-box bg-teal">🌐</div>
+                    <div className="starter-card-body">
+                      <h4>Search Knowledge</h4>
+                      <p>Wikipedia: Quantum Computing</p>
+                    </div>
+                  </div>
+
+                  <div
+                    className="vitya-starter-card"
+                    onClick={() => {
+                      openMode("file");
+                      sendMessage("Artificial Intelligence Trends");
+                    }}
+                  >
+                    <div className="starter-icon-box bg-rose">📺</div>
+                    <div className="starter-card-body">
+                      <h4>Create Presentation</h4>
+                      <p>Generate deck: AI Trends</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
