@@ -1,0 +1,606 @@
+import React, { useState } from "react";
+import { PPT_CATEGORIES } from "./PPT_Prompt";
+
+const THEME_PREVIEW_LIST = [
+  { id: "auto", name: "AI Smart Match", icon: "✨", color1: "#8b5cf6", color2: "#6366f1" },
+  { id: "dark", name: "Midnight Purple", icon: "🌌", color1: "#0f172a", color2: "#31104b" },
+  { id: "ocean_blue", name: "Ocean Breeze", icon: "🌊", color1: "#06101e", color2: "#134074" },
+  { id: "emerald", name: "Emerald Forest", icon: "🌲", color1: "#022c22", color2: "#047857" },
+  { id: "cyberpunk_neon", name: "Cyberpunk Neon", icon: "⚡", color1: "#09090b", color2: "#581c87" },
+  { id: "wall_street", name: "Wall Street Finance", icon: "💵", color1: "#022c22", color2: "#1e293b" },
+  { id: "executive_gold", name: "Executive Gold", icon: "🏆", color1: "#1c1917", color2: "#78350f" },
+  { id: "slate", name: "Executive Slate", icon: "🪨", color1: "#18181b", color2: "#3f3f46" },
+  { id: "light", name: "Minimal Light", icon: "☀️", color1: "#f8fafc", color2: "#e2e8f0" },
+  { id: "sunset_glow", name: "Sunset Glow", icon: "🌅", color1: "#2e1065", color2: "#9f1239" },
+];
+
+const TONE_OPTIONS = [
+  { id: "Professional", label: "Professional & Clean", icon: "💼" },
+  { id: "Inspiring", label: "Inspiring & Energetic", icon: "🚀" },
+  { id: "Educational", label: "Educational & Detailed", icon: "📚" },
+  { id: "Formal", label: "Formal Executive", icon: "👔" },
+];
+
+const LANGUAGE_OPTIONS = [
+  { id: "English", label: "English", flag: "🇺🇸" },
+  { id: "Hindi", label: "Hindi (हिंदी)", flag: "🇮🇳" },
+  { id: "Hinglish", label: "Hinglish", flag: "🇮🇳" },
+  { id: "Spanish", label: "Spanish", flag: "🇪🇸" },
+  { id: "French", label: "French", flag: "🇫🇷" },
+  { id: "German", label: "German", flag: "🇩🇪" },
+];
+
+
+
+function Toggle({ label, checked, onChange, icon }) {
+  return (
+    <label
+      className="toggle-row"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        fontSize: "12px",
+        background: checked ? "rgba(139,92,246,0.12)" : "rgba(255,255,255,0.04)",
+        padding: "8px 12px",
+        borderRadius: "10px",
+        border: checked ? "1px solid rgba(139,92,246,0.35)" : "1px solid rgba(255,255,255,0.08)",
+        cursor: "pointer",
+        userSelect: "none",
+        transition: "all 0.2s ease",
+      }}
+    >
+      <span style={{ fontWeight: 600, color: checked ? "#ffffff" : "rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 6 }}>
+        {icon && <span>{icon}</span>}
+        {label}
+      </span>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        style={{ cursor: "pointer", accentColor: "#8b5cf6", width: 15, height: 15 }}
+      />
+    </label>
+  );
+}
+
+export default function PresentationSetup({
+  prompt,
+  setPrompt,
+  slideCount,
+  setSlideCount,
+  audience,
+  setAudience,
+  tone,
+  setTone,
+  language,
+  setLanguage,
+  contentTheme,
+  setContentTheme,
+  visualStyle,
+  setVisualStyle,
+  includeCitations,
+  setIncludeCitations,
+  includeSpeakerNotes,
+  setIncludeSpeakerNotes,
+  useGemini,
+  setUseGemini,
+  smartMode,
+  setSmartMode,
+  allowImage,
+  setAllowImage,
+  allowChart,
+  setAllowChart,
+  allowTable,
+  setAllowTable,
+  allowParagraph,
+  setAllowParagraph,
+  searchQuery,
+  setSearchQuery,
+  selectedCategory,
+  setSelectedCategory,
+  searchResults,
+  isSearching,
+  loadingPlan,
+  loadingGenerate,
+  error,
+  fetchPlan,
+  handlePerformSearch,
+  handleSelectTopicFromSearch,
+}) {
+  const [isEnhanced, setIsEnhanced] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [showAiFeatures, setShowAiFeatures] = useState(true);
+
+  const handleVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in your browser. Please try Chrome or Edge.");
+      return;
+    }
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = language === "Hindi" ? "hi-IN" : "en-US";
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.onstart = () => setIsListening(true);
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          setPrompt((prev) => (prev ? `${prev} ${transcript}` : transcript));
+        }
+        setIsListening(false);
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+      recognition.start();
+    } catch (e) {
+      setIsListening(false);
+    }
+  };
+
+  const handleEnhancePrompt = () => {
+    if (!prompt.trim()) return;
+    const baseTopic = prompt.trim();
+    const enhanced = `Create an executive-level, highly professional presentation on "${baseTopic}".
+
+📌 Executive Presentation Framework & Requirements:
+• Executive Overview & Key Strategic Objectives
+• Structured System Architecture & Technical Workflow Diagrams
+• Data Performance Metrics, KPIs & Industry Comparison Charts
+• Real-World Case Studies & Enterprise Implementation Examples
+• Risk Mitigation, Governance & Security Compliance
+• Strategic Takeaways, ROI Projections & Actionable Next Steps`;
+    setPrompt(enhanced);
+    setIsEnhanced(true);
+    setTimeout(() => setIsEnhanced(false), 2500);
+  };
+
+
+  return (
+    <div className="card-box ppt-setup-card" style={{ marginBottom: "20px" }}>
+      {/* HEADER LABEL & REAL-TIME DECK STATS BAR */}
+      <div
+        className="section-label"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 8,
+          marginBottom: 16,
+          paddingBottom: 12,
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 13, fontWeight: 900, color: "#c084fc", letterSpacing: "1px" }}>
+            PRESENTATION STUDIO
+          </span>
+          <span
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              padding: "2px 8px",
+              borderRadius: 999,
+              background: "rgba(139,92,246,0.2)",
+              color: "#c084fc",
+              border: "1px solid rgba(139,92,246,0.3)",
+            }}
+          >
+            AI V2.5 Active
+          </span>
+        </div>
+
+        {/* REALTIME DECK ESTIMATE COUNTER */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 11, color: "rgba(255,255,255,0.65)", flexWrap: "wrap" }}>
+          <span>⏱️ <strong>~{slideCount * 1.2} Mins</strong> Presentation</span>
+          <span>📊 <strong>{slideCount} Slides</strong></span>
+          <span>🤖 <strong>Gemini AI</strong></span>
+        </div>
+      </div>
+
+      {/* TOPIC SEARCH FORM */}
+      <form onSubmit={handlePerformSearch} className="search-box-wrap">
+        <input
+          type="text"
+          className="search-input"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search presentation topics (e.g. AI, Cyber Security, Finance)..."
+        />
+        <button type="submit" className="btn-ui primary sm">
+          🔍 Search Topics
+        </button>
+      </form>
+
+      {/* CATEGORY CHIPS */}
+      <div className="category-chips" style={{ marginBottom: "14px" }}>
+        {PPT_CATEGORIES?.map((cat) => (
+          <button
+            type="button"
+            key={cat.id}
+            className={`category-chip ${selectedCategory === cat.id ? "active" : ""}`}
+            onClick={() => setSelectedCategory(cat.id)}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
+      {/* SEARCH RESULTS DROPDOWN */}
+      {searchResults?.length > 0 ? (
+        <div className="search-results-container" style={{ marginBottom: "16px" }}>
+          <div style={{ fontSize: 11, color: "#c084fc", fontWeight: "bold", marginBottom: 6 }}>
+            Matching Topics ({searchResults.length}):
+          </div>
+          {searchResults.map((item) => (
+            <button
+              type="button"
+              key={item.id}
+              className="search-result-card"
+              onClick={() => handleSelectTopicFromSearch(item)}
+            >
+              <div style={{ fontWeight: 700, fontSize: 13, color: "#fff" }}>
+                {item.icon} {item.title}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
+                {item.desc}
+              </div>
+            </button>
+          ))}
+        </div>
+      ) : isSearching ? (
+        <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 12 }}>
+          No exact topic match found. Enter custom prompt details below!
+        </div>
+      ) : null}
+
+
+
+      {/* PROMPT INPUT WITH AI MAGIC ENHANCE BUTTON AND VOICE DICTATION */}
+      <div className="field-group" style={{ marginBottom: "16px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+          <label style={{ fontSize: 12, fontWeight: 700, margin: 0, color: "#e2e8f0" }}>
+            Presentation Topic / AI Prompt
+          </label>
+
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <button
+              type="button"
+              onClick={handleVoiceInput}
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                padding: "4px 10px",
+                borderRadius: 999,
+                background: isListening ? "rgba(239,68,68,0.25)" : "rgba(255,255,255,0.08)",
+                border: isListening ? "1px solid #ef4444" : "1px solid rgba(255,255,255,0.15)",
+                color: "#ffffff",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <span>{isListening ? "🔴 Listening..." : "🎙️ Speak Topic"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleEnhancePrompt}
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                padding: "4px 10px",
+                borderRadius: 999,
+                background: isEnhanced ? "rgba(16, 185, 129, 0.25)" : "linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)",
+                border: "none",
+                color: "#ffffff",
+                cursor: "pointer",
+                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.3)",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {isEnhanced ? "✓ Prompt Enhanced!" : "✨ AI Magic Enhance"}
+            </button>
+          </div>
+        </div>
+
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          rows={4}
+          style={{
+            lineHeight: "1.5",
+            fontSize: "13.5px",
+            background: "rgba(0,0,0,0.4)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: "12px",
+            color: "#ffffff",
+            width: "100%",
+            padding: "12px",
+          }}
+          placeholder="Describe your presentation topic, key points, target audience, or specific instructions..."
+        />
+      </div>
+
+
+
+      {/* SLIDE COUNT, AUDIENCE & CONFIGURATION */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+        <div className="field-group">
+          <label style={{ fontSize: 11, fontWeight: 700 }}>Slide Count (3-30)</label>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <button
+              type="button"
+              onClick={() => setSlideCount?.(Math.max(3, slideCount - 1))}
+              style={{
+                width: 34,
+                height: 38,
+                borderRadius: 10,
+                border: "1px solid rgba(255,255,255,0.15)",
+                background: "rgba(255,255,255,0.06)",
+                color: "#fff",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              −
+            </button>
+            <input
+              type="number"
+              min="3"
+              max="30"
+              value={slideCount}
+              onChange={(e) => setSlideCount?.(Number(e.target.value))}
+              style={{ textAlign: "center", fontWeight: "bold" }}
+            />
+            <button
+              type="button"
+              onClick={() => setSlideCount?.(Math.min(30, slideCount + 1))}
+              style={{
+                width: 34,
+                height: 38,
+                borderRadius: 10,
+                border: "1px solid rgba(255,255,255,0.15)",
+                background: "rgba(255,255,255,0.06)",
+                color: "#fff",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        <div className="field-group">
+          <label style={{ fontSize: 11, fontWeight: 700 }}>Target Audience</label>
+          <input
+            value={audience || ""}
+            onChange={(e) => setAudience?.(e.target.value)}
+            placeholder="e.g. Students & Professionals"
+          />
+        </div>
+      </div>
+
+      {/* VISUAL TONE & LANGUAGE SELECTION CARDS */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+        <div className="field-group">
+          <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", marginBottom: 6, display: "block" }}>
+            🎭 Tone of Voice
+          </label>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+            {TONE_OPTIONS.map((t) => {
+              const isSelected = (tone || "Professional") === t.id;
+              return (
+                <button
+                  type="button"
+                  key={t.id}
+                  onClick={() => setTone?.(t.id)}
+                  style={{
+                    padding: "6px 8px",
+                    borderRadius: 8,
+                    border: isSelected ? "1.5px solid #8b5cf6" : "1px solid rgba(255,255,255,0.08)",
+                    background: isSelected ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.04)",
+                    color: "#ffffff",
+                    fontSize: 11,
+                    fontWeight: isSelected ? 700 : 500,
+                    cursor: "pointer",
+                    textAlign: "left",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {t.icon} {t.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="field-group">
+          <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", marginBottom: 6, display: "block" }}>
+            🌐 Output Language
+          </label>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
+            {LANGUAGE_OPTIONS.map((lang) => {
+              const isSelected = (language || "English") === lang.id;
+              return (
+                <button
+                  type="button"
+                  key={lang.id}
+                  onClick={() => setLanguage?.(lang.id)}
+                  style={{
+                    padding: "6px 4px",
+                    borderRadius: 8,
+                    border: isSelected ? "1.5px solid #38bdf8" : "1px solid rgba(255,255,255,0.08)",
+                    background: isSelected ? "rgba(56,189,248,0.2)" : "rgba(255,255,255,0.04)",
+                    color: "#ffffff",
+                    fontSize: 11,
+                    fontWeight: isSelected ? 700 : 500,
+                    cursor: "pointer",
+                    textAlign: "center",
+                  }}
+                >
+                  {lang.flag} {lang.label.split(" ")[0]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* VISUAL DESIGN PRESET SWATCH CARDS (SINGLE ROW) */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ fontSize: 12, fontWeight: "bold", color: "#c084fc", marginBottom: 8, display: "block" }}>
+          🎨 SELECT VISUAL COLOR THEME PRESET
+        </label>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            overflowX: "auto",
+            paddingBottom: 6,
+            scrollbarWidth: "thin",
+            scrollbarColor: "rgba(139, 92, 246, 0.4) transparent",
+          }}
+        >
+          {THEME_PREVIEW_LIST.map((themeItem) => {
+            const isSelected = (contentTheme || "auto") === themeItem.id;
+            return (
+              <div
+                key={themeItem.id}
+                onClick={() => setContentTheme?.(themeItem.id)}
+                style={{
+                  background: isSelected ? "rgba(139, 92, 246, 0.22)" : "rgba(255, 255, 255, 0.04)",
+                  border: isSelected ? "2px solid #c084fc" : "1px solid rgba(255, 255, 255, 0.08)",
+                  borderRadius: 12,
+                  padding: "8px 14px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  flexShrink: 0,
+                  whiteSpace: "nowrap",
+                  transition: "all 0.2s ease",
+                  boxShadow: isSelected ? "0 0 12px rgba(192, 132, 252, 0.3)" : "none",
+                }}
+              >
+                <div
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: "50%",
+                    background: `linear-gradient(135deg, ${themeItem.color1}, ${themeItem.color2})`,
+                    flexShrink: 0,
+                    border: "1px solid rgba(255,255,255,0.4)",
+                  }}
+                />
+                <span style={{ fontSize: 12, fontWeight: isSelected ? 700 : 500, color: "#fff", whiteSpace: "nowrap" }}>
+                  {themeItem.icon} {themeItem.name}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* VISUAL LAYOUT STYLE SELECTION */}
+      <div className="field-group" style={{ marginBottom: 16 }}>
+        <label style={{ fontSize: 11, fontWeight: "bold", color: "#c084fc", marginBottom: 6, display: "block" }}>
+          🖌️ VISUAL LAYOUT STYLE
+        </label>
+        <select
+          className="select-input"
+          value={visualStyle || "minimal"}
+          onChange={(e) => setVisualStyle?.(e.target.value)}
+          style={{ width: "100%", padding: "10px", borderRadius: "10px", background: "rgba(0,0,0,0.4)", color: "#fff", border: "1px solid var(--panel-border)" }}
+        >
+          <option value="minimal" style={{ background: "#0f172a" }}>Minimalist Clean Layout</option>
+          <option value="modern_gradient" style={{ background: "#0f172a" }}>Modern Glassmorphism Gradient</option>
+          <option value="corporate" style={{ background: "#0f172a" }}>Corporate Executive Deck</option>
+          <option value="academic" style={{ background: "#0f172a" }}>Academic Paper & Research Format</option>
+          <option value="cyber" style={{ background: "#0f172a" }}>Cyberpunk Dark Neon Style</option>
+        </select>
+      </div>
+
+      {/* AI & LAYOUT TOGGLES HEADER (CLEAN INLINE TEXT + ARROW TOGGLE) */}
+      <div style={{ marginBottom: showAiFeatures ? 8 : 16 }}>
+        <div
+          onClick={() => setShowAiFeatures((v) => !v)}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 11,
+            fontWeight: "bold",
+            color: "#c084fc",
+            letterSpacing: "0.5px",
+            cursor: "pointer",
+            userSelect: "none",
+            transition: "opacity 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "0.85";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "1";
+          }}
+        >
+          <span>LAYOUT & AI FEATURES</span>
+          <span style={{ fontSize: 10 }}>{showAiFeatures ? "▲" : "▼"}</span>
+        </div>
+      </div>
+
+      {showAiFeatures && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8, marginBottom: "16px" }}>
+          <Toggle label="Speaker Notes" icon="📝" checked={includeSpeakerNotes} onChange={setIncludeSpeakerNotes} />
+          <Toggle label="Source Citations" icon="📚" checked={includeCitations} onChange={setIncludeCitations} />
+          <Toggle label="Gemini AI Engine" icon="🤖" checked={useGemini} onChange={setUseGemini} />
+          <Toggle label="Smart Mode" icon="⚡" checked={smartMode} onChange={setSmartMode} />
+          <Toggle label="Unsplash Auto-Images" icon="🖼️" checked={allowImage ?? true} onChange={setAllowImage} />
+          <Toggle label="Charts & Graphs" icon="📊" checked={allowChart ?? true} onChange={setAllowChart} />
+          <Toggle label="Data Tables" icon="🗃️" checked={allowTable ?? true} onChange={setAllowTable} />
+          <Toggle label="Executive Summaries" icon="📄" checked={allowParagraph ?? true} onChange={setAllowParagraph} />
+        </div>
+      )}
+
+      {error ? (
+        <div style={{ color: "#fca5a5", fontSize: 12, marginBottom: 12, background: "rgba(239, 68, 68, 0.15)", padding: "10px 14px", borderRadius: 10, border: "1px solid rgba(239, 68, 68, 0.3)" }}>
+          ⚠️ {error}
+        </div>
+      ) : null}
+
+      <button
+        className="btn-ui primary"
+        style={{
+          width: "100%",
+          marginTop: 6,
+          padding: "16px",
+          fontSize: 15,
+          fontWeight: 800,
+          borderRadius: 14,
+          background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+          boxShadow: "0 8px 24px rgba(139, 92, 246, 0.4)",
+          letterSpacing: "0.2px",
+        }}
+        onClick={fetchPlan}
+        disabled={loadingPlan || loadingGenerate}
+      >
+        {loadingPlan ? (
+          <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <span className="spinner-sm" /> Creating AI Presentation Deck...
+          </span>
+        ) : (
+          "⚡ Generate AI Slide Deck"
+        )}
+      </button>
+    </div>
+  );
+}
+
+

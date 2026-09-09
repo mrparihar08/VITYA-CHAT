@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import {
   api,
   fetchProfile,
+  getUserFromStorage,
   saveUserToStorage,
   resolveAssetUrl,
   handleApiError,
@@ -12,9 +13,9 @@ import {
 } from "./AuthCommon";
 
 export function Profile({ insideDashboard = false }) {
-  const { token, logout, updateUser } = useAuth();
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { token, user: authUser, logout, updateUser } = useAuth();
+  const [profile, setProfile] = useState(() => authUser || getUserFromStorage() || null);
+  const [loading, setLoading] = useState(() => !profile);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export function Profile({ insideDashboard = false }) {
           alert("Session expired, please login again!");
           logout();
           navigate("/login");
-        } else {
+        } else if (!profile) {
           alert(handleApiError(err));
         }
       } finally {
@@ -46,6 +47,7 @@ export function Profile({ insideDashboard = false }) {
     };
 
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, navigate, logout, updateUser]);
 
   const handleLogout = () => {
@@ -89,14 +91,19 @@ export function Profile({ insideDashboard = false }) {
       <PageShell
         title="Your Profile"
         subtitle="View and manage your account details."
+        plain={insideDashboard}
+        hideBrandRow={insideDashboard}
+        wide={true}
         headerExtra={
-          <button
-            className="vitya-settings-btn"
-            onClick={() => navigate("/apps/settings")}
-            title="Settings"
-          >
-            ⚙️
-          </button>
+          !insideDashboard ? (
+            <button
+              className="vitya-settings-btn"
+              onClick={() => navigate("/apps/settings")}
+              title="Settings"
+            >
+              ⚙️
+            </button>
+          ) : null
         }
         titleExtra={<div className="pro-badge">👑 Pro User</div>}
       >

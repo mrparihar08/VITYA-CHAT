@@ -27,6 +27,7 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [clearing, setClearing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchConversations = useCallback(async () => {
     setLoading(true);
@@ -71,8 +72,34 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
     }
   };
 
+  const deleteSingleConversation = async (e, id) => {
+    e.stopPropagation();
+    if (!window.confirm(`Delete Conversation #${id}?`)) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`${API_BASE_URL}/api/chat/conversation/${id}`, {
+        method: "DELETE",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      setConversations((prev) => prev.filter((c) => c.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const filteredConversations = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return conversations;
+    return conversations.filter(
+      (c) =>
+        `conversation #${c.id}`.toLowerCase().includes(q) ||
+        getPreview(c).toLowerCase().includes(q)
+    );
+  }, [conversations, searchQuery]);
+
   const heading = useMemo(
-    () => `${conversations.length} conversation${conversations.length === 1 ? "" : "s"}`,
+    () => `${conversations.length} conversation${conversations.length === 1 ? "" : "s"} saved`,
     [conversations.length]
   );
 
@@ -80,49 +107,88 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
     <section className="historyPanel" aria-label="Chat history">
       <div className="historyHeader">
         <div>
-          <p className="historyEyebrow">Your workspace</p>
-          <h2>Chat history</h2>
+          <p className="historyEyebrow">⚡ Workspace History</p>
+          <h2>Chat History</h2>
           <p className="historyCount">{loading ? "Loading conversations…" : heading}</p>
         </div>
         <div className="historyActions">
           <button className="historyButton" onClick={fetchConversations} disabled={loading}>
-            Refresh
+            <span>🔄</span> Refresh
           </button>
           <button
             className="historyButton historyDangerButton"
             onClick={clearHistory}
             disabled={!conversations.length || clearing}
           >
-            {clearing ? "Clearing…" : "Clear all"}
+            <span>🗑️</span> {clearing ? "Clearing…" : "Clear all"}
           </button>
         </div>
+      </div>
+
+      {/* SEARCH BAR */}
+      <div className="historySearchWrapper">
+        <span className="historySearchIcon">🔍</span>
+        <input
+          type="text"
+          placeholder="Search past conversations or keywords..."
+          className="historySearchInput"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {searchQuery && (
+          <button className="historySearchClear" onClick={() => setSearchQuery("")}>
+            ✕
+          </button>
+        )}
       </div>
 
       {error && <div className="historyError" role="alert">{error}</div>}
 
       {loading ? (
         <div className="historyEmpty">Loading your conversations…</div>
-      ) : conversations.length === 0 ? (
+      ) : filteredConversations.length === 0 ? (
         <div className="historyEmpty">
-          <span className="historyEmptyIcon">⌁</span>
-          <h3>No chats saved yet</h3>
-          <p>Start a new chat and it will appear here.</p>
+          <span className="historyEmptyIcon">💬</span>
+          <h3>No conversations found</h3>
+          <p>
+            {searchQuery
+              ? `No chats matching "${searchQuery}".`
+              : "Start a new conversation and it will appear here."}
+          </p>
         </div>
       ) : (
         <div className="historyList">
-          {conversations.map((conversation) => (
-            <button
+          {filteredConversations.map((conversation) => (
+            <div
               className="historyItem"
               key={conversation.id}
               onClick={() => onOpenConversation(conversation.id)}
+              role="button"
+              tabIndex={0}
             >
-              <span className="historyItemTop">
-                <span className="historyItemTitle">Conversation #{conversation.id}</span>
-                <span className="historyItemDate">{formatDate(conversation.created_at)}</span>
-              </span>
-              <span className="historyPreview">{getPreview(conversation)}</span>
-              <span className="historyOpen">Open chat →</span>
-            </button>
+              <div className="historyItemTop">
+                <div className="historyItemTitleGroup">
+                  <span className="historyIconBadge">💬</span>
+                  <span className="historyItemTitle">Conversation #{conversation.id}</span>
+                </div>
+                <div className="historyTopRight">
+                  <span className="historyItemDate">{formatDate(conversation.created_at)}</span>
+                  <button
+                    className="historyDeleteBtn"
+                    onClick={(e) => deleteSingleConversation(e, conversation.id)}
+                    title="Delete conversation"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+
+              <div className="historyPreview">{getPreview(conversation)}</div>
+
+              <div className="historyFooter">
+                <span className="historyOpen">Open chat →</span>
+              </div>
+            </div>
           ))}
         </div>
       )}

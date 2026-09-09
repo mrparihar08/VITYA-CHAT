@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import Chatbot from "./VityaChatbot";
+import Chatbot from "../components/chatbot/VityaChatbot";
 import ChatHistory from "../components/chatbot/ChatHistory";
-import Presentation from "./Presentation";
+import Presentation from "../components/presentation/Presentation";
 import { API_BASE_URL, resolveAssetUrl } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import "./Dashboard.css";
@@ -11,7 +11,6 @@ import NotesApp from "../components/apps/NotesApp";
 import CalendarApp from "../components/apps/CalendarApp";
 import FilesApp from "../components/apps/FilesApp";
 import TasksApp from "../components/apps/TasksApp";
-import SettingsApp from "../components/apps/SettingsApp";
 import AnalyticsApp from "../components/apps/AnalyticsApp";
 import Profile from "../components/auth/Profile";
 import ProfileEdit from "../components/auth/ProfileEdit";
@@ -85,7 +84,7 @@ const APP_REGISTRY = [
     type: "internal",
     category: "workspace",
     iconBg: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
-    component: SettingsApp,
+    component: SettingsPage,
   },
   {
     id: "vitya-expense",
@@ -212,7 +211,7 @@ class ErrorBoundary extends React.Component {
 
 const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const getInitialTab = () => {
     if (propTab) return propTab;
@@ -287,14 +286,21 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
         }
       }
 
-      const params = new URLSearchParams();
-      if (newTab && newTab !== "chat") params.set("tab", newTab);
-      if (newTab === "apps" && newApp) params.set("app", newApp);
-      if (newTab === "chat" && newConvId) params.set("c", newConvId);
+      let targetPath = "/dashboard";
+      if (newTab === "chat") targetPath = "/chatbot";
+      else if (newTab === "presentation") targetPath = "/presentation";
+      else if (newTab === "apps") targetPath = newApp ? `/apps/${newApp}` : "/apps";
+      else if (newTab === "history") targetPath = "/dashboard?tab=history";
+      else if (newTab === "profile") targetPath = "/profile";
+      else if (newTab === "profile/edit") targetPath = "/profile/edit";
+      else if (newTab === "settings") targetPath = "/settings";
+      else if (newTab && newTab.startsWith("settings/")) targetPath = `/${newTab}`;
+      else if (newTab === "help") targetPath = "/settings/help";
 
-      setSearchParams(params, { replace: true });
+      const search = newTab === "chat" && newConvId ? `?c=${newConvId}` : "";
+      navigate(`${targetPath}${search}`, { replace: true });
     },
-    [setSearchParams]
+    [navigate]
   );
 
   useEffect(() => {
@@ -302,13 +308,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
     const appParam = searchParams.get("app");
     const cParam = searchParams.get("c");
 
-    const tab =
-      propTab ||
-      tabParam ||
-      (typeof window !== "undefined"
-        ? localStorage.getItem("vitya_activeTab")
-        : null) ||
-      "chat";
+    const tab = propTab || tabParam || "chat";
     const app =
       tab === "apps"
         ? propApp ||

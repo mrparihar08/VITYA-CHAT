@@ -32,6 +32,16 @@ export const saveUserToStorage = (profile) => {
   );
 };
 
+export const getUserFromStorage = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("user");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
 export const fetchProfile = async (token) => {
   // Axios expects request headers inside a `headers` object. This is especially
   // important immediately after login, before the token has been stored yet.
@@ -61,11 +71,12 @@ export const PageShell = ({
   backPath = null,
 }) => {
   const navigate = useNavigate();
+  const useWideLayout = wide || plain;
   return (
     <div
       style={
         plain
-          ? { minHeight: "auto", padding: 0, background: "transparent" }
+          ? { minHeight: "auto", padding: 0, background: "transparent", width: "100%" }
           : styles.page
       }
       className="page-shell"
@@ -75,7 +86,7 @@ export const PageShell = ({
       {!plain && <div style={styles.bgGrid} />}
 
       <div
-        style={wide ? styles.shellWide : styles.shell}
+        style={useWideLayout ? (plain ? { width: "100%", maxWidth: "100%", position: "relative", zIndex: 1 } : styles.shellWide) : styles.shell}
         className={`page-shell-inner ${className}`.trim()}
       >
         {!hideBrandRow && (

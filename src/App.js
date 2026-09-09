@@ -8,13 +8,13 @@ import {
   useParams,
 } from "react-router-dom";
 
+import Dashboard from "./App/Dashboard";
 import {
-  Dashboard,
   Register,
   Login,
   ForgotPassword,
   ResetPassword,
-} from "./App/index";
+} from "./components/auth";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";

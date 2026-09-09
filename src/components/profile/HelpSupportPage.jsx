@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageShell } from "../auth/AuthCommon";
+import { PageShell, getUserFromStorage } from "../auth/AuthCommon";
+import { useAuth } from "../../context/AuthContext";
 import "../auth/Auth.css";
+
+const COMPANY_EMAIL = "elva.web.now@gmail.com";
 
 const FAQS = [
   {
@@ -43,12 +46,31 @@ const FAQS = [
 
 export function HelpSupportPage({ insideDashboard = false }) {
   const navigate = useNavigate();
+  let authUser = null;
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const authContext = useAuth();
+    authUser = authContext?.user;
+  } catch (e) {
+    // fallback if outside AuthProvider
+  }
+
+  const storedUser = getUserFromStorage();
+  const initialEmail = authUser?.email || storedUser?.email || "";
+
   const [searchQuery, setSearchQuery] = useState("");
   const [openFaq, setOpenFaq] = useState(null);
+  const [userEmail, setUserEmail] = useState(initialEmail);
   const [contactSubject, setContactSubject] = useState("");
   const [contactCategory, setContactCategory] = useState("Technical Issue");
   const [contactMessage, setContactMessage] = useState("");
   const [sentSuccess, setSentSuccess] = useState(false);
+
+  useEffect(() => {
+    if (!userEmail && (authUser?.email || storedUser?.email)) {
+      setUserEmail(authUser?.email || storedUser?.email);
+    }
+  }, [authUser, storedUser, userEmail]);
 
   const filteredFaqs = FAQS.filter(
     (faq) =>
@@ -64,12 +86,16 @@ export function HelpSupportPage({ insideDashboard = false }) {
   const handleSubmitContact = (e) => {
     e.preventDefault();
     if (!contactMessage.trim()) return;
+
+    const subjectText = `[Vitya Support - ${contactCategory}] ${contactSubject}`;
+    const bodyText = `From User: ${userEmail || "Not provided"}\nCategory: ${contactCategory}\nSubject: ${contactSubject}\n\nMessage Details:\n${contactMessage}`;
+
+    const mailtoUrl = `mailto:${COMPANY_EMAIL}?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
+
+    // Open mail client for direct sending to elva.web.now@gmail.com
+    window.location.href = mailtoUrl;
+
     setSentSuccess(true);
-    setTimeout(() => {
-      setSentSuccess(false);
-      setContactSubject("");
-      setContactMessage("");
-    }, 4000);
   };
 
   return (
@@ -194,7 +220,8 @@ export function HelpSupportPage({ insideDashboard = false }) {
             <div>
               <h2 className="panel-title">Contact Support Team</h2>
               <p className="panel-subtitle">
-                Can't find what you need? Send us a direct message.
+                Can't find what you need? Send a direct email inquiry to{" "}
+                <strong style={{ color: "#a855f7" }}>{COMPANY_EMAIL}</strong>.
               </p>
             </div>
           </div>
@@ -203,12 +230,56 @@ export function HelpSupportPage({ insideDashboard = false }) {
             <div className="vitya-success-banner">
               <span className="success-icon">✅</span>
               <div>
-                <h4>Message Received!</h4>
-                <p>Thank you. Our support team will respond to your email within 24 hours.</p>
+                <h4>Ticket Prepared & Email Opened!</h4>
+                <p>
+                  We have prepared your ticket and opened your default email application to send directly to{" "}
+                  <strong>{COMPANY_EMAIL}</strong>.
+                </p>
+                <div style={{ marginTop: "12px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  <a
+                    href={`mailto:${COMPANY_EMAIL}?subject=${encodeURIComponent(`[Vitya Support - ${contactCategory}] ${contactSubject}`)}&body=${encodeURIComponent(`From User: ${userEmail || "Not provided"}\nCategory: ${contactCategory}\nSubject: ${contactSubject}\n\nMessage Details:\n${contactMessage}`)}`}
+                    className="vitya-btn-purple"
+                    style={{ fontSize: "13px", padding: "8px 14px", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "6px" }}
+                  >
+                    <span>📩</span> Re-open Email App ({COMPANY_EMAIL})
+                  </a>
+                  <button
+                    type="button"
+                    className="vitya-btn-purple"
+                    style={{
+                      fontSize: "13px",
+                      padding: "8px 14px",
+                      background: "rgba(255,255,255,0.06)",
+                      border: "1px solid rgba(255,255,255,0.2)",
+                    }}
+                    onClick={() => {
+                      setSentSuccess(false);
+                      setContactSubject("");
+                      setContactMessage("");
+                    }}
+                  >
+                    Send Another Inquiry
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
             <form className="vitya-contact-form" onSubmit={handleSubmitContact}>
+              <div className="form-group" style={{ marginBottom: "14px" }}>
+                <label className="form-label">Your Email Address</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="your.email@example.com"
+                  className="vitya-input-field"
+                  value={userEmail}
+                  onChange={(e) => setUserEmail(e.target.value)}
+                />
+                <span style={{ fontSize: "11px", opacity: 0.6, marginTop: "4px", display: "block" }}>
+                  Our support team ({COMPANY_EMAIL}) will reply to this email address.
+                </span>
+              </div>
+
               <div className="form-row-2col">
                 <div className="form-group">
                   <label className="form-label">Subject</label>
@@ -252,7 +323,7 @@ export function HelpSupportPage({ insideDashboard = false }) {
 
               <div className="form-action-bar">
                 <button type="submit" className="vitya-btn-purple">
-                  <span>📩</span> Submit Ticket
+                  <span>📩</span> Send Email to {COMPANY_EMAIL}
                 </button>
               </div>
             </form>

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import { useTheme } from "../../context/ThemeContext";
 import "./Sidebar.css";
 
 // SVG Icons matching high-end UI design
@@ -108,7 +107,6 @@ export default function Sidebar({
   onQuickToolClick,
 }) {
   const searchInputRef = useRef(null);
-  const { theme, cycleTheme } = useTheme() || {};
 
   // Keyboard shortcut Ctrl+K to focus search input
   useEffect(() => {
@@ -162,11 +160,6 @@ export default function Sidebar({
       action: () => handleTabClick("apps"),
     },
   ];
-
-  const handleCycleTheme = (e) => {
-    e?.stopPropagation();
-    if (cycleTheme) cycleTheme();
-  };
 
   return (
     <aside className={`vitya-sidebar ${sidebarOpen ? "open" : ""}`}>
@@ -287,31 +280,6 @@ export default function Sidebar({
           <span className="vitya-nav-label">Help & Support</span>
           <ChevronRight />
         </button>
-
-        <div className="vitya-theme-row" onClick={handleCycleTheme} role="button" tabIndex={0}>
-          <div className="vitya-theme-label-group">
-            <span className="vitya-nav-icon">🎨</span>
-            <span className="vitya-nav-label">Theme</span>
-          </div>
-          <div className="vitya-theme-toggle-segmented">
-            <button
-              type="button"
-              className={`vitya-theme-pill ${theme === "dark" || theme === "obsidian" ? "active" : ""}`}
-              title="Toggle theme preset"
-              onClick={handleCycleTheme}
-            >
-              🌙
-            </button>
-            <button
-              type="button"
-              className={`vitya-theme-pill ${theme === "midnight" || theme === "cyber" ? "active" : ""}`}
-              title="Toggle theme preset"
-              onClick={handleCycleTheme}
-            >
-              ☀️
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* 7. PROFILE FOOTER CARD */}

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { API_BASE_URL } from "../services/api";
+import { API_BASE_URL } from "../../services/api";
 import { downloadFileAsBlob } from "./Presentation";
 
 export const BACKGROUND_PRESETS = [
@@ -80,13 +80,13 @@ export function formatBulletPrefix(style = "auto", index = 0, points = []) {
     return `${romans[index % 10]}. `;
   }
   if (st === "check" || st === "checklist") {
-    return "✅ ";
+    return "✔ ";
   }
   if (st === "star") {
-    return "⭐ ";
+    return " ✦";
   }
   if (st === "arrow") {
-    return "➔ ";
+    return "➜ ";
   }
   if (st === "diamond") {
     return "🔹 ";
@@ -561,11 +561,7 @@ export default function PresentationEditor({
               </span>
             ) : null}
 
-            {isSaved ? (
-              <span style={{ fontSize: 11, color: "#86efac", fontWeight: "bold", background: "rgba(34, 197, 94, 0.15)", padding: "4px 8px", borderRadius: 6, border: "1px solid rgba(34, 197, 94, 0.3)" }}>
-                ✅ Saved {savedMeta?.presentation_id ? `(${savedMeta.presentation_id})` : "Successfully"}
-              </span>
-            ) : null}
+
 
             <button
               type="button"
@@ -739,43 +735,60 @@ export default function PresentationEditor({
               </div>
               
               {/* 16:9 LIVE CANVAS DISPLAY */}
-              <div
-                className="slide-canvas-box"
-                style={{ background: selectedBgConfig.bg, color: selectedBgConfig.text }}
-              >
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: "800", color: selectedBgConfig?.accent || "inherit", opacity: 0.9, letterSpacing: 1 }}>
-                    SLIDE {activeSlideIndex + 1} OF {plan.slides.length}
-                  </div>
-                  <h2
+              {(() => {
+                const titleVAlign = activeSlide.title_valign || activeSlide.subtitle_valign || "auto";
+                const isVMiddle = titleVAlign === "middle" || titleVAlign === "center";
+                const isVBottom = titleVAlign === "bottom";
+
+                return (
+                  <div
+                    className="slide-canvas-box"
                     style={{
-                      fontSize: `clamp(18px, 4vw, ${activeSlide.title_font_size || 26}px)`,
-                      color: activeSlide.title_color || "inherit",
-                      textAlign: activeSlide.title_align || "left",
-                      fontWeight: activeSlide.title_bold === false ? 400 : 800,
-                      margin: "6px 0 4px",
-                      wordBreak: "break-word",
+                      background: selectedBgConfig.bg,
+                      color: selectedBgConfig.text,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: isVMiddle ? "center" : isVBottom ? "flex-end" : "space-between",
                     }}
                   >
-                    {activeSlide.title || "Slide Title"}
-                  </h2>
-                  {activeSlide.subtitle ? (
                     <div
                       style={{
-                        fontSize: `clamp(12px, 3vw, ${activeSlide.subtitle_font_size || 15}px)`,
-                        color: activeSlide.subtitle_color || "inherit",
-                        textAlign: activeSlide.subtitle_align || "left",
-                        opacity: activeSlide.subtitle_color ? 1 : 0.8,
-                        fontWeight: 600,
-                        wordBreak: "break-word",
+                        marginTop: isVMiddle ? "auto" : isVBottom ? "auto" : 0,
+                        marginBottom: isVMiddle ? "auto" : 0,
+                        textAlign: activeSlide.title_align || "left",
                       }}
                     >
-                      {activeSlide.subtitle}
+                      <div style={{ fontSize: 11, fontWeight: "800", color: selectedBgConfig?.accent || "inherit", opacity: 0.9, letterSpacing: 1 }}>
+                        SLIDE {activeSlideIndex + 1} OF {plan.slides.length}
+                      </div>
+                      <h2
+                        style={{
+                          fontSize: `clamp(18px, 4vw, ${activeSlide.title_font_size || 26}px)`,
+                          color: activeSlide.title_color || "inherit",
+                          textAlign: activeSlide.title_align || "left",
+                          fontWeight: activeSlide.title_bold === false ? 400 : 800,
+                          margin: "6px 0 4px",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {activeSlide.title || "Slide Title"}
+                      </h2>
+                      {activeSlide.subtitle ? (
+                        <div
+                          style={{
+                            fontSize: `clamp(12px, 3vw, ${activeSlide.subtitle_font_size || 15}px)`,
+                            color: activeSlide.subtitle_color || "inherit",
+                            textAlign: activeSlide.subtitle_align || "left",
+                            opacity: activeSlide.subtitle_color ? 1 : 0.8,
+                            fontWeight: 600,
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {activeSlide.subtitle}
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
-                </div>
-                
-                {/* LIVE PLUGINS CONTENT */}
+
                 {/* LIVE PLUGINS CONTENT */}
                 <div style={{ flex: 1, overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 10, paddingRight: 4 }}>
                   {(() => {
@@ -868,9 +881,9 @@ export default function PresentationEditor({
 
                         {p.type === "diagram" ? (
                           (() => {
-                            const textRaw = p.data?.diagram || p.data?.text || "[Input] ➔ [Processing] ➔ [Output]";
+                            const textRaw = p.data?.diagram || p.data?.text || "[Input] ➜ [Processing] ➜ [Output]";
                             const diagType = detectDiagramType(textRaw, p.data?.diagram_type);
-                            const steps = textRaw.split(/➔|->|→/).map(s => s.trim()).filter(Boolean);
+                            const steps = textRaw.split(/➜|->|→/).map(s => s.trim()).filter(Boolean);
                             
                             const headers = {
                               tree: "🌳 TREE HIERARCHY & DECISION BRANCHES",
@@ -933,7 +946,7 @@ export default function PresentationEditor({
                                           }}>
                                             {isStartEnd ? `🏁 ${step}` : `⚙️ ${step}`}
                                           </div>
-                                          {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 18, fontWeight: 900 }}>➔</span>}
+                                          {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 18, fontWeight: 900 }}>➜</span>}
                                         </React.Fragment>
                                       );
                                     })}
@@ -1247,6 +1260,8 @@ export default function PresentationEditor({
                   </div>
                 ) : null}
               </div>
+            );
+          })()}
 
               {/* SLIDE BASIC & FORMATTING PROPERTIES */}
               <div className="card-box" style={{ background: "rgba(0,0,0,0.3)" }}>
@@ -1550,17 +1565,17 @@ export default function PresentationEditor({
                           {/* VISUAL DIAGRAM TYPE PRESET CHIPS ROW (SINGLE SCROLLABLE ROW 🎯) */}
                           <div className="diagram-chips-row" style={{ display: "flex", flexWrap: "nowrap", overflowX: "auto", gap: 6, alignItems: "center", width: "100%", paddingBottom: 4 }}>
                             {[
-                              { id: "flowchart", label: "🔄 Flowchart", defaultText: "[Start Process] ➔ [Data Ingestion] ➔ [Processing Engine] ➔ [Output Result]" },
-                              { id: "architecture", label: "🏛️ Architecture", defaultText: "[User & Presentation Layer] ➔ [API Gateway & Business Logic] ➔ [Database & Security Tier]" },
-                              { id: "timeline", label: "📅 Timeline", defaultText: "Phase 1: Setup ➔ Phase 2: Core Development ➔ Phase 3: Testing ➔ Phase 4: Global Launch" },
-                              { id: "tree", label: "🌳 Tree", defaultText: "[Root System Concept] ➔ [Branch A: Frontend Service] ➔ [Branch B: Backend Engine] ➔ [Leaf Node: Database]" },
-                              { id: "io_cards", label: "📥 I/O Cards", defaultText: "[Raw Data Ingestion] ➔ [High Performance Computing Engine] ➔ [Analytics & Report Output]" },
-                              { id: "mindmap", label: "🧠 Mindmap", defaultText: "[Central Core Topic] ➔ [Subtopic A: Strategy] ➔ [Subtopic B: Operations] ➔ [Subtopic C: Metrics]" },
-                              { id: "funnel", label: "🔻 Funnel", defaultText: "[Stage 1: Awareness 100%] ➔ [Stage 2: Interest 60%] ➔ [Stage 3: Decision 30%] ➔ [Stage 4: Action 10%]" },
-                              { id: "cycle", label: "🔁 Cycle", defaultText: "[Requirement Phase] ➔ [Design & Build] ➔ [Validation Test] ➔ [Deployment Loop]" },
-                              { id: "pyramid", label: "🔺 Pyramid", defaultText: "[Foundation Security Layer] ➔ [Infrastructure & Network Tier] ➔ [Executive Peak]" },
-                              { id: "quadrant", label: "🧭 2x2 Matrix", defaultText: "[Strengths: High Performance] ➔ [Weaknesses: Initial Cost] ➔ [Opportunities: Growth] ➔ [Threats: Risk]" },
-                              { id: "comparison", label: "⚔️ Comparison", defaultText: "[Option A: Cloud Microservices] ➔ [Option B: On-Premises Monolith]" },
+                              { id: "flowchart", label: "🔄 Flowchart", defaultText: "[Start Process] ➜ [Data Ingestion] ➜ [Processing Engine] ➜ [Output Result]" },
+                              { id: "architecture", label: "🏛️ Architecture", defaultText: "[User & Presentation Layer] ➜ [API Gateway & Business Logic] ➜ [Database & Security Tier]" },
+                              { id: "timeline", label: "📅 Timeline", defaultText: "Phase 1: Setup ➜ Phase 2: Core Development ➜ Phase 3: Testing ➜ Phase 4: Global Launch" },
+                              { id: "tree", label: "🌳 Tree", defaultText: "[Root System Concept] ➜ [Branch A: Frontend Service] ➜ [Branch B: Backend Engine] ➜ [Leaf Node: Database]" },
+                              { id: "io_cards", label: "📥 I/O Cards", defaultText: "[Raw Data Ingestion] ➜ [High Performance Computing Engine] ➜ [Analytics & Report Output]" },
+                              { id: "mindmap", label: "🧠 Mindmap", defaultText: "[Central Core Topic] ➜ [Subtopic A: Strategy] ➜ [Subtopic B: Operations] ➜ [Subtopic C: Metrics]" },
+                              { id: "funnel", label: "🔻 Funnel", defaultText: "[Stage 1: Awareness 100%] ➜ [Stage 2: Interest 60%] ➜ [Stage 3: Decision 30%] ➜ [Stage 4: Action 10%]" },
+                              { id: "cycle", label: "🔁 Cycle", defaultText: "[Requirement Phase] ➜ [Design & Build] ➜ [Validation Test] ➜ [Deployment Loop]" },
+                              { id: "pyramid", label: "🔺 Pyramid", defaultText: "[Foundation Security Layer] ➜ [Infrastructure & Network Tier] ➜ [Executive Peak]" },
+                              { id: "quadrant", label: "🧭 2x2 Matrix", defaultText: "[Strengths: High Performance] ➜ [Weaknesses: Initial Cost] ➜ [Opportunities: Growth] ➜ [Threats: Risk]" },
+                              { id: "comparison", label: "⚔️ Comparison", defaultText: "[Option A: Cloud Microservices] ➜ [Option B: On-Premises Monolith]" },
                             ].map((diagOpt) => {
                               const textRaw = plugin.data?.diagram || plugin.data?.text || "";
                               const currentType = detectDiagramType(textRaw, plugin.data?.diagram_type);
@@ -1613,7 +1628,7 @@ export default function PresentationEditor({
                         </div>
 
                         <div>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Diagram Workflow Text (use ➔ to separate steps):</label>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Diagram Workflow Text (use ➜ to separate steps):</label>
                           <input
                             type="text"
                             value={plugin.data?.diagram || plugin.data?.text || ""}
@@ -1621,7 +1636,7 @@ export default function PresentationEditor({
                               handlePluginTextChange(activeSlideIndex, pIdx, "diagram", e.target.value);
                               handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value);
                             }}
-                            placeholder="[Input] ➔ [Processing] ➔ [Model] ➔ [Output]"
+                            placeholder="[Input] ➜ [Processing] ➜ [Model] ➜ [Output]"
                             style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
                           />
                         </div>
@@ -2062,9 +2077,9 @@ export default function PresentationEditor({
                               { style: "number", symbol: "1.", title: "Numbered List (1, 2, 3)" },
                               { style: "alpha", symbol: "A.", title: "Alphabetical List (A, B, C)" },
                               { style: "roman", symbol: "I.", title: "Roman Numerals List (I, II, III)" },
-                              { style: "check", symbol: "✅", title: "Checklist Items" },
-                              { style: "star", symbol: "⭐", title: "Star Highlight List" },
-                              { style: "arrow", symbol: "➔", title: "Arrow Pointer List" },
+                              { style: "check", symbol: "✔", title: "Checklist Items" },
+                              { style: "star", symbol: "✦", title: "Star Highlight List" },
+                              { style: "arrow", symbol: "➜", title: "Arrow Pointer List" },
                               { style: "diamond", symbol: "🔹", title: "Diamond Bullet Points" },
                             ].map((opt) => {
                               const rawStyle = plugin.data?.bullet_style || plugin.data?.list_style || "auto";
@@ -2252,33 +2267,96 @@ export default function PresentationEditor({
 
       {/* FULLSCREEN PRESENTER OVERLAY 📺 */}
       {isPresenting && presenterSlide ? (
-        <div className="presenter-overlay">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", maxWidth: "1280px", margin: "0 auto", paddingBottom: 10 }}>
-            <div style={{ color: "#c084fc", fontWeight: "bold", fontSize: 14, display: "flex", alignItems: "center", gap: 12 }}>
-              <span>Slide {presenterSlideIndex + 1} of {plan.slides.length}</span>
-              <span style={{ opacity: 0.6 }}>│</span>
-              <span>Timer: {minutesFormatted}:{secondsFormatted}</span>
+        <div
+          className="presenter-overlay"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 9999,
+            background: "#090d1a",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            padding: 0,
+            overflow: "hidden",
+          }}
+        >
+          {/* TOP PRESENTATION PROGRESS BAR */}
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              height: 4,
+              width: `${((presenterSlideIndex + 1) / plan.slides.length) * 100}%`,
+              background: "linear-gradient(90deg, #8b5cf6, #ec4899, #06b6d4)",
+              boxShadow: "0 0 12px rgba(139, 92, 246, 0.8)",
+              transition: "width 0.3s ease",
+              zIndex: 10003,
+            }}
+          />
+
+          {/* FLOATING HEADER CONTROL BAR */}
+          <div
+            style={{
+              position: "fixed",
+              top: 14,
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 10002,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "calc(100% - 40px)",
+              maxWidth: "1350px",
+              padding: "8px 18px",
+              background: "rgba(15, 23, 42, 0.88)",
+              borderRadius: 999,
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              backdropFilter: "blur(20px)",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.6)",
+            }}
+          >
+            <div style={{ color: "#c084fc", fontWeight: "bold", fontSize: 13, display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ background: "rgba(192, 132, 252, 0.15)", border: "1px solid rgba(192, 132, 252, 0.3)", padding: "3px 12px", borderRadius: 999, color: "#c084fc", fontWeight: 800 }}>
+                SLIDE {presenterSlideIndex + 1} / {plan.slides.length}
+              </span>
+              <span style={{ opacity: 0.4 }}>│</span>
+              <span style={{ background: "rgba(255, 255, 255, 0.08)", border: "1px solid rgba(255, 255, 255, 0.12)", padding: "3px 12px", borderRadius: 999, color: "#e2e8f0" }}>
+                ⏱️ {minutesFormatted}:{secondsFormatted}
+              </span>
             </div>
 
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              {/* AUTO PLAY SLIDESHOW TOGGLE & SPEED CONTROLS */}
-              <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.06)", padding: "4px 8px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.15)" }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              {/* AUTO PLAY TOGGLE & SPEED */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.06)", padding: "3px 8px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.15)" }}>
                 <button
                   className="btn-ui primary sm"
                   onClick={() => setAutoPlay(!autoPlay)}
-                  style={{ background: autoPlay ? "linear-gradient(135deg, #ef4444, #f43f5e)" : "linear-gradient(135deg, #10b981, #059669)", border: "none", fontSize: 11, padding: "3px 10px" }}
+                  style={{
+                    background: autoPlay ? "linear-gradient(135deg, #ef4444, #f43f5e)" : "linear-gradient(135deg, #10b981, #059669)",
+                    border: "none",
+                    fontSize: 11,
+                    padding: "3px 10px",
+                    borderRadius: 999,
+                  }}
                 >
-                  {autoPlay ? "⏸️ Pause Auto-Play" : "▶️ Auto Play"}
+                  {autoPlay ? "⏸️ Pause" : "▶️ Auto Play"}
                 </button>
                 <select
                   value={autoPlaySpeed}
                   onChange={(e) => setAutoPlaySpeed(Number(e.target.value))}
-                  style={{ background: "rgba(0,0,0,0.5)", border: "1px solid var(--panel-border)", color: "#fff", borderRadius: 4, padding: "2px 4px", fontSize: 11 }}
+                  style={{ background: "rgba(0,0,0,0.5)", border: "1px solid var(--panel-border)", color: "#fff", borderRadius: 8, padding: "2px 6px", fontSize: 11 }}
                 >
-                  <option value={3}>3 sec / slide</option>
-                  <option value={5}>5 sec / slide</option>
-                  <option value={8}>8 sec / slide</option>
-                  <option value={10}>10 sec / slide</option>
+                  <option value={3}>3s / slide</option>
+                  <option value={5}>5s / slide</option>
+                  <option value={8}>8s / slide</option>
+                  <option value={10}>10s / slide</option>
                 </select>
               </div>
 
@@ -2292,78 +2370,125 @@ export default function PresentationEditor({
                     window.speechSynthesis.speak(utt);
                   }
                 }}
-                style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)", border: "none" }}
+                style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)", border: "none", borderRadius: 999, fontSize: 11 }}
               >
-                🗣️ Play AI Voiceover
+                🗣️ AI Voiceover
               </button>
 
               <button
                 className="btn-ui secondary sm"
                 onClick={() => setShowPresenterNotes(!showPresenterNotes)}
+                style={{ borderRadius: 999, fontSize: 11 }}
               >
-                {showPresenterNotes ? "Hide Notes" : "Show Notes"}
+                {showPresenterNotes ? "👁️ Hide Notes" : "👁️ Show Notes"}
               </button>
 
-              <button className="btn-ui danger sm" onClick={() => {
-                if (window.speechSynthesis) window.speechSynthesis.cancel();
-                setAutoPlay(false);
-                stopPresentationMode();
-              }}>
+              <button
+                className="btn-ui secondary sm"
+                onClick={() => {
+                  if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen?.().catch(() => {});
+                  } else {
+                    document.exitFullscreen?.().catch(() => {});
+                  }
+                }}
+                title="Toggle True Browser Fullscreen"
+                style={{ borderRadius: 999, fontSize: 11 }}
+              >
+                ⛶ Fullscreen
+              </button>
+
+              <button
+                className="btn-ui danger sm"
+                onClick={() => {
+                  if (window.speechSynthesis) window.speechSynthesis.cancel();
+                  setAutoPlay(false);
+                  stopPresentationMode();
+                }}
+                style={{ borderRadius: 999, fontSize: 11 }}
+              >
                 ✕ Exit (Esc)
               </button>
             </div>
           </div>
 
-          <div className="presenter-canvas">
-            {/* 16:9 PERFECT ASPECT RATIO WIDESCREEN PRESENTATION CANVAS */}
-            <div
-              style={{
-                width: "100%",
-                maxWidth: "1150px",
-                aspectRatio: "16 / 9",
-                background: selectedBgConfig.bg,
-                color: selectedBgConfig.text,
-                borderRadius: 20,
-                padding: "36px 48px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                overflow: "hidden",
-                boxSizing: "border-box",
-              }}
-            >
-              <div>
-                <div style={{ fontSize: 11, fontWeight: "800", opacity: 0.6, letterSpacing: 1 }}>
-                  SLIDE {presenterSlideIndex + 1} OF {plan.slides.length}
-                </div>
-                <h1
+          {/* FULLSCREEN CANVAS CONTAINER */}
+          <div
+            className="presenter-canvas"
+            style={{
+              flex: 1,
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "70px 40px 80px 40px",
+              boxSizing: "border-box",
+              overflow: "hidden",
+            }}
+          >
+            {/* 16:9 EDGE-TO-EDGE WIDESCREEN PRESENTATION CANVAS */}
+            {(() => {
+              const presVAlign = presenterSlide.title_valign || presenterSlide.subtitle_valign || "auto";
+              const isPresMiddle = presVAlign === "middle" || presVAlign === "center";
+              const isPresBottom = presVAlign === "bottom";
+
+              return (
+                <div
                   style={{
-                    fontSize: presenterSlide.title_font_size ? presenterSlide.title_font_size * 1.3 : 36,
-                    color: presenterSlide.title_color || "inherit",
-                    textAlign: presenterSlide.title_align || "left",
-                    fontWeight: presenterSlide.title_bold === false ? 400 : 800,
-                    margin: "8px 0 6px",
+                    width: "100%",
+                    maxWidth: "1300px",
+                    aspectRatio: "16 / 9",
+                    background: selectedBgConfig.bg,
+                    color: selectedBgConfig.text,
+                    borderRadius: 24,
+                    padding: "44px 60px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: isPresMiddle ? "center" : isPresBottom ? "flex-end" : "space-between",
+                    boxShadow: "0 30px 80px -15px rgba(0, 0, 0, 0.9), 0 0 50px rgba(192, 132, 252, 0.15)",
+                    border: "1px solid rgba(255, 255, 255, 0.18)",
+                    overflow: "hidden",
+                    boxSizing: "border-box",
                   }}
                 >
-                  {presenterSlide.title}
-                </h1>
-                {presenterSlide.subtitle ? (
                   <div
                     style={{
-                      fontSize: presenterSlide.subtitle_font_size ? presenterSlide.subtitle_font_size * 1.2 : 20,
-                      color: presenterSlide.subtitle_color || "inherit",
-                      textAlign: presenterSlide.subtitle_align || "left",
-                      opacity: presenterSlide.subtitle_color ? 1 : 0.85,
-                      fontWeight: 600,
-                      marginBottom: 16,
+                      marginTop: isPresMiddle ? "auto" : isPresBottom ? "auto" : 0,
+                      marginBottom: isPresMiddle ? "auto" : 0,
+                      textAlign: presenterSlide.title_align || "left",
                     }}
                   >
-                    {presenterSlide.subtitle}
+                    <div style={{ fontSize: 11, fontWeight: "800", opacity: 0.6, letterSpacing: 1 }}>
+                      SLIDE {presenterSlideIndex + 1} OF {plan.slides.length}
+                    </div>
+                    <h1
+                      style={{
+                        fontSize: presenterSlide.title_font_size ? presenterSlide.title_font_size * 1.3 : 38,
+                        color: presenterSlide.title_color || "inherit",
+                        textAlign: presenterSlide.title_align || "left",
+                        fontWeight: presenterSlide.title_bold === false ? 400 : 800,
+                        margin: "8px 0 6px",
+                      }}
+                    >
+                      {presenterSlide.title}
+                    </h1>
+                    {presenterSlide.subtitle ? (
+                      <div
+                        style={{
+                          fontSize: presenterSlide.subtitle_font_size ? presenterSlide.subtitle_font_size * 1.2 : 20,
+                          color: presenterSlide.subtitle_color || "inherit",
+                          textAlign: presenterSlide.subtitle_align || "left",
+                          opacity: presenterSlide.subtitle_color ? 1 : 0.85,
+                          fontWeight: 600,
+                          marginBottom: 16,
+                        }}
+                      >
+                        {presenterSlide.subtitle}
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
-              </div>
 
               <div style={{ flex: 1, overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 12 }}>
                 {(() => {
@@ -2380,17 +2505,66 @@ export default function PresentationEditor({
                       ) : null}
 
                       {plugin.type === "paragraph" ? (
-                        <p style={{ fontSize: plugin.data?.font_size || 18, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "inherit", lineHeight: 1.5, opacity: 0.95 }}>
+                        <p style={{ fontSize: plugin.data?.font_size || 18, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "inherit", lineHeight: 1.6, opacity: 0.95 }}>
                           {plugin.data?.text}
                         </p>
                       ) : null}
 
                       {plugin.type === "bullets" ? (
-                        <ul style={{ paddingLeft: 24, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "inherit" }}>
-                          {safeArray(plugin.data?.points).map((pt, bIdx) => (
-                            <li key={bIdx} style={{ fontSize: plugin.data?.font_size || 18, marginBottom: 6 }}>{pt}</li>
-                          ))}
-                        </ul>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10, textAlign: plugin.data?.alignment || "left" }}>
+                          {safeArray(plugin.data?.points).map((pt, bIdx) => {
+                            const matchDomain = pt.match(/\((https?:\/\/[^\s)]+|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\)/);
+                            const cleanText = matchDomain ? pt.replace(matchDomain[0], "").trim() : pt;
+                            const domainUrl = matchDomain ? matchDomain[1] : null;
+
+                            return (
+                              <div
+                                key={bIdx}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 12,
+                                  background: "rgba(255, 255, 255, 0.05)",
+                                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                                  borderRadius: 12,
+                                  padding: "10px 16px",
+                                  fontSize: plugin.data?.font_size || 16,
+                                  color: plugin.data?.font_color || plugin.data?.color || "inherit",
+                                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                  transition: "all 0.2s ease",
+                                }}
+                              >
+                                <span style={{ color: "#c084fc", fontSize: 14, fontWeight: "bold", flexShrink: 0 }}>✦</span>
+                                <span style={{ flex: 1, fontWeight: 500 }}>{cleanText}</span>
+                                {domainUrl && (
+                                  <a
+                                    href={domainUrl.startsWith("http") ? domainUrl : `https://${domainUrl}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    style={{
+                                      fontSize: 11,
+                                      fontWeight: 700,
+                                      color: "#60a5fa",
+                                      background: "rgba(96, 165, 250, 0.15)",
+                                      border: "1px solid rgba(96, 165, 250, 0.3)",
+                                      borderRadius: 999,
+                                      padding: "3px 10px",
+                                      textDecoration: "none",
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: 4,
+                                      flexShrink: 0,
+                                      transition: "all 0.2s ease",
+                                    }}
+                                  >
+                                    🔗 {domainUrl}
+                                  </a>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
                       ) : null}
 
                       {plugin.type === "chart" ? (
@@ -2446,42 +2620,100 @@ export default function PresentationEditor({
                 })()}
               </div>
             </div>
+          );
+        })()}
 
             {showPresenterNotes ? (
               <div
                 style={{
-                  marginTop: 12,
+                  marginTop: 10,
                   width: "100%",
-                  maxWidth: "1150px",
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: 12,
-                  padding: "10px 16px",
+                  maxWidth: "1300px",
+                  background: "rgba(15, 23, 42, 0.88)",
+                  backdropFilter: "blur(16px)",
+                  border: "1px solid rgba(192, 132, 252, 0.25)",
+                  borderRadius: 14,
+                  padding: "10px 18px",
                   color: "#e2e8f0",
                   fontSize: 13,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
                 }}
               >
-                <strong>🗣️ Presenter Notes:</strong>{" "}
+                <span style={{ color: "#c084fc", fontWeight: 800, marginRight: 6 }}>🗣️ Presenter Notes:</span>{" "}
                 {presenterSlide.plugins?.find((p) => p.type === "notes")?.data?.notes || "No speaker notes for this slide."}
               </div>
             ) : null}
           </div>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: 16, paddingTop: 6 }}>
-            <button
-              className="btn-ui secondary"
-              onClick={() => setPresenterSlideIndex((i) => Math.max(0, i - 1))}
-              disabled={presenterSlideIndex === 0}
+          {/* FLOATING BOTTOM DOCK NAVIGATION CONTROLS */}
+          <div
+            style={{
+              position: "fixed",
+              bottom: 14,
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 10002,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                background: "rgba(15, 23, 42, 0.88)",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                borderRadius: 999,
+                padding: "6px 18px",
+                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.6)",
+              }}
             >
-              ◀ Previous
-            </button>
-            <button
-              className="btn-ui primary"
-              onClick={() => setPresenterSlideIndex((i) => Math.min(plan.slides.length - 1, i + 1))}
-              disabled={presenterSlideIndex === plan.slides.length - 1}
-            >
-              Next ▶
-            </button>
+              <button
+                className="btn-ui secondary sm"
+                onClick={() => setPresenterSlideIndex((i) => Math.max(0, i - 1))}
+                disabled={presenterSlideIndex === 0}
+                style={{ borderRadius: 999, padding: "5px 14px" }}
+              >
+                ◀ Previous
+              </button>
+
+              {/* QUICK SLIDE DOTS / INDEX JUMP BUTTONS */}
+              <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
+                {plan.slides.map((_, sIdx) => (
+                  <button
+                    key={sIdx}
+                    onClick={() => setPresenterSlideIndex(sIdx)}
+                    style={{
+                      width: sIdx === presenterSlideIndex ? 22 : 10,
+                      height: 10,
+                      borderRadius: 999,
+                      background: sIdx === presenterSlideIndex ? "linear-gradient(135deg, #c084fc, #60a5fa)" : "rgba(255,255,255,0.2)",
+                      border: "none",
+                      cursor: "pointer",
+                      transition: "all 0.25s ease",
+                    }}
+                    title={`Jump to Slide ${sIdx + 1}`}
+                  />
+                ))}
+              </div>
+
+              <button
+                className="btn-ui primary sm"
+                onClick={() => setPresenterSlideIndex((i) => Math.min(plan.slides.length - 1, i + 1))}
+                disabled={presenterSlideIndex === plan.slides.length - 1}
+                style={{ borderRadius: 999, padding: "5px 14px" }}
+              >
+                Next ▶
+              </button>
+            </div>
+
+            <div style={{ fontSize: 10, color: "rgba(255, 255, 255, 0.4)", fontWeight: 600 }}>
+              ⌨️ Use ◄ ► Arrow Keys or Spacebar to Navigate
+            </div>
           </div>
         </div>
       ) : null}
@@ -2492,53 +2724,114 @@ export default function PresentationEditor({
           position: "fixed",
           inset: 0,
           zIndex: 10000,
-          background: "rgba(9, 13, 24, 0.85)",
-          backdropFilter: "blur(8px)",
+          background: "rgba(9, 13, 24, 0.88)",
+          backdropFilter: "blur(16px)",
           display: "grid",
           placeItems: "center",
           padding: 16
         }}>
           <div style={{
-            background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)",
-            border: "1px solid #c084fc",
+            background: "linear-gradient(145deg, #0b1120 0%, #1e1b4b 50%, #0f172a 100%)",
+            border: "1px solid rgba(192, 132, 252, 0.35)",
             borderRadius: 24,
-            padding: "32px 28px",
-            maxWidth: 480,
+            padding: "36px 32px",
+            maxWidth: 490,
             width: "100%",
-            boxShadow: "0 25px 50px -12px rgba(192, 132, 252, 0.4)",
+            boxShadow: "0 25px 60px -10px rgba(0, 0, 0, 0.9), 0 0 40px rgba(139, 92, 246, 0.25)",
             textAlign: "center",
-            position: "relative"
+            position: "relative",
+            animation: "fadeIn 0.25s ease-out",
           }}>
             <button
               onClick={() => setShowDownloadModal(false)}
-              style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", color: "#fff", fontSize: 18, cursor: "pointer", opacity: 0.7 }}
+              style={{
+                position: "absolute",
+                top: 16,
+                right: 16,
+                width: 32,
+                height: 32,
+                borderRadius: 999,
+                background: "rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
+                color: "#fff",
+                fontSize: 16,
+                cursor: "pointer",
+                display: "grid",
+                placeItems: "center",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(239, 68, 68, 0.25)";
+                e.currentTarget.style.borderColor = "#ef4444";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.12)";
+              }}
             >
-              ✖
+              ✕
             </button>
 
-            <div style={{ fontSize: 48, marginBottom: 8 }}>🎉</div>
-            <h2 style={{ fontSize: 20, fontWeight: 900, color: "#fff", margin: "0 0 6px 0" }}>
+            {/* GLOWING ICON BADGE */}
+            <div style={{
+              width: 68,
+              height: 68,
+              borderRadius: 999,
+              background: "linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(6, 182, 212, 0.25))",
+              border: "1px solid rgba(192, 132, 252, 0.4)",
+              boxShadow: "0 0 20px rgba(139, 92, 246, 0.3)",
+              display: "grid",
+              placeItems: "center",
+              fontSize: 32,
+              margin: "0 auto 18px",
+            }}>
+              🎉
+            </div>
+
+            <h2 style={{
+              fontSize: 22,
+              fontWeight: 900,
+              background: "linear-gradient(135deg, #ffffff 0%, #c084fc 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              margin: "0 0 8px 0",
+              lineHeight: 1.3,
+            }}>
               {plan?.title || "Presentation Deck Ready!"}
             </h2>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", margin: "0 0 20px 0" }}>
-              {exportFormat === "pdf"
-                ? "Your PDF document presentation has been generated successfully!"
-                : "Your 16:9 Widescreen PowerPoint presentation has been generated successfully!"}
+
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", margin: "0 0 22px 0", lineHeight: 1.5 }}>
+              Your 16:9 Widescreen PowerPoint presentation has been generated successfully!
             </p>
 
-            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: 14, marginBottom: 24, textAlign: "left", fontSize: 13 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                <span style={{ color: "var(--text-muted)" }}>Format:</span>
-                <span style={{ fontWeight: 700, color: "#86efac" }}>
-                  {exportFormat === "pdf" ? "PDF (Document)" : "PPTX (16:9 Widescreen)"}
+            {/* SPEC CARD DETAILS */}
+            <div style={{
+              background: "rgba(0, 0, 0, 0.35)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: 16,
+              padding: "16px 18px",
+              marginBottom: 26,
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+              fontSize: 13,
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>Output Format:</span>
+                <span style={{ fontWeight: 800, color: "#86efac", background: "rgba(34, 197, 94, 0.15)", padding: "3px 10px", borderRadius: 999, border: "1px solid rgba(34, 197, 94, 0.3)", fontSize: 12 }}>
+                  📊 PPTX (16:9 Widescreen)
                 </span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--text-muted)" }}>Total Slides:</span>
-                <span style={{ fontWeight: 700, color: "#c084fc" }}>{plan?.slides?.length || 0} Slides</span>
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>Total Slides:</span>
+                <span style={{ fontWeight: 800, color: "#c084fc", background: "rgba(192, 132, 252, 0.15)", padding: "3px 10px", borderRadius: 999, border: "1px solid rgba(192, 132, 252, 0.3)", fontSize: 12 }}>
+                  {plan?.slides?.length || 0} Slides
+                </span>
               </div>
             </div>
 
+            {/* BUTTONS ROW */}
             <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
               <button
                 type="button"
@@ -2550,29 +2843,39 @@ export default function PresentationEditor({
                 }}
                 disabled={loadingGenerate}
                 style={{
-                  padding: "12px 24px",
+                  flex: 1,
+                  padding: "13px 24px",
                   fontSize: 14,
                   fontWeight: 800,
+                  color: "#ffffff",
+                  WebkitTextFillColor: "#ffffff",
                   background: loadingGenerate
                     ? "linear-gradient(135deg, #4b5563, #374151)"
-                    : "linear-gradient(135deg, #10b981, #059669)",
+                    : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
                   border: "none",
-                  borderRadius: 12,
+                  borderRadius: 14,
                   cursor: loadingGenerate ? "not-allowed" : "pointer",
-                  boxShadow: "0 8px 20px rgba(16, 185, 129, 0.4)"
+                  boxShadow: "0 8px 24px rgba(16, 185, 129, 0.4)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  if (!loadingGenerate) {
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.boxShadow = "0 12px 28px rgba(16, 185, 129, 0.5)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loadingGenerate) {
+                    e.currentTarget.style.transform = "none";
+                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(16, 185, 129, 0.4)";
+                  }
                 }}
               >
-                {loadingGenerate
-                  ? (exportFormat === "pdf" ? "⏳ Compiling PDF..." : "⏳ Compiling PPTX...")
-                  : (exportFormat === "pdf" ? "📥 Download PDF Now" : "📥 Download PPTX Now")}
-              </button>
-              <button
-                type="button"
-                className="btn-ui secondary"
-                onClick={() => setShowDownloadModal(false)}
-                style={{ padding: "12px 20px", borderRadius: 12, fontSize: 13 }}
-              >
-                Close
+                {loadingGenerate ? "⏳ Compiling PPTX..." : "📥 Download Now"}
               </button>
             </div>
           </div>

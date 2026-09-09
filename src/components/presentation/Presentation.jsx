@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { API_BASE_URL, getAuthHeaders } from "../services/api";
+import { API_BASE_URL, getAuthHeaders } from "../../services/api";
 import { PPT_PROMPTS } from "./PPT_Prompt";
 import PresentationSetup from "./PresentationSetup";
 import PresentationEditor, { BACKGROUND_PRESETS } from "./PresentationEditor";
@@ -308,9 +308,8 @@ export default function PresentationGenerator() {
   });
 
   // Export Format State 📑
+  // eslint-disable-next-line no-unused-vars
   const [exportFormat, setExportFormat] = useState("pptx"); // 'pptx' | 'pdf'
-
-  // Presentation Plan State (Restored from localStorage on page refresh)
   const [plan, setPlan] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_PLAN);
@@ -839,18 +838,27 @@ export default function PresentationGenerator() {
 
   // Presenter Mode Handlers 📺
   const startPresentationMode = () => {
-    if (!plan?.slides?.length) return;
     setIsPresenting(true);
-    setPresenterSlideIndex(activeSlideIndex);
     setPresentationTime(0);
+    if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       setPresentationTime((t) => t + 1);
     }, 1000);
+    try {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    } catch (e) {}
   };
 
   const stopPresentationMode = () => {
     setIsPresenting(false);
     if (timerRef.current) clearInterval(timerRef.current);
+    try {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    } catch (e) {}
   };
 
   useEffect(() => {
@@ -1210,16 +1218,16 @@ export default function PresentationGenerator() {
       <div className="ppt-shell">
         {/* HEADER BAR */}
         <div className="ppt-header-bar">
-          <div className="ppt-header-title">
-            <h1 className="btn-ui">Presentation Studio</h1>
+          <div className="ppt-header-title" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <h1 style={{ margin: 0 }}>Presentation Studio</h1>
             <button
-                className="btn-ui secondary sm"
-                onClick={handleResetPlanToDefault}
-                title="Start a fresh presentation deck"
-                style={{ fontSize: 16, padding: "4px 8px" }}
-              >
-                 + New
-              </button>
+              className="btn-ui secondary sm"
+              onClick={handleResetPlanToDefault}
+              title="Start a fresh presentation deck"
+              style={{ fontSize: 12, padding: "4px 10px", fontWeight: 700 }}
+            >
+              + New
+            </button>
           </div>
 
           <div className="ppt-header-controls">
@@ -1237,24 +1245,10 @@ export default function PresentationGenerator() {
               >
                 Editor {plan?.slides?.length ? `(${plan.slides.length})` : ""}
               </button>
-              
-            </div>
-
-            {/* EXPORT FORMAT SELECTOR */}
-            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.3)", padding: "4px 10px", borderRadius: 10, border: "1px solid var(--panel-border)" }}>
-              <span style={{ fontSize: 11, fontWeight: "bold", color: "#c084fc", whiteSpace: "nowrap" }}></span>
-              <select
-                value={exportFormat}
-                onChange={(e) => setExportFormat(e.target.value)}
-                style={{ background: "transparent", border: "none", color: "#fff", fontWeight: "bold", fontSize: 12, outline: "none", cursor: "pointer", whiteSpace: "nowrap" }}
-              >
-                <option value="pptx" style={{ background: "#0f172a" }}>Presentation</option>
-                <option value="pdf" style={{ background: "#0f172a" }}>📄Doc</option>
-              </select>
             </div>
 
             {plan?.slides?.length ? (
-              <button className="btn-ui secondary" onClick={startPresentationMode}>
+              <button className="btn-ui secondary sm" onClick={startPresentationMode}>
                 📺 View
               </button>
             ) : null}

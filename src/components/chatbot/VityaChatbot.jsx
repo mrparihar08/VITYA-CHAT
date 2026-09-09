@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
-import ChatCharts from "../components/chatbot/ChatCharts";
-import ChatInput from "../components/chatbot/ChatInput";
-import { API_BASE_URL } from "../services/api";
+import ChatCharts from "./ChatCharts";
+import ChatInput from "./ChatInput";
+import FormattedMarkdown from "./FormattedMarkdown";
+import { API_BASE_URL } from "../../services/api";
 
 /* -------------------------------------------------------
    Constants
@@ -959,9 +960,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                           {chartElement || <div style={styles.emptyText}>No chart data</div>}
                         </div>
                       ) : (
-                        <span style={{ whiteSpace: "pre-wrap" }}>
-                          {typeof msg.text === "string" ? msg.text : JSON.stringify(msg.text)}
-                        </span>
+                        <FormattedMarkdown content={msg.text} />
                       )}
                     </div>
 
@@ -1021,7 +1020,9 @@ const border = "1px solid rgba(255,255,255,0.10)";
 const styles = {
   page: {
     width: "100%",
-    height: "100vh",
+    height: "100%",
+    flex: 1,
+    minHeight: 0,
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
@@ -1095,7 +1096,7 @@ const styles = {
   main: { flex: 1, display: "flex", justifyContent: "center", overflow: "hidden", minHeight: 0 },
   chatArea: {
     width: "min(1120px, 100%)",
-    padding: "18px 16px 170px",
+    padding: "18px 16px 20px",
     overflowY: "auto",
     display: "flex",
     flexDirection: "column",
@@ -1103,7 +1104,7 @@ const styles = {
     boxSizing: "border-box",
     minHeight: 0,
   },
-  emptyState: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "calc(100vh - 250px)" },
+  emptyState: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", margin: "auto 0" },
   emptyCard: {
     width: "min(780px, 100%)",
     padding: 28,

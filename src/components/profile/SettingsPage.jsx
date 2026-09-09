@@ -183,6 +183,7 @@ export function SettingsPage({ plain = true }) {
       subtitle="Customize your Vitya.AI workspace, AI behavior, theme, and data security."
       plain={plain}
       hideBrandRow={plain}
+      wide={true}
     >
       <div className="vitya-settings-container">
         {/* TOAST NOTIFICATION */}
