@@ -221,6 +221,57 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [plusOpen, setPlusOpen] = useState(false);
   const [mode, setMode] = useState("chat");
+  const [useWebSearch, setUseWebSearch] = useState(true);
+  const [ragDocs, setRagDocs] = useState([]);
+
+  const handleDocumentFileUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const formData = new FormData();
+    if (conversationId) formData.append("conversation_id", conversationId);
+    files.forEach((f) => formData.append("files", f));
+
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/api/rag/upload`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+      const data = await res.json();
+      setRagDocs(data.documents || []);
+
+      const docNames = files.map((f) => f.name).join(", ");
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          type: "text",
+          text: `📑 Successfully indexed document(s) for Q&A: **${docNames}**!\nYou can now ask any question about the content of these reports or files.`,
+        },
+      ]);
+    } catch (err) {
+      console.error("Document upload failed:", err);
+      alert("Failed to upload document for Q&A.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearRagDocs = async () => {
+    try {
+      await fetch(`${API_BASE_URL}/api/rag/documents${conversationId ? `?conversation_id=${conversationId}` : ""}`, {
+        method: "DELETE",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      setRagDocs([]);
+    } catch (err) {
+      console.error("Clear documents failed:", err);
+    }
+  };
 
   const token = useMemo(() => {
     try {
@@ -532,6 +583,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
   const sendPptMessage = useCallback(
     async (messageToSend) => {
       const payload = buildPptPayload(messageToSend, "", "light", null);
+      payload.use_web_search = useWebSearch;
 
       const res = await fetch(`${API_BASE_URL}/generate`, {
         method: "POST",
@@ -579,7 +631,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
 
       return botMessage;
     },
-    [token, downloadBlobFromUrl]
+    [token, downloadBlobFromUrl, useWebSearch]
   );
 
   const sendChatMessage = useCallback(
@@ -595,6 +647,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
           mode,
           requestType: mode,
           conversation_id: conversationId || undefined,
+          use_web_search: useWebSearch,
         }),
       });
 
@@ -670,7 +723,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       onConversationUpdated?.();
       return botMessage;
     },
-    [token, mode, conversationId, handleFileResponse, downloadBlobFromUrl, onConversationChange, onConversationUpdated]
+    [token, mode, conversationId, useWebSearch, handleFileResponse, downloadBlobFromUrl, onConversationChange, onConversationUpdated]
   );
 
   const sendMessage = useCallback(
@@ -991,6 +1044,8 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         </div>
       </main>
 
+
+
       <ChatInput
         input={input}
         setInput={setInput}
@@ -1005,6 +1060,11 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         toggleVoiceEnabled={toggleVoiceEnabled}
         getMicIcon={getMicIcon}
         menuRef={menuRef}
+        useWebSearch={useWebSearch}
+        setUseWebSearch={setUseWebSearch}
+        ragDocs={ragDocs}
+        handleFileUpload={handleDocumentFileUpload}
+        handleClearDocs={handleClearRagDocs}
       />
     </div>
   );

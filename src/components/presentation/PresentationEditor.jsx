@@ -485,6 +485,31 @@ export default function PresentationEditor({
     handlePluginTextChange(activeSlideIndex, pIdx, "path", fallbackUrl);
   };
 
+  const [generatingAiImgIdx, setGeneratingAiImgIdx] = useState(null);
+
+  const handleGenerateAIImage = async (pIdx, defaultTopic = "") => {
+    const plugin = activeSlide?.plugins?.[pIdx];
+    const basePrompt = defaultTopic || plugin?.data?.caption || activeSlide?.title || plan?.title || "modern technology visual";
+    const promptInput = window.prompt("Enter AI image prompt (e.g., 'Futuristic AI neural network server room, 8k'):", basePrompt);
+    if (!promptInput || !promptInput.trim()) return;
+
+    setGeneratingAiImgIdx(pIdx);
+    try {
+      const res = await fetch(`${API_SERVER_URL}/ai-image/generate?prompt=${encodeURIComponent(promptInput.trim())}`);
+      const data = await res.json();
+      if (data?.url) {
+        handlePluginTextChange(activeSlideIndex, pIdx, "url", data.url);
+        handlePluginTextChange(activeSlideIndex, pIdx, "path", data.url);
+        handlePluginTextChange(activeSlideIndex, pIdx, "caption", promptInput.trim());
+      }
+    } catch (err) {
+      console.warn("AI image generation call failed", err);
+      alert("AI image generation failed. Please check network connection.");
+    } finally {
+      setGeneratingAiImgIdx(null);
+    }
+  };
+
   // Helper to handle local custom image file uploads from device (FileReader -> Data URL)
   const handleImageFileUpload = (e, targetPluginIdx = null) => {
     const file = e.target.files?.[0];
@@ -515,6 +540,85 @@ export default function PresentationEditor({
   };
 
   const [refiningPluginIdx, setRefiningPluginIdx] = useState(null);
+
+  // TTS Voiceover Narration State 🎙️
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speakingSlideIdx, setSpeakingSlideIdx] = useState(null);
+  const [autoPlayVoiceover, setAutoPlayVoiceover] = useState(false);
+
+  const compileSlideNarrationScript = (slide, slideIndex) => {
+    if (!slide) return "";
+    const parts = [];
+    parts.push(`Slide ${slideIndex + 1}: ${slide.title || "Untitled Slide"}.`);
+    if (slide.subtitle) parts.push(slide.subtitle + ".");
+
+    safeArray(slide.plugins).forEach((p) => {
+      if (!p || !p.data) return;
+      if (p.type === "bullets" && Array.isArray(p.data.points)) {
+        p.data.points.forEach((pt) => parts.push(String(pt).trim() + "."));
+      } else if (p.type === "paragraph" && p.data.text) {
+        parts.push(String(p.data.text).trim());
+      } else if (p.type === "diagram" && (p.data.diagram || p.data.text)) {
+        parts.push("Workflow diagram: " + String(p.data.diagram || p.data.text).replace(/[\u2794\->|]/g, " then ") + ".");
+      } else if (p.type === "stat" && (p.data.number || p.data.label)) {
+        parts.push(`Key metric: ${p.data.number || ""} ${p.data.label || ""}.`);
+      } else if (p.type === "notes" && p.data.notes) {
+        parts.push("Speaker note: " + String(p.data.notes).trim());
+      }
+    });
+
+    return parts.filter(Boolean).join(" ");
+  };
+
+  const handleToggleSlideVoiceover = (slide, slideIndex) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      alert("Speech synthesis is not supported in your browser. Please try Chrome, Edge, or Safari.");
+      return;
+    }
+
+    if (window.speechSynthesis.speaking && speakingSlideIdx === slideIndex && isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setSpeakingSlideIdx(null);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const script = compileSlideNarrationScript(slide, slideIndex);
+    if (!script.trim()) {
+      alert("This slide has no text to read out!");
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(script);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+      setSpeakingSlideIdx(slideIndex);
+    };
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      setSpeakingSlideIdx(null);
+    };
+
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      setSpeakingSlideIdx(null);
+    };
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  useEffect(() => {
+    if (isPresenting && autoPlayVoiceover && plan?.slides?.[presenterSlideIndex]) {
+      handleToggleSlideVoiceover(plan.slides[presenterSlideIndex], presenterSlideIndex);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presenterSlideIndex, isPresenting, autoPlayVoiceover]);
 
   // Helper to use Gemini AI to refine, polish, or convert slide content into punchy bullets
   const handleAIRefine = async (pIdx, action = "bullets") => {
@@ -706,6 +810,19 @@ export default function PresentationEditor({
                   </div>
 
                   <div style={{ display: "flex", gap: 6, flexWrap: "nowrap", alignItems: "center", flexShrink: 0 }}>
+                    <button
+                      type="button"
+                      className="btn-ui secondary sm"
+                      onClick={() => handleToggleSlideVoiceover(activeSlide, activeSlideIndex)}
+                      style={{
+                        whiteSpace: "nowrap",
+                        background: isSpeaking && speakingSlideIdx === activeSlideIndex ? "rgba(239, 68, 68, 0.25)" : "rgba(139, 92, 246, 0.2)",
+                        border: isSpeaking && speakingSlideIdx === activeSlideIndex ? "1px solid #ef4444" : "1px solid rgba(139, 92, 246, 0.4)",
+                        color: "#fff",
+                      }}
+                    >
+                      {isSpeaking && speakingSlideIdx === activeSlideIndex ? "⏹️ Stop Voiceover" : "🎙️ Play Voiceover"}
+                    </button>
                     <button className="btn-ui secondary sm" onClick={() => handleDuplicateSlide(activeSlideIndex)} style={{ whiteSpace: "nowrap" }}>
                       📋 Duplicate
                     </button>
@@ -1927,10 +2044,19 @@ export default function PresentationEditor({
                               <button
                                 type="button"
                                 className="btn-ui primary sm"
+                                style={{ fontSize: 10, padding: "3px 8px", background: "linear-gradient(135deg, #c084fc, #ec4899)" }}
+                                onClick={() => handleGenerateAIImage(pIdx, plugin.data?.caption)}
+                                disabled={generatingAiImgIdx === pIdx}
+                              >
+                                {generatingAiImgIdx === pIdx ? "⏳ Generating..." : "🎨 Generate AI Image"}
+                              </button>
+                              <button
+                                type="button"
+                                className="btn-ui secondary sm"
                                 style={{ fontSize: 10, padding: "3px 8px" }}
                                 onClick={() => handleAutoUnsplashFetch(pIdx, plugin.data?.caption)}
                               >
-                                ⚡ Auto Unsplash Image
+                                ⚡ Unsplash
                               </button>
                             </div>
                           </div>
@@ -2709,6 +2835,32 @@ export default function PresentationEditor({
               >
                 Next ▶
               </button>
+
+              <div style={{ height: 16, width: 1, background: "rgba(255,255,255,0.2)", margin: "0 4px" }} />
+
+              <button
+                type="button"
+                className="btn-ui secondary sm"
+                onClick={() => handleToggleSlideVoiceover(plan.slides[presenterSlideIndex], presenterSlideIndex)}
+                style={{
+                  borderRadius: 999,
+                  padding: "5px 14px",
+                  background: isSpeaking && speakingSlideIdx === presenterSlideIndex ? "rgba(239, 68, 68, 0.3)" : "rgba(139, 92, 246, 0.25)",
+                  border: isSpeaking && speakingSlideIdx === presenterSlideIndex ? "1px solid #ef4444" : "1px solid rgba(139, 92, 246, 0.5)",
+                }}
+              >
+                {isSpeaking && speakingSlideIdx === presenterSlideIndex ? "⏹️ Stop Voice" : "🎙️ Narration"}
+              </button>
+
+              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.8)", cursor: "pointer", userSelect: "none" }}>
+                <input
+                  type="checkbox"
+                  checked={autoPlayVoiceover}
+                  onChange={(e) => setAutoPlayVoiceover(e.target.checked)}
+                  style={{ accentColor: "#8b5cf6", cursor: "pointer" }}
+                />
+                Auto-Voiceover
+              </label>
             </div>
 
             <div style={{ fontSize: 10, color: "rgba(255, 255, 255, 0.4)", fontWeight: 600 }}>

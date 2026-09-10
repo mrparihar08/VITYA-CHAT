@@ -256,6 +256,8 @@ export default function PresentationGenerator() {
   const [includeCitations, setIncludeCitations] = useState(false);
   const [includeSpeakerNotes, setIncludeSpeakerNotes] = useState(true);
   const [useGemini, setUseGemini] = useState(true);
+  const [useWebSearch, setUseWebSearch] = useState(true);
+  const [useAiImageGen, setUseAiImageGen] = useState(true);
   const [smartMode, setSmartMode] = useState(true);
   const [allowImage, setAllowImage] = useState(true);
   const [allowChart, setAllowChart] = useState(true);
@@ -306,6 +308,39 @@ export default function PresentationGenerator() {
       return "#ffffff";
     }
   });
+
+  // Custom Brand Template State 🏢 (Restored from localStorage)
+  const [useCustomBrand, setUseCustomBrand] = useState(() => {
+    try { return localStorage.getItem("vitya_brand_active") === "true"; } catch { return false; }
+  });
+  const [brandLogo, setBrandLogo] = useState(() => {
+    try { return localStorage.getItem("vitya_brand_logo") || ""; } catch { return ""; }
+  });
+  const [brandColor, setBrandColor] = useState(() => {
+    try { return localStorage.getItem("vitya_brand_color") || "#8b5cf6"; } catch { return "#8b5cf6"; }
+  });
+  const [brandSecondaryColor, setBrandSecondaryColor] = useState(() => {
+    try { return localStorage.getItem("vitya_brand_secondary_color") || "#0f172a"; } catch { return "#0f172a"; }
+  });
+  const [brandFont, setBrandFont] = useState(() => {
+    try { return localStorage.getItem("vitya_brand_font") || "Arial"; } catch { return "Arial"; }
+  });
+  const [brandFooter, setBrandFooter] = useState(() => {
+    try { return localStorage.getItem("vitya_brand_footer") || ""; } catch { return ""; }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("vitya_brand_active", String(useCustomBrand));
+      localStorage.setItem("vitya_brand_logo", brandLogo || "");
+      localStorage.setItem("vitya_brand_color", brandColor || "#8b5cf6");
+      localStorage.setItem("vitya_brand_secondary_color", brandSecondaryColor || "#0f172a");
+      localStorage.setItem("vitya_brand_font", brandFont || "Arial");
+      localStorage.setItem("vitya_brand_footer", brandFooter || "");
+    } catch (e) {
+      console.warn("Failed to persist brand settings to localStorage", e);
+    }
+  }, [useCustomBrand, brandLogo, brandColor, brandSecondaryColor, brandFont, brandFooter]);
 
   // Export Format State 📑
   // eslint-disable-next-line no-unused-vars
@@ -489,6 +524,8 @@ export default function PresentationGenerator() {
       include_citations: includeCitations,
       include_speaker_notes: includeSpeakerNotes,
       use_gemini: useGemini,
+      use_web_search: useWebSearch,
+      use_ai_image_generation: useAiImageGen,
       smart_mode: smartMode,
       allow_bullets: true,
       allow_paragraph: allowParagraph,
@@ -497,6 +534,12 @@ export default function PresentationGenerator() {
       allow_section_slide: true,
       allow_table: allowTable,
       plan: sanitizedPlan,
+      brand_logo: useCustomBrand ? brandLogo : undefined,
+      brand_color: useCustomBrand ? brandColor : undefined,
+      brand_secondary_color: useCustomBrand ? brandSecondaryColor : undefined,
+      brand_font: useCustomBrand ? brandFont : undefined,
+      brand_footer: useCustomBrand ? brandFooter : undefined,
+      use_custom_brand: useCustomBrand,
     };
   };
 
@@ -1279,6 +1322,10 @@ export default function PresentationGenerator() {
             setIncludeSpeakerNotes={setIncludeSpeakerNotes}
             useGemini={useGemini}
             setUseGemini={setUseGemini}
+            useWebSearch={useWebSearch}
+            setUseWebSearch={setUseWebSearch}
+            useAiImageGen={useAiImageGen}
+            setUseAiImageGen={setUseAiImageGen}
             smartMode={smartMode}
             setSmartMode={setSmartMode}
             allowImage={allowImage}
@@ -1301,6 +1348,18 @@ export default function PresentationGenerator() {
             fetchPlan={fetchPlan}
             handlePerformSearch={handlePerformSearch}
             handleSelectTopicFromSearch={handleSelectTopicFromSearch}
+            useCustomBrand={useCustomBrand}
+            setUseCustomBrand={setUseCustomBrand}
+            brandLogo={brandLogo}
+            setBrandLogo={setBrandLogo}
+            brandColor={brandColor}
+            setBrandColor={setBrandColor}
+            brandSecondaryColor={brandSecondaryColor}
+            setBrandSecondaryColor={setBrandSecondaryColor}
+            brandFont={brandFont}
+            setBrandFont={setBrandFont}
+            brandFooter={brandFooter}
+            setBrandFooter={setBrandFooter}
           />
         ) : (
           /* STEP 2: SLIDE WORKSPACE & FEATURE EDITOR PAGE (OPENS AFTER CLICKING GENERATE) */

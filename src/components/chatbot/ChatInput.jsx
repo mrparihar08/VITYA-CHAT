@@ -1,10 +1,10 @@
 import React from "react";
 
 export const MODES = [
-  { key: "chat", label: "Chat", hint: "Default mode" },
-  { key: "news", label: "News", hint: "Latest updates" },
-  { key: "wiki", label: "Wikipedia", hint: "Search knowledge" },
-  { key: "file", label: "Create File", hint: "Generate PPT output" },
+  { key: "chat", label: "💬 Chat", hint: "Default AI Assistant" },
+  { key: "news", label: "📰 News", hint: "Search latest news & headlines" },
+  { key: "wiki", label: "📚 Wikipedia", hint: "Search encyclopedia knowledge" },
+  { key: "file", label: "📁 Create Presentation", hint: "Generate PPT slide deck" },
 ];
 
 export const placeholderMap = {
@@ -28,7 +28,20 @@ export const ChatInput = ({
   toggleVoiceEnabled,
   getMicIcon,
   menuRef,
+  useWebSearch = true,
+  setUseWebSearch,
+  ragDocs = [],
+  handleFileUpload,
+  handleClearDocs,
 }) => {
+  const [pluginsExpanded, setPluginsExpanded] = React.useState(false);
+  const inputRef = React.useRef(null);
+
+  const getPlaceholder = () => {
+    if (input.startsWith("/image")) return "Type AI image description (e.g. /image cyberpunk city 8k)…";
+    return placeholderMap[mode] || "Ask Vitya anything…";
+  };
+
   return (
     <div
       style={{
@@ -46,16 +59,16 @@ export const ChatInput = ({
               position: "absolute",
               bottom: "100%",
               left: 0,
-              marginBottom: 10,
-              width: 240,
-              borderRadius: 20,
-              background: "rgba(18, 24, 40, 0.95)",
-              border: "1px solid rgba(255,255,255,0.10)",
-              boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
-              padding: 8,
+              marginBottom: 6,
+              width: 200,
+              borderRadius: 14,
+              background: "rgba(18, 24, 40, 0.96)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              boxShadow: "0 16px 40px rgba(0,0,0,0.55)",
+              padding: 5,
               zIndex: 100,
               display: "grid",
-              gap: 4,
+              gap: 2,
             }}
           >
             {MODES.map((item) => (
@@ -66,20 +79,181 @@ export const ChatInput = ({
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "flex-start",
-                  padding: "10px 12px",
-                  borderRadius: 12,
+                  padding: "6px 8px",
+                  borderRadius: 8,
                   border: "none",
-                  background: mode === item.key ? "rgba(139,92,246,0.2)" : "transparent",
+                  background: mode === item.key ? "rgba(139,92,246,0.22)" : "transparent",
                   color: "#fff",
                   cursor: "pointer",
                   textAlign: "left",
                   transition: "background 0.15s ease",
                 }}
               >
-                <div style={{ fontSize: 14, fontWeight: 700 }}>{item.label}</div>
-                <div style={{ fontSize: 11, opacity: 0.6, marginTop: 2 }}>{item.hint}</div>
+                <div style={{ fontSize: 12, fontWeight: 700 }}>{item.label}</div>
+                <div style={{ fontSize: 10, opacity: 0.6, marginTop: 1 }}>{item.hint}</div>
               </button>
             ))}
+
+            {/* EXPANDABLE PLUGINS & TOOLS SECTION */}
+            <button
+              type="button"
+              onClick={() => setPluginsExpanded((v) => !v)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "6px 8px",
+                borderRadius: 8,
+                border: "none",
+                background: "rgba(244,63,94,0.14)",
+                color: "#fff",
+                cursor: "pointer",
+                textAlign: "left",
+                marginTop: 2,
+                transition: "background 0.15s ease",
+              }}
+            >
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#f43f5e", display: "flex", alignItems: "center", gap: 5 }}>
+                  <span>🧩</span> Plugins & Tools
+                </div>
+                <div style={{ fontSize: 10, opacity: 0.7, marginTop: 1 }}>AI Image, Web Search & RAG</div>
+              </div>
+              <span style={{ fontSize: 10, color: "#f43f5e", fontWeight: 900 }}>
+                {pluginsExpanded ? "▲" : "▼"}
+              </span>
+            </button>
+
+            {pluginsExpanded && (
+              <div style={{ display: "grid", gap: 2, paddingLeft: 4, borderLeft: "2px solid rgba(244,63,94,0.3)", marginLeft: 4, marginTop: 2 }}>
+                {/* TOOL 1: AI IMAGE GENERATOR */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPlusOpen(false);
+                    setInput("/image ");
+                    setTimeout(() => inputRef.current?.focus(), 50);
+                  }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    padding: "5px 8px",
+                    borderRadius: 6,
+                    border: "none",
+                    background: "transparent",
+                    color: "#fff",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                >
+                  <div style={{ fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
+                    🎨 AI Image Generator
+                  </div>
+                  <div style={{ fontSize: 9, opacity: 0.6, marginTop: 1 }}>Fill /image prompt in search bar</div>
+                </button>
+
+                {/* TOOL 2: LIVE WEB SEARCH TOGGLE */}
+                {setUseWebSearch && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUseWebSearch((v) => !v);
+                    }}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      padding: "5px 8px",
+                      borderRadius: 6,
+                      border: "none",
+                      background: "transparent",
+                      color: "#fff",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <div style={{ fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
+                      🌐 Web Search: {useWebSearch ? "ON ✅" : "OFF ❌"}
+                    </div>
+                    <div style={{ fontSize: 9, opacity: 0.6, marginTop: 1 }}>Toggle live DuckDuckGo facts</div>
+                  </button>
+                )}
+
+                {/* TOOL 3: MULTI-DOC RAG Q&A */}
+                {handleFileUpload && (
+                  <label
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      padding: "5px 8px",
+                      borderRadius: 6,
+                      border: "none",
+                      background: "transparent",
+                      color: "#fff",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <div style={{ fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
+                      📎 Upload Document
+                    </div>
+                    <div style={{ fontSize: 9, opacity: 0.6, marginTop: 1 }}>PDF, CSV, TXT for Multi-Doc Q&A</div>
+                    <input
+                      type="file"
+                      multiple
+                      accept=".pdf,.csv,.txt,.docx"
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        setPlusOpen(false);
+                        handleFileUpload(e);
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ACTIVE RAG DOCUMENT BADGES */}
+        {ragDocs && ragDocs.length > 0 && (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8, padding: "0 4px", alignItems: "center" }}>
+            {ragDocs.map((doc, idx) => (
+              <div
+                key={idx}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  background: "rgba(139, 92, 246, 0.2)",
+                  border: "1px solid rgba(139, 92, 246, 0.4)",
+                  color: "#c084fc",
+                  padding: "3px 10px",
+                  borderRadius: 999,
+                }}
+              >
+                <span>📑 {doc.filename}</span>
+                <span style={{ fontSize: 10, opacity: 0.7 }}>({doc.chunk_count} chunks)</span>
+              </div>
+            ))}
+            <button
+              onClick={handleClearDocs}
+              style={{
+                fontSize: 10,
+                background: "transparent",
+                border: "none",
+                color: "#fca5a5",
+                cursor: "pointer",
+                fontWeight: 700,
+                padding: "2px 6px",
+              }}
+            >
+              × Clear Docs
+            </button>
           </div>
         )}
 
@@ -114,9 +288,10 @@ export const ChatInput = ({
           </button>
 
           <input
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={placeholderMap[mode] || "Ask Vitya anything…"}
+            placeholder={getPlaceholder()}
             style={{
               flex: 1,
               background: "transparent",

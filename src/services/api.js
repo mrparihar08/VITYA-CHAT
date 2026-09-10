@@ -9,7 +9,7 @@ const getApiBaseUrl = () => {
   const craUrl =
     typeof process !== "undefined" &&
     process.env &&
-    process.env.REACT_APP_API_URL;
+    (process.env.REACT_APP_API_URL || process.env.REACT_APP_VITYA_API_URL);
 
   const fallback = "https://mother-8599.onrender.com";
   const url = viteUrl || craUrl || fallback;

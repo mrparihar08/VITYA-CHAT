@@ -27,8 +27,13 @@ export function ForgotPassword() {
 
     setLoading(true);
     try {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
       const res = await api.post("/api/users/forgot-password", {
         email: email.trim(),
+        origin: origin,
+        frontend_url: origin,
+        redirect_url: `${origin}/reset-password`,
+        reset_url: `${origin}/reset-password`,
       });
 
       alert(
