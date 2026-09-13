@@ -33,9 +33,20 @@ export const TABLE_THEME_PRESETS = [
   { id: "monochrome_black", name: "Monochrome Black", icon: "🕶️", header_bg: "#334155", header_color: "#ffffff", cell_bg: "#000000", cell_color: "#ffffff" },
   { id: "executive_slate", name: "Executive Slate", icon: "🪨", header_bg: "#6366f1", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
   { id: "clean_light", name: "Minimal Light", icon: "☀️", header_bg: "#2563eb", header_color: "#ffffff", cell_bg: "#f1f5f9", cell_color: "#0f172a" },
-  { id: "titanium_white", name: "Titanium White", icon: "🏛️", header_bg: "#4f46e5", header_color: "#ffffff", cell_bg: "#f4f4f5", cell_color: "#18181b" },
   { id: "sunset_glow", name: "Sunset Glow", icon: "🌅", header_bg: "#ea580c", header_color: "#ffffff", cell_bg: "#431407", cell_color: "#ffffff" },
   { id: "custom", name: "Custom Palette", icon: "🎨", header_bg: "#8b5cf6", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
+];
+
+export const OFFICE_LAYOUT_PRESETS = [
+  { id: "title_subtitle", label: "Title Slide", desc: "Main title & subtitle" },
+  { id: "title_content", label: "Title and Content", desc: "Header with content list" },
+  { id: "section_header", label: "Section Header", desc: "Chapter / section divider" },
+  { id: "two_content", label: "Two Content", desc: "Side-by-side dual content" },
+  { id: "comparison", label: "Comparison", desc: "Side-by-side with headers" },
+  { id: "title_only", label: "Title Only", desc: "Top header with blank body" },
+  { id: "blank", label: "Blank", desc: "Empty custom slide canvas" },
+  { id: "content_caption", label: "Content with Caption", desc: "Text sidebar & content box" },
+  { id: "picture_caption", label: "Picture with Caption", desc: "Text sidebar & image box" },
 ];
 
 function safeArray(value) {
@@ -111,6 +122,25 @@ export function detectDiagramType(text = "", selectedType = "auto") {
   if (/(input|output|processing|io\b)/i.test(raw)) return "io_cards";
   if (/(mindmap|brainstorm|category|concept|topic)/i.test(raw)) return "mindmap";
   return "flowchart";
+}
+
+export function parseDiagramSteps(textRaw) {
+  if (!textRaw) return [];
+  const rawParts = String(textRaw).split(/\s*(?:➔|➜|->|-->|→|⇒|\||\n|;)\s*/);
+  const steps = [];
+  for (let part of rawParts) {
+    let cleaned = part.replace(/^[\s[(\u2022\-*]+|[\s\])]+$/g, "").trim();
+    if (cleaned.includes("] [")) {
+      const nested = cleaned.split(/\]\s*\[/);
+      for (let n of nested) {
+        let nc = n.replace(/^[\s[(]+|[\s\])]+$/g, "").trim();
+        if (nc) steps.push(nc);
+      }
+    } else if (cleaned) {
+      steps.push(cleaned);
+    }
+  }
+  return steps;
 }
 
 export function VisualChartPreview({ data }) {
@@ -371,6 +401,7 @@ function FeatureFormattingBar({ pluginData, onChangeField, onRefineText, isRefin
 
 export default function PresentationEditor({
   plan,
+  setPlan,
   activeSlideIndex,
   setActiveSlideIndex,
   selectedBgPreset,
@@ -420,8 +451,114 @@ export default function PresentationEditor({
   const activeSlide = plan?.slides?.[activeSlideIndex];
   const presenterSlide = plan?.slides?.[presenterSlideIndex];
 
+  const handleMoveSlideToPosition = (fromIdx, toIdx) => {
+    if (!setPlan || fromIdx === toIdx) return;
+    setPlan((prev) => {
+      if (!prev || !Array.isArray(prev.slides)) return prev;
+      const slides = [...prev.slides];
+      if (fromIdx < 0 || fromIdx >= slides.length || toIdx < 0 || toIdx >= slides.length) return prev;
+      const [moved] = slides.splice(fromIdx, 1);
+      slides.splice(toIdx, 0, moved);
+      return { ...prev, slides };
+    });
+    setActiveSlideIndex(toIdx);
+  };
+
+  const resolveActiveSlideLayout = (slide) => {
+    if (!slide) return "title_content";
+    if (slide.layout && slide.layout !== "title_subtitle" && slide.layout !== "title_content") {
+      return slide.layout;
+    }
+    const plugins = safeArray(slide.plugins);
+    if (plugins.some((p) => p.type === "table")) return "table_focus";
+    if (plugins.some((p) => p.type === "chart")) return "chart_focus";
+    if (plugins.some((p) => p.type === "image")) return "image_text";
+    if (plugins.some((p) => p.type === "paragraph_2col")) return "paragraph_2col";
+    if (plugins.some((p) => p.type === "diagram")) return "table_focus";
+    return slide.layout || "title_content";
+  };
+
+  const handleApplySlideLayout = (layoutType) => {
+    if (!handleSlidePropertyChange) return;
+    handleSlidePropertyChange(activeSlideIndex, "layout", layoutType);
+
+    const existingPlugins = safeArray(activeSlide?.plugins);
+    if (layoutType === "paragraph_2col" && !existingPlugins.some((p) => p.type === "paragraph_2col")) {
+      handleAddPlugin(activeSlideIndex, "paragraph_2col");
+    } else if (layoutType === "chart_focus" && !existingPlugins.some((p) => p.type === "chart")) {
+      handleAddPlugin(activeSlideIndex, "chart");
+    } else if (layoutType === "image_text" && !existingPlugins.some((p) => p.type === "image")) {
+      handleAddPlugin(activeSlideIndex, "image");
+    } else if (layoutType === "table_focus" && !existingPlugins.some((p) => p.type === "table")) {
+      handleAddPlugin(activeSlideIndex, "table");
+    }
+  };
+
+  const handleMoveBulletPoint = (pIdx, fromBIdx, toBIdx) => {
+    const plugin = activeSlide?.plugins?.[pIdx];
+    if (!plugin || plugin.type !== "bullets" || !Array.isArray(plugin.data?.points)) return;
+    const points = [...plugin.data.points];
+    if (fromBIdx < 0 || fromBIdx >= points.length || toBIdx < 0 || toBIdx >= points.length) return;
+    const [moved] = points.splice(fromBIdx, 1);
+    points.splice(toBIdx, 0, moved);
+    handlePluginTextChange(activeSlideIndex, pIdx, "points", points);
+  };
+
   const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [showLayoutModal, setShowLayoutModal] = useState(false);
+  const [layoutModalMode, setLayoutModalMode] = useState("add"); // "add" | "change"
   const [autoPlay, setAutoPlay] = useState(false);
+
+  const handleAddSlideWithLayout = (layoutType = "title_content") => {
+    if (!setPlan) return;
+    setPlan((prev) => {
+      const count = (prev?.slides?.length || 0) + 1;
+      const layoutObj = OFFICE_LAYOUT_PRESETS.find((l) => l.id === layoutType) || { label: "New Slide" };
+
+      let plugins = [
+        { type: "subtitle", data: { text: `${layoutObj.label} Overview` } },
+        { type: "bullets", data: { points: ["First important key takeaway point", "Second supporting detail"] } },
+      ];
+
+      if (layoutType === "title_subtitle") {
+        plugins = [{ type: "subtitle", data: { text: "Section Subtitle / Introduction Headline" } }];
+      } else if (layoutType === "two_content" || layoutType === "paragraph_2col") {
+        plugins = [
+          { type: "paragraph_2col", data: { left_title: "Key Aspect 1", left_text: "Description for first column...", right_title: "Key Aspect 2", right_text: "Description for second column..." } },
+        ];
+      } else if (layoutType === "comparison") {
+        plugins = [
+          { type: "table", data: { title: "Feature Comparison Table", headers: ["Feature / Option", "Option A", "Option B"], rows: [["Core Performance", "High Speed", "Standard"], ["Security Tier", "Enterprise SSL", "Basic"]] } },
+        ];
+      } else if (layoutType === "picture_caption" || layoutType === "image_text") {
+        plugins = [
+          { type: "image", data: { caption: "Visual illustration topic preview", url: "" } },
+          { type: "bullets", data: { points: ["Key visual takeaway point 1", "Supporting observation point 2"] } },
+        ];
+      } else if (layoutType === "content_caption") {
+        plugins = [
+          { type: "paragraph", data: { text: "Detailed explanation paragraph for side caption..." } },
+          { type: "bullets", data: { points: ["Key point highlight 1", "Key point highlight 2"] } },
+        ];
+      } else if (layoutType === "blank" || layoutType === "title_only") {
+        plugins = [];
+      }
+
+      const newSlide = {
+        title: `Slide ${count}: ${layoutObj.label}`,
+        subtitle: layoutType === "title_subtitle" ? "Presentation Section Subtitle" : "",
+        layout: layoutType,
+        plugins,
+      };
+
+      const slides = [...(prev?.slides || []), newSlide];
+      setActiveSlideIndex(slides.length - 1);
+      return {
+        title: prev?.title || "My Presentation Deck",
+        slides,
+      };
+    });
+  };
   const [autoPlaySpeed, setAutoPlaySpeed] = useState(5);
   const carouselRef = useRef(null);
 
@@ -620,30 +757,55 @@ export default function PresentationEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [presenterSlideIndex, isPresenting, autoPlayVoiceover]);
 
-  // Helper to use Gemini AI to refine, polish, or convert slide content into punchy bullets
+  // Helper to use Gemini AI to refine, polish, or convert slide content into punchy bullets/diagram steps
   const handleAIRefine = async (pIdx, action = "bullets") => {
     const plugin = activeSlide?.plugins?.[pIdx];
     if (!plugin) return;
     const currentText = plugin.data?.text || safeArray(plugin.data?.points).join("\n") || plugin.data?.diagram || "";
     if (!currentText) return;
 
+    const targetAction = plugin.type === "diagram" ? "diagram" : action;
+
     setRefiningPluginIdx(pIdx);
     try {
       const res = await fetch(`${API_SERVER_URL}/refine-slide`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: currentText, action }),
+        body: JSON.stringify({ text: currentText, action: targetAction }),
       });
       const data = await res.json();
       if (data?.refined_text) {
         if (plugin.type === "bullets") {
           const newPoints = data.refined_text.split("\n").map(s => s.replace(/^[•\-*\d.]+\s*/, "").trim()).filter(Boolean);
           handlePluginTextChange(activeSlideIndex, pIdx, "points", newPoints);
+        } else if (plugin.type === "diagram") {
+          let cleanedDiagram = data.refined_text;
+          // If response has bullet points, newlines, or lacks ➜ arrow format, sanitize into clean diagram step nodes
+          if (cleanedDiagram.includes("•") || cleanedDiagram.includes("\n") || !cleanedDiagram.includes("➜")) {
+            const rawLines = cleanedDiagram.split(/\n|•|\*/).map(l => l.trim()).filter(Boolean);
+            const nodes = [];
+            for (let line of rawLines) {
+              let nodeStr = line.replace(/^\d+[.)]\s*/, "").replace(/\*\*/g, "").trim();
+              if (nodeStr.includes(":")) {
+                const parts = nodeStr.split(":");
+                const title = parts[0].trim();
+                if (title.length > 1 && title.length < 45) {
+                  nodeStr = title;
+                }
+              }
+              if (nodeStr) {
+                nodeStr = nodeStr.startsWith("[") && nodeStr.endsWith("]") ? nodeStr : `[${nodeStr}]`;
+                nodes.push(nodeStr);
+              }
+            }
+            if (nodes.length > 0) {
+              cleanedDiagram = nodes.join(" ➜ ");
+            }
+          }
+          handlePluginTextChange(activeSlideIndex, pIdx, "diagram", cleanedDiagram);
+          handlePluginTextChange(activeSlideIndex, pIdx, "text", cleanedDiagram);
         } else {
           handlePluginTextChange(activeSlideIndex, pIdx, "text", data.refined_text);
-          if (plugin.type === "diagram") {
-            handlePluginTextChange(activeSlideIndex, pIdx, "diagram", data.refined_text);
-          }
         }
       }
     } catch (err) {
@@ -732,8 +894,17 @@ export default function PresentationEditor({
                   Presentation Slides ({plan?.slides?.length || 0})
                 </span>
               </div>
-              <button className="btn-ui primary sm" onClick={handleAddSlide} style={{ flexShrink: 0, padding: "5px 12px" }}>
-                + Add New Slide
+              <button
+                className="btn-ui primary sm"
+                onClick={() => {
+                  setLayoutModalMode("add");
+                  setShowLayoutModal(true);
+                }}
+                style={{ flexShrink: 0, padding: "5px 12px", display: "inline-flex", alignItems: "center", gap: 6 }}
+                title="Click to select visual PowerPoint Office Theme layout for new slide"
+              >
+                <span>+ Add New Slide</span>
+                <span style={{ fontSize: 10, opacity: 0.8 }}>▼</span>
               </button>
             </div>
 
@@ -743,6 +914,24 @@ export default function PresentationEditor({
                   key={idx}
                   className={`slide-tab-item ${activeSlideIndex === idx ? "active" : ""}`}
                   onClick={() => setActiveSlideIndex(idx)}
+                  draggable={true}
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData("text/plain", idx.toString());
+                    e.dataTransfer.effectAllowed = "move";
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const fromIdx = parseInt(e.dataTransfer.getData("text/plain"), 10);
+                    if (!isNaN(fromIdx) && fromIdx !== idx) {
+                      handleMoveSlideToPosition(fromIdx, idx);
+                    }
+                  }}
+                  style={{ cursor: "grab" }}
+                  title="Drag & Drop to reorder slide"
                 >
                   <div>
                     <div className="slide-tab-number">Slide {idx + 1}</div>
@@ -795,7 +984,7 @@ export default function PresentationEditor({
               <div style={{ display: "flex", flexDirection: "column", gap: 10, background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 12, border: "1px solid var(--panel-border)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "nowrap", gap: 8, overflowX: "auto" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", whiteSpace: "nowrap" }}>Slide Theme BG:</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", whiteSpace: "nowrap" }}>Theme BG:</span>
                     <select
                       value={selectedBgPreset}
                       onChange={(e) => setSelectedBgPreset(e.target.value)}
@@ -807,6 +996,32 @@ export default function PresentationEditor({
                         </option>
                       ))}
                     </select>
+
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", whiteSpace: "nowrap", marginLeft: 6 }}>Layout:</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowLayoutModal(true)}
+                      style={{
+                        background: "rgba(0,0,0,0.4)",
+                        border: "1px solid var(--panel-border)",
+                        color: "#fff",
+                        borderRadius: 8,
+                        padding: "4px 10px",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        cursor: "pointer",
+                      }}
+                      title="Click to view visual PowerPoint Office Theme Layouts"
+                    >
+                      <span>🔲</span>
+                      <span>
+                        {OFFICE_LAYOUT_PRESETS.find((l) => l.id === resolveActiveSlideLayout(activeSlide))?.label || "Title and Content"}
+                      </span>
+                      <span style={{ fontSize: 10, opacity: 0.7 }}>▼</span>
+                    </button>
                   </div>
 
                   <div style={{ display: "flex", gap: 6, flexWrap: "nowrap", alignItems: "center", flexShrink: 0 }}>
@@ -821,7 +1036,7 @@ export default function PresentationEditor({
                         color: "#fff",
                       }}
                     >
-                      {isSpeaking && speakingSlideIdx === activeSlideIndex ? "⏹️ Stop Voiceover" : "🎙️ Play Voiceover"}
+                      {isSpeaking && speakingSlideIdx === activeSlideIndex ? "⏹️Stop" : "🎙️Play"}
                     </button>
                     <button className="btn-ui secondary sm" onClick={() => handleDuplicateSlide(activeSlideIndex)} style={{ whiteSpace: "nowrap" }}>
                       📋 Duplicate
@@ -856,6 +1071,8 @@ export default function PresentationEditor({
                 const titleVAlign = activeSlide.title_valign || activeSlide.subtitle_valign || "auto";
                 const isVMiddle = titleVAlign === "middle" || titleVAlign === "center";
                 const isVBottom = titleVAlign === "bottom";
+                const nonNotesPlugins = safeArray(activeSlide.plugins).filter((p) => p.type !== "notes");
+                const hasPlugins = nonNotesPlugins.length > 0;
 
                 return (
                   <div
@@ -865,13 +1082,13 @@ export default function PresentationEditor({
                       color: selectedBgConfig.text,
                       display: "flex",
                       flexDirection: "column",
-                      justifyContent: isVMiddle ? "center" : isVBottom ? "flex-end" : "space-between",
+                      justifyContent: isVMiddle ? "center" : isVBottom ? "flex-end" : "flex-start",
+                      boxSizing: "border-box",
                     }}
                   >
                     <div
                       style={{
-                        marginTop: isVMiddle ? "auto" : isVBottom ? "auto" : 0,
-                        marginBottom: isVMiddle ? "auto" : 0,
+                        width: "100%",
                         textAlign: activeSlide.title_align || "left",
                       }}
                     >
@@ -879,6 +1096,10 @@ export default function PresentationEditor({
                         SLIDE {activeSlideIndex + 1} OF {plan.slides.length}
                       </div>
                       <h2
+                        contentEditable={true}
+                        suppressContentEditableWarning={true}
+                        onBlur={(e) => handleSlideTitleChange(activeSlideIndex, e.target.innerText)}
+                        title="Click to edit slide title inline"
                         style={{
                           fontSize: `clamp(18px, 4vw, ${activeSlide.title_font_size || 26}px)`,
                           color: activeSlide.title_color || "inherit",
@@ -886,12 +1107,18 @@ export default function PresentationEditor({
                           fontWeight: activeSlide.title_bold === false ? 400 : 800,
                           margin: "6px 0 4px",
                           wordBreak: "break-word",
+                          outline: "none",
+                          cursor: "text",
                         }}
                       >
                         {activeSlide.title || "Slide Title"}
                       </h2>
                       {activeSlide.subtitle ? (
                         <div
+                          contentEditable={true}
+                          suppressContentEditableWarning={true}
+                          onBlur={(e) => handleSlideSubtitleChange(activeSlideIndex, e.target.innerText)}
+                          title="Click to edit slide subtitle inline"
                           style={{
                             fontSize: `clamp(12px, 3vw, ${activeSlide.subtitle_font_size || 15}px)`,
                             color: activeSlide.subtitle_color || "inherit",
@@ -899,6 +1126,8 @@ export default function PresentationEditor({
                             opacity: activeSlide.subtitle_color ? 1 : 0.8,
                             fontWeight: 600,
                             wordBreak: "break-word",
+                            outline: "none",
+                            cursor: "text",
                           }}
                         >
                           {activeSlide.subtitle}
@@ -907,7 +1136,8 @@ export default function PresentationEditor({
                     </div>
 
                 {/* LIVE PLUGINS CONTENT */}
-                <div style={{ flex: 1, overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 10, paddingRight: 4 }}>
+                {hasPlugins && (
+                  <div style={{ flex: isVMiddle || isVBottom ? "0 1 auto" : 1, maxHeight: "100%", overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 10, paddingRight: 4 }}>
                   {(() => {
                     const plugins = safeArray(activeSlide.plugins);
                     const hasImage = plugins.some((p) => p.type === "image" && (p.data?.url || p.data?.path));
@@ -916,13 +1146,25 @@ export default function PresentationEditor({
                     const renderPluginItem = (p, pIdx) => (
                       <div key={pIdx}>
                         {p.type === "subtitle" || p.type === "text" ? (
-                          <h3 style={{ fontSize: p.data?.font_size || 18, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || selectedBgConfig?.accent || "#c084fc", margin: "4px 0" }}>
+                          <h3
+                            contentEditable={true}
+                            suppressContentEditableWarning={true}
+                            onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.innerText)}
+                            title="Click to edit inline"
+                            style={{ fontSize: p.data?.font_size || 18, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || selectedBgConfig?.accent || "#c084fc", margin: "4px 0", outline: "none", cursor: "text" }}
+                          >
                             {p.data?.text}
                           </h3>
                         ) : null}
 
                         {p.type === "paragraph" ? (
-                          <p style={{ fontSize: p.data?.font_size || 14, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "inherit", lineHeight: 1.5, opacity: (p.data?.font_color || p.data?.color) ? 1 : 0.9 }}>
+                          <p
+                            contentEditable={true}
+                            suppressContentEditableWarning={true}
+                            onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.innerText)}
+                            title="Click to edit inline"
+                            style={{ fontSize: p.data?.font_size || 14, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "inherit", lineHeight: 1.5, opacity: (p.data?.font_color || p.data?.color) ? 1 : 0.9, outline: "none", cursor: "text" }}
+                          >
                             {p.data?.text}
                           </p>
                         ) : null}
@@ -931,21 +1173,45 @@ export default function PresentationEditor({
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: p.data?.column_gap || 14, margin: "8px 0" }}>
                             <div style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
                               {p.data?.left_title && (
-                                <div style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
+                                <div
+                                  contentEditable={true}
+                                  suppressContentEditableWarning={true}
+                                  onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "left_title", e.target.innerText)}
+                                  title="Click to edit left title inline"
+                                  style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4, outline: "none", cursor: "text" }}
+                                >
                                   {p.data.left_title}
                                 </div>
                               )}
-                              <p style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0 }}>
+                              <p
+                                contentEditable={true}
+                                suppressContentEditableWarning={true}
+                                onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "left_text", e.target.innerText)}
+                                title="Click to edit paragraph inline"
+                                style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0, outline: "none", cursor: "text" }}
+                              >
                                 {p.data?.left_text || p.data?.text || "Left paragraph content..."}
                               </p>
                             </div>
                             <div style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
                               {p.data?.right_title && (
-                                <div style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
+                                <div
+                                  contentEditable={true}
+                                  suppressContentEditableWarning={true}
+                                  onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "right_title", e.target.innerText)}
+                                  title="Click to edit right title inline"
+                                  style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4, outline: "none", cursor: "text" }}
+                                >
                                   {p.data.right_title}
                                 </div>
                               )}
-                              <p style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0 }}>
+                              <p
+                                contentEditable={true}
+                                suppressContentEditableWarning={true}
+                                onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "right_text", e.target.innerText)}
+                                title="Click to edit paragraph inline"
+                                style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0, outline: "none", cursor: "text" }}
+                              >
                                 {p.data?.right_text || "Right paragraph content..."}
                               </p>
                             </div>
@@ -955,11 +1221,40 @@ export default function PresentationEditor({
                         {p.type === "bullets" ? (
                           <div style={{ paddingLeft: 4, margin: "6px 0", textAlign: p.data?.alignment || p.data?.align || "left", color: p.data?.font_color || p.data?.color || "inherit" }}>
                             {safeArray(p.data?.points).map((pt, bIdx) => (
-                              <div key={bIdx} style={{ fontSize: p.data?.font_size || 14, marginBottom: 5, display: "flex", gap: 8, alignItems: "baseline" }}>
-                                <span style={{ fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", flexShrink: 0 }}>
+                              <div
+                                key={bIdx}
+                                draggable={true}
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData("text/plain", `${pIdx},${bIdx}`);
+                                  e.dataTransfer.effectAllowed = "move";
+                                }}
+                                onDragOver={(e) => {
+                                  e.preventDefault();
+                                  e.dataTransfer.dropEffect = "move";
+                                }}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  const raw = e.dataTransfer.getData("text/plain");
+                                  const [fromPIdx, fromBIdx] = raw.split(",").map(Number);
+                                  if (fromPIdx === pIdx && !isNaN(fromBIdx) && fromBIdx !== bIdx) {
+                                    handleMoveBulletPoint(pIdx, fromBIdx, bIdx);
+                                  }
+                                }}
+                                style={{ fontSize: p.data?.font_size || 14, marginBottom: 5, display: "flex", gap: 8, alignItems: "baseline", cursor: "grab" }}
+                                title="Drag to reorder bullet point"
+                              >
+                                <span style={{ fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", flexShrink: 0, userSelect: "none" }}>
                                   {formatBulletPrefix(p.data?.bullet_style || p.data?.list_style, bIdx, p.data?.points)}
                                 </span>
-                                <span>{pt}</span>
+                                <span
+                                  contentEditable={true}
+                                  suppressContentEditableWarning={true}
+                                  onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "points", e.target.innerText, bIdx)}
+                                  title="Click to edit bullet inline"
+                                  style={{ outline: "none", cursor: "text", flex: 1 }}
+                                >
+                                  {pt}
+                                </span>
                               </div>
                             ))}
                           </div>
@@ -1000,7 +1295,21 @@ export default function PresentationEditor({
                           (() => {
                             const textRaw = p.data?.diagram || p.data?.text || "[Input] ➜ [Processing] ➜ [Output]";
                             const diagType = detectDiagramType(textRaw, p.data?.diagram_type);
-                            const steps = textRaw.split(/➜|->|→/).map(s => s.trim()).filter(Boolean);
+                            
+                            const rawParts = String(textRaw).split(/\s*(?:➔|➜|->|-->|→|⇒|\||\n|;)\s*/);
+                            const steps = [];
+                            for (let part of rawParts) {
+                              let cleaned = part.replace(/^[\s[(\u2022\-*]+|[\s\])]+$/g, "").trim();
+                              if (cleaned.includes("] [")) {
+                                const nested = cleaned.split(/\]\s*\[/);
+                                for (let n of nested) {
+                                  let nc = n.replace(/^[\s[(]+|[\s\])]+$/g, "").trim();
+                                  if (nc) steps.push(nc);
+                                }
+                              } else if (cleaned) {
+                                steps.push(cleaned);
+                              }
+                            }
                             
                             const headers = {
                               tree: "🌳 TREE HIERARCHY & DECISION BRANCHES",
@@ -1071,31 +1380,35 @@ export default function PresentationEditor({
                                 )}
 
                                 {diagType === "architecture" && (
-                                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, maxWidth: "85%", margin: "0 auto", padding: "6px 0" }}>
+                                  <div style={{ display: "flex", flexDirection: "column", alignItems: "stretch", gap: 8, maxWidth: "90%", margin: "8px auto 0", padding: "4px 0" }}>
                                     {steps.map((step, sIdx) => (
                                       <React.Fragment key={sIdx}>
                                         <div style={{
                                           width: "100%",
-                                          background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}33 0%, rgba(15,23,42,0.9) 100%)`,
+                                          background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}2b 0%, rgba(15,23,42,0.92) 100%)`,
                                           border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`,
-                                          borderRadius: "10px",
-                                          padding: "8px 16px",
+                                          borderRadius: "12px",
+                                          padding: "10px 18px",
                                           fontSize: p.data?.font_size || 12,
                                           fontWeight: 700,
-                                          textAlign: "center",
                                           color: "#fff",
                                           display: "flex",
                                           justifyContent: "space-between",
                                           alignItems: "center",
-                                          boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
+                                          boxShadow: "0 4px 12px rgba(0,0,0,0.35)",
+                                          boxSizing: "border-box",
                                         }}>
-                                          <span style={{ fontSize: 10, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", background: "rgba(0,0,0,0.4)", padding: "2px 8px", borderRadius: 4 }}>
+                                          <span style={{ fontSize: 10, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc", background: "rgba(0,0,0,0.5)", border: `1px solid ${selectedBgConfig?.accent || "#c084fc"}60`, padding: "3px 10px", borderRadius: 6, letterSpacing: 0.5 }}>
                                             TIER {sIdx + 1}
                                           </span>
-                                          <span style={{ fontWeight: 700 }}>{step}</span>
-                                          <span style={{ opacity: 0.5, fontSize: 10 }}>[Layer Spec]</span>
+                                          <span style={{ fontWeight: 800, fontSize: 13, textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{step}</span>
+                                          <span style={{ fontSize: 10, fontWeight: 700, opacity: 0.75, color: selectedBgConfig?.accent || "#c084fc" }}>Layer {sIdx + 1}</span>
                                         </div>
-                                        {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 12 }}>⬇️</span>}
+                                        {sIdx < steps.length - 1 && (
+                                          <div style={{ display: "flex", justifyContent: "center", margin: "-3px 0" }}>
+                                            <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 14, fontWeight: 900 }}>⬇️</span>
+                                          </div>
+                                        )}
                                       </React.Fragment>
                                     ))}
                                   </div>
@@ -1369,6 +1682,7 @@ export default function PresentationEditor({
                     return plugins.map((p, pIdx) => renderPluginItem(p, pIdx));
                   })()}
                 </div>
+                )}
                 
                 {/* SPEAKER NOTES DISPLAY */}
                 {activeSlide.plugins?.find((p) => p.type === "notes") ? (
@@ -1441,7 +1755,7 @@ export default function PresentationEditor({
                         onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_align", e.target.value)}
                         style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 95, height: 28, boxSizing: "border-box" }}
                       >
-                        <option value="auto">✨ Auto</option>
+                       
                         <option value="left">Left</option>
                         <option value="center">Center</option>
                         <option value="right">Right</option>
@@ -1455,7 +1769,7 @@ export default function PresentationEditor({
                         onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_valign", e.target.value)}
                         style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 95, height: 28, boxSizing: "border-box" }}
                       >
-                        <option value="auto">✨ Auto</option>
+                       
                         <option value="top">Top</option>
                         <option value="middle">Middle</option>
                         <option value="bottom">Bottom</option>
@@ -1495,7 +1809,7 @@ export default function PresentationEditor({
                         onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_align", e.target.value)}
                         style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 95, height: 28, boxSizing: "border-box" }}
                       >
-                        <option value="auto">✨ Auto</option>
+                       
                         <option value="left">Left</option>
                         <option value="center">Center</option>
                         <option value="right">Right</option>
@@ -1509,7 +1823,7 @@ export default function PresentationEditor({
                         onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_valign", e.target.value)}
                         style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 95, height: 28, boxSizing: "border-box" }}
                       >
-                        <option value="auto">✨ Auto</option>
+                        
                         <option value="top">Top</option>
                         <option value="middle">Middle</option>
                         <option value="bottom">Bottom</option>
@@ -1668,30 +1982,30 @@ export default function PresentationEditor({
 
                     {/* DIAGRAM FEATURE BLOCK EDITOR */}
                     {plugin.type === "diagram" ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {/* 1. VISUAL DIAGRAM STRUCTURE PRESET SELECTOR */}
                         <div style={{ background: "rgba(255,255,255,0.03)", padding: 10, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)" }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                             <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", display: "flex", alignItems: "center", gap: 4 }}>
-                              📐 Select Visual Diagram Style / Structure:
+                              📐 Visual Diagram Layout & Structure Preset:
                             </label>
-                            <span style={{ fontSize: 10, opacity: 0.8, color: "#86efac", background: "rgba(34, 197, 94, 0.15)", padding: "2px 6px", borderRadius: 4, border: "1px solid rgba(34, 197, 94, 0.3)" }}>
-                              Active: <strong>{(plugin.data?.diagram_type || "auto").toUpperCase()}</strong>
+                            <span style={{ fontSize: 10, opacity: 0.9, color: "#86efac", background: "rgba(34, 197, 94, 0.15)", padding: "2px 8px", borderRadius: 6, border: "1px solid rgba(34, 197, 94, 0.3)", fontWeight: 700 }}>
+                              Active: {(plugin.data?.diagram_type || "auto").toUpperCase()}
                             </span>
                           </div>
 
-                          {/* VISUAL DIAGRAM TYPE PRESET CHIPS ROW (SINGLE SCROLLABLE ROW 🎯) */}
                           <div className="diagram-chips-row" style={{ display: "flex", flexWrap: "nowrap", overflowX: "auto", gap: 6, alignItems: "center", width: "100%", paddingBottom: 4 }}>
                             {[
                               { id: "flowchart", label: "🔄 Flowchart", defaultText: "[Start Process] ➜ [Data Ingestion] ➜ [Processing Engine] ➜ [Output Result]" },
-                              { id: "architecture", label: "🏛️ Architecture", defaultText: "[User & Presentation Layer] ➜ [API Gateway & Business Logic] ➜ [Database & Security Tier]" },
-                              { id: "timeline", label: "📅 Timeline", defaultText: "Phase 1: Setup ➜ Phase 2: Core Development ➜ Phase 3: Testing ➜ Phase 4: Global Launch" },
-                              { id: "tree", label: "🌳 Tree", defaultText: "[Root System Concept] ➜ [Branch A: Frontend Service] ➜ [Branch B: Backend Engine] ➜ [Leaf Node: Database]" },
+                              { id: "architecture", label: "🏛️ Architecture Stack", defaultText: "[User & Presentation Layer] ➜ [API Gateway & Business Logic] ➜ [Database & Security Tier]" },
+                              { id: "timeline", label: "📅 Timeline & Roadmap", defaultText: "[Phase 1: Setup] ➜ [Phase 2: Core Development] ➜ [Phase 3: Testing] ➜ [Phase 4: Global Launch]" },
+                              { id: "tree", label: "🌳 Tree Hierarchy", defaultText: "[Root System Concept] ➜ [Branch A: Frontend Service] ➜ [Branch B: Backend Engine] ➜ [Leaf Node: Database]" },
                               { id: "io_cards", label: "📥 I/O Cards", defaultText: "[Raw Data Ingestion] ➜ [High Performance Computing Engine] ➜ [Analytics & Report Output]" },
-                              { id: "mindmap", label: "🧠 Mindmap", defaultText: "[Central Core Topic] ➜ [Subtopic A: Strategy] ➜ [Subtopic B: Operations] ➜ [Subtopic C: Metrics]" },
-                              { id: "funnel", label: "🔻 Funnel", defaultText: "[Stage 1: Awareness 100%] ➜ [Stage 2: Interest 60%] ➜ [Stage 3: Decision 30%] ➜ [Stage 4: Action 10%]" },
-                              { id: "cycle", label: "🔁 Cycle", defaultText: "[Requirement Phase] ➜ [Design & Build] ➜ [Validation Test] ➜ [Deployment Loop]" },
-                              { id: "pyramid", label: "🔺 Pyramid", defaultText: "[Foundation Security Layer] ➜ [Infrastructure & Network Tier] ➜ [Executive Peak]" },
-                              { id: "quadrant", label: "🧭 2x2 Matrix", defaultText: "[Strengths: High Performance] ➜ [Weaknesses: Initial Cost] ➜ [Opportunities: Growth] ➜ [Threats: Risk]" },
+                              { id: "mindmap", label: "🧠 Mindmap Core", defaultText: "[Central Core Topic] ➜ [Subtopic A: Strategy] ➜ [Subtopic B: Operations] ➜ [Subtopic C: Metrics]" },
+                              { id: "funnel", label: "🔻 Funnel Conversion", defaultText: "[Stage 1: Awareness 100%] ➜ [Stage 2: Interest 60%] ➜ [Stage 3: Decision 30%] ➜ [Stage 4: Action 10%]" },
+                              { id: "cycle", label: "🔁 Iteration Cycle", defaultText: "[Requirement Phase] ➜ [Design & Build] ➜ [Validation Test] ➜ [Deployment Loop]" },
+                              { id: "pyramid", label: "🔺 Tiered Pyramid", defaultText: "[Foundation Security Layer] ➜ [Infrastructure & Network Tier] ➜ [Executive Peak]" },
+                              { id: "quadrant", label: "🧭 2x2 Matrix", defaultText: "[Strengths: High Speed] ➜ [Weaknesses: Storage Limits] ➜ [Opportunities: Growth] ➜ [Threats: Risk]" },
                               { id: "comparison", label: "⚔️ Comparison", defaultText: "[Option A: Cloud Microservices] ➜ [Option B: On-Premises Monolith]" },
                             ].map((diagOpt) => {
                               const textRaw = plugin.data?.diagram || plugin.data?.text || "";
@@ -1709,7 +2023,7 @@ export default function PresentationEditor({
                                     handlePluginTextChange(activeSlideIndex, pIdx, "text", diagOpt.defaultText);
                                   }}
                                   style={{
-                                    padding: "5px 12px",
+                                    padding: "6px 12px",
                                     fontSize: 11,
                                     fontWeight: "bold",
                                     cursor: "pointer",
@@ -1717,10 +2031,10 @@ export default function PresentationEditor({
                                     whiteSpace: "nowrap",
                                     flexShrink: 0,
                                     transition: "all 0.2s ease",
-                                    borderColor: isActive ? "#c084fc" : "rgba(255,255,255,0.15)",
-                                    background: isActive ? "linear-gradient(135deg, rgba(192, 132, 252, 0.3) 0%, rgba(124, 58, 237, 0.3) 100%)" : "rgba(0,0,0,0.3)",
+                                    border: isActive ? "1px solid #c084fc" : "1px solid rgba(255,255,255,0.12)",
+                                    background: isActive ? "linear-gradient(135deg, rgba(192, 132, 252, 0.35) 0%, rgba(124, 58, 237, 0.4) 100%)" : "rgba(0,0,0,0.3)",
                                     color: isActive ? "#ffffff" : "rgba(255,255,255,0.85)",
-                                    boxShadow: isActive ? "0 0 10px rgba(192, 132, 252, 0.4)" : "none",
+                                    boxShadow: isActive ? "0 0 12px rgba(192, 132, 252, 0.4)" : "none",
                                   }}
                                 >
                                   {diagOpt.label}
@@ -1730,8 +2044,9 @@ export default function PresentationEditor({
                           </div>
                         </div>
 
+                        {/* 2. DIAGRAM TITLE FIELD */}
                         <div>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Diagram Title / Header:</label>
+                          <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Diagram Title / Header:</label>
                           <input
                             type="text"
                             value={plugin.data?.title || plugin.data?.diagram_title || ""}
@@ -1740,28 +2055,115 @@ export default function PresentationEditor({
                               handlePluginTextChange(activeSlideIndex, pIdx, "diagram_title", e.target.value);
                             }}
                             placeholder="e.g. System Architecture & Process Workflow"
-                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13, marginBottom: 8 }}
-                          />
-                        </div>
-
-                        <div>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Diagram Workflow Text (use ➜ to separate steps):</label>
-                          <input
-                            type="text"
-                            value={plugin.data?.diagram || plugin.data?.text || ""}
-                            onChange={(e) => {
-                              handlePluginTextChange(activeSlideIndex, pIdx, "diagram", e.target.value);
-                              handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value);
-                            }}
-                            placeholder="[Input] ➜ [Processing] ➜ [Model] ➜ [Output]"
                             style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
                           />
                         </div>
 
+                        {/* 3. INTERACTIVE NODE STEP-BY-STEP CHIP BUILDER */}
+                        {(() => {
+                          const currentTextRaw = plugin.data?.diagram || plugin.data?.text || "";
+                          const stepsList = parseDiagramSteps(currentTextRaw);
+                          const effectiveSteps = stepsList.length > 0 ? stepsList : ["Step 1", "Step 2"];
+
+                          const updateSteps = (newStepsArr) => {
+                            const formatted = newStepsArr.map(s => {
+                              const trimmed = s.trim();
+                              return trimmed ? (trimmed.startsWith("[") && trimmed.endsWith("]") ? trimmed : `[${trimmed}]`) : "";
+                            }).filter(Boolean).join(" ➜ ");
+                            handlePluginTextChange(activeSlideIndex, pIdx, "diagram", formatted);
+                            handlePluginTextChange(activeSlideIndex, pIdx, "text", formatted);
+                          };
+
+                          return (
+                            <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: 12, borderRadius: 10, border: "1px solid rgba(192, 132, 252, 0.25)", display: "flex", flexDirection: "column", gap: 10 }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <label style={{ fontSize: 11, fontWeight: 700, color: "#a78bfa", display: "flex", alignItems: "center", gap: 6 }}>
+                                  🧩 Interactive Diagram Step/Node Builder ({effectiveSteps.length} Steps):
+                                </label>
+                                <button
+                                  type="button"
+                                  className="btn-ui primary sm"
+                                  onClick={() => updateSteps([...effectiveSteps, `Step ${effectiveSteps.length + 1}`])}
+                                  style={{ padding: "4px 10px", fontSize: 10, fontWeight: 700, borderRadius: 6, background: "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)", color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                                >
+                                  ➕ Add Step
+                                </button>
+                              </div>
+
+                              {/* STEP CHIPS LIST */}
+                              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 220, overflowY: "auto", paddingRight: 4 }}>
+                                {effectiveSteps.map((stepVal, sIdx) => (
+                                  <div key={sIdx} style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.04)", padding: "4px 8px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+                                    <span style={{ fontSize: 10, fontWeight: 800, color: "#c084fc", background: "rgba(192, 132, 252, 0.15)", padding: "2px 6px", borderRadius: 4, flexShrink: 0 }}>
+                                      #{sIdx + 1}
+                                    </span>
+                                    <input
+                                      type="text"
+                                      value={stepVal}
+                                      onChange={(e) => {
+                                        const updated = [...effectiveSteps];
+                                        updated[sIdx] = e.target.value;
+                                        updateSteps(updated);
+                                      }}
+                                      placeholder={`Enter text for step ${sIdx + 1}`}
+                                      style={{ flex: 1, background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "5px 8px", color: "#fff", fontSize: 12 }}
+                                    />
+                                    {/* MOVE REORDER BUTTONS */}
+                                    <button
+                                      type="button"
+                                      disabled={sIdx === 0}
+                                      onClick={() => {
+                                        if (sIdx === 0) return;
+                                        const updated = [...effectiveSteps];
+                                        const temp = updated[sIdx];
+                                        updated[sIdx] = updated[sIdx - 1];
+                                        updated[sIdx - 1] = temp;
+                                        updateSteps(updated);
+                                      }}
+                                      style={{ opacity: sIdx === 0 ? 0.3 : 0.8, cursor: sIdx === 0 ? "default" : "pointer", background: "transparent", border: "none", color: "#a78bfa", fontSize: 11, padding: "0 2px" }}
+                                      title="Move up"
+                                    >
+                                      ▲
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={sIdx === effectiveSteps.length - 1}
+                                      onClick={() => {
+                                        if (sIdx === effectiveSteps.length - 1) return;
+                                        const updated = [...effectiveSteps];
+                                        const temp = updated[sIdx];
+                                        updated[sIdx] = updated[sIdx + 1];
+                                        updated[sIdx + 1] = temp;
+                                        updateSteps(updated);
+                                      }}
+                                      style={{ opacity: sIdx === effectiveSteps.length - 1 ? 0.3 : 0.8, cursor: sIdx === effectiveSteps.length - 1 ? "default" : "pointer", background: "transparent", border: "none", color: "#a78bfa", fontSize: 11, padding: "0 2px" }}
+                                      title="Move down"
+                                    >
+                                      ▼
+                                    </button>
+                                    {/* DELETE STEP BUTTON */}
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const updated = effectiveSteps.filter((_, idx) => idx !== sIdx);
+                                        updateSteps(updated.length > 0 ? updated : ["Step 1"]);
+                                      }}
+                                      style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: 4, color: "#f87171", cursor: "pointer", fontSize: 10, padding: "2px 6px" }}
+                                      title="Delete this step"
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
-                          onRefineText={() => handleAIRefine(pIdx, "bullets")}
+                          onRefineText={() => handleAIRefine(pIdx, "diagram")}
                           isRefining={refiningPluginIdx === pIdx}
                         />
                       </div>
@@ -1769,138 +2171,287 @@ export default function PresentationEditor({
 
                     {/* TABLE */}
                     {plugin.type === "table" ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {/* 1. TABLE TITLE / HEADER */}
                         <div>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Table Title:</label>
+                          <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Table Title / Header:</label>
                           <input
                             type="text"
                             value={plugin.data?.title || ""}
                             onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "title", e.target.value)}
-                            placeholder="Feature Comparison Matrix"
-                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
-                          />
-                        </div>
-                        <div>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Headers (comma separated):</label>
-                          <input
-                            type="text"
-                            value={safeArray(plugin.data?.headers).join(", ")}
-                            onChange={(e) => handleChartDataChange(activeSlideIndex, pIdx, "headers", e.target.value)}
-                            placeholder="Criterion, Solution A, Solution B"
-                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
+                            placeholder="e.g. Feature & Model Architecture Comparison"
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
                           />
                         </div>
 
-                        {/* TABLE COLOR & STYLE FORMATTING BAR WITH THEME PRESETS */}
-                        <div style={{ display: "flex", flexDirection: "column", gap: 8, background: "rgba(255,255,255,0.03)", padding: "10px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <span style={{ fontSize: 11, fontWeight: 800, color: "#c084fc" }}>🎨 Select Table Visual Theme / Color Preset:</span>
+                        {/* 2. TABLE VISUAL THEME PRESET SELECTOR & COLOR PICKERS */}
+                        <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", gap: 8 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 220 }}>
+                              <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", whiteSpace: "nowrap" }}>
+                                🎨 Table Theme:
+                              </label>
+                              <select
+                                value={plugin.data?.table_theme || "custom"}
+                                onChange={(e) => {
+                                  const selectedId = e.target.value;
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", selectedId);
+                                  const found = TABLE_THEME_PRESETS.find(t => t.id === selectedId);
+                                  if (found) {
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "header_bg", found.header_bg);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "header_color", found.header_color);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "cell_bg", found.cell_bg);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "cell_color", found.cell_color);
+                                  }
+                                }}
+                                style={{ flex: 1, background: "rgba(0,0,0,0.5)", border: "1px solid rgba(192, 132, 252, 0.4)", borderRadius: 8, padding: "6px 10px", color: "#fff", fontSize: 12, fontWeight: 600 }}
+                              >
+                                {TABLE_THEME_PRESETS.map((themePreset) => (
+                                  <option key={themePreset.id} value={themePreset.id} style={{ background: "#0f172a", color: "#fff" }}>
+                                    {themePreset.icon} {themePreset.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* COLOR PICKERS ROW */}
+                            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+                              <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                                Header BG:
+                                <input
+                                  type="color"
+                                  value={plugin.data?.header_bg || "#8b5cf6"}
+                                  onChange={(e) => {
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", "custom");
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "header_bg", e.target.value);
+                                  }}
+                                  style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                                />
+                              </label>
+                              <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                                Header Text:
+                                <input
+                                  type="color"
+                                  value={plugin.data?.header_color || "#ffffff"}
+                                  onChange={(e) => {
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", "custom");
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "header_color", e.target.value);
+                                  }}
+                                  style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                                />
+                              </label>
+                              <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                                Rows BG:
+                                <input
+                                  type="color"
+                                  value={plugin.data?.cell_bg || "#1e293b"}
+                                  onChange={(e) => {
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", "custom");
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "cell_bg", e.target.value);
+                                  }}
+                                  style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                                />
+                              </label>
+                              <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                                Rows Text:
+                                <input
+                                  type="color"
+                                  value={plugin.data?.cell_color || "#ffffff"}
+                                  onChange={(e) => {
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", "custom");
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "cell_color", e.target.value);
+                                  }}
+                                  style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
+                                />
+                              </label>
+                            </div>
                           </div>
-                          {/* TABLE THEME BUTTONS ROW (SINGLE HORIZONTAL ROW 🎯) */}
-                          <div style={{ display: "flex", flexWrap: "nowrap", overflowX: "auto", gap: 6, marginTop: 4, width: "100%", alignItems: "center", paddingBottom: 4 }}>
-                            {TABLE_THEME_PRESETS.map((themePreset) => {
-                              const currentTheme = plugin.data?.table_theme || "custom";
-                              const isActive = currentTheme === themePreset.id;
-                              return (
+                        </div>
+
+                        {/* 3. INTERACTIVE COLUMN HEADERS BUILDER */}
+                        {(() => {
+                          const headersArr = safeArray(plugin.data?.headers);
+                          const effectiveHeaders = headersArr.length > 0 ? headersArr : ["Column 1", "Column 2", "Column 3"];
+
+                          const updateHeaders = (newHeadersArr) => {
+                            handleChartDataChange(activeSlideIndex, pIdx, "headers", newHeadersArr.join(", "));
+                            const currentRows = safeArray(plugin.data?.rows);
+                            const updatedRows = currentRows.map(r => {
+                              const rList = safeArray(r);
+                              if (rList.length < newHeadersArr.length) {
+                                return [...rList, ...Array(newHeadersArr.length - rList.length).fill("")];
+                              }
+                              return rList.slice(0, newHeadersArr.length);
+                            });
+                            handlePluginTextChange(activeSlideIndex, pIdx, "rows", updatedRows);
+                          };
+
+                          return (
+                            <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: 12, borderRadius: 10, border: "1px solid rgba(192, 132, 252, 0.25)", display: "flex", flexDirection: "column", gap: 10 }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <label style={{ fontSize: 11, fontWeight: 700, color: "#a78bfa", display: "flex", alignItems: "center", gap: 6 }}>
+                                  📋 Table Column Headers ({effectiveHeaders.length} Columns):
+                                </label>
                                 <button
-                                  key={themePreset.id}
                                   type="button"
-                                  className="btn-ui secondary sm"
-                                  title={themePreset.name}
-                                  onClick={() => {
-                                    handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", themePreset.id);
-                                    handlePluginTextChange(activeSlideIndex, pIdx, "header_bg", themePreset.header_bg);
-                                    handlePluginTextChange(activeSlideIndex, pIdx, "header_color", themePreset.header_color);
-                                    handlePluginTextChange(activeSlideIndex, pIdx, "cell_bg", themePreset.cell_bg);
-                                    handlePluginTextChange(activeSlideIndex, pIdx, "cell_color", themePreset.cell_color);
-                                  }}
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: 4,
-                                    padding: "4px 8px",
-                                    fontSize: 12,
-                                    fontWeight: 700,
-                                    cursor: "pointer",
-                                    borderRadius: 8,
-                                    flexShrink: 0,
-                                    borderColor: isActive ? "#c084fc" : "rgba(255,255,255,0.15)",
-                                    background: isActive ? "rgba(192, 132, 252, 0.2)" : "rgba(0,0,0,0.35)",
-                                    color: isActive ? "#c084fc" : "#fff",
-                                    boxShadow: isActive ? "0 0 10px rgba(192, 132, 252, 0.4)" : "none",
-                                    transition: "all 0.2s ease",
-                                  }}
+                                  className="btn-ui primary sm"
+                                  onClick={() => updateHeaders([...effectiveHeaders, `Column ${effectiveHeaders.length + 1}`])}
+                                  style={{ padding: "4px 10px", fontSize: 10, fontWeight: 700, borderRadius: 6, background: "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)", color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
                                 >
-                                  <span
-                                    style={{
-                                      width: 14,
-                                      height: 14,
-                                      borderRadius: "50%",
-                                      background: `linear-gradient(135deg, ${themePreset.header_bg} 50%, ${themePreset.cell_bg} 50%)`,
-                                      border: "1px dashed rgba(255,255,255,0.5)",
-                                      display: "inline-block",
-                                      flexShrink: 0,
-                                    }}
-                                  />
-                                  <span style={{ fontSize: 11 }}>{themePreset.icon}</span>
+                                  ➕ Add Column
                                 </button>
-                              );
-                            })}
-                          </div>
+                              </div>
 
-                          {/* COLOR PICKERS ROW (SINGLE HORIZONTAL ROW 🎯) */}
-                          <div className="table-preset-color-row" style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "nowrap", overflowX: "auto", marginTop: 4, width: "100%", justifyContent: "flex-start", paddingBottom: 2 }}>
-                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", flexShrink: 0 }}>
-                              Header BG:
-                              <input
-                                type="color"
-                                value={plugin.data?.header_bg || "#8b5cf6"}
-                                onChange={(e) => {
-                                  handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", "custom");
-                                  handlePluginTextChange(activeSlideIndex, pIdx, "header_bg", e.target.value);
-                                }}
-                                style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
-                              />
-                            </label>
-                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", flexShrink: 0 }}>
-                              Header Text:
-                              <input
-                                type="color"
-                                value={plugin.data?.header_color || "#ffffff"}
-                                onChange={(e) => {
-                                  handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", "custom");
-                                  handlePluginTextChange(activeSlideIndex, pIdx, "header_color", e.target.value);
-                                }}
-                                style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
-                              />
-                            </label>
-                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", flexShrink: 0 }}>
-                              Rows BG:
-                              <input
-                                type="color"
-                                value={plugin.data?.cell_bg || "#1e293b"}
-                                onChange={(e) => {
-                                  handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", "custom");
-                                  handlePluginTextChange(activeSlideIndex, pIdx, "cell_bg", e.target.value);
-                                }}
-                                style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
-                              />
-                            </label>
-                            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", flexShrink: 0 }}>
-                              Rows Text:
-                              <input
-                                type="color"
-                                value={plugin.data?.cell_color || "#ffffff"}
-                                onChange={(e) => {
-                                  handlePluginTextChange(activeSlideIndex, pIdx, "table_theme", "custom");
-                                  handlePluginTextChange(activeSlideIndex, pIdx, "cell_color", e.target.value);
-                                }}
-                                style={{ border: "none", width: 22, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
-                              />
-                            </label>
-                          </div>
-                        </div>
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                                {effectiveHeaders.map((hVal, hIdx) => (
+                                  <div key={hIdx} style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.05)", padding: "4px 6px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}>
+                                    <span style={{ fontSize: 9, fontWeight: 800, color: "#c084fc", background: "rgba(192, 132, 252, 0.15)", padding: "2px 5px", borderRadius: 4 }}>
+                                      Col {hIdx + 1}
+                                    </span>
+                                    <input
+                                      type="text"
+                                      value={hVal}
+                                      onChange={(e) => {
+                                        const updated = [...effectiveHeaders];
+                                        updated[hIdx] = e.target.value;
+                                        updateHeaders(updated);
+                                      }}
+                                      style={{ width: 110, background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: "3px 6px", color: "#fff", fontSize: 11 }}
+                                    />
+                                    <button
+                                      type="button"
+                                      disabled={effectiveHeaders.length <= 1}
+                                      onClick={() => {
+                                        const updated = effectiveHeaders.filter((_, idx) => idx !== hIdx);
+                                        updateHeaders(updated);
+                                      }}
+                                      style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: 4, color: "#f87171", cursor: "pointer", fontSize: 10, padding: "1px 5px" }}
+                                      title="Delete column"
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* 4. INTERACTIVE TABLE DATA ROWS BUILDER GRID */}
+                        {(() => {
+                          const headersArr = safeArray(plugin.data?.headers);
+                          const effectiveHeaders = headersArr.length > 0 ? headersArr : ["Column 1", "Column 2", "Column 3"];
+                          const currentRows = safeArray(plugin.data?.rows);
+                          const effectiveRows = currentRows.length > 0 ? currentRows : [["Data A1", "Data B1", "Data C1"], ["Data A2", "Data B2", "Data C2"]];
+
+                          const updateCell = (rIdx, cIdx, val) => {
+                            const updatedRows = effectiveRows.map((r, idx) => {
+                              if (idx !== rIdx) return r;
+                              const rowArr = [...safeArray(r)];
+                              while (rowArr.length <= cIdx) rowArr.push("");
+                              rowArr[cIdx] = val;
+                              return rowArr;
+                            });
+                            handlePluginTextChange(activeSlideIndex, pIdx, "rows", updatedRows);
+                          };
+
+                          const addRow = () => {
+                            const newRow = Array(effectiveHeaders.length).fill("");
+                            newRow[0] = `Row ${effectiveRows.length + 1}`;
+                            handlePluginTextChange(activeSlideIndex, pIdx, "rows", [...effectiveRows, newRow]);
+                          };
+
+                          const deleteRow = (rIdx) => {
+                            const updated = effectiveRows.filter((_, idx) => idx !== rIdx);
+                            handlePluginTextChange(activeSlideIndex, pIdx, "rows", updated.length > 0 ? updated : [Array(effectiveHeaders.length).fill("")]);
+                          };
+
+                          const moveRow = (rIdx, targetIdx) => {
+                            if (targetIdx < 0 || targetIdx >= effectiveRows.length) return;
+                            const updated = [...effectiveRows];
+                            const temp = updated[rIdx];
+                            updated[rIdx] = updated[targetIdx];
+                            updated[targetIdx] = temp;
+                            handlePluginTextChange(activeSlideIndex, pIdx, "rows", updated);
+                          };
+
+                          return (
+                            <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: 12, borderRadius: 10, border: "1px solid rgba(192, 132, 252, 0.25)", display: "flex", flexDirection: "column", gap: 10 }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <label style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", display: "flex", alignItems: "center", gap: 6 }}>
+                                  📑 Interactive Table Data Grid ({effectiveRows.length} Rows):
+                                </label>
+                                <button
+                                  type="button"
+                                  className="btn-ui primary sm"
+                                  onClick={addRow}
+                                  style={{ padding: "4px 10px", fontSize: 10, fontWeight: 700, borderRadius: 6, background: "linear-gradient(135deg, #0284c7 0%, #2563eb 100%)", color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                                >
+                                  ➕ Add Table Row
+                                </button>
+                              </div>
+
+                              {/* ROWS LIST */}
+                              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 280, overflowY: "auto", paddingRight: 4 }}>
+                                {effectiveRows.map((rowItems, rIdx) => (
+                                  <div key={rIdx} style={{ background: "rgba(255,255,255,0.03)", padding: 8, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", gap: 6 }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                      <span style={{ fontSize: 10, fontWeight: 800, color: "#38bdf8", background: "rgba(56, 189, 248, 0.15)", padding: "2px 8px", borderRadius: 4 }}>
+                                        Row #{rIdx + 1}
+                                      </span>
+                                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                        <button
+                                          type="button"
+                                          disabled={rIdx === 0}
+                                          onClick={() => moveRow(rIdx, rIdx - 1)}
+                                          style={{ opacity: rIdx === 0 ? 0.3 : 0.8, cursor: rIdx === 0 ? "default" : "pointer", background: "transparent", border: "none", color: "#38bdf8", fontSize: 11, padding: "0 4px" }}
+                                          title="Move row up"
+                                        >
+                                          ▲
+                                        </button>
+                                        <button
+                                          type="button"
+                                          disabled={rIdx === effectiveRows.length - 1}
+                                          onClick={() => moveRow(rIdx, rIdx + 1)}
+                                          style={{ opacity: rIdx === effectiveRows.length - 1 ? 0.3 : 0.8, cursor: rIdx === effectiveRows.length - 1 ? "default" : "pointer", background: "transparent", border: "none", color: "#38bdf8", fontSize: 11, padding: "0 4px" }}
+                                          title="Move row down"
+                                        >
+                                          ▼
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => deleteRow(rIdx)}
+                                          style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: 4, color: "#f87171", cursor: "pointer", fontSize: 10, padding: "2px 6px" }}
+                                          title="Delete this row"
+                                        >
+                                          ✕ Row
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    {/* CELLS INPUT GRID */}
+                                    <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(4, effectiveHeaders.length)}, 1fr)`, gap: 6 }}>
+                                      {effectiveHeaders.map((hName, cIdx) => (
+                                        <div key={cIdx} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                                          <span style={{ fontSize: 9, color: "var(--text-muted)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                                            {hName || `Col ${cIdx + 1}`}:
+                                          </span>
+                                          <input
+                                            type="text"
+                                            value={safeArray(rowItems)[cIdx] || ""}
+                                            onChange={(e) => updateCell(rIdx, cIdx, e.target.value)}
+                                            placeholder={`Value for ${hName}`}
+                                            style={{ width: "100%", background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "5px 8px", color: "#fff", fontSize: 11 }}
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
 
                         <FeatureFormattingBar
                           pluginData={plugin.data}
@@ -1911,77 +2462,207 @@ export default function PresentationEditor({
 
                     {/* CHART PLUGIN EDITOR */}
                     {plugin.type === "chart" ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 8 }}>
-                          <div>
-                            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Chart Type:</label>
-                            <select
-                              value={plugin.data?.chart_type || "column"}
-                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "chart_type", e.target.value)}
-                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
-                            >
-                              <option value="column">📊 Column Chart (Vertical)</option>
-                              <option value="bar_horizontal">📊 Bar Chart (Horizontal)</option>
-                              <option value="line">📈 Line Chart (Trend)</option>
-                              <option value="pie">🥧 Pie Chart (Proportion)</option>
-                              <option value="area">📉 Area Chart (Cumulative)</option>
-                              <option value="donut">🍩 Doughnut Ring Chart</option>
-                            </select>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {/* 1. VISUAL CHART TYPE PRESET SELECTOR */}
+                        <div style={{ background: "rgba(255,255,255,0.03)", padding: 10, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", display: "flex", alignItems: "center", gap: 4 }}>
+                              📊 Chart Type & Visual Layout:
+                            </label>
+                            <span style={{ fontSize: 10, opacity: 0.9, color: "#86efac", background: "rgba(34, 197, 94, 0.15)", padding: "2px 8px", borderRadius: 6, border: "1px solid rgba(34, 197, 94, 0.3)", fontWeight: 700 }}>
+                              Active: {(plugin.data?.chart_type || "column").toUpperCase()}
+                            </span>
                           </div>
+
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                            {[
+                              { id: "column", label: "📊 Column (Vertical)" },
+                              { id: "bar_horizontal", label: "📊 Bar (Horizontal)" },
+                              { id: "line", label: "📈 Line (Trend)" },
+                              { id: "pie", label: "🥧 Pie (Proportion)" },
+                              { id: "area", label: "📉 Area (Cumulative)" },
+                              { id: "donut", label: "🍩 Donut (Ring)" },
+                            ].map((cOpt) => {
+                              const currentType = (plugin.data?.chart_type || "column").toLowerCase();
+                              const isActive = currentType === cOpt.id;
+                              return (
+                                <button
+                                  key={cOpt.id}
+                                  type="button"
+                                  className="btn-ui secondary sm"
+                                  onClick={() => handlePluginTextChange(activeSlideIndex, pIdx, "chart_type", cOpt.id)}
+                                  style={{
+                                    padding: "5px 10px",
+                                    fontSize: 11,
+                                    fontWeight: "bold",
+                                    cursor: "pointer",
+                                    borderRadius: 8,
+                                    whiteSpace: "nowrap",
+                                    border: isActive ? "1px solid #c084fc" : "1px solid rgba(255,255,255,0.12)",
+                                    background: isActive ? "linear-gradient(135deg, rgba(192, 132, 252, 0.35) 0%, rgba(124, 58, 237, 0.4) 100%)" : "rgba(0,0,0,0.3)",
+                                    color: isActive ? "#ffffff" : "rgba(255,255,255,0.85)",
+                                    boxShadow: isActive ? "0 0 10px rgba(192, 132, 252, 0.4)" : "none",
+                                    transition: "all 0.2s ease",
+                                  }}
+                                >
+                                  {cOpt.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* 2. CHART TITLE & SERIES LEGEND NAME */}
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                           <div>
-                            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Chart Title:</label>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Chart Title / Header:</label>
                             <input
                               type="text"
                               value={plugin.data?.title || ""}
                               onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "title", e.target.value)}
-                              placeholder="e.g. Annual Revenue Growth"
-                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
-                            />
-                          </div>
-                        </div>
-
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                          <div>
-                            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Categories / X-Axis Labels (comma separated):</label>
-                            <input
-                              type="text"
-                              value={safeArray(plugin.data?.labels).length ? safeArray(plugin.data?.labels).join(", ") : safeArray(plugin.data?.categories).join(", ")}
-                              onChange={(e) => {
-                                handleChartDataChange(activeSlideIndex, pIdx, "labels", e.target.value);
-                                handleChartDataChange(activeSlideIndex, pIdx, "categories", e.target.value);
-                              }}
-                              placeholder="Q1, Q2, Q3, Q4"
-                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
+                              placeholder="e.g. Performance Data & Metrics"
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
                             />
                           </div>
                           <div>
-                            <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Series Legend Name:</label>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Series Legend Name:</label>
                             <input
                               type="text"
                               value={plugin.data?.series_name || ""}
                               onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "series_name", e.target.value)}
-                              placeholder="e.g. Metric Value ($M)"
-                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
+                              placeholder="e.g. AI Adoption Rate (%)"
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
                             />
                           </div>
                         </div>
 
-                        <div>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Data Values (comma separated numbers):</label>
-                          <input
-                            type="text"
-                            value={safeArray(plugin.data?.values).join(", ")}
-                            onChange={(e) => handleChartDataChange(activeSlideIndex, pIdx, "values", e.target.value)}
-                            placeholder="40, 65, 85, 95"
-                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 6, color: "#fff", fontSize: 12 }}
-                          />
-                        </div>
+                        {/* 3. INTERACTIVE DATA POINTS BUILDER (SYNCED PAIRING 🎯) */}
+                        {(() => {
+                          const rawLabels = safeArray(plugin.data?.labels).length ? safeArray(plugin.data?.labels) : safeArray(plugin.data?.categories);
+                          const rawValues = safeArray(plugin.data?.values);
+                          const count = Math.max(rawLabels.length, rawValues.length, 2);
 
-                        {/* ADVANCED CHART DISPLAY & LEGEND CONTROLS */}
-                        <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", background: "rgba(255,255,255,0.03)", padding: "6px 10px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.08)" }}>
+                          const items = [];
+                          for (let i = 0; i < count; i++) {
+                            items.push({
+                              label: rawLabels[i] !== undefined ? String(rawLabels[i]) : `Category ${i + 1}`,
+                              value: rawValues[i] !== undefined ? String(rawValues[i]) : String((i + 1) * 25),
+                            });
+                          }
+
+                          const syncData = (newItems) => {
+                            const newLabelsStr = newItems.map(it => it.label).join(", ");
+                            const newValuesStr = newItems.map(it => it.value).join(", ");
+                            handleChartDataChange(activeSlideIndex, pIdx, "labels", newLabelsStr);
+                            handleChartDataChange(activeSlideIndex, pIdx, "categories", newLabelsStr);
+                            handleChartDataChange(activeSlideIndex, pIdx, "values", newValuesStr);
+                          };
+
+                          return (
+                            <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: 12, borderRadius: 10, border: "1px solid rgba(192, 132, 252, 0.25)", display: "flex", flexDirection: "column", gap: 10 }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <label style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", display: "flex", alignItems: "center", gap: 6 }}>
+                                  📈 Synced Chart Data Points ({items.length} Points):
+                                </label>
+                                <button
+                                  type="button"
+                                  className="btn-ui primary sm"
+                                  onClick={() => syncData([...items, { label: `Point ${items.length + 1}`, value: "50" }])}
+                                  style={{ padding: "4px 10px", fontSize: 10, fontWeight: 700, borderRadius: 6, background: "linear-gradient(135deg, #0284c7 0%, #2563eb 100%)", color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                                >
+                                  ➕ Add Data Point
+                                </button>
+                              </div>
+
+                              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 220, overflowY: "auto", paddingRight: 4 }}>
+                                {items.map((item, idx) => (
+                                  <div key={idx} style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.03)", padding: "6px 10px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+                                    <span style={{ fontSize: 10, fontWeight: 800, color: "#38bdf8", background: "rgba(56, 189, 248, 0.15)", padding: "2px 6px", borderRadius: 4, flexShrink: 0 }}>
+                                      #{idx + 1}
+                                    </span>
+                                    <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6 }}>
+                                      <input
+                                        type="text"
+                                        value={item.label}
+                                        onChange={(e) => {
+                                          const updated = [...items];
+                                          updated[idx].label = e.target.value;
+                                          syncData(updated);
+                                        }}
+                                        placeholder="Category / X-Axis Label"
+                                        style={{ flex: 1, background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "5px 8px", color: "#fff", fontSize: 11 }}
+                                      />
+                                      <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700 }}>➡</span>
+                                      <input
+                                        type="text"
+                                        value={item.value}
+                                        onChange={(e) => {
+                                          const updated = [...items];
+                                          updated[idx].value = e.target.value;
+                                          syncData(updated);
+                                        }}
+                                        placeholder="Value (Numeric Y-Axis)"
+                                        style={{ width: 100, background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "5px 8px", color: "#86efac", fontSize: 11, fontWeight: 700 }}
+                                      />
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                      <button
+                                        type="button"
+                                        disabled={idx === 0}
+                                        onClick={() => {
+                                          if (idx === 0) return;
+                                          const updated = [...items];
+                                          const temp = updated[idx];
+                                          updated[idx] = updated[idx - 1];
+                                          updated[idx - 1] = temp;
+                                          syncData(updated);
+                                        }}
+                                        style={{ opacity: idx === 0 ? 0.3 : 0.8, cursor: idx === 0 ? "default" : "pointer", background: "transparent", border: "none", color: "#38bdf8", fontSize: 11, padding: "0 2px" }}
+                                        title="Move point up"
+                                      >
+                                        ▲
+                                      </button>
+                                      <button
+                                        type="button"
+                                        disabled={idx === items.length - 1}
+                                        onClick={() => {
+                                          if (idx === items.length - 1) return;
+                                          const updated = [...items];
+                                          const temp = updated[idx];
+                                          updated[idx] = updated[idx + 1];
+                                          updated[idx + 1] = temp;
+                                          syncData(updated);
+                                        }}
+                                        style={{ opacity: idx === items.length - 1 ? 0.3 : 0.8, cursor: idx === items.length - 1 ? "default" : "pointer", background: "transparent", border: "none", color: "#38bdf8", fontSize: 11, padding: "0 2px" }}
+                                        title="Move point down"
+                                      >
+                                        ▼
+                                      </button>
+                                      <button
+                                        type="button"
+                                        disabled={items.length <= 1}
+                                        onClick={() => {
+                                          const updated = items.filter((_, i) => i !== idx);
+                                          syncData(updated);
+                                        }}
+                                        style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: 4, color: "#f87171", cursor: "pointer", fontSize: 10, padding: "2px 6px" }}
+                                        title="Delete data point"
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* 4. ADVANCED DISPLAY & LEGEND CONTROLS */}
+                        <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", background: "rgba(255,255,255,0.03)", padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
                           <span style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", width: "100%" }}>⚙️ Advanced Chart Display Options:</span>
-                          
-                          <label style={{ fontSize: 11, color: "#fff", display: "flex", alignItems: "center", gap: 5, cursor: "pointer" }}>
+
+                          <label style={{ fontSize: 11, color: "#fff", display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
                             <input
                               type="checkbox"
                               checked={plugin.data?.show_data_labels !== false}
@@ -1990,7 +2671,7 @@ export default function PresentationEditor({
                             Show Value Labels
                           </label>
 
-                          <label style={{ fontSize: 11, color: "#fff", display: "flex", alignItems: "center", gap: 5, cursor: "pointer" }}>
+                          <label style={{ fontSize: 11, color: "#fff", display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
                             <input
                               type="checkbox"
                               checked={plugin.data?.show_legend !== false}
@@ -2004,7 +2685,7 @@ export default function PresentationEditor({
                             <select
                               value={plugin.data?.legend_position || "right"}
                               onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "legend_position", e.target.value)}
-                              style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: "2px 4px", color: "#fff", fontSize: 11 }}
+                              style={{ background: "rgba(0,0,0,0.5)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: "3px 6px", color: "#fff", fontSize: 11 }}
                             >
                               <option value="right">Right</option>
                               <option value="top">Top</option>
@@ -2292,18 +2973,7 @@ export default function PresentationEditor({
                     {plugin.type === "paragraph_2col" ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc" }}>¶¶ 2-Column Side-by-Side Paragraphs:</span>
-                          <button
-                            type="button"
-                            className="btn-ui secondary sm"
-                            style={{ fontSize: 10, padding: "2px 8px" }}
-                            onClick={() => {
-                              handlePluginTextChange(activeSlideIndex, pIdx, "type", "paragraph");
-                              handlePluginTextChange(activeSlideIndex, pIdx, "text", plugin.data?.left_text || plugin.data?.text || "");
-                            }}
-                          >
-                            ¶ Convert to 1 Single Column
-                          </button>
+                          
                         </div>
 
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -2559,6 +3229,8 @@ export default function PresentationEditor({
               const presVAlign = presenterSlide.title_valign || presenterSlide.subtitle_valign || "auto";
               const isPresMiddle = presVAlign === "middle" || presVAlign === "center";
               const isPresBottom = presVAlign === "bottom";
+              const presNonNotesPlugins = safeArray(presenterSlide.plugins).filter((p) => p.type !== "notes");
+              const presHasPlugins = presNonNotesPlugins.length > 0;
 
               return (
                 <div
@@ -2572,7 +3244,7 @@ export default function PresentationEditor({
                     padding: "44px 60px",
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: isPresMiddle ? "center" : isPresBottom ? "flex-end" : "space-between",
+                    justifyContent: isPresMiddle ? "center" : isPresBottom ? "flex-end" : "flex-start",
                     boxShadow: "0 30px 80px -15px rgba(0, 0, 0, 0.9), 0 0 50px rgba(192, 132, 252, 0.15)",
                     border: "1px solid rgba(255, 255, 255, 0.18)",
                     overflow: "hidden",
@@ -2581,8 +3253,7 @@ export default function PresentationEditor({
                 >
                   <div
                     style={{
-                      marginTop: isPresMiddle ? "auto" : isPresBottom ? "auto" : 0,
-                      marginBottom: isPresMiddle ? "auto" : 0,
+                      width: "100%",
                       textAlign: presenterSlide.title_align || "left",
                     }}
                   >
@@ -2616,7 +3287,8 @@ export default function PresentationEditor({
                     ) : null}
                   </div>
 
-              <div style={{ flex: 1, overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 12 }}>
+              {presHasPlugins && (
+                <div style={{ flex: isPresMiddle || isPresBottom ? "0 1 auto" : 1, maxHeight: "100%", overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 12 }}>
                 {(() => {
                   const plugins = safeArray(presenterSlide.plugins);
                   const hasImage = plugins.some((p) => p.type === "image" && (p.data?.url || p.data?.path));
@@ -2745,6 +3417,7 @@ export default function PresentationEditor({
                   return plugins.map((plugin, pIdx) => renderPresenterItem(plugin, pIdx));
                 })()}
               </div>
+              )}
             </div>
           );
         })()}
@@ -3029,6 +3702,199 @@ export default function PresentationEditor({
               >
                 {loadingGenerate ? "⏳ Compiling PPTX..." : "📥 Download Now"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* POWERPOINT OFFICE THEME VISUAL LAYOUT PICKER MODAL */}
+      {showLayoutModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.75)",
+            backdropFilter: "blur(6px)",
+            zIndex: 99999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 16,
+          }}
+          onClick={() => setShowLayoutModal(false)}
+        >
+          <div
+            style={{
+              background: "#18181b",
+              border: "1px solid rgba(255,255,255,0.15)",
+              borderRadius: 16,
+              padding: "20px 24px",
+              maxWidth: 720,
+              width: "100%",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.7)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 12 }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#ffffff", display: "flex", alignItems: "center", gap: 8 }}>
+                  <span>{layoutModalMode === "add" ? "➕" : "🔲"}</span>
+                  <span>{layoutModalMode === "add" ? "Choose Layout for New Slide" : "Office Theme Slide Layouts"}</span>
+                </div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>
+                  {layoutModalMode === "add"
+                    ? "Select a PowerPoint slide layout preset to insert a new slide into your deck"
+                    : `Select a PowerPoint slide layout preset for Slide #${activeSlideIndex + 1}`}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLayoutModal(false)}
+                style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", fontSize: 20, cursor: "pointer", padding: "4px 8px" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, maxHeight: "70vh", overflowY: "auto", paddingRight: 4 }}>
+              {OFFICE_LAYOUT_PRESETS.map((layoutItem) => {
+                const isActive = layoutModalMode === "change" && resolveActiveSlideLayout(activeSlide) === layoutItem.id;
+                return (
+                  <div
+                    key={layoutItem.id}
+                    onClick={() => {
+                      if (layoutModalMode === "add") {
+                        handleAddSlideWithLayout(layoutItem.id);
+                      } else {
+                        handleApplySlideLayout(layoutItem.id);
+                      }
+                      setShowLayoutModal(false);
+                    }}
+                    style={{
+                      background: isActive ? "rgba(139, 92, 246, 0.18)" : "rgba(255,255,255,0.04)",
+                      border: isActive ? "2px solid #8b5cf6" : "1px solid rgba(255,255,255,0.12)",
+                      borderRadius: 12,
+                      padding: 10,
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                    className="layout-preset-card"
+                  >
+                    {/* MINI VISUAL WIREFRAME CANVAS */}
+                    <div
+                      style={{
+                        width: "100%",
+                        height: 90,
+                        background: "#ffffff",
+                        borderRadius: 6,
+                        padding: 6,
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                        position: "relative",
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      {layoutItem.id === "title_subtitle" && (
+                        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100%", gap: 6 }}>
+                          <div style={{ width: "80%", height: 18, border: "1.5px dashed #64748b", borderRadius: 3 }} />
+                          <div style={{ width: "55%", height: 14, border: "1.5px dashed #94a3b8", borderRadius: 3 }} />
+                        </div>
+                      )}
+
+                      {layoutItem.id === "title_content" && (
+                        <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: 6 }}>
+                          <div style={{ width: "90%", height: 14, border: "1.5px dashed #64748b", borderRadius: 3 }} />
+                          <div style={{ width: "100%", flex: 1, border: "1.5px dashed #94a3b8", borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, opacity: 0.6 }}>
+                            <span style={{ fontSize: 9 }}>📊</span>
+                            <span style={{ fontSize: 9 }}>🖼️</span>
+                            <span style={{ fontSize: 9 }}>📑</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {layoutItem.id === "section_header" && (
+                        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "flex-start", height: "100%", paddingLeft: 8 }}>
+                          <div style={{ width: "85%", height: 20, border: "1.5px dashed #64748b", borderRadius: 3 }} />
+                        </div>
+                      )}
+
+                      {layoutItem.id === "two_content" && (
+                        <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: 6 }}>
+                          <div style={{ width: "90%", height: 12, border: "1.5px dashed #64748b", borderRadius: 3 }} />
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, flex: 1 }}>
+                            <div style={{ border: "1.5px dashed #94a3b8", borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <span style={{ fontSize: 9, opacity: 0.6 }}>📝</span>
+                            </div>
+                            <div style={{ border: "1.5px dashed #94a3b8", borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <span style={{ fontSize: 9, opacity: 0.6 }}>📊</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {layoutItem.id === "comparison" && (
+                        <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: 4 }}>
+                          <div style={{ width: "90%", height: 10, border: "1.5px dashed #64748b", borderRadius: 3 }} />
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, height: 10 }}>
+                            <div style={{ border: "1.5px dashed #64748b", borderRadius: 2 }} />
+                            <div style={{ border: "1.5px dashed #64748b", borderRadius: 2 }} />
+                          </div>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, flex: 1 }}>
+                            <div style={{ border: "1.5px dashed #94a3b8", borderRadius: 3 }} />
+                            <div style={{ border: "1.5px dashed #94a3b8", borderRadius: 3 }} />
+                          </div>
+                        </div>
+                      )}
+
+                      {layoutItem.id === "title_only" && (
+                        <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+                          <div style={{ width: "85%", height: 14, border: "1.5px dashed #64748b", borderRadius: 3 }} />
+                        </div>
+                      )}
+
+                      {layoutItem.id === "blank" && (
+                        <div style={{ height: "100%", width: "100%" }} />
+                      )}
+
+                      {layoutItem.id === "content_caption" && (
+                        <div style={{ display: "grid", gridTemplateColumns: "35% 1fr", gap: 6, height: "100%" }}>
+                          <div style={{ border: "1.5px dashed #64748b", borderRadius: 3, padding: 2 }}>
+                            <div style={{ width: "80%", height: 8, background: "#cbd5e1", borderRadius: 1 }} />
+                          </div>
+                          <div style={{ border: "1.5px dashed #94a3b8", borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <span style={{ fontSize: 9, opacity: 0.6 }}>📊</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {layoutItem.id === "picture_caption" && (
+                        <div style={{ display: "grid", gridTemplateColumns: "35% 1fr", gap: 6, height: "100%" }}>
+                          <div style={{ border: "1.5px dashed #64748b", borderRadius: 3, padding: 2 }}>
+                            <div style={{ width: "80%", height: 8, background: "#cbd5e1", borderRadius: 1 }} />
+                          </div>
+                          <div style={{ border: "1.5px dashed #94a3b8", borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <span style={{ fontSize: 10, opacity: 0.6 }}>🖼️</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* CARD TITLE */}
+                    <div style={{ fontSize: 12, fontWeight: 700, color: isActive ? "#c084fc" : "#ffffff", textAlign: "center" }}>
+                      {layoutItem.label}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

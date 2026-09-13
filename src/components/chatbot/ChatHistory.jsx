@@ -2,9 +2,28 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { API_BASE_URL } from "../../services/api";
 import "./ChatHistory.css";
 
+const getConversationTitle = (conversation) => {
+  if (conversation?.title && conversation.title.trim()) {
+    return conversation.title.trim();
+  }
+  if (conversation?.topic && conversation.topic.trim()) {
+    return conversation.topic.trim();
+  }
+  return `Conversation #${conversation.id}`;
+};
+
 const getPreview = (conversation) => {
-  const text = (conversation?.last_message || "").trim();
-  return text || "No messages in this conversation yet.";
+  const rawText = conversation?.last_message || conversation?.first_message || "";
+  const cleaned = rawText
+    .replace(/```[\s\S]*?```/g, "[Code]")
+    .replace(/#+\s+/g, "")
+    .replace(/[*_~`]/g, "")
+    .replace(/[\r\n]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!cleaned) return "No messages in this conversation yet.";
+  return cleaned;
 };
 
 const formatDate = (value) => {
@@ -93,6 +112,7 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
     if (!q) return conversations;
     return conversations.filter(
       (c) =>
+        getConversationTitle(c).toLowerCase().includes(q) ||
         `conversation #${c.id}`.toLowerCase().includes(q) ||
         getPreview(c).toLowerCase().includes(q)
     );
@@ -169,7 +189,7 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
               <div className="historyItemTop">
                 <div className="historyItemTitleGroup">
                   <span className="historyIconBadge">💬</span>
-                  <span className="historyItemTitle">Conversation #{conversation.id}</span>
+                  <span className="historyItemTitle">{getConversationTitle(conversation)}</span>
                 </div>
                 <div className="historyTopRight">
                   <span className="historyItemDate">{formatDate(conversation.created_at)}</span>

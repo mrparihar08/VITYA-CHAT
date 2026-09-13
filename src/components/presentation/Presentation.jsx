@@ -1188,7 +1188,7 @@ export default function PresentationGenerator() {
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
           display: flex;
           flex-direction: column;
-          justify-content: space-between;
+          justify-content: flex-start;
           overflow: hidden;
           transition: background 0.3s;
         }
@@ -1365,6 +1365,7 @@ export default function PresentationGenerator() {
           /* STEP 2: SLIDE WORKSPACE & FEATURE EDITOR PAGE (OPENS AFTER CLICKING GENERATE) */
           <PresentationEditor
             plan={plan}
+            setPlan={setPlan}
             activeSlideIndex={activeSlideIndex}
             setActiveSlideIndex={setActiveSlideIndex}
             selectedBgPreset={selectedBgPreset}

@@ -1,18 +1,7 @@
 import React, { useState } from "react";
 import { PPT_CATEGORIES } from "./PPT_Prompt";
 
-const THEME_PREVIEW_LIST = [
-  { id: "auto", name: "AI Smart Match", icon: "✨", color1: "#8b5cf6", color2: "#6366f1" },
-  { id: "dark", name: "Midnight Purple", icon: "🌌", color1: "#0f172a", color2: "#31104b" },
-  { id: "ocean_blue", name: "Ocean Breeze", icon: "🌊", color1: "#06101e", color2: "#134074" },
-  { id: "emerald", name: "Emerald Forest", icon: "🌲", color1: "#022c22", color2: "#047857" },
-  { id: "cyberpunk_neon", name: "Cyberpunk Neon", icon: "⚡", color1: "#09090b", color2: "#581c87" },
-  { id: "wall_street", name: "Wall Street Finance", icon: "💵", color1: "#022c22", color2: "#1e293b" },
-  { id: "executive_gold", name: "Executive Gold", icon: "🏆", color1: "#1c1917", color2: "#78350f" },
-  { id: "slate", name: "Executive Slate", icon: "🪨", color1: "#18181b", color2: "#3f3f46" },
-  { id: "light", name: "Minimal Light", icon: "☀️", color1: "#f8fafc", color2: "#e2e8f0" },
-  { id: "sunset_glow", name: "Sunset Glow", icon: "🌅", color1: "#2e1065", color2: "#9f1239" },
-];
+
 
 const TONE_OPTIONS = [
   { id: "Professional", label: "Professional & Clean", icon: "💼" },
@@ -211,9 +200,8 @@ export default function PresentationSetup({
 
         {/* REALTIME DECK ESTIMATE COUNTER */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 11, color: "rgba(255,255,255,0.65)", flexWrap: "wrap" }}>
-          <span>⏱️ <strong>~{slideCount * 1.2} Mins</strong> Presentation</span>
-          <span>📊 <strong>{slideCount} Slides</strong></span>
-          <span>🤖 <strong>Gemini AI</strong></span>
+          <span><strong>~{(slideCount * 1.2).toFixed(1)} Mins</strong> Presentation</span>
+          <span><strong>{slideCount} Slides</strong></span>
         </div>
       </div>
 
@@ -300,7 +288,7 @@ export default function PresentationSetup({
                 gap: 4,
               }}
             >
-              <span>{isListening ? "🔴 Listening..." : "🎙️ Speak Topic"}</span>
+              <span>{isListening ? "🔴 Listening..." : "🎙️Speak."}</span>
             </button>
 
             <button
@@ -319,7 +307,7 @@ export default function PresentationSetup({
                 transition: "all 0.2s ease",
               }}
             >
-              {isEnhanced ? "✓ Prompt Enhanced!" : "✨ AI Magic Enhance"}
+              {isEnhanced ? "✓ Prompt Enhanced!" : "✨Enhance"}
             </button>
           </div>
         </div>
@@ -469,82 +457,6 @@ export default function PresentationSetup({
           </div>
         </div>
       </div>
-
-      {/* VISUAL DESIGN PRESET SWATCH CARDS (SINGLE ROW) */}
-      <div style={{ marginBottom: 16 }}>
-        <label style={{ fontSize: 12, fontWeight: "bold", color: "#c084fc", marginBottom: 8, display: "block" }}>
-          🎨 SELECT VISUAL COLOR THEME PRESET
-        </label>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            overflowX: "auto",
-            paddingBottom: 6,
-            scrollbarWidth: "thin",
-            scrollbarColor: "rgba(139, 92, 246, 0.4) transparent",
-          }}
-        >
-          {THEME_PREVIEW_LIST.map((themeItem) => {
-            const isSelected = (contentTheme || "auto") === themeItem.id;
-            return (
-              <div
-                key={themeItem.id}
-                onClick={() => setContentTheme?.(themeItem.id)}
-                style={{
-                  background: isSelected ? "rgba(139, 92, 246, 0.22)" : "rgba(255, 255, 255, 0.04)",
-                  border: isSelected ? "2px solid #c084fc" : "1px solid rgba(255, 255, 255, 0.08)",
-                  borderRadius: 12,
-                  padding: "8px 14px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  flexShrink: 0,
-                  whiteSpace: "nowrap",
-                  transition: "all 0.2s ease",
-                  boxShadow: isSelected ? "0 0 12px rgba(192, 132, 252, 0.3)" : "none",
-                }}
-              >
-                <div
-                  style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${themeItem.color1}, ${themeItem.color2})`,
-                    flexShrink: 0,
-                    border: "1px solid rgba(255,255,255,0.4)",
-                  }}
-                />
-                <span style={{ fontSize: 12, fontWeight: isSelected ? 700 : 500, color: "#fff", whiteSpace: "nowrap" }}>
-                  {themeItem.icon} {themeItem.name}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* VISUAL LAYOUT STYLE SELECTION */}
-      <div className="field-group" style={{ marginBottom: 16 }}>
-        <label style={{ fontSize: 11, fontWeight: "bold", color: "#c084fc", marginBottom: 6, display: "block" }}>
-          🖌️ VISUAL LAYOUT STYLE
-        </label>
-        <select
-          className="select-input"
-          value={visualStyle || "minimal"}
-          onChange={(e) => setVisualStyle?.(e.target.value)}
-          style={{ width: "100%", padding: "10px", borderRadius: "10px", background: "rgba(0,0,0,0.4)", color: "#fff", border: "1px solid var(--panel-border)" }}
-        >
-          <option value="minimal" style={{ background: "#0f172a" }}>Minimalist Clean Layout</option>
-          <option value="modern_gradient" style={{ background: "#0f172a" }}>Modern Glassmorphism Gradient</option>
-          <option value="corporate" style={{ background: "#0f172a" }}>Corporate Executive Deck</option>
-          <option value="academic" style={{ background: "#0f172a" }}>Academic Paper & Research Format</option>
-          <option value="cyber" style={{ background: "#0f172a" }}>Cyberpunk Dark Neon Style</option>
-        </select>
-      </div>
-
       {/* BRANDING SECTION */}
       <div style={{ marginBottom: 16 }}>
         <div

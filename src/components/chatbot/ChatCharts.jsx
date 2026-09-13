@@ -28,6 +28,166 @@ import {
 const COLORS = ["#8b5cf6", "#22c55e", "#f59e0b", "#f97316", "#ef4444", "#38bdf8"];
 const CHART_HEIGHT = 240;
 
+const parsePythonLiteral = (input) => {
+  if (typeof input !== "string") return input;
+  const str = input.trim();
+  if (!str) return input;
+
+  let i = 0;
+
+  const skipWhitespace = () => {
+    while (i < str.length && /\s/.test(str[i])) {
+      i++;
+    }
+  };
+
+  const parseValue = () => {
+    skipWhitespace();
+    if (i >= str.length) return undefined;
+
+    const ch = str[i];
+
+    if (ch === "[") {
+      i++;
+      const list = [];
+      skipWhitespace();
+      if (str[i] === "]") {
+        i++;
+        return list;
+      }
+      while (i < str.length) {
+        const val = parseValue();
+        list.push(val);
+        skipWhitespace();
+        if (str[i] === ",") {
+          i++;
+          skipWhitespace();
+          if (str[i] === "]") {
+            i++;
+            break;
+          }
+        } else if (str[i] === "]") {
+          i++;
+          break;
+        } else {
+          break;
+        }
+      }
+      return list;
+    }
+
+    if (ch === "{") {
+      i++;
+      const obj = {};
+      skipWhitespace();
+      if (str[i] === "}") {
+        i++;
+        return obj;
+      }
+      while (i < str.length) {
+        const key = parseValue();
+        skipWhitespace();
+        if (str[i] === ":") {
+          i++;
+        }
+        const val = parseValue();
+        if (key !== undefined) {
+          obj[String(key)] = val;
+        }
+        skipWhitespace();
+        if (str[i] === ",") {
+          i++;
+          skipWhitespace();
+          if (str[i] === "}") {
+            i++;
+            break;
+          }
+        } else if (str[i] === "}") {
+          i++;
+          break;
+        } else {
+          break;
+        }
+      }
+      return obj;
+    }
+
+    if (ch === "'" || ch === '"') {
+      const quote = ch;
+      i++;
+      let result = "";
+      while (i < str.length) {
+        const char = str[i];
+        if (char === "\\") {
+          i++;
+          if (i < str.length) {
+            const nextChar = str[i];
+            if (nextChar === "n") result += "\n";
+            else if (nextChar === "t") result += "\t";
+            else if (nextChar === "r") result += "\r";
+            else result += nextChar;
+            i++;
+          }
+        } else if (char === quote) {
+          i++;
+          break;
+        } else {
+          result += char;
+          i++;
+        }
+      }
+      return result;
+    }
+
+    if (str.startsWith("None", i)) {
+      i += 4;
+      return null;
+    }
+    if (str.startsWith("True", i)) {
+      i += 4;
+      return true;
+    }
+    if (str.startsWith("False", i)) {
+      i += 5;
+      return false;
+    }
+    if (str.startsWith("null", i)) {
+      i += 4;
+      return null;
+    }
+    if (str.startsWith("true", i)) {
+      i += 4;
+      return true;
+    }
+    if (str.startsWith("false", i)) {
+      i += 5;
+      return false;
+    }
+
+    const numMatch = str.slice(i).match(/^-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/);
+    if (numMatch) {
+      i += numMatch[0].length;
+      return Number(numMatch[0]);
+    }
+
+    const wordMatch = str.slice(i).match(/^[a-zA-Z_]\w*/);
+    if (wordMatch) {
+      i += wordMatch[0].length;
+      return wordMatch[0];
+    }
+
+    i++;
+    return undefined;
+  };
+
+  try {
+    const res = parseValue();
+    return res !== undefined ? res : input;
+  } catch {
+    return input;
+  }
+};
+
 const safeJSON = (value) => {
   if (typeof value !== "string") return value;
   const trimmed = value.trim();
@@ -40,6 +200,10 @@ const safeJSON = (value) => {
     try {
       return JSON.parse(trimmed);
     } catch {
+      try {
+        const parsedPy = parsePythonLiteral(trimmed);
+        if (parsedPy !== trimmed) return parsedPy;
+      } catch {}
       return value;
     }
   }

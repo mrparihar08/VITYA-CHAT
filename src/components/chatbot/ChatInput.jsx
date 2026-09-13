@@ -1,10 +1,10 @@
 import React from "react";
 
 export const MODES = [
-  { key: "chat", label: "💬 Chat", hint: "Default AI Assistant" },
-  { key: "news", label: "📰 News", hint: "Search latest news & headlines" },
-  { key: "wiki", label: "📚 Wikipedia", hint: "Search encyclopedia knowledge" },
-  { key: "file", label: "📁 Create Presentation", hint: "Generate PPT slide deck" },
+  { key: "chat", label: "Chat", hint: "Default AI Assistant" },
+  { key: "news", label: "News", hint: "Search latest news & headlines" },
+  { key: "wiki", label: "Wikipedia", hint: "Search encyclopedia knowledge" },
+  { key: "file", label: "Create Presentation", hint: "Generate PPT slide deck" },
 ];
 
 export const placeholderMap = {

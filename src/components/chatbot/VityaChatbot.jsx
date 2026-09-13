@@ -49,6 +49,210 @@ const buildFileUrl = (pathOrUrl) => {
   return `${API_BASE_URL}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
 };
 
+const getImageSrc = (rawInput) => {
+  if (!rawInput) return "";
+
+  let raw = safeJSON(rawInput);
+
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    raw =
+      raw.url ||
+      raw.image ||
+      raw.imageUrl ||
+      raw.image_url ||
+      raw.b64_json ||
+      raw.b64 ||
+      raw.data ||
+      raw.content ||
+      raw;
+  }
+
+  if (typeof raw !== "string") return "";
+
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+
+  if (trimmed.startsWith("data:image/")) {
+    return trimmed;
+  }
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+
+  if (trimmed.includes("/assets/")) {
+    const assetRelative = "/assets/" + trimmed.split("/assets/").pop();
+    return buildFileUrl(assetRelative);
+  }
+
+  if (trimmed.startsWith("/") || trimmed.startsWith("./") || trimmed.includes("/")) {
+    return buildFileUrl(trimmed);
+  }
+
+  const cleanB64 = trimmed.replace(/\s/g, "");
+  return `data:image/png;base64,${cleanB64}`;
+};
+
+const parsePythonLiteral = (input) => {
+  if (typeof input !== "string") return input;
+  const str = input.trim();
+  if (!str) return input;
+
+  let i = 0;
+
+  const skipWhitespace = () => {
+    while (i < str.length && /\s/.test(str[i])) {
+      i++;
+    }
+  };
+
+  const parseValue = () => {
+    skipWhitespace();
+    if (i >= str.length) return undefined;
+
+    const ch = str[i];
+
+    if (ch === "[") {
+      i++;
+      const list = [];
+      skipWhitespace();
+      if (str[i] === "]") {
+        i++;
+        return list;
+      }
+      while (i < str.length) {
+        const val = parseValue();
+        list.push(val);
+        skipWhitespace();
+        if (str[i] === ",") {
+          i++;
+          skipWhitespace();
+          if (str[i] === "]") {
+            i++;
+            break;
+          }
+        } else if (str[i] === "]") {
+          i++;
+          break;
+        } else {
+          break;
+        }
+      }
+      return list;
+    }
+
+    if (ch === "{") {
+      i++;
+      const obj = {};
+      skipWhitespace();
+      if (str[i] === "}") {
+        i++;
+        return obj;
+      }
+      while (i < str.length) {
+        const key = parseValue();
+        skipWhitespace();
+        if (str[i] === ":") {
+          i++;
+        }
+        const val = parseValue();
+        if (key !== undefined) {
+          obj[String(key)] = val;
+        }
+        skipWhitespace();
+        if (str[i] === ",") {
+          i++;
+          skipWhitespace();
+          if (str[i] === "}") {
+            i++;
+            break;
+          }
+        } else if (str[i] === "}") {
+          i++;
+          break;
+        } else {
+          break;
+        }
+      }
+      return obj;
+    }
+
+    if (ch === "'" || ch === '"') {
+      const quote = ch;
+      i++;
+      let result = "";
+      while (i < str.length) {
+        const char = str[i];
+        if (char === "\\") {
+          i++;
+          if (i < str.length) {
+            const nextChar = str[i];
+            if (nextChar === "n") result += "\n";
+            else if (nextChar === "t") result += "\t";
+            else if (nextChar === "r") result += "\r";
+            else result += nextChar;
+            i++;
+          }
+        } else if (char === quote) {
+          i++;
+          break;
+        } else {
+          result += char;
+          i++;
+        }
+      }
+      return result;
+    }
+
+    if (str.startsWith("None", i)) {
+      i += 4;
+      return null;
+    }
+    if (str.startsWith("True", i)) {
+      i += 4;
+      return true;
+    }
+    if (str.startsWith("False", i)) {
+      i += 5;
+      return false;
+    }
+    if (str.startsWith("null", i)) {
+      i += 4;
+      return null;
+    }
+    if (str.startsWith("true", i)) {
+      i += 4;
+      return true;
+    }
+    if (str.startsWith("false", i)) {
+      i += 5;
+      return false;
+    }
+
+    const numMatch = str.slice(i).match(/^-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/);
+    if (numMatch) {
+      i += numMatch[0].length;
+      return Number(numMatch[0]);
+    }
+
+    const wordMatch = str.slice(i).match(/^[a-zA-Z_]\w*/);
+    if (wordMatch) {
+      i += wordMatch[0].length;
+      return wordMatch[0];
+    }
+
+    i++;
+    return undefined;
+  };
+
+  try {
+    const res = parseValue();
+    return res !== undefined ? res : input;
+  } catch {
+    return input;
+  }
+};
+
 const safeJSON = (value) => {
   if (typeof value !== "string") return value;
   const trimmed = value.trim();
@@ -61,6 +265,10 @@ const safeJSON = (value) => {
     try {
       return JSON.parse(trimmed);
     } catch {
+      try {
+        const parsedPy = parsePythonLiteral(trimmed);
+        if (parsedPy !== trimmed) return parsedPy;
+      } catch {}
       return value;
     }
   }
@@ -102,6 +310,47 @@ const normalizeNewsData = (raw) => {
   }
 
   return [];
+};
+
+const isChartData = (raw) => {
+  if (!raw) return false;
+  const parsed = safeJSON(raw);
+  if (!parsed) return false;
+
+  let list = null;
+  if (Array.isArray(parsed)) {
+    list = parsed;
+  } else if (typeof parsed === "object") {
+    if (Array.isArray(parsed.data)) list = parsed.data;
+    else if (Array.isArray(parsed.items)) list = parsed.items;
+    else if (Array.isArray(parsed.chartData)) list = parsed.chartData;
+    else if (Array.isArray(parsed.rows)) list = parsed.rows;
+  }
+
+  if (!list || !Array.isArray(list) || !list.length) return false;
+
+  const first = list[0];
+  if (!first || typeof first !== "object" || Array.isArray(first)) return false;
+
+  if (first.url || (first.description && typeof first.description === "string" && first.description.length > 30)) {
+    return false;
+  }
+
+  const keys = Object.keys(first);
+  if (!keys.length) return false;
+
+  const hasNumericVal = keys.some((k) => {
+    const v = first[k];
+    return typeof v === "number" || (!isNaN(parseFloat(v)) && isFinite(v));
+  });
+
+  const hasLabelKey = keys.some((k) => {
+    const keyLower = k.toLowerCase();
+    const isKnownKey = ["category", "month", "name", "label", "x", "item", "type", "title", "year"].includes(keyLower);
+    return isKnownKey || typeof first[k] === "string";
+  });
+
+  return hasNumericVal && hasLabelKey;
 };
 
 const readResponse = async (res) => {
@@ -304,12 +553,30 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         if (!response.ok) throw new Error("Unable to load conversation");
         const data = await response.json();
         if (cancelled) return;
-        setMessages((data.messages || []).map((message) => ({
-          sender: message.role === "user" ? "user" : "bot",
-          type: "text",
-          text: message.content || "",
-          content: message.content || "",
-        })));
+        setMessages((data.messages || []).map((message) => {
+          const rawContent = message.content || "";
+          const parsed = safeJSON(rawContent);
+          const newsData = normalizeNewsData(parsed);
+          let msgType = "text";
+          if (
+            Array.isArray(newsData) &&
+            newsData.length > 0 &&
+            newsData[0] &&
+            typeof newsData[0] === "object" &&
+            (newsData[0].title || newsData[0].name) &&
+            (newsData[0].url || newsData[0].description)
+          ) {
+            msgType = "news";
+          } else if (isChartData(parsed)) {
+            msgType = "bar";
+          }
+          return {
+            sender: message.role === "user" ? "user" : "bot",
+            type: msgType,
+            text: typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent),
+            content: parsed,
+          };
+        }));
       } catch (error) {
         if (!cancelled) {
           console.error(error);
@@ -468,28 +735,62 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
     if (!data.length) return <div style={styles.emptyText}>No news available</div>;
 
     return (
-      <div style={styles.cardList}>
-        {data.map((item, i) => (
-          <div key={i} style={styles.infoCard}>
-            {item?.image ? (
-              <img
-                src={item.image}
-                alt={item.title || "news"}
-                style={styles.mediaLarge}
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-            ) : null}
-            <div style={styles.cardTitle}>{item?.title || "No title"}</div>
-            <div style={styles.cardBody}>{item?.description || "No description"}</div>
-            {item?.url ? (
-              <a href={item.url} target="_blank" rel="noreferrer" style={styles.link}>
-                Read more →
-              </a>
-            ) : null}
-          </div>
-        ))}
+      <div style={styles.newsContainer}>
+        <div style={styles.newsHeader}>
+          <span style={styles.newsHeaderBadge}>⚡ TOP HEADLINES</span>
+          <span style={styles.newsCount}>{data.length} Articles</span>
+        </div>
+        <div style={styles.cardList}>
+          {data.map((item, i) => {
+            const rawSource = item?.source || item?.author;
+            const sourceName = typeof rawSource === "object" ? rawSource?.name || "News" : rawSource || "News";
+            const published = item?.publishedAt
+              ? new Date(item.publishedAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" })
+              : null;
+
+            return (
+              <div key={i} className="vitya-news-card" style={styles.newsCard}>
+                {item?.image ? (
+                  <div style={styles.mediaContainer}>
+                    <img
+                      src={item.image}
+                      alt={item.title || "news"}
+                      style={styles.mediaLarge}
+                      onError={(e) => {
+                        e.currentTarget.parentElement.style.display = "none";
+                      }}
+                    />
+                    <div style={styles.mediaBadgeGroup}>
+                      <span style={styles.sourceBadge}>{sourceName}</span>
+                      {published && <span style={styles.dateBadge}>{published}</span>}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={styles.noImageBadgeGroup}>
+                    <span style={styles.sourceBadge}>{sourceName}</span>
+                    {published && <span style={styles.dateBadge}>{published}</span>}
+                  </div>
+                )}
+
+                <div style={styles.newsCardContent}>
+                  <h3 style={styles.cardTitle}>{item?.title || "No title"}</h3>
+                  {item?.description ? <p style={styles.cardBody}>{item.description}</p> : null}
+                  {item?.url ? (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="vitya-action-btn"
+                      style={styles.actionLinkBtn}
+                    >
+                      Read Full Article <span style={{ marginLeft: 6 }}>↗</span>
+                    </a>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }, []);
@@ -501,24 +802,37 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
     }
 
     return (
-      <div style={styles.infoCard}>
+      <div style={styles.wikiCard}>
+        <div style={styles.wikiHeader}>
+          <span style={styles.wikiBadge}>🌐 WIKIPEDIA KNOWLEDGE</span>
+        </div>
         {data.image ? (
-          <img
-            src={data.image}
-            alt={data.title || "wikipedia"}
-            style={styles.mediaLarge}
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-            }}
-          />
+          <div style={styles.mediaContainer}>
+            <img
+              src={data.image}
+              alt={data.title || "wikipedia"}
+              style={styles.mediaLarge}
+              onError={(e) => {
+                e.currentTarget.parentElement.style.display = "none";
+              }}
+            />
+          </div>
         ) : null}
-        <div style={styles.cardTitle}>{data.title}</div>
-        <div style={styles.cardBody}>{data.summary || "No summary available"}</div>
-        {data.url ? (
-          <a href={data.url} target="_blank" rel="noreferrer" style={styles.link}>
-            Read more →
-          </a>
-        ) : null}
+        <div style={styles.newsCardContent}>
+          <h3 style={styles.cardTitle}>{data.title}</h3>
+          <p style={styles.cardBody}>{data.summary || "No summary available"}</p>
+          {data.url ? (
+            <a
+              href={data.url}
+              target="_blank"
+              rel="noreferrer"
+              className="vitya-action-btn"
+              style={styles.actionLinkBtn}
+            >
+              Read Article on Wikipedia <span style={{ marginLeft: 6 }}>↗</span>
+            </a>
+          ) : null}
+        </div>
       </div>
     );
   }, []);
@@ -559,11 +873,9 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       }
 
       if (MEDIA_TYPES.has(type)) {
-        const raw = msg.content ?? msg.text ?? "";
-        const src =
-          typeof raw === "string" && raw.startsWith("data:")
-            ? raw
-            : `data:image/png;base64,${raw}`;
+        const raw = msg.content ?? msg.text ?? msg.data ?? "";
+        const src = getImageSrc(raw);
+        if (!src) return;
 
         const link = document.createElement("a");
         link.href = src;
@@ -713,7 +1025,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
 
       const botMessage = {
         sender: "bot",
-        type: data?.type || (mode === "wiki" ? "wiki" : mode === "news" ? "news" : "text"),
+        type: data?.type || (mode === "wiki" ? "wiki" : mode === "news" ? "news" : isChartData(normalizedPayload) ? "bar" : "text"),
         text: typeof normalizedPayload === "string" ? normalizedPayload : "",
         content: normalizedPayload,
       };
@@ -762,7 +1074,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         }
       } catch (error) {
         console.error(error);
-        setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "Server error ❌" }]);
+        setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "Server error...." }]);
       } finally {
         setLoading(false);
         setInput("");
@@ -854,6 +1166,20 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       <style>{`
         .chat-scroll::-webkit-scrollbar { width: 0; height: 0; }
         .chat-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+        .vitya-news-card:hover {
+          transform: translateY(-3px);
+          border-color: rgba(168, 85, 247, 0.45) !important;
+          box-shadow: 0 16px 40px rgba(139, 92, 246, 0.25) !important;
+        }
+        .vitya-news-card:hover img {
+          transform: scale(1.03);
+        }
+        .vitya-action-btn:hover {
+          background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+          color: #ffffff !important;
+          box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45) !important;
+          border-color: transparent !important;
+        }
       `}</style>
 
       <header>
@@ -864,7 +1190,6 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
           {showLanding ? (
             <section style={styles.emptyState}>
               <div style={styles.emptyCard}>
-                <div className="vitya-chat-hero-badge">⚡ VITYA GPT-5 OMNI • PRO ACTIVE</div>
                 <div style={styles.heroTitle}>What can I help you with today?</div>
                 <p className="vitya-chat-hero-sub">
                   Ask any question, brainstorm ideas, debug code, or generate slide decks in seconds.
@@ -925,7 +1250,22 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
             </section>
           ) : (
             messages.map((msg, i) => {
-              const type = (msg.type || "").toLowerCase().trim();
+              let type = (msg.type || "").toLowerCase().trim();
+              const rawData = msg.content ?? msg.text ?? msg.data;
+              const newsData = normalizeNewsData(rawData);
+              if (
+                type !== "news" &&
+                Array.isArray(newsData) &&
+                newsData.length > 0 &&
+                newsData[0] &&
+                typeof newsData[0] === "object" &&
+                (newsData[0].title || newsData[0].name) &&
+                (newsData[0].url || newsData[0].description)
+              ) {
+                type = "news";
+              } else if (!CHAT_TYPES.has(type) && type !== "news" && isChartData(rawData)) {
+                type = "bar";
+              }
               const chartElement = CHAT_TYPES.has(type) ? renderChart(msg) : null;
               const isUser = msg.sender === "user";
 
@@ -988,21 +1328,39 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                       ) : MEDIA_TYPES.has(type) ? (
                         <div style={styles.stack}>
                           {(() => {
-                            const raw = msg.content ?? msg.text ?? "";
-                            const src =
-                              typeof raw === "string" && raw.startsWith("data:")
-                                ? raw
-                                : `data:image/png;base64,${raw}`;
+                            const raw = msg.content ?? msg.text ?? msg.data ?? "";
+                            const src = getImageSrc(raw);
 
                             return src ? (
-                              <img
-                                src={src}
-                                alt={type}
-                                style={styles.mediaSmall}
-                                onError={(e) => {
-                                  e.currentTarget.style.display = "none";
-                                }}
-                              />
+                              <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
+                                <img
+                                  src={src}
+                                  alt={type}
+                                  style={styles.mediaSmall}
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                    if (e.currentTarget.nextSibling) {
+                                      e.currentTarget.nextSibling.style.display = "flex";
+                                    }
+                                  }}
+                                />
+                                <div
+                                  style={{
+                                    display: "none",
+                                    padding: "14px 18px",
+                                    borderRadius: 14,
+                                    background: "rgba(239, 68, 68, 0.12)",
+                                    border: "1px solid rgba(239, 68, 68, 0.3)",
+                                    color: "#f87171",
+                                    fontSize: 13,
+                                    fontWeight: 600,
+                                    alignItems: "center",
+                                    gap: 8,
+                                  }}
+                                >
+                                  ⚠️ Image could not be loaded or URL expired.
+                                </div>
+                              </div>
                             ) : (
                               <div style={styles.emptyText}>Invalid media data</div>
                             );
@@ -1237,21 +1595,166 @@ const styles = {
   userBubble: { background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)" },
   botBubble: { background: glass },
   cardWrap: {
-    width: 540,
+    width: 620,
     maxWidth: "100%",
     overflow: "hidden",
-    background: "rgba(255,255,255,0.97)",
-    padding: 16,
-    borderRadius: 18,
+    background: "transparent",
+    padding: 0,
     boxSizing: "border-box",
-    color: "#111827",
   },
-  cardList: { display: "flex", flexDirection: "column", gap: 12 },
-  infoCard: { display: "flex", flexDirection: "column", gap: 10, background: "#fff", borderRadius: 16, color: "#111827" },
-  cardTitle: { fontWeight: 800, fontSize: 18, lineHeight: 1.3 },
-  cardBody: { fontSize: 14, color: "#4b5563", lineHeight: 1.6 },
-  link: { display: "inline-block", textDecoration: "none", color: "#4f46e5", fontWeight: 700 },
-  mediaLarge: { width: "100%", height: 220, objectFit: "cover", borderRadius: 14 },
+  newsContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 14,
+    width: "100%",
+  },
+  newsHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "2px 4px 6px",
+  },
+  newsHeaderBadge: {
+    fontSize: 11,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    color: "#c084fc",
+    textTransform: "uppercase",
+    background: "rgba(168, 85, 247, 0.12)",
+    padding: "4px 10px",
+    borderRadius: 8,
+    border: "1px solid rgba(168, 85, 247, 0.25)",
+  },
+  newsCount: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.5)",
+    fontWeight: 600,
+  },
+  cardList: { display: "flex", flexDirection: "column", gap: 16 },
+  newsCard: {
+    display: "flex",
+    flexDirection: "column",
+    background: "rgba(15, 23, 42, 0.85)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    borderRadius: 20,
+    overflow: "hidden",
+    boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4)",
+    backdropFilter: "blur(16px)",
+    transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+  },
+  wikiCard: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+    background: "rgba(15, 23, 42, 0.85)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    borderRadius: 20,
+    padding: 16,
+    boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4)",
+    backdropFilter: "blur(16px)",
+  },
+  wikiHeader: {
+    marginBottom: 4,
+  },
+  wikiBadge: {
+    fontSize: 11,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    color: "#38bdf8",
+    textTransform: "uppercase",
+    background: "rgba(56, 189, 248, 0.12)",
+    padding: "4px 10px",
+    borderRadius: 8,
+    border: "1px solid rgba(56, 189, 248, 0.25)",
+  },
+  mediaContainer: {
+    position: "relative",
+    width: "100%",
+    height: 220,
+    overflow: "hidden",
+    background: "rgba(0, 0, 0, 0.25)",
+  },
+  mediaLarge: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+    transition: "transform 0.3s ease",
+  },
+  mediaBadgeGroup: {
+    position: "absolute",
+    bottom: 12,
+    left: 12,
+    right: 12,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+    zIndex: 2,
+  },
+  noImageBadgeGroup: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    padding: "16px 16px 0",
+  },
+  sourceBadge: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: "#f8fafc",
+    background: "rgba(15, 23, 42, 0.88)",
+    backdropFilter: "blur(10px)",
+    padding: "4px 12px",
+    borderRadius: 999,
+    border: "1px solid rgba(255, 255, 255, 0.15)",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+  },
+  dateBadge: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: "rgba(255, 255, 255, 0.85)",
+    background: "rgba(0, 0, 0, 0.65)",
+    backdropFilter: "blur(10px)",
+    padding: "4px 12px",
+    borderRadius: 999,
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+  },
+  newsCardContent: {
+    padding: "18px 20px 20px",
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+  },
+  cardTitle: {
+    fontWeight: 700,
+    fontSize: 18,
+    lineHeight: 1.38,
+    color: "#f8fafc",
+    margin: 0,
+    letterSpacing: "-0.01em",
+  },
+  cardBody: {
+    fontSize: 14,
+    color: "#94a3b8",
+    lineHeight: 1.6,
+    margin: 0,
+  },
+  actionLinkBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "fit-content",
+    marginTop: 6,
+    padding: "10px 18px",
+    borderRadius: 12,
+    background: "linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(99, 102, 241, 0.25) 100%)",
+    border: "1px solid rgba(139, 92, 246, 0.45)",
+    color: "#d8b4fe",
+    textDecoration: "none",
+    fontSize: 13,
+    fontWeight: 700,
+    transition: "all 0.2s ease",
+  },
   mediaSmall: { width: "100%", maxWidth: 260, height: "auto", display: "block", borderRadius: 14 },
   emptyText: { color: "#64748b", fontSize: 14 },
   typing: { color: "rgba(255,255,255,0.72)", paddingLeft: 8, fontSize: 14 },
