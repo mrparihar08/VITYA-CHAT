@@ -105,14 +105,21 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
           data: { ...pluginData, text: String(pluginData.text || "").trim() },
         });
       } else if (p.type === "paragraph_2col") {
+        const rawItems = Array.isArray(pluginData.items) && pluginData.items.length > 0
+          ? pluginData.items.map((it) => ({ title: String(it.title || "").trim(), text: String(it.text || "").trim() }))
+          : [
+              { title: String(pluginData.left_title || "").trim(), text: String(pluginData.left_text || pluginData.text || "").trim() },
+              { title: String(pluginData.right_title || "").trim(), text: String(pluginData.right_text || "").trim() }
+            ];
         plugins.push({
           type: "paragraph_2col",
           data: {
             ...pluginData,
-            left_title: String(pluginData.left_title || "").trim(),
-            left_text: String(pluginData.left_text || pluginData.text || "").trim(),
-            right_title: String(pluginData.right_title || "").trim(),
-            right_text: String(pluginData.right_text || "").trim(),
+            items: rawItems,
+            left_title: String(pluginData.left_title || rawItems[0]?.title || "").trim(),
+            left_text: String(pluginData.left_text || pluginData.text || rawItems[0]?.text || "").trim(),
+            right_title: String(pluginData.right_title || rawItems[1]?.title || "").trim(),
+            right_text: String(pluginData.right_text || rawItems[1]?.text || "").trim(),
           },
         });
       } else if (p.type === "subtitle" || p.type === "text") {
@@ -837,6 +844,10 @@ export default function PresentationGenerator() {
         newPlugin.data = { text: "Enter descriptive paragraph narrative here..." };
       } else if (pluginType === "paragraph_2col") {
         newPlugin.data = {
+          items: [
+            { title: "Left Column Concept", text: "First detailed paragraph narrative for the left column..." },
+            { title: "Right Column Concept", text: "Second detailed paragraph narrative for the right column..." }
+          ],
           left_title: "Left Column Concept",
           left_text: "First detailed paragraph narrative for the left column...",
           right_title: "Right Column Concept",
@@ -857,6 +868,49 @@ export default function PresentationGenerator() {
             ["Cost Tier", "Enterprise", "Pay-as-you-go"],
             ["Security", "Advanced Encryption", "Standard OAuth"]
           ]
+        };
+      } else if (pluginType === "callout") {
+        newPlugin.data = {
+          text: "AI automation accelerated operational throughput by 45% across enterprise services.",
+          title: "KEY TAKEAWAY",
+          icon: "💡"
+        };
+      } else if (pluginType === "kpi_grid") {
+        newPlugin.data = {
+          kpis: [
+            { number: "$12.5M", label: "ARR Revenue", trend: "+34% ↗" },
+            { number: "99.99%", label: "SLA Uptime", trend: "+0.5% ↗" },
+            { number: "450K", label: "Active Users", trend: "+18% ↗" },
+            { number: "< 12ms", label: "API Latency", trend: "-25% ↘" }
+          ]
+        };
+      } else if (pluginType === "pros_cons") {
+        newPlugin.data = {
+          pros_title: "✅ STRENGTHS & ADVANTAGES",
+          pros: ["High Horizontal Scalability", "Low Query Latency", "Zero Downtime Deployments"],
+          cons_title: "❌ CHALLENGES & CONSIDERATIONS",
+          cons: ["Initial Setup Overhead", "Cloud Migration Refactoring Effort"]
+        };
+      } else if (pluginType === "roadmap") {
+        newPlugin.data = {
+          phases: [
+            { phase: "Q1 2026", title: "Architecture & Specs", status: "COMPLETED" },
+            { phase: "Q2 2026", title: "Platform Core Build", status: "IN PROGRESS" },
+            { phase: "Q3 2026", title: "Market Beta Testing", status: "PLANNED" },
+            { phase: "Q4 2026", title: "Global Enterprise Scale", status: "PLANNED" }
+          ]
+        };
+      } else if (pluginType === "code_block") {
+        newPlugin.data = {
+          code: "async def get_presentation_telemetry(job_id: str):\n    result = await service.fetch(job_id)\n    return {\"status\": \"ok\", \"telemetry\": result}",
+          title: "api_router.py",
+          language: "python"
+        };
+      } else if (pluginType === "speaker_card") {
+        newPlugin.data = {
+          name: "Dr. Alex Vance",
+          role: "Chief AI Architect & Principal Engineer",
+          bio: ["Lead Architect at Antigravity AI Systems", "15+ Years Distributed Systems Experience"]
         };
       }
 

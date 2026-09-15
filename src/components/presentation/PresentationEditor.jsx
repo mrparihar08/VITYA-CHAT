@@ -392,7 +392,7 @@ function FeatureFormattingBar({ pluginData, onChangeField, onRefineText, isRefin
           className="btn-ui primary sm"
           style={{ fontSize: 10, padding: "5px 12px", background: "linear-gradient(135deg, #8b5cf6, #ec4899)", border: "none", borderRadius: 6, cursor: isRefining ? "wait" : "pointer", opacity: isRefining ? 0.7 : 1 }}
         >
-          {isRefining ? "⏳ Polishing..." : "✨ AI Polish & Refine"}
+          {isRefining ? "⏳ Polishing..." : "✨AI.Refine"}
         </button>
       ) : null}
     </div>
@@ -1101,7 +1101,7 @@ export default function PresentationEditor({
                         onBlur={(e) => handleSlideTitleChange(activeSlideIndex, e.target.innerText)}
                         title="Click to edit slide title inline"
                         style={{
-                          fontSize: `clamp(18px, 4vw, ${activeSlide.title_font_size || 26}px)`,
+                          fontSize: `clamp(18px, 4vw, ${activeSlide.title_font_size || (activeSlideIndex === 0 ? 50 : 29)}px)`,
                           color: activeSlide.title_color || "inherit",
                           textAlign: activeSlide.title_align || "left",
                           fontWeight: activeSlide.title_bold === false ? 400 : 800,
@@ -1120,7 +1120,7 @@ export default function PresentationEditor({
                           onBlur={(e) => handleSlideSubtitleChange(activeSlideIndex, e.target.innerText)}
                           title="Click to edit slide subtitle inline"
                           style={{
-                            fontSize: `clamp(12px, 3vw, ${activeSlide.subtitle_font_size || 15}px)`,
+                            fontSize: `clamp(12px, 3vw, ${activeSlide.subtitle_font_size || 23}px)`,
                             color: activeSlide.subtitle_color || "inherit",
                             textAlign: activeSlide.subtitle_align || "left",
                             opacity: activeSlide.subtitle_color ? 1 : 0.8,
@@ -1151,71 +1151,126 @@ export default function PresentationEditor({
                             suppressContentEditableWarning={true}
                             onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.innerText)}
                             title="Click to edit inline"
-                            style={{ fontSize: p.data?.font_size || 18, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || selectedBgConfig?.accent || "#c084fc", margin: "4px 0", outline: "none", cursor: "text" }}
+                            style={{ fontSize: p.data?.font_size || (p.type === "subtitle" ? 23 : 29), textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || selectedBgConfig?.accent || "#c084fc", margin: "4px 0", outline: "none", cursor: "text" }}
                           >
                             {p.data?.text}
                           </h3>
                         ) : null}
 
                         {p.type === "paragraph" ? (
-                          <p
-                            contentEditable={true}
-                            suppressContentEditableWarning={true}
-                            onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.innerText)}
-                            title="Click to edit inline"
-                            style={{ fontSize: p.data?.font_size || 14, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "inherit", lineHeight: 1.5, opacity: (p.data?.font_color || p.data?.color) ? 1 : 0.9, outline: "none", cursor: "text" }}
-                          >
-                            {p.data?.text}
-                          </p>
+                          Array.isArray(p.data?.points) && p.data.points.length > 0 ? (
+                            <div style={{ paddingLeft: 4, margin: "6px 0", textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "inherit" }}>
+                              {p.data.points.map((pt, bIdx) => (
+                                <div key={bIdx} style={{ fontSize: p.data?.font_size || 14, marginBottom: 4, display: "flex", gap: 8, alignItems: "baseline" }}>
+                                  <span style={{ fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", flexShrink: 0 }}>
+                                    {formatBulletPrefix(p.data?.bullet_style || "disc", bIdx, p.data.points)}
+                                  </span>
+                                  <span
+                                    contentEditable={true}
+                                    suppressContentEditableWarning={true}
+                                    onBlur={(e) => {
+                                      const newPts = [...p.data.points];
+                                      newPts[bIdx] = e.target.innerText;
+                                      handlePluginTextChange(activeSlideIndex, pIdx, "points", newPts);
+                                    }}
+                                    title="Click to edit point inline"
+                                    style={{ outline: "none", cursor: "text" }}
+                                  >
+                                    {pt}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p
+                              contentEditable={true}
+                              suppressContentEditableWarning={true}
+                              onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.innerText)}
+                              title="Click to edit inline"
+                              style={{ fontSize: p.data?.font_size || 14, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "inherit", lineHeight: 1.5, opacity: (p.data?.font_color || p.data?.color) ? 1 : 0.9, outline: "none", cursor: "text" }}
+                            >
+                              {p.data?.text}
+                            </p>
+                          )
                         ) : null}
 
                         {p.type === "paragraph_2col" ? (
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: p.data?.column_gap || 14, margin: "8px 0" }}>
-                            <div style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
-                              {p.data?.left_title && (
-                                <div
-                                  contentEditable={true}
-                                  suppressContentEditableWarning={true}
-                                  onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "left_title", e.target.innerText)}
-                                  title="Click to edit left title inline"
-                                  style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4, outline: "none", cursor: "text" }}
-                                >
-                                  {p.data.left_title}
-                                </div>
-                              )}
-                              <p
-                                contentEditable={true}
-                                suppressContentEditableWarning={true}
-                                onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "left_text", e.target.innerText)}
-                                title="Click to edit paragraph inline"
-                                style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0, outline: "none", cursor: "text" }}
-                              >
-                                {p.data?.left_text || p.data?.text || "Left paragraph content..."}
-                              </p>
-                            </div>
-                            <div style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
-                              {p.data?.right_title && (
-                                <div
-                                  contentEditable={true}
-                                  suppressContentEditableWarning={true}
-                                  onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "right_title", e.target.innerText)}
-                                  title="Click to edit right title inline"
-                                  style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4, outline: "none", cursor: "text" }}
-                                >
-                                  {p.data.right_title}
-                                </div>
-                              )}
-                              <p
-                                contentEditable={true}
-                                suppressContentEditableWarning={true}
-                                onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "right_text", e.target.innerText)}
-                                title="Click to edit paragraph inline"
-                                style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0, outline: "none", cursor: "text" }}
-                              >
-                                {p.data?.right_text || "Right paragraph content..."}
-                              </p>
-                            </div>
-                          </div>
+                          (() => {
+                            const items = (Array.isArray(p.data?.items) && p.data.items.length > 0)
+                              ? p.data.items
+                              : [
+                                  { title: p.data?.left_title || "", text: p.data?.left_text || p.data?.text || "Left paragraph content..." },
+                                  { title: p.data?.right_title || "", text: p.data?.right_text || "Right paragraph content..." }
+                                ];
+                            const gridCols = items.length <= 1 ? "1fr" : items.length === 2 ? "1fr 1fr" : items.length === 3 ? "1fr 1fr 1fr" : `repeat(${Math.min(items.length, 4)}, 1fr)`;
+                            return (
+                              <div style={{ display: "grid", gridTemplateColumns: gridCols, gap: p.data?.column_gap || 14, margin: "8px 0" }}>
+                                {items.map((item, colIdx) => (
+                                  <div key={colIdx} style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+                                    {(item.title || items.length > 1) && (
+                                      <div
+                                        contentEditable={true}
+                                        suppressContentEditableWarning={true}
+                                        onBlur={(e) => {
+                                          const newText = e.target.innerText;
+                                          const newItems = items.map((it, i) => i === colIdx ? { ...it, title: newText } : it);
+                                          handlePluginTextChange(activeSlideIndex, pIdx, "items", newItems);
+                                          if (colIdx === 0) handlePluginTextChange(activeSlideIndex, pIdx, "left_title", newText);
+                                          if (colIdx === 1) handlePluginTextChange(activeSlideIndex, pIdx, "right_title", newText);
+                                        }}
+                                        title="Click to edit column title inline"
+                                        style={{ fontWeight: 800, fontSize: 13, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4, outline: "none", cursor: "text" }}
+                                      >
+                                        {item.title || `Column ${colIdx + 1}`}
+                                      </div>
+                                    )}
+
+                                    {Array.isArray(item.points) && item.points.length > 0 ? (
+                                      <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4 }}>
+                                        {item.points.map((pt, ptIdx) => (
+                                          <div key={ptIdx} style={{ display: "flex", gap: 6, alignItems: "baseline", fontSize: p.data?.font_size || 13, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9 }}>
+                                            <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontWeight: 800, flexShrink: 0 }}>
+                                              {formatBulletPrefix(item.bullet_style || p.data?.bullet_style || "disc", ptIdx, item.points)}
+                                            </span>
+                                            <span
+                                              contentEditable={true}
+                                              suppressContentEditableWarning={true}
+                                              onBlur={(e) => {
+                                                const newPts = [...item.points];
+                                                newPts[ptIdx] = e.target.innerText;
+                                                const newItems = items.map((it, i) => i === colIdx ? { ...it, points: newPts } : it);
+                                                handlePluginTextChange(activeSlideIndex, pIdx, "items", newItems);
+                                              }}
+                                              title="Click to edit point inline"
+                                              style={{ outline: "none", cursor: "text", flex: 1 }}
+                                            >
+                                              {pt}
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <p
+                                        contentEditable={true}
+                                        suppressContentEditableWarning={true}
+                                        onBlur={(e) => {
+                                          const newText = e.target.innerText;
+                                          const newItems = items.map((it, i) => i === colIdx ? { ...it, text: newText } : it);
+                                          handlePluginTextChange(activeSlideIndex, pIdx, "items", newItems);
+                                          if (colIdx === 0) handlePluginTextChange(activeSlideIndex, pIdx, "left_text", newText);
+                                          if (colIdx === 1) handlePluginTextChange(activeSlideIndex, pIdx, "right_text", newText);
+                                        }}
+                                        title="Click to edit paragraph inline"
+                                        style={{ fontSize: p.data?.font_size || 13, lineHeight: 1.5, color: p.data?.font_color || p.data?.color || "inherit", opacity: 0.9, margin: 0, outline: "none", cursor: "text" }}
+                                      >
+                                        {item.text || `Paragraph content for column ${colIdx + 1}...`}
+                                      </p>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          })()
                         ) : null}
 
                         {p.type === "bullets" ? (
@@ -1656,6 +1711,128 @@ export default function PresentationEditor({
                             </table>
                           </div>
                         ) : null}
+
+                        {p.type === "callout" ? (
+                          <div style={{ background: "rgba(255,255,255,0.04)", borderLeft: `4px solid ${selectedBgConfig?.accent || "#c084fc"}`, border: "1px solid rgba(255,255,255,0.1)", borderRadius: "0 10px 10px 0", padding: "12px 16px", margin: "8px 0" }}>
+                            <div style={{ fontSize: 11, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
+                              {p.data?.icon || "💡"} {(p.data?.title || p.data?.header || "KEY TAKEAWAY").toUpperCase()}
+                            </div>
+                            <div style={{ fontSize: 13, lineHeight: 1.5, opacity: 0.9 }}>
+                              {p.data?.text || p.data?.takeaway || p.data?.quote || "Key takeaway summary..."}
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {p.type === "kpi_grid" ? (
+                          <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(safeArray(p.data?.kpis || p.data?.items).length || 3, 4)}, 1fr)`, gap: 12, margin: "10px 0" }}>
+                            {safeArray(p.data?.kpis || p.data?.items || [
+                              { number: "$12.5M", label: "ARR Revenue", trend: "+34% ↗" },
+                              { number: "99.99%", label: "SLA Uptime", trend: "+0.5% ↗" },
+                              { number: "450K", label: "Active Users", trend: "+18% ↗" }
+                            ]).map((kpi, kIdx) => (
+                              <div key={kIdx} style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: 12, textAlign: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
+                                <div style={{ fontSize: 24, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc" }}>
+                                  {typeof kpi === "object" ? kpi.number || kpi.value : kpi}
+                                </div>
+                                <div style={{ fontSize: 11, fontWeight: 700, opacity: 0.85, marginTop: 2 }}>
+                                  {typeof kpi === "object" ? kpi.label || kpi.title : `Metric ${kIdx + 1}`}
+                                </div>
+                                {typeof kpi === "object" && kpi.trend ? (
+                                  <div style={{ fontSize: 10, fontWeight: 800, color: (kpi.trend.includes("+") || kpi.trend.includes("↗")) ? "#10b981" : "#f43f5e", marginTop: 4 }}>
+                                    {kpi.trend}
+                                  </div>
+                                ) : null}
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
+
+                        {p.type === "pros_cons" ? (
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, margin: "10px 0" }}>
+                            <div style={{ background: "rgba(16, 185, 129, 0.06)", border: "1.5px solid #10b981", borderRadius: 10, padding: 12 }}>
+                              <div style={{ fontSize: 12, fontWeight: 800, color: "#10b981", marginBottom: 6 }}>
+                                {p.data?.pros_title || "✅ STRENGTHS & ADVANTAGES"}
+                              </div>
+                              {safeArray(p.data?.pros || p.data?.strengths || ["High Scalability", "Low Query Latency"]).map((pro, prIdx) => (
+                                <div key={prIdx} style={{ fontSize: 11, marginBottom: 4, display: "flex", gap: 6, alignItems: "center" }}>
+                                  <span style={{ color: "#10b981" }}>✔</span>
+                                  <span>{pro}</span>
+                                </div>
+                              ))}
+                            </div>
+                            <div style={{ background: "rgba(239, 68, 68, 0.06)", border: "1.5px solid #ef4444", borderRadius: 10, padding: 12 }}>
+                              <div style={{ fontSize: 12, fontWeight: 800, color: "#ef4444", marginBottom: 6 }}>
+                                {p.data?.cons_title || "❌ CHALLENGES & CONSIDERATIONS"}
+                              </div>
+                              {safeArray(p.data?.cons || p.data?.weaknesses || ["Initial Setup Overhead", "Cloud Refactoring Effort"]).map((con, cnIdx) => (
+                                <div key={cnIdx} style={{ fontSize: 11, marginBottom: 4, display: "flex", gap: 6, alignItems: "center" }}>
+                                  <span style={{ color: "#ef4444" }}>✖</span>
+                                  <span>{con}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {p.type === "roadmap" ? (
+                          <div style={{ position: "relative", padding: "16px 8px 8px", margin: "10px 0" }}>
+                            <div style={{ position: "absolute", top: "36px", left: "4%", right: "4%", height: "3px", background: selectedBgConfig?.accent || "#c084fc", borderRadius: 2, zIndex: 1 }} />
+                            <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(safeArray(p.data?.phases || p.data?.milestones).length || 4, 4)}, 1fr)`, gap: 10, position: "relative", zIndex: 2 }}>
+                              {safeArray(p.data?.phases || p.data?.milestones || [
+                                { phase: "Q1 2026", title: "Architecture", status: "COMPLETED" },
+                                { phase: "Q2 2026", title: "Platform Build", status: "IN PROGRESS" },
+                                { phase: "Q3 2026", title: "Market Launch", status: "PLANNED" }
+                              ]).map((rm, rmIdx) => (
+                                <div key={rmIdx} style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+                                  <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: selectedBgConfig?.accent || "#c084fc", color: "#000", fontWeight: 900, fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
+                                    {rmIdx + 1}
+                                  </div>
+                                  <div style={{ background: "rgba(15,23,42,0.85)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, padding: 8, width: "100%" }}>
+                                    <div style={{ fontSize: 10, color: selectedBgConfig?.accent || "#c084fc", fontWeight: 800 }}>{typeof rm === "object" ? rm.phase : `Phase ${rmIdx + 1}`}</div>
+                                    <div style={{ fontSize: 11, fontWeight: 700, color: "#fff", marginTop: 2 }}>{typeof rm === "object" ? rm.title : rm}</div>
+                                    {typeof rm === "object" && rm.status ? (
+                                      <div style={{ fontSize: 9, fontWeight: 800, marginTop: 4, color: rm.status.includes("COMPLET") ? "#10b981" : (rm.status.includes("PROGRESS") ? "#3b82f6" : "#94a3b8") }}>
+                                        [{rm.status}]
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {p.type === "code_block" ? (
+                          <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 10, overflow: "hidden", margin: "10px 0", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
+                            <div style={{ background: "#1e293b", padding: "4px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #334155" }}>
+                              <span style={{ fontSize: 10, color: "#94a3b8" }}>🔴 🟡 🟢 {p.data?.title || "code_snippet.py"} ({p.data?.language || "PYTHON"})</span>
+                            </div>
+                            <pre style={{ padding: 12, margin: 0, fontFamily: "Consolas, monospace", fontSize: 11, color: "#f8fafc", overflowX: "auto", lineHeight: 1.4 }}>
+                              <code>{p.data?.code || p.data?.snippet || 'print("Hello Antigravity")'}</code>
+                            </pre>
+                          </div>
+                        ) : null}
+
+                        {p.type === "speaker_card" ? (
+                          <div style={{ background: "rgba(15,23,42,0.7)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}44`, borderRadius: 12, padding: 14, display: "flex", gap: 14, alignItems: "center", margin: "10px 0" }}>
+                            <div style={{ width: 44, height: 44, borderRadius: "50%", background: selectedBgConfig?.accent || "#c084fc", color: "#000", fontSize: 22, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              👤
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontSize: 16, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc" }}>
+                                {p.data?.name || p.data?.speaker || "Presenter Name"}
+                              </div>
+                              <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.9, marginTop: 2 }}>
+                                {p.data?.role || p.data?.title || "Keynote Speaker"}
+                              </div>
+                              {safeArray(p.data?.bio || p.data?.highlights).map((bPt, bIdx) => (
+                                <div key={bIdx} style={{ fontSize: 11, opacity: 0.8, marginTop: 2 }}>
+                                  • {bPt}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     );
 
@@ -1732,7 +1909,7 @@ export default function PresentationEditor({
                         type="number"
                         min="14"
                         max="60"
-                        value={activeSlide.title_font_size || 26}
+                        value={activeSlide.title_font_size || (activeSlideIndex === 0 ? 50 : 29)}
                         onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_font_size", Number(e.target.value))}
                         style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 70, height: 28, boxSizing: "border-box" }}
                       />
@@ -1786,7 +1963,7 @@ export default function PresentationEditor({
                         type="number"
                         min="10"
                         max="36"
-                        value={activeSlide.subtitle_font_size || 15}
+                        value={activeSlide.subtitle_font_size || 23}
                         onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_font_size", Number(e.target.value))}
                         style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 70, height: 28, boxSizing: "border-box" }}
                       />
@@ -1915,6 +2092,55 @@ export default function PresentationEditor({
                     <span className="btn-icon">🖼️</span><span className="btn-label">Image</span>
                   </button>
 
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Callout"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "callout")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    <span className="btn-icon">💡</span><span className="btn-label">Callout</span>
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="KPI Grid"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "kpi_grid")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    <span className="btn-icon">🔢</span><span className="btn-label">KPI Grid</span>
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Pros & Cons"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "pros_cons")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    <span className="btn-icon">⚖️</span><span className="btn-label">Pros & Cons</span>
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Roadmap"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "roadmap")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    <span className="btn-icon">🗺️</span><span className="btn-label">Roadmap</span>
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Code Block"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "code_block")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    <span className="btn-icon">💻</span><span className="btn-label">Code Block</span>
+                  </button>
+                  <button
+                    className="btn-ui secondary sm"
+                    title="Speaker Card"
+                    onClick={() => handleAddPlugin(activeSlideIndex, "speaker_card")}
+                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
+                  >
+                    <span className="btn-icon">👤</span><span className="btn-label">Speaker Card</span>
+                  </button>
+
                   <label
                     className="btn-ui secondary sm"
                     title="Upload Custom Image File from Computer"
@@ -1947,10 +2173,16 @@ export default function PresentationEditor({
                         {plugin.type === "image" && "🖼️ Image Block"}
                         {plugin.type === "bullets" && "• Bullet Points Block"}
                         {plugin.type === "paragraph" && "¶ Single Paragraph Block"}
-                        {plugin.type === "paragraph_2col" && "¶¶ 2-Column Paragraphs Block"}
+                        {plugin.type === "paragraph_2col" && "¶¶ Multi-Paragraph / Column Block"}
                         {plugin.type === "stat" && "📊 Key Metric / Stat"}
                         {plugin.type === "diagram" && "⚙️ Diagram Flow Block"}
                         {plugin.type === "table" && "📋 Comparison Table Block"}
+                        {plugin.type === "callout" && "💡 Callout Block"}
+                        {plugin.type === "kpi_grid" && "🔢 KPI Grid Block"}
+                        {plugin.type === "pros_cons" && "⚖️ Pros & Cons Comparison"}
+                        {plugin.type === "roadmap" && "🗺️ Roadmap / Timeline Block"}
+                        {plugin.type === "code_block" && "💻 Code Block"}
+                        {plugin.type === "speaker_card" && "👤 Speaker Profile Card"}
                         {plugin.type === "notes" && "🗣️ Speaker Notes"}
                       </span>
                       <button
@@ -2938,7 +3170,7 @@ export default function PresentationEditor({
                           </div>
                         ))}
                         <button className="btn-ui secondary sm" style={{ alignSelf: "flex-start", marginTop: 4 }} onClick={() => handleAddBullet(activeSlideIndex, pIdx)}>
-                          + Add List Point
+                          + Add Point
                         </button>
                         <FeatureFormattingBar
                           pluginData={plugin.data}
@@ -2951,16 +3183,60 @@ export default function PresentationEditor({
                     {/* PARAGRAPH */}
                     {plugin.type === "paragraph" ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        <div>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Paragraph Narrative:</label>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Paragraph Content:</label>
+                          
                         </div>
-                        <textarea
-                          value={plugin.data?.text || ""}
-                          onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value)}
-                          rows={3}
-                          placeholder="Enter paragraph text..."
-                          style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
-                        />
+
+                        {Array.isArray(plugin.data?.points) ? (
+                          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                            {plugin.data.points.map((pt, bIdx) => (
+                              <div key={bIdx} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                                <span style={{ color: "#c084fc", fontWeight: 800, fontSize: 12 }}>•</span>
+                                <input
+                                  type="text"
+                                  value={pt}
+                                  onChange={(e) => {
+                                    const newPts = [...plugin.data.points];
+                                    newPts[bIdx] = e.target.value;
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "points", newPts);
+                                  }}
+                                  placeholder={`Point ${bIdx + 1}...`}
+                                  style={{ flex: 1, background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: 6, color: "#fff", fontSize: 12 }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newPts = plugin.data.points.filter((_, i) => i !== bIdx);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "points", newPts.length ? newPts : null);
+                                  }}
+                                  style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 13 }}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newPts = [...(plugin.data.points || []), "New point item"];
+                                handlePluginTextChange(activeSlideIndex, pIdx, "points", newPts);
+                              }}
+                              style={{ alignSelf: "flex-start", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 4, padding: "3px 8px", color: "#fff", fontSize: 11, cursor: "pointer" }}
+                            >
+                              ➕ Add Point
+                            </button>
+                          </div>
+                        ) : (
+                          <textarea
+                            value={plugin.data?.text || ""}
+                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value)}
+                            rows={3}
+                            placeholder="Enter paragraph text narrative..."
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
+                          />
+                        )}
+
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
@@ -2969,61 +3245,182 @@ export default function PresentationEditor({
                       </div>
                     ) : null}
 
-                    {/* 2-COLUMN PARAGRAPHS */}
+                    {/* MULTI-PARAGRAPH COLUMNS */}
                     {plugin.type === "paragraph_2col" ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          
-                        </div>
+                      (() => {
+                        const items = (Array.isArray(plugin.data?.items) && plugin.data.items.length > 0)
+                          ? plugin.data.items
+                          : [
+                              { title: plugin.data?.left_title || "", text: plugin.data?.left_text || plugin.data?.text || "" },
+                              { title: plugin.data?.right_title || "", text: plugin.data?.right_text || "" }
+                            ];
 
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                          {/* LEFT COLUMN */}
-                          <div style={{ background: "rgba(0,0,0,0.25)", padding: 8, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}>
-                            <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", display: "block", marginBottom: 4 }}>Left Column Title:</label>
-                            <input
-                              type="text"
-                              value={plugin.data?.left_title || ""}
-                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "left_title", e.target.value)}
-                              placeholder="e.g. Current Strategy"
-                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: 6, color: "#fff", fontSize: 12, marginBottom: 6 }}
-                            />
-                            <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Left Paragraph Text:</label>
-                            <textarea
-                              value={plugin.data?.left_text || plugin.data?.text || ""}
-                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "left_text", e.target.value)}
-                              rows={3}
-                              placeholder="Left column paragraph text..."
-                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: 6, color: "#fff", fontSize: 12 }}
+                        const syncItems = (newItems) => {
+                          handlePluginTextChange(activeSlideIndex, pIdx, "items", newItems);
+                          if (newItems.length >= 1) {
+                            handlePluginTextChange(activeSlideIndex, pIdx, "left_title", newItems[0].title || "");
+                            handlePluginTextChange(activeSlideIndex, pIdx, "left_text", newItems[0].text || "");
+                          }
+                          if (newItems.length >= 2) {
+                            handlePluginTextChange(activeSlideIndex, pIdx, "right_title", newItems[1].title || "");
+                            handlePluginTextChange(activeSlideIndex, pIdx, "right_text", newItems[1].text || "");
+                          }
+                        };
+
+                        const handleAddItem = () => {
+                          const newItems = [...items, { title: `Column ${items.length + 1}`, text: "" }];
+                          syncItems(newItems);
+                        };
+
+                        const handleRemoveItem = (idxToRemove) => {
+                          if (items.length <= 1) return;
+                          const newItems = items.filter((_, i) => i !== idxToRemove);
+                          syncItems(newItems);
+                        };
+
+                        const handleItemChange = (idx, field, val) => {
+                          const newItems = items.map((it, i) => i === idx ? { ...it, [field]: val } : it);
+                          syncItems(newItems);
+                        };
+
+                        return (
+                          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <label style={{ fontSize: 12, fontWeight: 700, color: "#c084fc" }}>
+                                Paragraph Columns ({items.length})
+                              </label>
+                              <button
+                                type="button"
+                                onClick={handleAddItem}
+                                style={{
+                                  background: "linear-gradient(135deg, #a855f7, #6366f1)",
+                                  border: "none",
+                                  borderRadius: 6,
+                                  padding: "4px 10px",
+                                  color: "#fff",
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 4
+                                }}
+                              >
+                                ➕ Add Column
+                              </button>
+                            </div>
+
+                            <div style={{ display: "grid", gridTemplateColumns: items.length > 2 ? "1fr" : "1fr 1fr", gap: 10 }}>
+                              {items.map((it, itemIdx) => (
+                                <div key={itemIdx} style={{ background: "rgba(0,0,0,0.25)", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", position: "relative" }}>
+                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                                    <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc" }}>
+                                      Column #{itemIdx + 1}
+                                    </label>
+                                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          if (!Array.isArray(it.points)) {
+                                            const pts = (it.text || "").split("\n").map(s => s.replace(/^[•\-*✓➔\d+.\s]+/, "").trim()).filter(Boolean);
+                                            handleItemChange(itemIdx, "points", pts.length ? pts : ["Key point item 1", "Key point item 2"]);
+                                          } else {
+                                            handleItemChange(itemIdx, "points", null);
+                                          }
+                                        }}
+                                        title="Toggle bullet points mode"
+                                        style={{
+                                          background: Array.isArray(it.points) ? "rgba(192, 132, 252, 0.2)" : "rgba(255,255,255,0.06)",
+                                          border: `1px solid ${Array.isArray(it.points) ? "#c084fc" : "rgba(255,255,255,0.15)"}`,
+                                          borderRadius: 4,
+                                          padding: "1px 6px",
+                                          color: Array.isArray(it.points) ? "#c084fc" : "#ccc",
+                                          fontSize: 10,
+                                          cursor: "pointer"
+                                        }}
+                                      >
+                                        {Array.isArray(it.points) ? "• Bullets" : "+ Bullets"}
+                                      </button>
+                                      {items.length > 1 && (
+                                        <button
+                                          type="button"
+                                          onClick={() => handleRemoveItem(itemIdx)}
+                                          title="Remove column"
+                                          style={{ background: "transparent", border: "none", color: "#ef4444", fontSize: 13, cursor: "pointer", padding: "0 4px" }}
+                                        >
+                                          ✕
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <input
+                                    type="text"
+                                    value={it.title || ""}
+                                    onChange={(e) => handleItemChange(itemIdx, "title", e.target.value)}
+                                    placeholder={`Column ${itemIdx + 1} Title`}
+                                    style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: 6, color: "#fff", fontSize: 12, marginBottom: 6 }}
+                                  />
+
+                                  {Array.isArray(it.points) ? (
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                      {it.points.map((pt, pIdxItem) => (
+                                        <div key={pIdxItem} style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                                          <span style={{ color: "#c084fc", fontWeight: 800, fontSize: 11 }}>•</span>
+                                          <input
+                                            type="text"
+                                            value={pt}
+                                            onChange={(e) => {
+                                              const newPts = [...it.points];
+                                              newPts[pIdxItem] = e.target.value;
+                                              handleItemChange(itemIdx, "points", newPts);
+                                            }}
+                                            placeholder={`Point ${pIdxItem + 1}`}
+                                            style={{ flex: 1, background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 4, padding: 4, color: "#fff", fontSize: 11 }}
+                                          />
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              const newPts = it.points.filter((_, i) => i !== pIdxItem);
+                                              handleItemChange(itemIdx, "points", newPts.length ? newPts : null);
+                                            }}
+                                            style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 11 }}
+                                          >
+                                            ✕
+                                          </button>
+                                        </div>
+                                      ))}
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const newPts = [...(it.points || []), "New point item"];
+                                          handleItemChange(itemIdx, "points", newPts);
+                                        }}
+                                        style={{ alignSelf: "flex-start", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 4, padding: "2px 6px", color: "#fff", fontSize: 10, cursor: "pointer", marginTop: 2 }}
+                                      >
+                                        ➕ Add Point
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <textarea
+                                      value={it.text || ""}
+                                      onChange={(e) => handleItemChange(itemIdx, "text", e.target.value)}
+                                      rows={3}
+                                      placeholder={`Paragraph text for column ${itemIdx + 1}...`}
+                                      style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: 6, color: "#fff", fontSize: 12 }}
+                                    />
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+
+                            <FeatureFormattingBar
+                              pluginData={plugin.data}
+                              onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                              onRefineText={() => handleAIRefine(pIdx, "summarize")}
                             />
                           </div>
-
-                          {/* RIGHT COLUMN */}
-                          <div style={{ background: "rgba(0,0,0,0.25)", padding: 8, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}>
-                            <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", display: "block", marginBottom: 4 }}>Right Column Title:</label>
-                            <input
-                              type="text"
-                              value={plugin.data?.right_title || ""}
-                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "right_title", e.target.value)}
-                              placeholder="e.g. Proposed AI Solution"
-                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: 6, color: "#fff", fontSize: 12, marginBottom: 6 }}
-                            />
-                            <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 2 }}>Right Paragraph Text:</label>
-                            <textarea
-                              value={plugin.data?.right_text || ""}
-                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "right_text", e.target.value)}
-                              rows={3}
-                              placeholder="Right column paragraph text..."
-                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 6, padding: 6, color: "#fff", fontSize: 12 }}
-                            />
-                          </div>
-                        </div>
-
-                        <FeatureFormattingBar
-                          pluginData={plugin.data}
-                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
-                          onRefineText={() => handleAIRefine(pIdx, "summarize")}
-                        />
-                      </div>
+                        );
+                      })()
                     ) : null}
 
                     {/* STAT */}
@@ -3049,6 +3446,480 @@ export default function PresentationEditor({
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
                           isRefining={refiningPluginIdx === pIdx}
+                        />
+                      </div>
+                    ) : null}
+
+                    {/* CALLOUT PLUGIN EDITOR */}
+                    {plugin.type === "callout" ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 10 }}>
+                          <div>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", display: "block", marginBottom: 4 }}>Callout Style:</label>
+                            <select
+                              value={plugin.data?.variant || "info"}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "variant", e.target.value)}
+                              style={{ width: "100%", background: "rgba(0,0,0,0.5)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                            >
+                              <option value="info">💡 Info / Key Takeaway</option>
+                              <option value="warning">⚠️ Warning / Attention</option>
+                              <option value="success">✅ Success / Highlight</option>
+                              <option value="danger">🚨 Danger / Alert</option>
+                              <option value="quote">💬 Quote / Pro Tip</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Callout Header / Title:</label>
+                            <input
+                              type="text"
+                              value={plugin.data?.title || ""}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "title", e.target.value)}
+                              placeholder="e.g. Key Architectural Insight"
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Callout Details / Text:</label>
+                          <textarea
+                            value={plugin.data?.text || ""}
+                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.value)}
+                            rows={3}
+                            placeholder="Enter callout description..."
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                          />
+                        </div>
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                        />
+                      </div>
+                    ) : null}
+
+                    {/* KPI GRID PLUGIN EDITOR */}
+                    {plugin.type === "kpi_grid" ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <div>
+                          <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Grid Title / Section Header:</label>
+                          <input
+                            type="text"
+                            value={plugin.data?.title || ""}
+                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "title", e.target.value)}
+                            placeholder="e.g. Executive Growth Metrics"
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                          />
+                        </div>
+
+                        {(() => {
+                          const kpis = safeArray(plugin.data?.items);
+                          const updateKPI = (kIdx, key, val) => {
+                            const updated = [...kpis];
+                            if (!updated[kIdx]) updated[kIdx] = {};
+                            updated[kIdx] = { ...updated[kIdx], [key]: val };
+                            handlePluginTextChange(activeSlideIndex, pIdx, "items", updated);
+                          };
+                          const addKPI = () => {
+                            handlePluginTextChange(activeSlideIndex, pIdx, "items", [...kpis, { number: "$10M", label: "Revenue", change: "+15%", subtitle: "YoY" }]);
+                          };
+                          const deleteKPI = (kIdx) => {
+                            const updated = kpis.filter((_, idx) => idx !== kIdx);
+                            handlePluginTextChange(activeSlideIndex, pIdx, "items", updated);
+                          };
+
+                          return (
+                            <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: 12, borderRadius: 10, border: "1px solid rgba(192, 132, 252, 0.25)", display: "flex", flexDirection: "column", gap: 10 }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc" }}>
+                                  🔢 KPI Cards ({kpis.length} Cards):
+                                </label>
+                                <button
+                                  type="button"
+                                  className="btn-ui primary sm"
+                                  onClick={addKPI}
+                                  style={{ padding: "4px 10px", fontSize: 10, fontWeight: 700, borderRadius: 6, background: "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)", color: "#fff", border: "none", cursor: "pointer" }}
+                                >
+                                  ➕ Add KPI
+                                </button>
+                              </div>
+
+                              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                {kpis.map((item, kIdx) => (
+                                  <div key={kIdx} style={{ background: "rgba(255,255,255,0.04)", padding: 8, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", gap: 6 }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                      <span style={{ fontSize: 10, fontWeight: 800, color: "#c084fc", background: "rgba(192, 132, 252, 0.15)", padding: "2px 6px", borderRadius: 4 }}>
+                                        KPI #{kIdx + 1}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => deleteKPI(kIdx)}
+                                        style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: 4, color: "#f87171", cursor: "pointer", fontSize: 10, padding: "2px 6px" }}
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr", gap: 6 }}>
+                                      <input
+                                        type="text"
+                                        value={item.number || ""}
+                                        onChange={(e) => updateKPI(kIdx, "number", e.target.value)}
+                                        placeholder="Metric Value (e.g. $2.5M)"
+                                        style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "5px 8px", color: "#c084fc", fontSize: 12, fontWeight: "bold" }}
+                                      />
+                                      <input
+                                        type="text"
+                                        value={item.label || ""}
+                                        onChange={(e) => updateKPI(kIdx, "label", e.target.value)}
+                                        placeholder="Label (e.g. Annual Revenue)"
+                                        style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "5px 8px", color: "#fff", fontSize: 12 }}
+                                      />
+                                      <input
+                                        type="text"
+                                        value={item.change || ""}
+                                        onChange={(e) => updateKPI(kIdx, "change", e.target.value)}
+                                        placeholder="Growth (e.g. +24%)"
+                                        style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "5px 8px", color: "#86efac", fontSize: 12 }}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                        />
+                      </div>
+                    ) : null}
+
+                    {/* PROS & CONS PLUGIN EDITOR */}
+                    {plugin.type === "pros_cons" ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <div>
+                          <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Comparison Title:</label>
+                          <input
+                            type="text"
+                            value={plugin.data?.title || ""}
+                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "title", e.target.value)}
+                            placeholder="e.g. Option Analysis: Cloud vs On-Premises"
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                          />
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                          {/* PROS COLUMN */}
+                          <div style={{ background: "rgba(34, 197, 94, 0.05)", padding: 10, borderRadius: 10, border: "1px solid rgba(34, 197, 94, 0.2)", display: "flex", flexDirection: "column", gap: 8 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <label style={{ fontSize: 11, fontWeight: 800, color: "#86efac" }}>
+                                ✅ Pros / Advantages:
+                              </label>
+                              <button
+                                type="button"
+                                className="btn-ui secondary sm"
+                                onClick={() => {
+                                  const pros = safeArray(plugin.data?.pros);
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "pros", [...pros, `New Pro Item`]);
+                                }}
+                                style={{ padding: "2px 8px", fontSize: 10 }}
+                              >
+                                + Add Pro
+                              </button>
+                            </div>
+                            {safeArray(plugin.data?.pros).map((pro, prIdx) => (
+                              <div key={prIdx} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                                <input
+                                  type="text"
+                                  value={pro}
+                                  onChange={(e) => {
+                                    const pros = [...safeArray(plugin.data?.pros)];
+                                    pros[prIdx] = e.target.value;
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "pros", pros);
+                                  }}
+                                  style={{ flex: 1, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(34, 197, 94, 0.3)", borderRadius: 6, padding: "5px 8px", color: "#fff", fontSize: 12 }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const pros = safeArray(plugin.data?.pros).filter((_, idx) => idx !== prIdx);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "pros", pros);
+                                  }}
+                                  style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: 4, color: "#f87171", cursor: "pointer", fontSize: 10, padding: "2px 6px" }}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* CONS COLUMN */}
+                          <div style={{ background: "rgba(239, 68, 68, 0.05)", padding: 10, borderRadius: 10, border: "1px solid rgba(239, 68, 68, 0.2)", display: "flex", flexDirection: "column", gap: 8 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <label style={{ fontSize: 11, fontWeight: 800, color: "#fca5a5" }}>
+                                ❌ Cons / Drawbacks:
+                              </label>
+                              <button
+                                type="button"
+                                className="btn-ui secondary sm"
+                                onClick={() => {
+                                  const cons = safeArray(plugin.data?.cons);
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "cons", [...cons, `New Con Item`]);
+                                }}
+                                style={{ padding: "2px 8px", fontSize: 10 }}
+                              >
+                                + Add Con
+                              </button>
+                            </div>
+                            {safeArray(plugin.data?.cons).map((con, cnIdx) => (
+                              <div key={cnIdx} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                                <input
+                                  type="text"
+                                  value={con}
+                                  onChange={(e) => {
+                                    const cons = [...safeArray(plugin.data?.cons)];
+                                    cons[cnIdx] = e.target.value;
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "cons", cons);
+                                  }}
+                                  style={{ flex: 1, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: 6, padding: "5px 8px", color: "#fff", fontSize: 12 }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const cons = safeArray(plugin.data?.cons).filter((_, idx) => idx !== cnIdx);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "cons", cons);
+                                  }}
+                                  style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: 4, color: "#f87171", cursor: "pointer", fontSize: 10, padding: "2px 6px" }}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                        />
+                      </div>
+                    ) : null}
+
+                    {/* ROADMAP PLUGIN EDITOR */}
+                    {plugin.type === "roadmap" ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <div>
+                          <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Roadmap Title:</label>
+                          <input
+                            type="text"
+                            value={plugin.data?.title || ""}
+                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "title", e.target.value)}
+                            placeholder="e.g. Product Release Roadmap Q1-Q4"
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                          />
+                        </div>
+
+                        {(() => {
+                          const steps = safeArray(plugin.data?.steps);
+                          const updateStep = (sIdx, key, val) => {
+                            const updated = [...steps];
+                            if (!updated[sIdx]) updated[sIdx] = {};
+                            updated[sIdx] = { ...updated[sIdx], [key]: val };
+                            handlePluginTextChange(activeSlideIndex, pIdx, "steps", updated);
+                          };
+                          const addStep = () => {
+                            handlePluginTextChange(activeSlideIndex, pIdx, "steps", [...steps, { phase: `Phase ${steps.length + 1}`, title: "Milestone Title", description: "Details...", status: "upcoming" }]);
+                          };
+                          const deleteStep = (sIdx) => {
+                            const updated = steps.filter((_, idx) => idx !== sIdx);
+                            handlePluginTextChange(activeSlideIndex, pIdx, "steps", updated);
+                          };
+
+                          return (
+                            <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: 12, borderRadius: 10, border: "1px solid rgba(192, 132, 252, 0.25)", display: "flex", flexDirection: "column", gap: 10 }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc" }}>
+                                  🗺️ Roadmap Milestones ({steps.length} Phases):
+                                </label>
+                                <button
+                                  type="button"
+                                  className="btn-ui primary sm"
+                                  onClick={addStep}
+                                  style={{ padding: "4px 10px", fontSize: 10, fontWeight: 700, borderRadius: 6, background: "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)", color: "#fff", border: "none", cursor: "pointer" }}
+                                >
+                                  ➕ Add Milestone
+                                </button>
+                              </div>
+
+                              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                {steps.map((step, sIdx) => (
+                                  <div key={sIdx} style={{ background: "rgba(255,255,255,0.04)", padding: 8, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", gap: 6 }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                      <span style={{ fontSize: 10, fontWeight: 800, color: "#c084fc", background: "rgba(192, 132, 252, 0.15)", padding: "2px 6px", borderRadius: 4 }}>
+                                        Milestone #{sIdx + 1}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => deleteStep(sIdx)}
+                                        style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: 4, color: "#f87171", cursor: "pointer", fontSize: 10, padding: "2px 6px" }}
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr", gap: 6 }}>
+                                      <input
+                                        type="text"
+                                        value={step.phase || ""}
+                                        onChange={(e) => updateStep(sIdx, "phase", e.target.value)}
+                                        placeholder="Phase (e.g. Q1 2025)"
+                                        style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "5px 8px", color: "#c084fc", fontSize: 12, fontWeight: "bold" }}
+                                      />
+                                      <input
+                                        type="text"
+                                        value={step.title || ""}
+                                        onChange={(e) => updateStep(sIdx, "title", e.target.value)}
+                                        placeholder="Milestone Title"
+                                        style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "5px 8px", color: "#fff", fontSize: 12 }}
+                                      />
+                                      <select
+                                        value={step.status || "upcoming"}
+                                        onChange={(e) => updateStep(sIdx, "status", e.target.value)}
+                                        style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "5px 8px", color: "#fff", fontSize: 11 }}
+                                      >
+                                        <option value="completed">Completed</option>
+                                        <option value="in_progress">In Progress</option>
+                                        <option value="upcoming">Upcoming</option>
+                                      </select>
+                                    </div>
+                                    <input
+                                      type="text"
+                                      value={step.description || ""}
+                                      onChange={(e) => updateStep(sIdx, "description", e.target.value)}
+                                      placeholder="Details / key deliverable..."
+                                      style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, padding: "4px 8px", color: "var(--text-muted)", fontSize: 11 }}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                        />
+                      </div>
+                    ) : null}
+
+                    {/* CODE BLOCK PLUGIN EDITOR */}
+                    {plugin.type === "code_block" ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 10 }}>
+                          <div>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Header Title:</label>
+                            <input
+                              type="text"
+                              value={plugin.data?.title || ""}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "title", e.target.value)}
+                              placeholder="e.g. API Client Implementation"
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", display: "block", marginBottom: 4 }}>Language:</label>
+                            <select
+                              value={plugin.data?.language || "python"}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "language", e.target.value)}
+                              style={{ width: "100%", background: "rgba(0,0,0,0.5)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                            >
+                              <option value="python">Python</option>
+                              <option value="javascript">JavaScript / TypeScript</option>
+                              <option value="html">HTML / JSX</option>
+                              <option value="css">CSS</option>
+                              <option value="bash">Bash / Shell</option>
+                              <option value="json">JSON</option>
+                              <option value="sql">SQL</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Source Code Snippet:</label>
+                          <textarea
+                            value={plugin.data?.code || ""}
+                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "code", e.target.value)}
+                            rows={5}
+                            placeholder="Paste code snippet here..."
+                            style={{ width: "100%", background: "#0f172a", border: "1px solid rgba(192, 132, 252, 0.3)", borderRadius: 8, padding: 10, color: "#38bdf8", fontFamily: "monospace", fontSize: 12, lineHeight: 1.4 }}
+                          />
+                        </div>
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                        />
+                      </div>
+                    ) : null}
+
+                    {/* SPEAKER CARD PLUGIN EDITOR */}
+                    {plugin.type === "speaker_card" ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                          <div>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", display: "block", marginBottom: 4 }}>Speaker Name:</label>
+                            <input
+                              type="text"
+                              value={plugin.data?.name || ""}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "name", e.target.value)}
+                              placeholder="e.g. Dr. Alex Vance"
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12, fontWeight: "bold" }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Role & Title:</label>
+                            <input
+                              type="text"
+                              value={plugin.data?.role || ""}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "role", e.target.value)}
+                              placeholder="e.g. Chief AI Architect"
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                            />
+                          </div>
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                          <div>
+                            <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Organization / Company:</label>
+                            <input
+                              type="text"
+                              value={plugin.data?.company || ""}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "company", e.target.value)}
+                              placeholder="e.g. Vitya AI Labs"
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Photo URL / Image:</label>
+                            <input
+                              type="text"
+                              value={plugin.data?.image_url || ""}
+                              onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "image_url", e.target.value)}
+                              placeholder="https://..."
+                              style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Bio / Speaker Summary:</label>
+                          <textarea
+                            value={plugin.data?.bio || ""}
+                            onChange={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "bio", e.target.value)}
+                            rows={3}
+                            placeholder="Brief speaker bio..."
+                            style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 12 }}
+                          />
+                        </div>
+                        <FeatureFormattingBar
+                          pluginData={plugin.data}
+                          onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
                         />
                       </div>
                     ) : null}

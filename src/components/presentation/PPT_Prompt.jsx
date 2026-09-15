@@ -50,18 +50,25 @@ export const PPT_PROMPTS = [
     "id": "ai_master",
     "category": "tech",
     "icon": "🤖",
-    "title": "Artificial Intelligence (AI)",
-    "desc": "Machine learning, deep learning, NLP, computer vision, Generative AI & ethics",
+    "title": "Artificial Intelligence – The Future of Intelligent Technology",
+    "desc": "20-slide comprehensive seminar deck: ML, Deep Learning, Neural Networks, GenAI, LLMs, Vision, NLP, Robotics & Ethics",
     "keywords": [
       "ai",
       "artificial intelligence",
-      "agentic ai",
-      "computer vision"
+      "intelligent technology",
+      "machine learning",
+      "deep learning",
+      "neural networks",
+      "generative ai",
+      "llm",
+      "computer vision",
+      "nlp",
+      "robotics"
     ],
-    "prompt": "Create an executive-level, professional, and visually engaging presentation on Artificial Intelligence (AI) covering an explicit 'Introduction & Executive Context' section, 'Presentation Overview & Agenda' section, its definition, history, how AI works, major types of AI, machine learning and deep learning, natural language processing, computer vision, generative AI, real-world applications, advantages, limitations, ethical concerns, future scope, and career opportunities. Use clear executive explanations, structured architecture diagrams, comparison matrices, performance charts, practical examples, relevant diagrams, icons, and AI-related images on every slide, with a modern technology-themed design suitable for students and beginners.",
+    "prompt": "Create a 20-slide professional and highly visual PowerPoint presentation on **“Artificial Intelligence – The Future of Intelligent Technology”** covering AI introduction, history and evolution, types of AI, how AI works, Machine Learning, Deep Learning, Neural Networks, Generative AI, LLMs, Computer Vision, NLP, AI in everyday life, AI across industries, AI + Robotics, benefits, limitations and challenges, AI ethics and responsible AI, future of AI, and AI career opportunities, ending with a strong conclusion. Use a **colorful futuristic AI theme** with dark backgrounds, vibrant cyan, blue, purple, pink, green and yellow gradients, glowing AI elements, modern icons, illustrations, diagrams, infographics and clean rounded cards. Keep text short and easy to understand, avoid overcrowding, use professional typography, and add **smooth animations, sequential element animations, Zoom/Fade/Wipe effects and modern Morph-style transitions** wherever supported. Make the overall presentation look premium, modern, engaging and suitable for a **college seminar/project presentation**.",
     "template": "dark",
-    "slideCount": 10,
-    "audience": "Students & Tech Enthusiasts"
+    "slideCount": 20,
+    "audience": "College Seminar & Tech Project Presentation"
   },
   {
     "id": "cybersecurity_master",
