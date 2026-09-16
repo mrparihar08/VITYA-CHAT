@@ -3,6 +3,7 @@ import html2canvas from "html2canvas";
 import ChatCharts from "./ChatCharts";
 import ChatInput from "./ChatInput";
 import FormattedMarkdown from "./FormattedMarkdown";
+import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../services/api";
 
 /* -------------------------------------------------------
@@ -29,13 +30,20 @@ const MEDIA_TYPES = new Set(["image", "qr", "barcode"]);
 
 const PPT_DEFAULTS = {
   include_title_slide: true,
+  include_agenda_slide: true,
+  include_speaker_notes: true,
+  use_web_search: true,
+  use_ai_image_generation: true,
+  smart_mode: true,
   allow_bullets: true,
-  allow_paragraph: true,
   allow_chart: true,
   allow_image: true,
+  allow_paragraph: true,
   allow_section_slide: true,
   allow_table: true,
-  smart_mode: true,
+  slide_count: 6,
+  tone: "Professional",
+  language: "English",
 };
 
 /* -------------------------------------------------------
@@ -372,16 +380,65 @@ const readResponse = async (res) => {
   }
 };
 
+const detectPptOptionsFromPrompt = (promptText = "") => {
+  const text = String(promptText || "").toLowerCase();
+
+  // 1. Language Detection (Detects Hindi Devanagari, Hinglish conversational words, or explicit language names)
+  let language = "English";
+  const containsDevanagari = /[\u0900-\u097F]/.test(promptText);
+  if (containsDevanagari || /\bhindi\b/i.test(text)) {
+    language = "Hindi";
+  } else if (
+    /\bhinglish\b/i.test(text) ||
+    /\b(banao|bana|karo|batao|par|aur|kaise|kya|hai|chahiye|sabkuch|lekin|mera|tera|hata|hatao|samjhao)\b/i.test(text)
+  ) {
+    language = "Hinglish";
+  } else if (/\b(spanish|español)\b/i.test(text)) {
+    language = "Spanish";
+  } else if (/\b(french|français)\b/i.test(text)) {
+    language = "French";
+  } else if (/\b(german|deutsch)\b/i.test(text)) {
+    language = "German";
+  }
+
+  // 2. Tone Detection (Detects Inspiring, Educational, Formal, or Default Professional)
+  let tone = "Professional";
+  if (/\b(inspiring|energetic|motivation|motivational|startup|pitch)\b/i.test(text)) {
+    tone = "Inspiring";
+  } else if (/\b(educational|detailed|tutorial|student|lecture|guide|explain|school|college)\b/i.test(text)) {
+    tone = "Educational";
+  } else if (/\b(formal|executive|c-suite|ceo|board|corporate|management)\b/i.test(text)) {
+    tone = "Formal";
+  }
+
+  // 3. Slide Count Detection (e.g. 10 slides, 8 slide, 15 slides)
+  let slideCount = 6;
+  const matchCount = text.match(/\b(\d{1,2})\s*slide(s)?\b/i);
+  if (matchCount && matchCount[1]) {
+    const num = parseInt(matchCount[1], 10);
+    if (!isNaN(num)) {
+      slideCount = Math.min(30, Math.max(3, num));
+    }
+  }
+
+  return { language, tone, slide_count: slideCount };
+};
+
 const buildPptPayload = (prompt, templateName, backgroundTheme, slideTypesRaw) => {
   const slideTypes = (slideTypesRaw || "")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
 
+  const detected = detectPptOptionsFromPrompt(prompt);
+
   return {
     prompt: (prompt || "").trim(),
     template_name: (templateName || "").trim() || null,
     ...PPT_DEFAULTS,
+    language: detected.language,
+    tone: detected.tone,
+    slide_count: detected.slide_count,
     background_theme: backgroundTheme,
     slide_types: slideTypes.length ? slideTypes : null,
   };
@@ -463,7 +520,32 @@ const getSpeakText = (msg) => {
    Component
 ------------------------------------------------------- */
 const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }) => {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
+
+  const handleEditPresentation = (msg) => {
+    try {
+      const planToSave = msg?.plan || {
+        title: msg?.title || "Presentation Deck",
+        slides: [
+          {
+            title: `Introduction to ${msg?.title || "Presentation"}`,
+            subtitle: "Key Overview & Strategic Insights",
+            layout: "title_content",
+            plugins: [
+              { type: "subtitle", data: { text: "Executive Summary" } },
+              { type: "bullets", data: { points: ["Overview & Strategic Objectives", "System Architecture & Workflows", "Key Insights & Next Steps"] } }
+            ]
+          }
+        ]
+      };
+      localStorage.setItem("vitya_ppt_saved_plan_v2", JSON.stringify(planToSave));
+      localStorage.setItem("vitya_ppt_saved_step_v2", "2");
+    } catch (e) {
+      console.warn("Failed to set presentation state in localStorage", e);
+    }
+    navigate("/presentation");
+  };
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
@@ -920,17 +1002,21 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
 
       const fileUrl = buildFileUrl(data.download_url || data?.content?.download_url);
       const fileName = data.file_name || data?.content?.file_name || "presentation.pptx";
+      const plan = data.plan || data?.content?.plan || null;
+      const title = data.title || data?.content?.title || messageToSend || "Presentation Deck";
+      const slidesCount = data.slides_count ?? data.slides ?? data?.content?.slides ?? 6;
 
       if (!fileUrl) throw new Error("No download URL returned from backend");
 
       const botMessage = {
         sender: "bot",
         type: "download_link",
-        text: `✅ Presentation ready: ${data.title || "Untitled Presentation"}\n📄 Slides: ${
-          data.slides ?? data?.content?.slides ?? 0
-        }\n⬇️ Click to download`,
+        title: title,
+        slidesCount: slidesCount,
         content: fileUrl,
         fileName,
+        plan: plan,
+        text: `✅ Presentation ready: ${title}\n📄 Slides: ${slidesCount}\n⬇️ Click to download`,
       };
 
       setMessages((prev) => [...prev, botMessage]);
@@ -982,15 +1068,19 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       if (data?.type === "file" && data?.content?.download_url) {
         const fileUrl = buildFileUrl(data.content.download_url);
         const fileName = data.content.file_name || "presentation.pptx";
+        const title = data.content.title || data.title || "Presentation Deck";
+        const slidesCount = data.content.slides ?? data.slides_count ?? 6;
+        const plan = data.content.plan || data.plan || null;
 
         const botMessage = {
           sender: "bot",
           type: "download_link",
-          text: `✅ Presentation ready: ${data.content.title || "Untitled Presentation"}\n📄 Slides: ${
-            data.content.slides ?? 0
-          }\n⬇️ Click to download`,
+          title: title,
+          slidesCount: slidesCount,
           content: fileUrl,
           fileName,
+          plan: plan,
+          text: `✅ Presentation ready: ${title}\n📄 Slides: ${slidesCount}\n⬇️ Click to download`,
         };
 
         setMessages((prev) => [...prev, botMessage]);
@@ -1060,8 +1150,12 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       try {
         let botMessage = null;
 
-        if (mode === "file") {
-          botMessage = await sendPptMessage(messageToSend);
+        const isPresentationSlash = /^\/(presentation|ppt)\b/i.test(messageToSend);
+        if (mode === "file" || isPresentationSlash) {
+          const pptTopic = isPresentationSlash
+            ? messageToSend.replace(/^\/(presentation|ppt)\s*/i, "").trim()
+            : messageToSend;
+          botMessage = await sendPptMessage(pptTopic || "Presentation Deck");
         } else {
           botMessage = await sendChatMessage(messageToSend);
         }
@@ -1155,7 +1249,12 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
   };
 
   const openMode = (nextMode) => {
-    setMode(nextMode);
+    if (nextMode === "websearch") {
+      setUseWebSearch((v) => !v);
+      setMode("chat");
+    } else {
+      setMode(nextMode);
+    }
     setPlusOpen(false);
   };
 
@@ -1296,26 +1395,70 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                     >
                       {msg.type === "download_link" ? (
                         <div style={styles.downloadCard}>
-                          <div style={styles.downloadTitle}>
-                            {msg.text?.split("\n")[0] || "✅ Presentation ready"}
+                          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                            <div style={{ fontSize: 22, padding: "8px 10px", borderRadius: 12, background: "rgba(139,92,246,0.2)", border: "1px solid rgba(139,92,246,0.3)" }}>
+                              📊
+                            </div>
+                            <div>
+                              <div style={{ fontSize: 14, fontWeight: 800, color: "#ffffff", letterSpacing: "0.2px" }}>
+                                {msg.title || msg.text?.split("\n")[0]?.replace(/^✅\s*Presentation ready:\s*/i, "") || "Presentation Deck"}
+                              </div>
+                              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>
+                                📄 {msg.slidesCount || 6} Slides • Ready for Download & Live Editing
+                              </div>
+                            </div>
                           </div>
 
-                          <div style={styles.downloadMeta}>
-                            {(msg.text || "")
-                              .split("\n")
-                              .slice(1)
-                              .map((line, idx) => (
-                                <div key={idx}>{line}</div>
-                              ))}
-                          </div>
+                          <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                            <button
+                              type="button"
+                              onClick={() => handleDownloadMessage(msg, i)}
+                              style={{
+                                flex: 1,
+                                minWidth: 130,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 6,
+                                background: "rgba(255,255,255,0.08)",
+                                border: "1px solid rgba(255,255,255,0.18)",
+                                color: "#ffffff",
+                                padding: "9px 14px",
+                                borderRadius: 10,
+                                fontSize: 12,
+                                fontWeight: 700,
+                                cursor: "pointer",
+                                transition: "all 0.2s ease",
+                              }}
+                            >
+                              ⬇️ Direct Download
+                            </button>
 
-                          <button
-                            type="button"
-                            onClick={() => handleDownloadMessage(msg, i)}
-                            style={styles.downloadLink}
-                          >
-                            ⬇️ Download PPT
-                          </button>
+                            <button
+                              type="button"
+                              onClick={() => handleEditPresentation(msg)}
+                              style={{
+                                flex: 1,
+                                minWidth: 140,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 6,
+                                background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+                                color: "#ffffff",
+                                border: "none",
+                                padding: "9px 14px",
+                                borderRadius: 10,
+                                fontSize: 12,
+                                fontWeight: 700,
+                                cursor: "pointer",
+                                boxShadow: "0 4px 14px rgba(139, 92, 246, 0.4)",
+                                transition: "all 0.2s ease",
+                              }}
+                            >
+                              ✏️ Edit in Studio
+                            </button>
+                          </div>
                         </div>
                       ) : type === "news" ? (
                         <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>

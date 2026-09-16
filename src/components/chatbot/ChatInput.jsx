@@ -2,9 +2,9 @@ import React from "react";
 
 export const MODES = [
   { key: "chat", label: "Chat", hint: "Default AI Assistant" },
+  { key: "websearch", label: "Web Search", hint: "Live web search & facts" },
   { key: "news", label: "News", hint: "Search latest news & headlines" },
   { key: "wiki", label: "Wikipedia", hint: "Search encyclopedia knowledge" },
-  { key: "file", label: "Create Presentation", hint: "Generate PPT slide deck" },
 ];
 
 export const placeholderMap = {
@@ -39,6 +39,7 @@ export const ChatInput = ({
 
   const getPlaceholder = () => {
     if (input.startsWith("/image")) return "Type AI image description (e.g. /image cyberpunk city 8k)…";
+    if (input.startsWith("/presentation") || input.startsWith("/ppt")) return "Type topic (e.g. /presentation India in BRICS)…";
     return placeholderMap[mode] || "Ask Vitya anything…";
   };
 
@@ -117,7 +118,7 @@ export const ChatInput = ({
                 <div style={{ fontSize: 12, fontWeight: 700, color: "#f43f5e", display: "flex", alignItems: "center", gap: 5 }}>
                   <span>🧩</span> Plugins & Tools
                 </div>
-                <div style={{ fontSize: 10, opacity: 0.7, marginTop: 1 }}>AI Image, Web Search & RAG</div>
+                <div style={{ fontSize: 10, opacity: 0.75, marginTop: 1 }}>PPT, AI Image, Web Search & RAG</div>
               </div>
               <span style={{ fontSize: 10, color: "#f43f5e", fontWeight: 900 }}>
                 {pluginsExpanded ? "▲" : "▼"}
@@ -126,6 +127,33 @@ export const ChatInput = ({
 
             {pluginsExpanded && (
               <div style={{ display: "grid", gap: 2, paddingLeft: 4, borderLeft: "2px solid rgba(244,63,94,0.3)", marginLeft: 4, marginTop: 2 }}>
+                {/* TOOL 0: PRESENTATION GENERATOR SLASH COMMAND */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPlusOpen(false);
+                    setInput("/presentation ");
+                    setTimeout(() => inputRef.current?.focus(), 50);
+                  }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    padding: "5px 8px",
+                    borderRadius: 6,
+                    border: "none",
+                    background: "transparent",
+                    color: "#fff",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                >
+                  <div style={{ fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
+                    📊 PPT Generator (/presentation)
+                  </div>
+                  <div style={{ fontSize: 9, opacity: 0.7, marginTop: 1 }}>Fill /presentation [topic] prompt</div>
+                </button>
+
                 {/* TOOL 1: AI IMAGE GENERATOR */}
                 <button
                   type="button"
@@ -174,7 +202,7 @@ export const ChatInput = ({
                     }}
                   >
                     <div style={{ fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
-                      🌐 Web Search: {useWebSearch ? "ON ✅" : "OFF ❌"}
+                      🌐 Web Search
                     </div>
                     <div style={{ fontSize: 9, opacity: 0.6, marginTop: 1 }}>Toggle live DuckDuckGo facts</div>
                   </button>

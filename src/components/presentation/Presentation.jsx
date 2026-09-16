@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { API_BASE_URL, getAuthHeaders } from "../../services/api";
-import { PPT_PROMPTS } from "./PPT_Prompt";
 import PresentationSetup from "./PresentationSetup";
 import PresentationEditor, { BACKGROUND_PRESETS } from "./PresentationEditor";
 
@@ -260,16 +259,12 @@ export default function PresentationGenerator() {
   const [contentTheme, setContentTheme] = useState("auto");
   const [visualStyle, setVisualStyle] = useState("minimal");
 
-  const [includeCitations, setIncludeCitations] = useState(false);
   const [includeSpeakerNotes, setIncludeSpeakerNotes] = useState(true);
-  const [useGemini, setUseGemini] = useState(true);
+  const [includeAgendaSlide, setIncludeAgendaSlide] = useState(true);
   const [useWebSearch, setUseWebSearch] = useState(true);
   const [useAiImageGen, setUseAiImageGen] = useState(true);
   const [smartMode, setSmartMode] = useState(true);
-  const [allowImage, setAllowImage] = useState(true);
   const [allowChart, setAllowChart] = useState(true);
-  const [allowTable, setAllowTable] = useState(true);
-  const [allowParagraph, setAllowParagraph] = useState(true);
 
   // Save & Download Lifecycle State 💾
   const [isSaving, setIsSaving] = useState(false);
@@ -277,11 +272,6 @@ export default function PresentationGenerator() {
   const [saveError, setSaveError] = useState("");
   const [savedMeta, setSavedMeta] = useState(null);
 
-  // Search State
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
 
   // Custom Color Theme State 🎨 (Restored from localStorage)
   const [selectedBgPreset, setSelectedBgPreset] = useState(() => {
@@ -449,46 +439,7 @@ export default function PresentationGenerator() {
     return BACKGROUND_PRESETS.find((bg) => bg.id === selectedBgPreset) || BACKGROUND_PRESETS[0];
   }, [selectedBgPreset, customBgColor1, customBgColor2, customTextColor]);
 
-  // Handle Search for topics
-  const handlePerformSearch = useCallback((e) => {
-    if (e) e.preventDefault();
-    const query = (searchQuery || "").trim().toLowerCase();
-    setIsSearching(true);
 
-    if (!query && selectedCategory === "all") {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
-    const filtered = PPT_PROMPTS.filter((item) => {
-      const matchCategory = selectedCategory === "all" || item.category === selectedCategory;
-      if (!query) return matchCategory;
-
-      const titleMatch = item.title.toLowerCase().includes(query);
-      const descMatch = (item.desc || "").toLowerCase().includes(query);
-      const kwMatch = item.keywords && item.keywords.some((kw) => kw.toLowerCase().includes(query));
-      return matchCategory && (titleMatch || descMatch || kwMatch);
-    });
-
-    setSearchResults(filtered);
-  }, [searchQuery, selectedCategory]);
-
-  useEffect(() => {
-    if (searchQuery.trim() || selectedCategory !== "all") {
-      handlePerformSearch();
-    } else {
-      setSearchResults([]);
-      setIsSearching(false);
-    }
-  }, [selectedCategory, searchQuery, handlePerformSearch]);
-
-  const handleSelectTopicFromSearch = (item) => {
-    setPrompt(item.prompt);
-    if (item.slideCount) setSlideCount(item.slideCount);
-    if (item.audience) setAudience(item.audience);
-    setError("");
-  };
 
   const buildPrompt = () => {
     const requirements = [
@@ -498,8 +449,8 @@ export default function PresentationGenerator() {
       `Target audience: ${audience}.`,
       `Tone: ${tone || "Professional"}.`,
       `Language: ${language || "English"}.`,
-      includeCitations && "Include source citations where facts or claims are used.",
       includeSpeakerNotes && "Include concise speaker notes for every slide.",
+      includeAgendaSlide && "Include an Auto Agenda / Table of Contents slide at the beginning of the presentation right after the title cover.",
     ].filter(Boolean);
 
     return `${prompt.trim()}\n\nPresentation quality requirements:\n${requirements
@@ -528,18 +479,14 @@ export default function PresentationGenerator() {
       audience: audience ? audience.trim() : null,
       tone: tone || "Professional",
       language: language || "English",
-      include_citations: includeCitations,
       include_speaker_notes: includeSpeakerNotes,
-      use_gemini: useGemini,
+      include_agenda_slide: includeAgendaSlide,
       use_web_search: useWebSearch,
       use_ai_image_generation: useAiImageGen,
       smart_mode: smartMode,
       allow_bullets: true,
-      allow_paragraph: allowParagraph,
       allow_chart: allowChart,
-      allow_image: allowImage,
       allow_section_slide: true,
-      allow_table: allowTable,
       plan: sanitizedPlan,
       brand_logo: useCustomBrand ? brandLogo : undefined,
       brand_color: useCustomBrand ? brandColor : undefined,
@@ -1370,38 +1317,21 @@ export default function PresentationGenerator() {
             setContentTheme={setContentTheme}
             visualStyle={visualStyle}
             setVisualStyle={setVisualStyle}
-            includeCitations={includeCitations}
-            setIncludeCitations={setIncludeCitations}
             includeSpeakerNotes={includeSpeakerNotes}
             setIncludeSpeakerNotes={setIncludeSpeakerNotes}
-            useGemini={useGemini}
-            setUseGemini={setUseGemini}
+            includeAgendaSlide={includeAgendaSlide}
+            setIncludeAgendaSlide={setIncludeAgendaSlide}
             useWebSearch={useWebSearch}
             setUseWebSearch={setUseWebSearch}
             useAiImageGen={useAiImageGen}
             setUseAiImageGen={setUseAiImageGen}
             smartMode={smartMode}
-            setSmartMode={setSmartMode}
-            allowImage={allowImage}
-            setAllowImage={setAllowImage}
             allowChart={allowChart}
             setAllowChart={setAllowChart}
-            allowTable={allowTable}
-            setAllowTable={setAllowTable}
-            allowParagraph={allowParagraph}
-            setAllowParagraph={setAllowParagraph}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            searchResults={searchResults}
-            isSearching={isSearching}
             loadingPlan={loadingPlan}
             loadingGenerate={isSaving}
             error={error || saveError}
             fetchPlan={fetchPlan}
-            handlePerformSearch={handlePerformSearch}
-            handleSelectTopicFromSearch={handleSelectTopicFromSearch}
             useCustomBrand={useCustomBrand}
             setUseCustomBrand={setUseCustomBrand}
             brandLogo={brandLogo}

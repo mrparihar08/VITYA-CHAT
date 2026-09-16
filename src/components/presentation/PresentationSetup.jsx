@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { PPT_CATEGORIES } from "./PPT_Prompt";
 
 
 
@@ -68,38 +67,22 @@ export default function PresentationSetup({
   setContentTheme,
   visualStyle,
   setVisualStyle,
-  includeCitations,
-  setIncludeCitations,
   includeSpeakerNotes,
   setIncludeSpeakerNotes,
-  useGemini,
-  setUseGemini,
+  includeAgendaSlide = true,
+  setIncludeAgendaSlide,
   useWebSearch,
   setUseWebSearch,
   useAiImageGen = true,
   setUseAiImageGen,
   smartMode,
   setSmartMode,
-  allowImage,
-  setAllowImage,
   allowChart,
   setAllowChart,
-  allowTable,
-  setAllowTable,
-  allowParagraph,
-  setAllowParagraph,
-  searchQuery,
-  setSearchQuery,
-  selectedCategory,
-  setSelectedCategory,
-  searchResults,
-  isSearching,
   loadingPlan,
   loadingGenerate,
   error,
   fetchPlan,
-  handlePerformSearch,
-  handleSelectTopicFromSearch,
   useCustomBrand,
   setUseCustomBrand,
   brandLogo,
@@ -205,61 +188,7 @@ export default function PresentationSetup({
         </div>
       </div>
 
-      {/* TOPIC SEARCH FORM */}
-      <form onSubmit={handlePerformSearch} className="search-box-wrap">
-        <input
-          type="text"
-          className="search-input"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search presentation topics (e.g. AI, Cyber Security, Finance)..."
-        />
-        <button type="submit" className="btn-ui primary sm">
-          🔍 Search Topics
-        </button>
-      </form>
 
-      {/* CATEGORY CHIPS */}
-      <div className="category-chips" style={{ marginBottom: "14px" }}>
-        {PPT_CATEGORIES?.map((cat) => (
-          <button
-            type="button"
-            key={cat.id}
-            className={`category-chip ${selectedCategory === cat.id ? "active" : ""}`}
-            onClick={() => setSelectedCategory(cat.id)}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
-      {/* SEARCH RESULTS DROPDOWN */}
-      {searchResults?.length > 0 ? (
-        <div className="search-results-container" style={{ marginBottom: "16px" }}>
-          <div style={{ fontSize: 11, color: "#c084fc", fontWeight: "bold", marginBottom: 6 }}>
-            Matching Topics ({searchResults.length}):
-          </div>
-          {searchResults.map((item) => (
-            <button
-              type="button"
-              key={item.id}
-              className="search-result-card"
-              onClick={() => handleSelectTopicFromSearch(item)}
-            >
-              <div style={{ fontWeight: 700, fontSize: 13, color: "#fff" }}>
-                {item.icon} {item.title}
-              </div>
-              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
-                {item.desc}
-              </div>
-            </button>
-          ))}
-        </div>
-      ) : isSearching ? (
-        <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 12 }}>
-          No exact topic match found. Enter custom prompt details below!
-        </div>
-      ) : null}
 
 
 
@@ -332,8 +261,8 @@ export default function PresentationSetup({
 
 
 
-      {/* SLIDE COUNT, AUDIENCE & CONFIGURATION */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+      {/* SLIDE COUNT & CONFIGURATION */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12, marginBottom: 16 }}>
         <div className="field-group">
           <label style={{ fontSize: 11, fontWeight: 700 }}>Slide Count (3-30)</label>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -378,15 +307,6 @@ export default function PresentationSetup({
               +
             </button>
           </div>
-        </div>
-
-        <div className="field-group">
-          <label style={{ fontSize: 11, fontWeight: 700 }}>Target Audience</label>
-          <input
-            value={audience || ""}
-            onChange={(e) => setAudience?.(e.target.value)}
-            placeholder="e.g. Students & Professionals"
-          />
         </div>
       </div>
 
@@ -644,16 +564,12 @@ export default function PresentationSetup({
 
       {showAiFeatures && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8, marginBottom: "16px" }}>
+          <Toggle label="Auto Agenda Slide" icon="📋" checked={includeAgendaSlide} onChange={setIncludeAgendaSlide} />
           <Toggle label="Speaker Notes" icon="📝" checked={includeSpeakerNotes} onChange={setIncludeSpeakerNotes} />
-          <Toggle label="Source Citations" icon="📚" checked={includeCitations} onChange={setIncludeCitations} />
-          <Toggle label="Gemini AI Engine" icon="🤖" checked={useGemini} onChange={setUseGemini} />
           <Toggle label="Live Web Research" icon="🌐" checked={useWebSearch} onChange={setUseWebSearch} />
           <Toggle label="AI Image Generator" icon="🎨" checked={useAiImageGen} onChange={setUseAiImageGen} />
           <Toggle label="Smart Mode" icon="⚡" checked={smartMode} onChange={setSmartMode} />
-          <Toggle label="Unsplash Auto-Images" icon="🖼️" checked={allowImage ?? true} onChange={setAllowImage} />
           <Toggle label="Charts & Graphs" icon="📊" checked={allowChart ?? true} onChange={setAllowChart} />
-          <Toggle label="Data Tables" icon="🗃️" checked={allowTable ?? true} onChange={setAllowTable} />
-          <Toggle label="Executive Summaries" icon="📄" checked={allowParagraph ?? true} onChange={setAllowParagraph} />
         </div>
       )}
 
