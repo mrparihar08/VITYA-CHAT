@@ -945,7 +945,8 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
     try {
       if (type === "download_link" && msg.content) {
         const fileUrl = buildFileUrl(msg.content);
-        window.open(fileUrl, "_blank", "noopener,noreferrer");
+        const fileName = msg.fileName || "presentation.pptx";
+        await downloadBlobFromUrl(fileUrl, fileName);
         return;
       }
 
@@ -979,7 +980,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       const payload = buildPptPayload(messageToSend, "", "light", null);
       payload.use_web_search = useWebSearch;
 
-      const res = await fetch(`${API_BASE_URL}/generate`, {
+      const res = await fetch(`${API_BASE_URL}/api/presentation/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1021,15 +1022,9 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
 
       setMessages((prev) => [...prev, botMessage]);
 
-      try {
-        await downloadBlobFromUrl(fileUrl, fileName);
-      } catch (err) {
-        console.error("Auto-download failed:", err);
-      }
-
       return botMessage;
     },
-    [token, downloadBlobFromUrl, useWebSearch]
+    [token, useWebSearch]
   );
 
   const sendChatMessage = useCallback(
@@ -1085,12 +1080,6 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
 
         setMessages((prev) => [...prev, botMessage]);
 
-        try {
-          await downloadBlobFromUrl(fileUrl, fileName);
-        } catch (err) {
-          console.error("Auto-download failed:", err);
-        }
-
         return botMessage;
       }
 
@@ -1125,7 +1114,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       onConversationUpdated?.();
       return botMessage;
     },
-    [token, mode, conversationId, useWebSearch, handleFileResponse, downloadBlobFromUrl, onConversationChange, onConversationUpdated]
+    [token, mode, conversationId, useWebSearch, handleFileResponse, onConversationChange, onConversationUpdated]
   );
 
   const sendMessage = useCallback(
@@ -1167,8 +1156,9 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
           }
         }
       } catch (error) {
-        console.error(error);
-        setMessages((prev) => [...prev, { sender: "bot", type: "text", text: "Server error...." }]);
+        console.error("Chatbot error:", error);
+        const errorText = error?.message ? `Server error: ${error.message}` : "Server error....";
+        setMessages((prev) => [...prev, { sender: "bot", type: "text", text: errorText }]);
       } finally {
         setLoading(false);
         setInput("");
@@ -1395,43 +1385,97 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                     >
                       {msg.type === "download_link" ? (
                         <div style={styles.downloadCard}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                            <div style={{ fontSize: 22, padding: "8px 10px", borderRadius: 12, background: "rgba(139,92,246,0.2)", border: "1px solid rgba(139,92,246,0.3)" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                            <div
+                              style={{
+                                width: 46,
+                                height: 46,
+                                borderRadius: 12,
+                                background: "linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(99, 102, 241, 0.3) 100%)",
+                                border: "1px solid rgba(139, 92, 246, 0.4)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: 22,
+                                boxShadow: "0 4px 12px rgba(139, 92, 246, 0.25)",
+                                flexShrink: 0,
+                              }}
+                            >
                               📊
                             </div>
-                            <div>
-                              <div style={{ fontSize: 14, fontWeight: 800, color: "#ffffff", letterSpacing: "0.2px" }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: 700,
+                                  color: "#ffffff",
+                                  letterSpacing: "0.2px",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                  lineHeight: 1.3,
+                                }}
+                              >
                                 {msg.title || msg.text?.split("\n")[0]?.replace(/^✅\s*Presentation ready:\s*/i, "") || "Presentation Deck"}
                               </div>
-                              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>
-                                📄 {msg.slidesCount || 6} Slides • Ready for Download & Live Editing
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 6,
+                                  fontSize: 12,
+                                  color: "rgba(226, 232, 240, 0.8)",
+                                  marginTop: 4,
+                                  fontWeight: 500,
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    background: "rgba(139, 92, 246, 0.25)",
+                                    color: "#d8b4fe",
+                                    padding: "2px 8px",
+                                    borderRadius: 6,
+                                    fontSize: 11,
+                                    fontWeight: 600,
+                                    border: "1px solid rgba(139, 92, 246, 0.35)",
+                                  }}
+                                >
+                                  📄 {msg.slidesCount || 6} Slides
+                                </span>
+                                <span>• PowerPoint (.pptx)</span>
                               </div>
                             </div>
                           </div>
 
-                          <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                          <div style={{ display: "flex", gap: 10, marginTop: 4, flexWrap: "wrap" }}>
                             <button
                               type="button"
                               onClick={() => handleDownloadMessage(msg, i)}
                               style={{
                                 flex: 1,
                                 minWidth: 130,
-                                display: "flex",
+                                display: "inline-flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                gap: 6,
-                                background: "rgba(255,255,255,0.08)",
-                                border: "1px solid rgba(255,255,255,0.18)",
+                                gap: 8,
+                                background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
                                 color: "#ffffff",
-                                padding: "9px 14px",
+                                border: "none",
+                                padding: "10px 16px",
                                 borderRadius: 10,
-                                fontSize: 12,
-                                fontWeight: 700,
+                                fontSize: 13,
+                                fontWeight: 600,
                                 cursor: "pointer",
-                                transition: "all 0.2s ease",
+                                boxShadow: "0 4px 14px rgba(139, 92, 246, 0.35)",
+                                transition: "all 0.15s ease",
                               }}
                             >
-                              ⬇️ Direct Download
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                              </svg>
+                              Download PPT
                             </button>
 
                             <button
@@ -1439,24 +1483,27 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                               onClick={() => handleEditPresentation(msg)}
                               style={{
                                 flex: 1,
-                                minWidth: 140,
-                                display: "flex",
+                                minWidth: 130,
+                                display: "inline-flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                gap: 6,
-                                background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
-                                color: "#ffffff",
-                                border: "none",
-                                padding: "9px 14px",
+                                gap: 8,
+                                background: "rgba(255, 255, 255, 0.08)",
+                                border: "1px solid rgba(255, 255, 255, 0.18)",
+                                color: "#f1f5f9",
+                                padding: "10px 16px",
                                 borderRadius: 10,
-                                fontSize: 12,
-                                fontWeight: 700,
+                                fontSize: 13,
+                                fontWeight: 600,
                                 cursor: "pointer",
-                                boxShadow: "0 4px 14px rgba(139, 92, 246, 0.4)",
-                                transition: "all 0.2s ease",
+                                transition: "all 0.15s ease",
                               }}
                             >
-                              ✏️ Edit in Studio
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                              </svg>
+                              Edit in Studio
                             </button>
                           </div>
                         </div>
@@ -2004,13 +2051,15 @@ const styles = {
   downloadCard: {
     display: "flex",
     flexDirection: "column",
-    gap: 10,
+    gap: 14,
     padding: 16,
     borderRadius: 16,
-    background: "#fff",
-    color: "#111827",
-    minWidth: 260,
-    boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
+    background: "linear-gradient(135deg, rgba(20, 20, 35, 0.95) 0%, rgba(13, 17, 30, 0.98) 100%)",
+    border: "1px solid rgba(139, 92, 246, 0.3)",
+    color: "#ffffff",
+    minWidth: 290,
+    boxSizing: "border-box",
+    boxShadow: "0 12px 28px rgba(0,0,0,0.4), 0 0 20px rgba(139,92,246,0.15)",
   },
   downloadTitle: { fontSize: 16, fontWeight: 800, lineHeight: 1.4, whiteSpace: "pre-line" },
   downloadMeta: { fontSize: 13, color: "#4b5563", lineHeight: 1.6, whiteSpace: "pre-line" },
