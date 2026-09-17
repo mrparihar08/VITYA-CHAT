@@ -264,20 +264,63 @@ export default function PresentationSetup({
       {/* SLIDE COUNT & CONFIGURATION */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12, marginBottom: 16 }}>
         <div className="field-group">
-          <label style={{ fontSize: 11, fontWeight: 700 }}>Slide Count (3-30)</label>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, margin: 0 }}>
+              <span>📊</span> Slide Count Selection (6 - 30 Slides)
+            </label>
+            <span style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", background: "rgba(139,92,246,0.15)", padding: "3px 8px", borderRadius: 999, border: "1px solid rgba(139,92,246,0.3)" }}>
+              ✨ AI Auto-Complexity Analyzer
+            </span>
+          </div>
+
+          {/* PRESET BUTTONS (6, 8, 10, 15, 20, 25, 30) */}
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
+            {[6, 8, 10, 15, 20, 25, 30].map((preset) => {
+              const isSelected = slideCount === preset;
+              return (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setSlideCount?.(preset)}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 8,
+                    fontSize: 11,
+                    fontWeight: isSelected ? 800 : 600,
+                    background: isSelected
+                      ? "linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)"
+                      : "rgba(255,255,255,0.05)",
+                    border: isSelected ? "1px solid #c084fc" : "1px solid rgba(255,255,255,0.1)",
+                    color: "#ffffff",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    boxShadow: isSelected ? "0 2px 8px rgba(124, 58, 237, 0.4)" : "none",
+                  }}
+                >
+                  {preset} Slides
+                </button>
+              );
+            })}
+          </div>
+
+          {/* MANUAL ADJUSTMENT STEPPER */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>Custom Count:</span>
             <button
               type="button"
               onClick={() => setSlideCount?.(Math.max(3, slideCount - 1))}
               style={{
-                width: 34,
-                height: 38,
-                borderRadius: 10,
+                width: 32,
+                height: 34,
+                borderRadius: 8,
                 border: "1px solid rgba(255,255,255,0.15)",
                 background: "rgba(255,255,255,0.06)",
                 color: "#fff",
                 fontWeight: "bold",
                 cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               −
@@ -287,21 +330,34 @@ export default function PresentationSetup({
               min="3"
               max="30"
               value={slideCount}
-              onChange={(e) => setSlideCount?.(Number(e.target.value))}
-              style={{ textAlign: "center", fontWeight: "bold" }}
+              onChange={(e) => setSlideCount?.(Math.min(30, Math.max(3, Number(e.target.value) || 3)))}
+              style={{
+                textAlign: "center",
+                fontWeight: "bold",
+                width: 60,
+                height: 34,
+                borderRadius: 8,
+                border: "1px solid rgba(255,255,255,0.15)",
+                background: "rgba(0,0,0,0.3)",
+                color: "#fff",
+                fontSize: 13,
+              }}
             />
             <button
               type="button"
               onClick={() => setSlideCount?.(Math.min(30, slideCount + 1))}
               style={{
-                width: 34,
-                height: 38,
-                borderRadius: 10,
+                width: 32,
+                height: 34,
+                borderRadius: 8,
                 border: "1px solid rgba(255,255,255,0.15)",
                 background: "rgba(255,255,255,0.06)",
                 color: "#fff",
                 fontWeight: "bold",
                 cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               +

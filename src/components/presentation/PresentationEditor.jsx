@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { API_BASE_URL } from "../../services/api";
+import { API_BASE_URL, getAuthHeaders } from "../../services/api";
 import { downloadFileAsBlob } from "./Presentation";
 
 export const BACKGROUND_PRESETS = [
@@ -143,11 +143,73 @@ export function parseDiagramSteps(textRaw) {
   return steps;
 }
 
+export const getChartTypeDefaults = (chartType = "column", topic = "") => {
+  const cType = String(chartType || "column").toLowerCase();
+  const cleanTitle = topic ? topic.replace(/^(Chart|Metrics|Data):\s*/i, "").trim() : "";
+
+  if (cType === "radar") {
+    return {
+      categories: ["Security & Trust", "Scalability", "Speed & Latency", "Usability", "Cost Efficiency"],
+      values: [88, 94, 76, 90, 82],
+      series_name: cleanTitle ? `${cleanTitle.slice(0, 20)} Capability Score` : "Capability Score (0-100)",
+      title: cleanTitle || "Multi-Vector Radar Assessment",
+    };
+  }
+  if (cType === "gauge") {
+    return {
+      categories: ["System SLA Uptime Target"],
+      values: [99.8],
+      series_name: cleanTitle ? `${cleanTitle.slice(0, 20)} Target Attainment` : "Target Attainment (%)",
+      title: cleanTitle || "Key Performance Metric Gauge",
+    };
+  }
+  if (cType === "waterfall") {
+    return {
+      categories: ["Q1 Baseline", "New Revenue", "OpEx Costs", "Tax & Subtraction", "Net Q2 Total"],
+      values: [120, 45, -22, -14, 129],
+      series_name: cleanTitle ? `${cleanTitle.slice(0, 20)} Financial Delta` : "Net Financial Change ($M)",
+      title: cleanTitle || "Waterfall Financial Breakdown",
+    };
+  }
+  if (cType === "pie" || cType === "donut") {
+    return {
+      categories: ["Enterprise Tier", "Mid-Market", "SMB & Startup", "Individual"],
+      values: [42, 28, 18, 12],
+      series_name: cleanTitle ? `${cleanTitle.slice(0, 20)} Share (%)` : "Share Percentage (%)",
+      title: cleanTitle || "Market Share Distribution",
+    };
+  }
+  if (cType === "bar" || cType === "bar_horizontal") {
+    return {
+      categories: ["Primary Vector", "Secondary Factor", "Operational Impact", "Policy Gap"],
+      values: [68.4, 48.2, 32.8, 19.5],
+      series_name: cleanTitle ? `${cleanTitle.slice(0, 20)} Impact Index` : "Severity & Impact Score",
+      title: cleanTitle || "Category Impact Comparison",
+    };
+  }
+  if (cType === "line" || cType === "area" || cType === "trend") {
+    return {
+      categories: ["2021", "2022", "2023", "2024", "2025"],
+      values: [18.5, 34.2, 58.7, 82.4, 94.0],
+      series_name: cleanTitle ? `${cleanTitle.slice(0, 20)} Adoption (%)` : "Adoption Rate (%)",
+      title: cleanTitle || "Growth & Trend Trajectory",
+    };
+  }
+  return {
+    categories: ["Phase 1 (Baseline)", "Phase 2 (Adoption)", "Phase 3 (Scaling)", "Phase 4 (Maturity)"],
+    values: [28.5, 54.0, 82.5, 120.0],
+    series_name: cleanTitle ? `${cleanTitle.slice(0, 20)} Index` : "Performance Metric Index",
+    title: cleanTitle || "Performance Benchmark",
+  };
+};
+
 export function VisualChartPreview({ data }) {
   const chartType = (data?.chart_type || "column").toLowerCase();
   const title = data?.title || "Data Metrics Overview";
-  const rawLabels = safeArray(data?.labels).length ? data.labels : (safeArray(data?.categories).length ? data.categories : ["Phase 1", "Phase 2", "Phase 3", "Phase 4"]);
-  
+  const defaults = getChartTypeDefaults(chartType, title);
+
+  const rawLabels = safeArray(data?.labels).length ? data.labels : (safeArray(data?.categories).length ? data.categories : defaults.categories);
+
   let rawValues = safeArray(data?.values).map(Number).filter((v) => !isNaN(v));
   if (data?.series_map && typeof data.series_map === "object") {
     const firstSeries = Object.values(data.series_map)[0];
@@ -159,10 +221,7 @@ export function VisualChartPreview({ data }) {
   }
 
   if (!rawValues.length || rawValues.every((v) => v === 0)) {
-    rawValues = [28.5, 52.0, 84.5, 130.0].slice(0, rawLabels.length);
-    while (rawValues.length < rawLabels.length) {
-      rawValues.push(Math.round((rawValues.length + 1) * 28.5));
-    }
+    rawValues = defaults.values;
   }
 
   const maxVal = Math.max(...rawValues, 10);
@@ -288,6 +347,60 @@ export function VisualChartPreview({ data }) {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {chartType === "radar" && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", padding: "10px 0", justifyContent: "center" }}>
+          {rawLabels.map((lbl, idx) => {
+            const val = rawValues[idx] || 0;
+            const pct = Math.min(100, Math.max(10, (val / maxVal) * 100));
+            return (
+              <div key={idx} style={{ background: "rgba(192, 132, 252, 0.12)", border: "1px solid rgba(192, 132, 252, 0.4)", borderRadius: 10, padding: "8px 12px", textAlign: "center", minWidth: 100 }}>
+                <div style={{ fontSize: "10px", color: "#c084fc", fontWeight: 700 }}>🕸️ {lbl}</div>
+                <div style={{ fontSize: "14px", fontWeight: 900, color: "#fff", margin: "4px 0" }}>{val}</div>
+                <div style={{ background: "rgba(255,255,255,0.1)", height: 4, borderRadius: 2, overflow: "hidden" }}>
+                  <div style={{ width: `${pct}%`, height: "100%", background: colors[idx % colors.length] }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {chartType === "gauge" && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "10px 0" }}>
+          <div style={{ position: "relative", width: 120, height: 60, overflow: "hidden" }}>
+            <div style={{ width: 120, height: 120, borderRadius: "50%", background: `conic-gradient(#10b981 0% 120deg, #f59e0b 120deg 240deg, #ef4444 240deg 360deg)`, opacity: 0.85 }} />
+            <div style={{ position: "absolute", top: 15, left: 15, width: 90, height: 90, borderRadius: "50%", background: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+              <span style={{ fontSize: 16, fontWeight: 900, color: "#38bdf8" }}>{rawValues[0] || 0}%</span>
+            </div>
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 700, opacity: 0.9, marginTop: 6 }}>🎯 {rawLabels[0] || "Target Benchmark"}</div>
+        </div>
+      )}
+
+      {chartType === "waterfall" && (
+        <div style={{ display: "flex", alignItems: "flex-end", gap: "10px", height: "100px", padding: "10px 0 0" }}>
+          {rawLabels.map((lbl, idx) => {
+            const val = rawValues[idx] || 0;
+            const isPositive = val >= 0;
+            const heightPct = Math.min(100, Math.max(15, (Math.abs(val) / maxVal) * 100));
+            return (
+              <div key={idx} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end" }}>
+                <div style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "4px", color: isPositive ? "#34d399" : "#f87171" }}>{isPositive ? `+${val}` : val}</div>
+                <div
+                  style={{
+                    width: "100%",
+                    height: `${heightPct}%`,
+                    background: isPositive ? "linear-gradient(180deg, #34d399 0%, #059669 100%)" : "linear-gradient(180deg, #f87171 0%, #dc2626 100%)",
+                    borderRadius: "4px",
+                  }}
+                />
+                <div style={{ fontSize: "9px", opacity: 0.8, marginTop: "4px", whiteSpace: "nowrap" }}>{lbl}</div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -626,22 +739,42 @@ export default function PresentationEditor({
 
   const handleGenerateAIImage = async (pIdx, defaultTopic = "") => {
     const plugin = activeSlide?.plugins?.[pIdx];
-    const basePrompt = defaultTopic || plugin?.data?.caption || activeSlide?.title || plan?.title || "modern technology visual";
+    const basePrompt = defaultTopic || plugin?.data?.caption || activeSlide?.title || plan?.title || "modern executive presentation visual";
     const promptInput = window.prompt("Enter AI image prompt (e.g., 'Futuristic AI neural network server room, 8k'):", basePrompt);
     if (!promptInput || !promptInput.trim()) return;
 
     setGeneratingAiImgIdx(pIdx);
     try {
-      const res = await fetch(`${API_SERVER_URL}/ai-image/generate?prompt=${encodeURIComponent(promptInput.trim())}`);
+      const res = await fetch(`${API_SERVER_URL}/refine-slide`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify({
+          text: promptInput.trim(),
+          action: "image",
+          slide_title: activeSlide?.title || "",
+          presentation_title: plan?.title || "",
+        }),
+      });
       const data = await res.json();
-      if (data?.url) {
-        handlePluginTextChange(activeSlideIndex, pIdx, "url", data.url);
-        handlePluginTextChange(activeSlideIndex, pIdx, "path", data.url);
+      const imgUrl = data?.refined_text || data?.url;
+      if (imgUrl) {
+        handlePluginTextChange(activeSlideIndex, pIdx, "url", imgUrl);
+        handlePluginTextChange(activeSlideIndex, pIdx, "path", imgUrl);
         handlePluginTextChange(activeSlideIndex, pIdx, "caption", promptInput.trim());
+        return;
       }
     } catch (err) {
-      console.warn("AI image generation call failed", err);
-      alert("AI image generation failed. Please check network connection.");
+      console.warn("AI image generation endpoint call failed, falling back to direct engine", err);
+    }
+
+    try {
+      const encoded = encodeURIComponent(`${promptInput.trim()}, modern executive corporate presentation visual, photorealistic 8k, cinematic lighting`);
+      const fallbackUrl = `https://image.pollinations.ai/prompt/${encoded}?width=1280&height=720&model=flux&nologo=true&seed=${Math.floor(Math.random() * 9000) + 1000}`;
+      handlePluginTextChange(activeSlideIndex, pIdx, "url", fallbackUrl);
+      handlePluginTextChange(activeSlideIndex, pIdx, "path", fallbackUrl);
+      handlePluginTextChange(activeSlideIndex, pIdx, "caption", promptInput.trim());
+    } catch (e) {
+      alert("AI image generation failed. Please try again.");
     } finally {
       setGeneratingAiImgIdx(null);
     }
@@ -761,7 +894,7 @@ export default function PresentationEditor({
   const handleAIRefine = async (pIdx, action = "bullets") => {
     const plugin = activeSlide?.plugins?.[pIdx];
     if (!plugin) return;
-    const currentText = plugin.data?.text || safeArray(plugin.data?.points).join("\n") || plugin.data?.diagram || "";
+    const currentText = plugin.data?.text || safeArray(plugin.data?.points).join("\n") || plugin.data?.diagram || plugin.data?.header || plugin.data?.title || activeSlide?.title || "Workflow Diagram";
     if (!currentText) return;
 
     const targetAction = plugin.type === "diagram" ? "diagram" : action;
@@ -770,8 +903,16 @@ export default function PresentationEditor({
     try {
       const res = await fetch(`${API_SERVER_URL}/refine-slide`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: currentText, action: targetAction }),
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
+          text: currentText,
+          action: targetAction,
+          slide_title: activeSlide?.title || "",
+          presentation_title: plan?.title || "",
+        }),
       });
       const data = await res.json();
       if (data?.refined_text) {
@@ -780,6 +921,18 @@ export default function PresentationEditor({
           handlePluginTextChange(activeSlideIndex, pIdx, "points", newPoints);
         } else if (plugin.type === "diagram") {
           let cleanedDiagram = data.refined_text;
+
+          if (data?.refined_header) {
+            handlePluginTextChange(activeSlideIndex, pIdx, "header", data.refined_header);
+            handlePluginTextChange(activeSlideIndex, pIdx, "title", data.refined_header);
+            handlePluginTextChange(activeSlideIndex, pIdx, "diagram_title", data.refined_header);
+          } else if (!plugin.data?.header && !plugin.data?.diagram_title && activeSlide?.title) {
+            const autoHeader = `${activeSlide.title} Process Flow`;
+            handlePluginTextChange(activeSlideIndex, pIdx, "header", autoHeader);
+            handlePluginTextChange(activeSlideIndex, pIdx, "title", autoHeader);
+            handlePluginTextChange(activeSlideIndex, pIdx, "diagram_title", autoHeader);
+          }
+
           // If response has bullet points, newlines, or lacks ➜ arrow format, sanitize into clean diagram step nodes
           if (cleanedDiagram.includes("•") || cleanedDiagram.includes("\n") || !cleanedDiagram.includes("➜")) {
             const rawLines = cleanedDiagram.split(/\n|•|\*/).map(l => l.trim()).filter(Boolean);
@@ -804,6 +957,20 @@ export default function PresentationEditor({
           }
           handlePluginTextChange(activeSlideIndex, pIdx, "diagram", cleanedDiagram);
           handlePluginTextChange(activeSlideIndex, pIdx, "text", cleanedDiagram);
+        } else if (plugin.type === "chart" || action === "chart") {
+          if (data?.refined_chart) {
+            const rc = data.refined_chart;
+            if (rc.title) handlePluginTextChange(activeSlideIndex, pIdx, "title", rc.title);
+            if (rc.series_name) handlePluginTextChange(activeSlideIndex, pIdx, "series_name", rc.series_name);
+            if (rc.chart_type) handlePluginTextChange(activeSlideIndex, pIdx, "chart_type", rc.chart_type);
+            if (Array.isArray(rc.categories) && Array.isArray(rc.values)) {
+              handlePluginTextChange(activeSlideIndex, pIdx, "categories", rc.categories);
+              handlePluginTextChange(activeSlideIndex, pIdx, "labels", rc.categories);
+              handlePluginTextChange(activeSlideIndex, pIdx, "values", rc.values.join(", "));
+            }
+          } else if (data?.refined_text) {
+            handlePluginTextChange(activeSlideIndex, pIdx, "title", data.refined_text);
+          }
         } else {
           handlePluginTextChange(activeSlideIndex, pIdx, "text", data.refined_text);
         }
@@ -1333,7 +1500,7 @@ export default function PresentationEditor({
                                 }}
                               />
                             ) : null}
-                            {p.data?.caption ? (
+                            {p.data?.caption && p.data.caption.trim().toLowerCase() !== (activeSlide?.title || "").trim().toLowerCase() ? (
                               <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>{p.data.caption}</div>
                             ) : null}
                           </div>
@@ -1379,7 +1546,7 @@ export default function PresentationEditor({
                               quadrant: "🧭 2x2 STRATEGIC MATRIX / QUADRANT",
                               comparison: "⚔️ FEATURE & SOLUTION COMPARISON",
                             };
-                            const customDiagramTitle = p.data?.title || p.data?.diagram_title;
+                            const customDiagramTitle = p.data?.title || p.data?.diagram_title || p.data?.header || (activeSlide?.title ? `${activeSlide.title} Process Flow` : null);
                             const headerTitle = customDiagramTitle ? customDiagramTitle.toUpperCase() : (headers[diagType] || "⚙️ SYSTEM ARCHITECTURE & PROCESS FLOW");
 
                             return (
@@ -1413,6 +1580,9 @@ export default function PresentationEditor({
                                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", padding: "10px 0" }}>
                                     {steps.map((step, sIdx) => {
                                       const isStartEnd = sIdx === 0 || sIdx === steps.length - 1;
+                                      const hasColon = step.includes(":");
+                                      const stepTitle = hasColon ? step.split(":")[0].trim() : step;
+                                      const stepDesc = hasColon ? step.split(":").slice(1).join(":").trim() : "";
                                       return (
                                         <React.Fragment key={sIdx}>
                                           <div style={{
@@ -1424,8 +1594,14 @@ export default function PresentationEditor({
                                             fontSize: p.data?.font_size || 12,
                                             fontWeight: 800,
                                             boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+                                            textAlign: "center",
                                           }}>
-                                            {isStartEnd ? `🏁 ${step}` : `⚙️ ${step}`}
+                                            <div>{isStartEnd ? `🏁 ${stepTitle}` : `⚙️ ${stepTitle}`}</div>
+                                            {stepDesc && (
+                                              <div style={{ fontSize: 10, fontWeight: 500, opacity: 0.8, marginTop: 2, color: isStartEnd ? "rgba(0,0,0,0.8)" : "rgba(255,255,255,0.75)" }}>
+                                                {stepDesc}
+                                              </div>
+                                            )}
                                           </div>
                                           {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 18, fontWeight: 900 }}>➜</span>}
                                         </React.Fragment>
@@ -2281,12 +2457,13 @@ export default function PresentationEditor({
                           <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Diagram Title / Header:</label>
                           <input
                             type="text"
-                            value={plugin.data?.title || plugin.data?.diagram_title || ""}
+                            value={plugin.data?.title || plugin.data?.diagram_title || plugin.data?.header || (activeSlide?.title ? `${activeSlide.title} Process Flow` : "")}
                             onChange={(e) => {
                               handlePluginTextChange(activeSlideIndex, pIdx, "title", e.target.value);
                               handlePluginTextChange(activeSlideIndex, pIdx, "diagram_title", e.target.value);
+                              handlePluginTextChange(activeSlideIndex, pIdx, "header", e.target.value);
                             }}
-                            placeholder="e.g. System Architecture & Process Workflow"
+                            placeholder={`e.g. ${activeSlide?.title ? activeSlide.title + " Process Flow" : "System Architecture & Process Workflow"}`}
                             style={{ width: "100%", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
                           />
                         </div>
@@ -2714,6 +2891,9 @@ export default function PresentationEditor({
                               { id: "pie", label: "🥧 Pie (Proportion)" },
                               { id: "area", label: "📉 Area (Cumulative)" },
                               { id: "donut", label: "🍩 Donut (Ring)" },
+                              { id: "radar", label: "🕸️ Radar (Spider Web)" },
+                              { id: "gauge", label: "🎯 Gauge (Progress Dial)" },
+                              { id: "waterfall", label: "📶 Waterfall (Flow Delta)" },
                             ].map((cOpt) => {
                               const currentType = (plugin.data?.chart_type || "column").toLowerCase();
                               const isActive = currentType === cOpt.id;
@@ -2722,7 +2902,17 @@ export default function PresentationEditor({
                                   key={cOpt.id}
                                   type="button"
                                   className="btn-ui secondary sm"
-                                  onClick={() => handlePluginTextChange(activeSlideIndex, pIdx, "chart_type", cOpt.id)}
+                                  onClick={() => {
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "chart_type", cOpt.id);
+                                    const defaults = getChartTypeDefaults(cOpt.id, plugin.data?.title || activeSlide?.title);
+                                    const currentLabels = safeArray(plugin.data?.labels).join(", ") || safeArray(plugin.data?.categories).join(", ");
+                                    if (!currentLabels || currentLabels.includes("Phase 1") || currentLabels.includes("Category") || currentLabels.includes("Point")) {
+                                      handleChartDataChange(activeSlideIndex, pIdx, "labels", defaults.categories.join(", "));
+                                      handleChartDataChange(activeSlideIndex, pIdx, "categories", defaults.categories.join(", "));
+                                      handleChartDataChange(activeSlideIndex, pIdx, "values", defaults.values.join(", "));
+                                      handlePluginTextChange(activeSlideIndex, pIdx, "series_name", defaults.series_name);
+                                    }
+                                  }}
                                   style={{
                                     padding: "5px 10px",
                                     fontSize: 11,
@@ -2770,15 +2960,17 @@ export default function PresentationEditor({
 
                         {/* 3. INTERACTIVE DATA POINTS BUILDER (SYNCED PAIRING 🎯) */}
                         {(() => {
-                          const rawLabels = safeArray(plugin.data?.labels).length ? safeArray(plugin.data?.labels) : safeArray(plugin.data?.categories);
-                          const rawValues = safeArray(plugin.data?.values);
-                          const count = Math.max(rawLabels.length, rawValues.length, 2);
+                          const currentType = (plugin.data?.chart_type || "column").toLowerCase();
+                          const defaults = getChartTypeDefaults(currentType, plugin.data?.title || activeSlide?.title);
+                          const rawLabels = safeArray(plugin.data?.labels).length ? safeArray(plugin.data?.labels) : (safeArray(plugin.data?.categories).length ? safeArray(plugin.data?.categories) : defaults.categories);
+                          const rawValues = safeArray(plugin.data?.values).length ? safeArray(plugin.data?.values) : defaults.values;
+                          const count = Math.max(rawLabels.length, rawValues.length, 1);
 
                           const items = [];
                           for (let i = 0; i < count; i++) {
                             items.push({
-                              label: rawLabels[i] !== undefined ? String(rawLabels[i]) : `Category ${i + 1}`,
-                              value: rawValues[i] !== undefined ? String(rawValues[i]) : String((i + 1) * 25),
+                              label: rawLabels[i] !== undefined ? String(rawLabels[i]) : (defaults.categories[i] || `Category ${i + 1}`),
+                              value: rawValues[i] !== undefined ? String(rawValues[i]) : String(defaults.values[i] !== undefined ? defaults.values[i] : (i + 1) * 20),
                             });
                           }
 
@@ -2796,14 +2988,41 @@ export default function PresentationEditor({
                                 <label style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", display: "flex", alignItems: "center", gap: 6 }}>
                                   📈 Synced Chart Data Points ({items.length} Points):
                                 </label>
-                                <button
-                                  type="button"
-                                  className="btn-ui primary sm"
-                                  onClick={() => syncData([...items, { label: `Point ${items.length + 1}`, value: "50" }])}
-                                  style={{ padding: "4px 10px", fontSize: 10, fontWeight: 700, borderRadius: 6, background: "linear-gradient(135deg, #0284c7 0%, #2563eb 100%)", color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
-                                >
-                                  ➕ Add Data Point
-                                </button>
+                                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                                  <button
+                                    type="button"
+                                    className="btn-ui secondary sm"
+                                    onClick={() => {
+                                      const defs = getChartTypeDefaults(currentType, plugin.data?.title || activeSlide?.title);
+                                      handleChartDataChange(activeSlideIndex, pIdx, "labels", defs.categories.join(", "));
+                                      handleChartDataChange(activeSlideIndex, pIdx, "categories", defs.categories.join(", "));
+                                      handleChartDataChange(activeSlideIndex, pIdx, "values", defs.values.join(", "));
+                                      handlePluginTextChange(activeSlideIndex, pIdx, "series_name", defs.series_name);
+                                    }}
+                                    style={{ padding: "4px 8px", fontSize: 10, fontWeight: 700, borderRadius: 6, background: "rgba(255,255,255,0.08)", color: "#86efac", border: "1px solid rgba(134, 239, 172, 0.3)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                                    title="Apply topic & layout specific defaults for this chart type"
+                                  >
+                                    ✨ Preset Defaults
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn-ui secondary sm"
+                                    onClick={() => handleAIRefine(pIdx, "chart")}
+                                    disabled={refiningPluginIdx === pIdx}
+                                    style={{ padding: "4px 10px", fontSize: 10, fontWeight: 700, borderRadius: 6, background: "linear-gradient(135deg, #c084fc 0%, #3b82f6 100%)", color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                                    title="Fetch authentic real-world topic metrics from AI"
+                                  >
+                                    {refiningPluginIdx === pIdx ? "⏳ Fetching Real Data..." : "🌐 Fetch Real AI Metrics Data"}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn-ui primary sm"
+                                    onClick={() => syncData([...items, { label: `Point ${items.length + 1}`, value: "50" }])}
+                                    style={{ padding: "4px 10px", fontSize: 10, fontWeight: 700, borderRadius: 6, background: "linear-gradient(135deg, #0284c7 0%, #2563eb 100%)", color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                                  >
+                                    ➕ Add Data Point
+                                  </button>
+                                </div>
                               </div>
 
                               <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 220, overflowY: "auto", paddingRight: 4 }}>
@@ -2930,6 +3149,8 @@ export default function PresentationEditor({
                         <FeatureFormattingBar
                           pluginData={plugin.data}
                           onChangeField={(fld, val) => handlePluginTextChange(activeSlideIndex, pIdx, fld, val)}
+                          onRefineText={() => handleAIRefine(pIdx, "chart")}
+                          isRefining={refiningPluginIdx === pIdx}
                         />
                       </div>
                     ) : null}
@@ -4252,7 +4473,7 @@ export default function PresentationEditor({
                               transition: "max-height 0.2s ease"
                             }}
                           />
-                          {plugin.data?.caption ? <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>{plugin.data.caption}</div> : null}
+                          {plugin.data?.caption && plugin.data.caption.trim().toLowerCase() !== (activeSlide?.title || "").trim().toLowerCase() ? <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>{plugin.data.caption}</div> : null}
                         </div>
                       ) : null}
 

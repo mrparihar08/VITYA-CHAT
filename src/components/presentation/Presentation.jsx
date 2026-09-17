@@ -252,7 +252,7 @@ export default function PresentationGenerator() {
   const [prompt, setPrompt] = useState(
     "Create a professional presentation on Artificial Intelligence and Machine Learning."
   );
-  const [slideCount, setSlideCount] = useState(6);
+  const [slideCount, setSlideCount] = useState(8);
   const [audience, setAudience] = useState("Students & Professionals");
   const [tone, setTone] = useState("Professional");
   const [language, setLanguage] = useState("English");
@@ -263,6 +263,7 @@ export default function PresentationGenerator() {
   const [includeAgendaSlide, setIncludeAgendaSlide] = useState(true);
   const [useWebSearch, setUseWebSearch] = useState(true);
   const [useAiImageGen, setUseAiImageGen] = useState(true);
+  // eslint-disable-next-line no-unused-vars
   const [smartMode, setSmartMode] = useState(true);
   const [allowChart, setAllowChart] = useState(true);
 

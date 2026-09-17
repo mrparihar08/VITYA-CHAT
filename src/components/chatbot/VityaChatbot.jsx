@@ -41,7 +41,7 @@ const PPT_DEFAULTS = {
   allow_paragraph: true,
   allow_section_slide: true,
   allow_table: true,
-  slide_count: 6,
+  slide_count: 8,
   tone: "Professional",
   language: "English",
 };
@@ -411,13 +411,15 @@ const detectPptOptionsFromPrompt = (promptText = "") => {
     tone = "Formal";
   }
 
-  // 3. Slide Count Detection (e.g. 10 slides, 8 slide, 15 slides)
-  let slideCount = 6;
+  // 3. Slide Count Detection (e.g. 10 slides, 8 slide, 15 slides, 20 slides)
+  let slideCount = 8;
   const matchCount = text.match(/\b(\d{1,2})\s*slide(s)?\b/i);
   if (matchCount && matchCount[1]) {
     const num = parseInt(matchCount[1], 10);
     if (!isNaN(num)) {
-      slideCount = Math.min(30, Math.max(3, num));
+      const presets = [6, 8, 10, 15, 20, 25, 30];
+      const clamped = Math.min(30, Math.max(3, num));
+      slideCount = presets.reduce((prev, curr) => (Math.abs(curr - clamped) < Math.abs(prev - clamped) ? curr : prev));
     }
   }
 
