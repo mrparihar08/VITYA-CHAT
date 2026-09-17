@@ -252,10 +252,13 @@ export default function PresentationGenerator() {
   const [prompt, setPrompt] = useState(
     "Create a professional presentation on Artificial Intelligence and Machine Learning."
   );
-  const [slideCount, setSlideCount] = useState(8);
+  const [slideCount, setSlideCount] = useState("auto");
   const [audience, setAudience] = useState("Students & Professionals");
   const [tone, setTone] = useState("Professional");
   const [language, setLanguage] = useState("English");
+  const [depth, setDepth] = useState("medium");
+  const [style, setStyle] = useState("professional");
+  const [userRequirements, setUserRequirements] = useState("");
   const [contentTheme, setContentTheme] = useState("auto");
   const [visualStyle, setVisualStyle] = useState("minimal");
 
@@ -471,6 +474,8 @@ export default function PresentationGenerator() {
     const sanitizedPlan = includePlan && plan ? sanitizePlanForBackend(plan, activeThemeConfig) : undefined;
 
     return {
+      topic: prompt.trim(),
+      purpose: prompt.trim(),
       prompt: buildPrompt(),
       export_format: exportFormat || "pptx",
       background_theme: selectedBgPreset || "dark",
@@ -480,6 +485,9 @@ export default function PresentationGenerator() {
       audience: audience ? audience.trim() : null,
       tone: tone || "Professional",
       language: language || "English",
+      depth: depth || "medium",
+      style: style || "professional",
+      user_requirements: userRequirements || "",
       include_speaker_notes: includeSpeakerNotes,
       include_agenda_slide: includeAgendaSlide,
       use_web_search: useWebSearch,
@@ -489,6 +497,7 @@ export default function PresentationGenerator() {
       allow_chart: allowChart,
       allow_section_slide: true,
       plan: sanitizedPlan,
+      structured_plan: sanitizedPlan,
       brand_logo: useCustomBrand ? brandLogo : undefined,
       brand_color: useCustomBrand ? brandColor : undefined,
       brand_secondary_color: useCustomBrand ? brandSecondaryColor : undefined,
@@ -498,7 +507,7 @@ export default function PresentationGenerator() {
     };
   };
 
-  // Save Presentation to Backend API 💾
+  // Stage 2 PPT Generator: Save / Render Final PowerPoint (.pptx) 💾
   const savePresentation = async () => {
     const payload = buildPayload({ includePlan: true });
 
@@ -512,14 +521,23 @@ export default function PresentationGenerator() {
     setIsSaving(true);
 
     try {
-      const res = await fetch(joinUrl(DEFAULT_API_BASE, "/save"), {
+      let res = await fetch(joinUrl(DEFAULT_API_BASE, "/stage2-generate"), {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify(payload),
       });
 
+      if (!res.ok) {
+        // Fallback to /save or /generate if /stage2-generate is not available
+        res = await fetch(joinUrl(DEFAULT_API_BASE, "/save"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify(payload),
+        });
+      }
+
       const data = await readResponse(res);
-      if (!res.ok) throw new Error(data?.detail || "Failed to save presentation");
+      if (!res.ok) throw new Error(data?.detail || "Failed to generate presentation deck");
 
       const ext = exportFormat === "pdf" ? "pdf" : "pptx";
       const fullUrl = resolveDownloadUrl(data.download_url);
@@ -528,15 +546,15 @@ export default function PresentationGenerator() {
         presentation_id: data.presentation_id,
         file_name: data.file_name || `presentation.${ext}`,
         download_url: fullUrl,
-        message: data.message || "Presentation saved successfully",
+        message: data.message || "Presentation deck generated successfully!",
       });
       setGeneratedMeta({
-        title: plan?.title || "Your presentation deck",
-        slides: previewCount || slideCount,
+        title: plan?.title || prompt || "Your presentation deck",
+        slides: previewCount || (typeof slideCount === "number" ? slideCount : 8),
       });
       setIsSaved(true);
     } catch (err) {
-      const errMsg = err?.message || "Something went wrong saving presentation";
+      const errMsg = err?.message || "Something went wrong generating presentation";
       setSaveError(errMsg);
       setError(errMsg);
     } finally {
@@ -550,7 +568,7 @@ export default function PresentationGenerator() {
     await downloadFileAsBlob(downloadUrl, filename);
   };
 
-  // Fetch / Preview Plan from API AND SWITCH TO SECOND PAGE (EDITOR)
+  // Stage 1 PPT Planner: Preview Plan & Outline from API 🚀
   const fetchPlan = async () => {
     if (!prompt.trim()) {
       setError("Please describe or search a presentation topic first.");
@@ -565,19 +583,71 @@ export default function PresentationGenerator() {
     setDownloadUrl("");
 
     try {
-      const res = await fetch(joinUrl(DEFAULT_API_BASE, "/plan"), {
+      let res = await fetch(joinUrl(DEFAULT_API_BASE, "/stage1-plan"), {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify(buildPayload({ includePlan: false })),
       });
 
+      if (!res.ok) {
+        // Fallback to /plan if /stage1-plan endpoint fails or falls back
+        res = await fetch(joinUrl(DEFAULT_API_BASE, "/plan"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify(buildPayload({ includePlan: false })),
+        });
+      }
+
       const data = await readResponse(res);
-      if (!res.ok) throw new Error(data?.detail || "Failed to preview plan");
-      setPlan(data);
+      if (!res.ok) throw new Error(data?.detail || "Failed to generate Stage 1 PPT plan");
+
+      // Normalize Stage 1 response format into interactive editor plan
+      let normalizedPlan = null;
+      if (data.slide_sequence && Array.isArray(data.slide_sequence)) {
+        const slides = data.slide_sequence.map((item, idx) => {
+          const plugins = [];
+          if (item.key_message) {
+            plugins.push({ type: "subtitle", data: { text: item.key_message } });
+          }
+          if (Array.isArray(item.content_points) && item.content_points.length > 0) {
+            plugins.push({ type: "bullets", data: { points: item.content_points } });
+          } else {
+            plugins.push({ type: "bullets", data: { points: ["Key takeaway concept", "Strategic analysis point"] } });
+          }
+          if (item.speaker_notes) {
+            plugins.push({ type: "notes", data: { notes: item.speaker_notes } });
+          }
+          return {
+            title: item.title || `Slide ${idx + 1}`,
+            subtitle: item.purpose || item.key_message || "",
+            layout: item.slide_type || "title_content",
+            slide_type: item.slide_type || "title_content",
+            purpose: item.purpose || "",
+            key_message: item.key_message || "",
+            visual_element_suggestion: item.visual_element_suggestion || "",
+            speaker_notes: item.speaker_notes || "",
+            plugins,
+          };
+        });
+        normalizedPlan = {
+          title: data.topic || prompt.trim(),
+          slides,
+          recommended_slide_count: data.recommended_slide_count,
+        };
+      } else if (data.slides && Array.isArray(data.slides)) {
+        normalizedPlan = data;
+      } else {
+        normalizedPlan = data;
+      }
+
+      setPlan(normalizedPlan);
+      if (normalizedPlan?.recommended_slide_count) {
+        setSlideCount(normalizedPlan.recommended_slide_count);
+      }
       setActiveSlideIndex(0);
-      setCurrentStep(2); // 🚀 Switch to Second Page (PresentationEditor)!
+      setCurrentStep(2); // 🚀 Switch to Second Page (Stage 1 Preview & PresentationEditor)!
     } catch (err) {
-      setError(err?.message || "Something went wrong fetching plan");
+      setError(err?.message || "Something went wrong generating Stage 1 plan");
     } finally {
       setLoadingPlan(false);
     }
@@ -1314,6 +1384,12 @@ export default function PresentationGenerator() {
             setTone={setTone}
             language={language}
             setLanguage={setLanguage}
+            depth={depth}
+            setDepth={setDepth}
+            style={style}
+            setStyle={setStyle}
+            userRequirements={userRequirements}
+            setUserRequirements={setUserRequirements}
             contentTheme={contentTheme}
             setContentTheme={setContentTheme}
             visualStyle={visualStyle}

@@ -63,6 +63,12 @@ export default function PresentationSetup({
   setTone,
   language,
   setLanguage,
+  depth = "medium",
+  setDepth,
+  style = "professional",
+  setStyle,
+  userRequirements = "",
+  setUserRequirements,
   contentTheme,
   setContentTheme,
   visualStyle,
@@ -261,20 +267,40 @@ export default function PresentationSetup({
 
 
 
-      {/* SLIDE COUNT & CONFIGURATION */}
+      {/* SLIDE COUNT & 2-STAGE CONFIGURATION */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12, marginBottom: 16 }}>
         <div className="field-group">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
             <label style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, margin: 0 }}>
-              <span>📊</span> Slide Count Selection (6 - 30 Slides)
+              <span>📊</span> Slide Count Selection
             </label>
             <span style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", background: "rgba(139,92,246,0.15)", padding: "3px 8px", borderRadius: 999, border: "1px solid rgba(139,92,246,0.3)" }}>
-              ✨ AI Auto-Complexity Analyzer
+              ✨ Stage 1: AI Auto-Complexity Analyzer
             </span>
           </div>
 
-          {/* PRESET BUTTONS (6, 8, 10, 15, 20, 25, 30) */}
+          {/* PRESET BUTTONS ("auto", 6, 8, 10, 15, 20, 25, 30) */}
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
+            <button
+              type="button"
+              onClick={() => setSlideCount?.("auto")}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 8,
+                fontSize: 11,
+                fontWeight: slideCount === "auto" ? 800 : 600,
+                background: slideCount === "auto"
+                  ? "linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)"
+                  : "rgba(255,255,255,0.05)",
+                border: slideCount === "auto" ? "1px solid #f472b6" : "1px solid rgba(255,255,255,0.1)",
+                color: "#ffffff",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: slideCount === "auto" ? "0 2px 8px rgba(236, 72, 153, 0.4)" : "none",
+              }}
+            >
+              ✨ Auto (AI Decides)
+            </button>
             {[6, 8, 10, 15, 20, 25, 30].map((preset) => {
               const isSelected = slideCount === preset;
               return (
@@ -303,65 +329,117 @@ export default function PresentationSetup({
             })}
           </div>
 
-          {/* MANUAL ADJUSTMENT STEPPER */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>Custom Count:</span>
-            <button
-              type="button"
-              onClick={() => setSlideCount?.(Math.max(3, slideCount - 1))}
-              style={{
-                width: 32,
-                height: 34,
-                borderRadius: 8,
-                border: "1px solid rgba(255,255,255,0.15)",
-                background: "rgba(255,255,255,0.06)",
-                color: "#fff",
-                fontWeight: "bold",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              −
-            </button>
-            <input
-              type="number"
-              min="3"
-              max="30"
-              value={slideCount}
-              onChange={(e) => setSlideCount?.(Math.min(30, Math.max(3, Number(e.target.value) || 3)))}
-              style={{
-                textAlign: "center",
-                fontWeight: "bold",
-                width: 60,
-                height: 34,
-                borderRadius: 8,
-                border: "1px solid rgba(255,255,255,0.15)",
-                background: "rgba(0,0,0,0.3)",
-                color: "#fff",
-                fontSize: 13,
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => setSlideCount?.(Math.min(30, slideCount + 1))}
-              style={{
-                width: 32,
-                height: 34,
-                borderRadius: 8,
-                border: "1px solid rgba(255,255,255,0.15)",
-                background: "rgba(255,255,255,0.06)",
-                color: "#fff",
-                fontWeight: "bold",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              +
-            </button>
+          {/* MANUAL ADJUSTMENT STEPPER & DEPTH / STYLE OPTIONS */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>Custom:</span>
+              <button
+                type="button"
+                onClick={() => setSlideCount?.(Math.max(3, (typeof slideCount === "number" ? slideCount : 8) - 1))}
+                style={{
+                  width: 28,
+                  height: 30,
+                  borderRadius: 6,
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  background: "rgba(255,255,255,0.06)",
+                  color: "#fff",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                −
+              </button>
+              <input
+                type="text"
+                readOnly={slideCount === "auto"}
+                value={slideCount === "auto" ? "Auto" : slideCount}
+                onChange={(e) => setSlideCount?.(Math.min(30, Math.max(3, Number(e.target.value) || 8)))}
+                style={{
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  width: 52,
+                  height: 30,
+                  borderRadius: 6,
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  background: slideCount === "auto" ? "rgba(139,92,246,0.2)" : "rgba(0,0,0,0.3)",
+                  color: "#fff",
+                  fontSize: 12,
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setSlideCount?.(Math.min(30, (typeof slideCount === "number" ? slideCount : 8) + 1))}
+                style={{
+                  width: 28,
+                  height: 30,
+                  borderRadius: 6,
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  background: "rgba(255,255,255,0.06)",
+                  color: "#fff",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                +
+              </button>
+            </div>
+
+            <div>
+              <label style={{ fontSize: 10, color: "#c084fc", fontWeight: 700, display: "block", marginBottom: 2 }}>
+                📖 Content Depth
+              </label>
+              <select
+                value={depth}
+                onChange={(e) => setDepth?.(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "4px 8px",
+                  borderRadius: 6,
+                  background: "rgba(15, 23, 42, 0.9)",
+                  color: "#fff",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  fontSize: 11,
+                  fontWeight: 600,
+                }}
+              >
+                <option value="basic">Basic Summary</option>
+                <option value="medium">Medium Depth</option>
+                <option value="detailed">In-Depth Executive</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ fontSize: 10, color: "#38bdf8", fontWeight: 700, display: "block", marginBottom: 2 }}>
+                🎨 Presentation Style
+              </label>
+              <select
+                value={style}
+                onChange={(e) => setStyle?.(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "4px 8px",
+                  borderRadius: 6,
+                  background: "rgba(15, 23, 42, 0.9)",
+                  color: "#fff",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  fontSize: 11,
+                  fontWeight: 600,
+                }}
+              >
+                <option value="professional">💼 Professional</option>
+                <option value="academic">🎓 Academic</option>
+                <option value="corporate">🏢 Corporate</option>
+                <option value="modern">✨ Modern</option>
+                <option value="minimal">🎨 Minimalist</option>
+                <option value="creative">🚀 Creative</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>

@@ -38,15 +38,37 @@ export const TABLE_THEME_PRESETS = [
 ];
 
 export const OFFICE_LAYOUT_PRESETS = [
-  { id: "title_subtitle", label: "Title Slide", desc: "Main title & subtitle" },
-  { id: "title_content", label: "Title and Content", desc: "Header with content list" },
-  { id: "section_header", label: "Section Header", desc: "Chapter / section divider" },
-  { id: "two_content", label: "Two Content", desc: "Side-by-side dual content" },
-  { id: "comparison", label: "Comparison", desc: "Side-by-side with headers" },
-  { id: "title_only", label: "Title Only", desc: "Top header with blank body" },
-  { id: "blank", label: "Blank", desc: "Empty custom slide canvas" },
-  { id: "content_caption", label: "Content with Caption", desc: "Text sidebar & content box" },
-  { id: "picture_caption", label: "Picture with Caption", desc: "Text sidebar & image box" },
+  { id: "title", label: "Title Slide", desc: "Main presentation title & cover subtitle" },
+  { id: "agenda", label: "Agenda / Overview", desc: "Table of contents & deck outline" },
+  { id: "section", label: "Section Divider", desc: "Chapter / topic transition slide" },
+  { id: "introduction", label: "Executive Introduction", desc: "Context & high-level summary" },
+  { id: "definition", label: "Concept Definition", desc: "Term definition & core meaning" },
+  { id: "concept", label: "Core Concept", desc: "Deep-dive concept breakdown" },
+  { id: "two_column", label: "Dual Column Layout", desc: "Two parallel content columns" },
+  { id: "three_cards", label: "Three Cards Grid", desc: "Trio feature & pillar cards" },
+  { id: "four_cards", label: "Four Cards Grid", desc: "Quad feature & matrix cards" },
+  { id: "comparison", label: "Feature Comparison", desc: "Side-by-side comparison matrix" },
+  { id: "process", label: "Process Steps", desc: "Sequential step-by-step flow" },
+  { id: "workflow", label: "Workflow Pipeline", desc: "Interactive workflow & system flow" },
+  { id: "timeline", label: "Timeline Roadmap", desc: "Chronological milestones & history" },
+  { id: "architecture", label: "System Architecture", desc: "Layered tech stack & architecture" },
+  { id: "hierarchy", label: "Hierarchy Tree", desc: "Organizational & structural tree" },
+  { id: "cycle", label: "Cyclic Loop", desc: "Iterative cycle & feedback loop" },
+  { id: "statistics", label: "Statistics & KPIs", desc: "High-impact metric summary cards" },
+  { id: "chart", label: "Data Visualization Chart", desc: "Bar, line, pie, radar chart" },
+  { id: "table", label: "Data Table Matrix", desc: "Tabular data comparison matrix" },
+  { id: "case_study", label: "Real-World Case Study", desc: "Problem, solution, impact case study" },
+  { id: "applications", label: "Industry Applications", desc: "Use cases & deployment domains" },
+  { id: "advantages_disadvantages", label: "Pros & Cons", desc: "Strengths vs challenges breakdown" },
+  { id: "problem_solution", label: "Problem & Solution", desc: "Pain point vs resolution analysis" },
+  { id: "risks", label: "Risk Assessment", desc: "Risks, impact & mitigation steps" },
+  { id: "roadmap", label: "Strategic Roadmap", desc: "Quarterly execution roadmap" },
+  { id: "conclusion", label: "Conclusion & Summary", desc: "Executive wrap-up & conclusion" },
+  { id: "key_takeaways", label: "Key Takeaways", desc: "Actionable summary highlights" },
+  { id: "thank_you", label: "Thank You / Q&A", desc: "Closing cover & contact details" },
+  { id: "title_subtitle", label: "Title & Subtitle (Legacy)", desc: "Main title & subtitle" },
+  { id: "title_content", label: "Title & Content (Legacy)", desc: "Header with content list" },
+  { id: "blank", label: "Blank Canvas", desc: "Empty custom slide canvas" },
 ];
 
 function safeArray(value) {
@@ -1028,6 +1050,45 @@ export default function PresentationEditor({
                 📥Download
               </button>
             ) : null}
+          </div>
+        </div>
+
+        {/* 2-STAGE WORKFLOW BADGE / BANNER */}
+        <div
+          style={{
+            background: "linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(99,102,241,0.1) 50%, rgba(6,182,212,0.15) 100%)",
+            border: "1px solid rgba(192, 132, 252, 0.3)",
+            borderRadius: 14,
+            padding: "12px 16px",
+            marginBottom: 16,
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 900, color: "#ec4899", background: "rgba(236,72,153,0.2)", padding: "2px 8px", borderRadius: 999, border: "1px solid rgba(236,72,153,0.4)" }}>
+                STAGE 1: PPT PLANNER
+              </span>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>➔</span>
+              <span style={{ fontSize: 11, fontWeight: 900, color: "#c084fc", background: "rgba(192,132,252,0.2)", padding: "2px 8px", borderRadius: 999, border: "1px solid rgba(192,132,252,0.4)" }}>
+                USER PREVIEW & EDIT
+              </span>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>➔</span>
+              <span style={{ fontSize: 11, fontWeight: 900, color: "#34d399", background: "rgba(52,211,153,0.2)", padding: "2px 8px", borderRadius: 999, border: "1px solid rgba(52,211,153,0.4)" }}>
+                STAGE 2: PPT GENERATOR
+              </span>
+            </div>
+
+            <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>
+              {plan?.slides?.length || 0} Slides • 2-Stage Content & Design Specs
+            </span>
+          </div>
+
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", display: "flex", gap: 16, flexWrap: "wrap" }}>
+            <span>📝 <strong>Content Plan (WHAT):</strong> Purpose, Key Message, Concise Bullet Points & Notes</span>
+            <span>🎨 <strong>Design Plan (HOW):</strong> Layout, Color Tokens, Density & Visual Structure</span>
           </div>
         </div>
 
