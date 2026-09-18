@@ -761,30 +761,10 @@ body {
   border-radius: 6px;
 }
 
-.presenter-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: rgba(9, 13, 24, 0.96);
-  backdrop-filter: blur(16px);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
 @media (max-width: 600px) {
   .slide-tab-item {
     flex: 0 0 100%;
     min-width: 100%;
-  }
-
-  .presenter-overlay {
-    padding: 14px !important;
-  }
-
-  .presenter-canvas {
-    padding: 16px !important;
   }
 }
 

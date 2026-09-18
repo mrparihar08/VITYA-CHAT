@@ -18,7 +18,20 @@ const LANGUAGE_OPTIONS = [
   { id: "German", label: "German", flag: "🇩🇪" },
 ];
 
+const DEPTH_OPTIONS = [
+  { id: "basic", label: "Basic Overview", desc: "High-level summary" },
+  { id: "medium", label: "Standard Medium", desc: "Balanced depth & data" },
+  { id: "detailed", label: "Deep Enterprise", desc: "Comprehensive technical specs" },
+];
 
+const STYLE_OPTIONS = [
+  { id: "professional", label: "Executive Professional" },
+  { id: "corporate", label: "Corporate Enterprise" },
+  { id: "modern", label: "Modern Minimal" },
+  { id: "academic", label: "Academic Research" },
+  { id: "creative", label: "Creative Showcase" },
+  { id: "minimal", label: "Minimalist Clean" },
+];
 
 function Toggle({ label, checked, onChange, icon }) {
   return (
@@ -57,18 +70,18 @@ export default function PresentationSetup({
   setPrompt,
   slideCount,
   setSlideCount,
-  audience,
-  setAudience,
-  tone,
-  setTone,
-  language,
-  setLanguage,
   depth = "medium",
   setDepth,
   style = "professional",
   setStyle,
   userRequirements = "",
   setUserRequirements,
+  audience,
+  setAudience,
+  tone,
+  setTone,
+  language,
+  setLanguage,
   contentTheme,
   setContentTheme,
   visualStyle,
@@ -151,6 +164,7 @@ export default function PresentationSetup({
     setTimeout(() => setIsEnhanced(false), 2500);
   };
 
+  const calculatedSlideCount = slideCount === "auto" ? 8 : (Number(slideCount) || 8);
 
   return (
     <div className="card-box ppt-setup-card" style={{ marginBottom: "20px" }}>
@@ -170,7 +184,7 @@ export default function PresentationSetup({
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 13, fontWeight: 900, color: "#c084fc", letterSpacing: "1px" }}>
-            PRESENTATION STUDIO
+            STAGE 1: PPT PLANNER & DESIGN STUDIO
           </span>
           <span
             style={{
@@ -183,20 +197,16 @@ export default function PresentationSetup({
               border: "1px solid rgba(139,92,246,0.3)",
             }}
           >
-            AI V2.5 Active
+            2-Stage Engine Active
           </span>
         </div>
 
         {/* REALTIME DECK ESTIMATE COUNTER */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 11, color: "rgba(255,255,255,0.65)", flexWrap: "wrap" }}>
-          <span><strong>~{(slideCount * 1.2).toFixed(1)} Mins</strong> Presentation</span>
-          <span><strong>{slideCount} Slides</strong></span>
+          <span><strong>~{(calculatedSlideCount * 1.2).toFixed(1)} Mins</strong> Presentation</span>
+          <span><strong>{slideCount === "auto" ? "Auto (AI Decided)" : `${slideCount} Slides`}</strong></span>
         </div>
       </div>
-
-
-
-
 
       {/* PROMPT INPUT WITH AI MAGIC ENHANCE BUTTON AND VOICE DICTATION */}
       <div className="field-group" style={{ marginBottom: "16px" }}>
@@ -250,7 +260,7 @@ export default function PresentationSetup({
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          rows={4}
+          rows={3}
           style={{
             lineHeight: "1.5",
             fontSize: "13.5px",
@@ -261,13 +271,33 @@ export default function PresentationSetup({
             width: "100%",
             padding: "12px",
           }}
-          placeholder="Describe your presentation topic, key points, target audience, or specific instructions..."
+          placeholder="Describe your presentation topic, key subtopics, target audience, or specific presentation goals..."
         />
       </div>
 
+      {/* USER REQUIREMENTS / EXTRA INSTRUCTIONS (OPTIONAL) */}
+      <div className="field-group" style={{ marginBottom: "16px" }}>
+        <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.8)", marginBottom: 4, display: "block" }}>
+          🎯 Specific User Requirements & Constraints (Optional)
+        </label>
+        <input
+          type="text"
+          value={userRequirements || ""}
+          onChange={(e) => setUserRequirements?.(e.target.value)}
+          placeholder="e.g. Include a 4-step deployment workflow slide, emphasis on ROI calculations, or specific case study..."
+          style={{
+            fontSize: 12,
+            padding: "8px 12px",
+            borderRadius: 10,
+            background: "rgba(0,0,0,0.3)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            color: "#fff",
+            width: "100%",
+          }}
+        />
+      </div>
 
-
-      {/* SLIDE COUNT & 2-STAGE CONFIGURATION */}
+      {/* SLIDE COUNT & CONFIGURATION */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12, marginBottom: 16 }}>
         <div className="field-group">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
@@ -275,33 +305,13 @@ export default function PresentationSetup({
               <span>📊</span> Slide Count Selection
             </label>
             <span style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", background: "rgba(139,92,246,0.15)", padding: "3px 8px", borderRadius: 999, border: "1px solid rgba(139,92,246,0.3)" }}>
-              ✨ Stage 1: AI Auto-Complexity Analyzer
+              ✨ Stage 1 Auto-Complexity Analyzer
             </span>
           </div>
 
           {/* PRESET BUTTONS ("auto", 6, 8, 10, 15, 20, 25, 30) */}
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
-            <button
-              type="button"
-              onClick={() => setSlideCount?.("auto")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 8,
-                fontSize: 11,
-                fontWeight: slideCount === "auto" ? 800 : 600,
-                background: slideCount === "auto"
-                  ? "linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)"
-                  : "rgba(255,255,255,0.05)",
-                border: slideCount === "auto" ? "1px solid #f472b6" : "1px solid rgba(255,255,255,0.1)",
-                color: "#ffffff",
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-                boxShadow: slideCount === "auto" ? "0 2px 8px rgba(236, 72, 153, 0.4)" : "none",
-              }}
-            >
-              ✨ Auto (AI Decides)
-            </button>
-            {[6, 8, 10, 15, 20, 25, 30].map((preset) => {
+            {["auto", 6, 8, 10, 15, 20, 25, 30].map((preset) => {
               const isSelected = slideCount === preset;
               return (
                 <button
@@ -323,23 +333,23 @@ export default function PresentationSetup({
                     boxShadow: isSelected ? "0 2px 8px rgba(124, 58, 237, 0.4)" : "none",
                   }}
                 >
-                  {preset} Slides
+                  {preset === "auto" ? "✨ Auto (AI Analyzed)" : `${preset} Slides`}
                 </button>
               );
             })}
           </div>
 
-          {/* MANUAL ADJUSTMENT STEPPER & DEPTH / STYLE OPTIONS */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>Custom:</span>
+          {/* MANUAL ADJUSTMENT STEPPER IF NOT AUTO */}
+          {slideCount !== "auto" && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>Custom Count:</span>
               <button
                 type="button"
-                onClick={() => setSlideCount?.(Math.max(3, (typeof slideCount === "number" ? slideCount : 8) - 1))}
+                onClick={() => setSlideCount?.(Math.max(3, (Number(slideCount) || 8) - 1))}
                 style={{
-                  width: 28,
-                  height: 30,
-                  borderRadius: 6,
+                  width: 32,
+                  height: 34,
+                  borderRadius: 8,
                   border: "1px solid rgba(255,255,255,0.15)",
                   background: "rgba(255,255,255,0.06)",
                   color: "#fff",
@@ -353,29 +363,30 @@ export default function PresentationSetup({
                 −
               </button>
               <input
-                type="text"
-                readOnly={slideCount === "auto"}
-                value={slideCount === "auto" ? "Auto" : slideCount}
-                onChange={(e) => setSlideCount?.(Math.min(30, Math.max(3, Number(e.target.value) || 8)))}
+                type="number"
+                min="3"
+                max="30"
+                value={slideCount}
+                onChange={(e) => setSlideCount?.(Math.min(30, Math.max(3, Number(e.target.value) || 3)))}
                 style={{
                   textAlign: "center",
                   fontWeight: "bold",
-                  width: 52,
-                  height: 30,
-                  borderRadius: 6,
+                  width: 60,
+                  height: 34,
+                  borderRadius: 8,
                   border: "1px solid rgba(255,255,255,0.15)",
-                  background: slideCount === "auto" ? "rgba(139,92,246,0.2)" : "rgba(0,0,0,0.3)",
+                  background: "rgba(0,0,0,0.3)",
                   color: "#fff",
-                  fontSize: 12,
+                  fontSize: 13,
                 }}
               />
               <button
                 type="button"
-                onClick={() => setSlideCount?.(Math.min(30, (typeof slideCount === "number" ? slideCount : 8) + 1))}
+                onClick={() => setSlideCount?.(Math.min(30, (Number(slideCount) || 8) + 1))}
                 style={{
-                  width: 28,
-                  height: 30,
-                  borderRadius: 6,
+                  width: 32,
+                  height: 34,
+                  borderRadius: 8,
                   border: "1px solid rgba(255,255,255,0.15)",
                   background: "rgba(255,255,255,0.06)",
                   color: "#fff",
@@ -389,57 +400,78 @@ export default function PresentationSetup({
                 +
               </button>
             </div>
+          )}
+        </div>
+      </div>
 
-            <div>
-              <label style={{ fontSize: 10, color: "#c084fc", fontWeight: 700, display: "block", marginBottom: 2 }}>
-                📖 Content Depth
-              </label>
-              <select
-                value={depth}
-                onChange={(e) => setDepth?.(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "4px 8px",
-                  borderRadius: 6,
-                  background: "rgba(15, 23, 42, 0.9)",
-                  color: "#fff",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  fontSize: 11,
-                  fontWeight: 600,
-                }}
-              >
-                <option value="basic">Basic Summary</option>
-                <option value="medium">Medium Depth</option>
-                <option value="detailed">In-Depth Executive</option>
-              </select>
-            </div>
+      {/* DEPTH & DESIGN STYLE SELECTION CARDS */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+        <div className="field-group">
+          <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", marginBottom: 6, display: "block" }}>
+            📐 Detail Depth Level
+          </label>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {DEPTH_OPTIONS.map((d) => {
+              const isSelected = (depth || "medium") === d.id;
+              return (
+                <button
+                  type="button"
+                  key={d.id}
+                  onClick={() => setDepth?.(d.id)}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: 8,
+                    border: isSelected ? "1.5px solid #8b5cf6" : "1px solid rgba(255,255,255,0.08)",
+                    background: isSelected ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.04)",
+                    color: "#ffffff",
+                    fontSize: 11,
+                    fontWeight: isSelected ? 700 : 500,
+                    cursor: "pointer",
+                    textAlign: "left",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <span>{d.label}</span>
+                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>{d.desc}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-            <div>
-              <label style={{ fontSize: 10, color: "#38bdf8", fontWeight: 700, display: "block", marginBottom: 2 }}>
-                🎨 Presentation Style
-              </label>
-              <select
-                value={style}
-                onChange={(e) => setStyle?.(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "4px 8px",
-                  borderRadius: 6,
-                  background: "rgba(15, 23, 42, 0.9)",
-                  color: "#fff",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  fontSize: 11,
-                  fontWeight: 600,
-                }}
-              >
-                <option value="professional">💼 Professional</option>
-                <option value="academic">🎓 Academic</option>
-                <option value="corporate">🏢 Corporate</option>
-                <option value="modern">✨ Modern</option>
-                <option value="minimal">🎨 Minimalist</option>
-                <option value="creative">🚀 Creative</option>
-              </select>
-            </div>
+        <div className="field-group">
+          <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", marginBottom: 6, display: "block" }}>
+            🎨 Design Theme Style
+          </label>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+            {STYLE_OPTIONS.map((st) => {
+              const isSelected = (style || "professional") === st.id;
+              return (
+                <button
+                  type="button"
+                  key={st.id}
+                  onClick={() => setStyle?.(st.id)}
+                  style={{
+                    padding: "6px 8px",
+                    borderRadius: 8,
+                    border: isSelected ? "1.5px solid #38bdf8" : "1px solid rgba(255,255,255,0.08)",
+                    background: isSelected ? "rgba(56,189,248,0.2)" : "rgba(255,255,255,0.04)",
+                    color: "#ffffff",
+                    fontSize: 11,
+                    fontWeight: isSelected ? 700 : 500,
+                    cursor: "pointer",
+                    textAlign: "left",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {st.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -511,6 +543,7 @@ export default function PresentationSetup({
           </div>
         </div>
       </div>
+
       {/* BRANDING SECTION */}
       <div style={{ marginBottom: 16 }}>
         <div
@@ -731,7 +764,7 @@ export default function PresentationSetup({
       >
         {loadingPlan ? (
           <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-            <span className="spinner-sm" /> Creating AI Presentation Deck...
+            <span className="spinner-sm" /> Analyzing Topic & Generating AI Slide Deck...
           </span>
         ) : (
           "⚡ Generate AI Slide Deck"
@@ -740,5 +773,6 @@ export default function PresentationSetup({
     </div>
   );
 }
+
 
 

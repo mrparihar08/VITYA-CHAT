@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { API_BASE_URL, getAuthHeaders } from "../../services/api";
 import PresentationSetup from "./PresentationSetup";
+import PresentationStage1Preview from "./PresentationStage1Preview";
 import PresentationEditor, { BACKGROUND_PRESETS } from "./PresentationEditor";
 
 const DEFAULT_API_BASE = `${API_BASE_URL}/api/presentation`;
@@ -252,15 +253,18 @@ export default function PresentationGenerator() {
   const [prompt, setPrompt] = useState(
     "Create a professional presentation on Artificial Intelligence and Machine Learning."
   );
-  const [slideCount, setSlideCount] = useState("auto");
-  const [audience, setAudience] = useState("Students & Professionals");
-  const [tone, setTone] = useState("Professional");
-  const [language, setLanguage] = useState("English");
+  const [slideCount, setSlideCount] = useState(8);
   const [depth, setDepth] = useState("medium");
   const [style, setStyle] = useState("professional");
   const [userRequirements, setUserRequirements] = useState("");
+  const [audience, setAudience] = useState("Students & Professionals");
+  const [tone, setTone] = useState("Professional");
+  const [language, setLanguage] = useState("English");
   const [contentTheme, setContentTheme] = useState("auto");
   const [visualStyle, setVisualStyle] = useState("minimal");
+
+  const [planPreview, setPlanPreview] = useState(null);
+  const [loadingGenerate, setLoadingGenerate] = useState(false);
 
   const [includeSpeakerNotes, setIncludeSpeakerNotes] = useState(true);
   const [includeAgendaSlide, setIncludeAgendaSlide] = useState(true);
@@ -397,19 +401,13 @@ export default function PresentationGenerator() {
         console.warn("LocalStorage clear error", e);
       }
       setPlan(DEFAULT_PLAN);
+      setPlanPreview(null);
       setActiveSlideIndex(0);
       setCurrentStep(1);
     }
   };
   const [loadingPlan, setLoadingPlan] = useState(false);
   const [error, setError] = useState("");
-
-  // Presenter View State
-  const [isPresenting, setIsPresenting] = useState(false);
-  const [presenterSlideIndex, setPresenterSlideIndex] = useState(0);
-  const [showPresenterNotes, setShowPresenterNotes] = useState(true);
-  const [presentationTime, setPresentationTime] = useState(0);
-  const timerRef = useRef(null);
 
   // Download State
   const [downloadUrl, setDownloadUrl] = useState("");
@@ -447,12 +445,13 @@ export default function PresentationGenerator() {
 
   const buildPrompt = () => {
     const requirements = [
-      `Create approximately ${slideCount} slides with high executive quality and domain depth.`,
+      `Create approximately ${slideCount === "auto" ? 8 : slideCount} slides with high executive quality and domain depth.`,
       `Must include an explicit 'Introduction & Executive Context' slide (or 'Introduction to [Topic]') right after the Title Cover.`,
       `Include structured, audience-ready section titles (Presentation Overview, Introduction, System Architecture, Feature Comparison, Data Metrics, Conclusion).`,
       `Target audience: ${audience}.`,
       `Tone: ${tone || "Professional"}.`,
       `Language: ${language || "English"}.`,
+      userRequirements && `Specific requirements: ${userRequirements}`,
       includeSpeakerNotes && "Include concise speaker notes for every slide.",
       includeAgendaSlide && "Include an Auto Agenda / Table of Contents slide at the beginning of the presentation right after the title cover.",
     ].filter(Boolean);
@@ -474,20 +473,19 @@ export default function PresentationGenerator() {
     const sanitizedPlan = includePlan && plan ? sanitizePlanForBackend(plan, activeThemeConfig) : undefined;
 
     return {
-      topic: prompt.trim(),
-      purpose: prompt.trim(),
       prompt: buildPrompt(),
+      topic: prompt.trim(),
       export_format: exportFormat || "pptx",
       background_theme: selectedBgPreset || "dark",
       content_theme: contentTheme || "dark",
-      visual_style: visualStyle || "minimal",
+      visual_style: style || visualStyle || "minimal",
       slide_count: slideCount,
+      depth: depth || "medium",
+      style: style || "professional",
+      user_requirements: userRequirements || undefined,
       audience: audience ? audience.trim() : null,
       tone: tone || "Professional",
       language: language || "English",
-      depth: depth || "medium",
-      style: style || "professional",
-      user_requirements: userRequirements || "",
       include_speaker_notes: includeSpeakerNotes,
       include_agenda_slide: includeAgendaSlide,
       use_web_search: useWebSearch,
@@ -496,8 +494,7 @@ export default function PresentationGenerator() {
       allow_bullets: true,
       allow_chart: allowChart,
       allow_section_slide: true,
-      plan: sanitizedPlan,
-      structured_plan: sanitizedPlan,
+      plan: planPreview?.structured_plan || sanitizedPlan,
       brand_logo: useCustomBrand ? brandLogo : undefined,
       brand_color: useCustomBrand ? brandColor : undefined,
       brand_secondary_color: useCustomBrand ? brandSecondaryColor : undefined,
@@ -507,7 +504,7 @@ export default function PresentationGenerator() {
     };
   };
 
-  // Stage 2 PPT Generator: Save / Render Final PowerPoint (.pptx) 💾
+  // Save Presentation to Backend API 💾
   const savePresentation = async () => {
     const payload = buildPayload({ includePlan: true });
 
@@ -521,23 +518,14 @@ export default function PresentationGenerator() {
     setIsSaving(true);
 
     try {
-      let res = await fetch(joinUrl(DEFAULT_API_BASE, "/stage2-generate"), {
+      const res = await fetch(joinUrl(DEFAULT_API_BASE, "/save"), {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) {
-        // Fallback to /save or /generate if /stage2-generate is not available
-        res = await fetch(joinUrl(DEFAULT_API_BASE, "/save"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-          body: JSON.stringify(payload),
-        });
-      }
-
       const data = await readResponse(res);
-      if (!res.ok) throw new Error(data?.detail || "Failed to generate presentation deck");
+      if (!res.ok) throw new Error(data?.detail || "Failed to save presentation");
 
       const ext = exportFormat === "pdf" ? "pdf" : "pptx";
       const fullUrl = resolveDownloadUrl(data.download_url);
@@ -546,15 +534,15 @@ export default function PresentationGenerator() {
         presentation_id: data.presentation_id,
         file_name: data.file_name || `presentation.${ext}`,
         download_url: fullUrl,
-        message: data.message || "Presentation deck generated successfully!",
+        message: data.message || "Presentation saved successfully",
       });
       setGeneratedMeta({
-        title: plan?.title || prompt || "Your presentation deck",
-        slides: previewCount || (typeof slideCount === "number" ? slideCount : 8),
+        title: plan?.title || "Your presentation deck",
+        slides: previewCount || slideCount,
       });
       setIsSaved(true);
     } catch (err) {
-      const errMsg = err?.message || "Something went wrong generating presentation";
+      const errMsg = err?.message || "Something went wrong saving presentation";
       setSaveError(errMsg);
       setError(errMsg);
     } finally {
@@ -568,7 +556,7 @@ export default function PresentationGenerator() {
     await downloadFileAsBlob(downloadUrl, filename);
   };
 
-  // Stage 1 PPT Planner: Preview Plan & Outline from API 🚀
+  // Seamless 2-Stage AI Presentation Generation (Runs Stage 1 Planner + Stage 2 Generator internally)
   const fetchPlan = async () => {
     if (!prompt.trim()) {
       setError("Please describe or search a presentation topic first.");
@@ -583,73 +571,111 @@ export default function PresentationGenerator() {
     setDownloadUrl("");
 
     try {
-      let res = await fetch(joinUrl(DEFAULT_API_BASE, "/stage1-plan"), {
+      // 1. Stage 1 Planner Execution (Internal background analysis)
+      const res1 = await fetch(joinUrl(DEFAULT_API_BASE, "/stage1/plan"), {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify(buildPayload({ includePlan: false })),
       });
 
-      if (!res.ok) {
-        // Fallback to /plan if /stage1-plan endpoint fails or falls back
-        res = await fetch(joinUrl(DEFAULT_API_BASE, "/plan"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-          body: JSON.stringify(buildPayload({ includePlan: false })),
+      const data1 = await readResponse(res1);
+      if (!res1.ok) throw new Error(data1?.detail || "Failed to analyze presentation topic");
+
+      setPlanPreview(data1);
+
+      // 2. Stage 2 Generator Execution (Internal background rendering)
+      const payload2 = {
+        ...buildPayload({ includePlan: true }),
+        plan: data1.structured_plan || data1.plan,
+      };
+
+      const res2 = await fetch(joinUrl(DEFAULT_API_BASE, "/stage2/generate"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify(payload2),
+      });
+
+      const data2 = await readResponse(res2);
+      if (!res2.ok) throw new Error(data2?.detail || "Failed to generate presentation deck");
+
+      if (data2.plan) {
+        setPlan(data2.plan);
+      } else if (data1.plan) {
+        setPlan(data1.plan);
+      }
+
+      if (data2.download_url) {
+        const fullUrl = resolveDownloadUrl(data2.download_url);
+        setDownloadUrl(fullUrl);
+        setSavedMeta({
+          presentation_id: data2.job_id || "gen_stage2",
+          file_name: data2.file_name || "presentation.pptx",
+          download_url: fullUrl,
+          message: "Presentation deck generated successfully",
         });
+        setIsSaved(true);
       }
 
-      const data = await readResponse(res);
-      if (!res.ok) throw new Error(data?.detail || "Failed to generate Stage 1 PPT plan");
+      setGeneratedMeta({
+        title: data2.title || data1.topic || "Presentation Deck",
+        slides: data2.slides_count || data1.decided_slide_count || (data2.plan?.slides?.length || 8),
+      });
 
-      // Normalize Stage 1 response format into interactive editor plan
-      let normalizedPlan = null;
-      if (data.slide_sequence && Array.isArray(data.slide_sequence)) {
-        const slides = data.slide_sequence.map((item, idx) => {
-          const plugins = [];
-          if (item.key_message) {
-            plugins.push({ type: "subtitle", data: { text: item.key_message } });
-          }
-          if (Array.isArray(item.content_points) && item.content_points.length > 0) {
-            plugins.push({ type: "bullets", data: { points: item.content_points } });
-          } else {
-            plugins.push({ type: "bullets", data: { points: ["Key takeaway concept", "Strategic analysis point"] } });
-          }
-          if (item.speaker_notes) {
-            plugins.push({ type: "notes", data: { notes: item.speaker_notes } });
-          }
-          return {
-            title: item.title || `Slide ${idx + 1}`,
-            subtitle: item.purpose || item.key_message || "",
-            layout: item.slide_type || "title_content",
-            slide_type: item.slide_type || "title_content",
-            purpose: item.purpose || "",
-            key_message: item.key_message || "",
-            visual_element_suggestion: item.visual_element_suggestion || "",
-            speaker_notes: item.speaker_notes || "",
-            plugins,
-          };
-        });
-        normalizedPlan = {
-          title: data.topic || prompt.trim(),
-          slides,
-          recommended_slide_count: data.recommended_slide_count,
-        };
-      } else if (data.slides && Array.isArray(data.slides)) {
-        normalizedPlan = data;
-      } else {
-        normalizedPlan = data;
-      }
-
-      setPlan(normalizedPlan);
-      if (normalizedPlan?.recommended_slide_count) {
-        setSlideCount(normalizedPlan.recommended_slide_count);
-      }
       setActiveSlideIndex(0);
-      setCurrentStep(2); // 🚀 Switch to Second Page (Stage 1 Preview & PresentationEditor)!
+      setCurrentStep(2); // 🚀 Directly opens the Slide Editor workspace!
     } catch (err) {
-      setError(err?.message || "Something went wrong generating Stage 1 plan");
+      setError(err?.message || "Something went wrong generating presentation");
     } finally {
       setLoadingPlan(false);
+    }
+  };
+
+  // STAGE 2 API CALL: Generate Final PPTX Presentation Deck ⚡
+  const executeStage2Generate = async () => {
+    setError("");
+    setSaveError("");
+    setLoadingGenerate(true);
+
+    try {
+      const payload = buildPayload({ includePlan: true });
+      const res = await fetch(joinUrl(DEFAULT_API_BASE, "/stage2/generate"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await readResponse(res);
+      if (!res.ok) throw new Error(data?.detail || "Failed to generate Stage 2 presentation");
+
+      if (data.plan) {
+        setPlan(data.plan);
+      } else if (planPreview?.plan) {
+        setPlan(planPreview.plan);
+      }
+
+      if (data.download_url) {
+        const fullUrl = resolveDownloadUrl(data.download_url);
+        setDownloadUrl(fullUrl);
+        setSavedMeta({
+          presentation_id: data.job_id || "gen_stage2",
+          file_name: data.file_name || "presentation.pptx",
+          download_url: fullUrl,
+          message: "Stage 2 presentation generated successfully",
+        });
+        setIsSaved(true);
+      }
+
+      setGeneratedMeta({
+        title: data.title || plan?.title || "Presentation Deck",
+        slides: data.slides_count || previewCount || 8,
+      });
+
+      setActiveSlideIndex(0);
+      setCurrentStep(3); // 🚀 Switch to Stage 2 Presentation Editor!
+    } catch (err) {
+      setError(err?.message || "Something went wrong generating Stage 2 PPT");
+    } finally {
+      setLoadingGenerate(false);
     }
   };
 
@@ -951,49 +977,6 @@ export default function PresentationGenerator() {
     });
   };
 
-  // Presenter Mode Handlers 📺
-  const startPresentationMode = () => {
-    setIsPresenting(true);
-    setPresentationTime(0);
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setPresentationTime((t) => t + 1);
-    }, 1000);
-    try {
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      }
-    } catch (e) {}
-  };
-
-  const stopPresentationMode = () => {
-    setIsPresenting(false);
-    if (timerRef.current) clearInterval(timerRef.current);
-    try {
-      if (document.fullscreenElement && document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-      }
-    } catch (e) {}
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!isPresenting) return;
-      if (e.key === "ArrowRight" || e.key === "Space") {
-        setPresenterSlideIndex((i) => Math.min((plan?.slides?.length || 1) - 1, i + 1));
-      } else if (e.key === "ArrowLeft") {
-        setPresenterSlideIndex((i) => Math.max(0, i - 1));
-      } else if (e.key === "Escape") {
-        stopPresentationMode();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isPresenting, plan]);
-
-  const secondsFormatted = (presentationTime % 60).toString().padStart(2, "0");
-  const minutesFormatted = Math.floor(presentationTime / 60);
-
   return (
     <>
       <style>{`
@@ -1290,30 +1273,6 @@ export default function PresentationGenerator() {
           border: 1px dashed var(--panel-border);
           border-radius: 14px;
           padding: 12px;
-        }
-
-        .presenter-overlay {
-          position: fixed;
-          top: 0; left: 0; right: 0; bottom: 0;
-          background: #090d1a;
-          z-index: 9999;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          padding: 20px;
-        }
-        .presenter-canvas {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          max-width: 1280px;
-          margin: 0 auto;
-          overflow: hidden;
-        }
-
         .success-banner {
           background: rgba(34, 197, 94, 0.12);
           border: 1px solid rgba(34, 197, 94, 0.3);
@@ -1352,44 +1311,49 @@ export default function PresentationGenerator() {
                 className={`btn-ui sm ${currentStep === 1 ? "primary" : "secondary"}`}
                 onClick={() => setCurrentStep(1)}
               >
-                Topic 
+                1. Setup
               </button>
               <button
                 className={`btn-ui sm ${currentStep === 2 ? "primary" : "secondary"}`}
                 onClick={() => setCurrentStep(2)}
+                disabled={!plan}
+                title={!plan ? "Generate presentation first" : "Open Slide Editor & Viewer"}
               >
-                Editor {plan?.slides?.length ? `(${plan.slides.length})` : ""}
+                2. Slide Editor {plan?.slides?.length ? `(${plan.slides.length})` : ""}
               </button>
+              {planPreview && (
+                <button
+                  className={`btn-ui sm ${currentStep === 3 ? "primary" : "secondary"}`}
+                  onClick={() => setCurrentStep(3)}
+                  title="View AI Stage 1 Plan & Sequence Structure"
+                >
+                  Plan
+                </button>
+              )}
             </div>
-
-            {plan?.slides?.length ? (
-              <button className="btn-ui secondary sm" onClick={startPresentationMode}>
-                📺 View
-              </button>
-            ) : null}
           </div>
         </div>
 
         {/* CONDITIONAL STEP PAGE RENDERING */}
-        {currentStep === 1 ? (
-          /* STEP 1: TOPIC SEARCH & SETUP PAGE (OPENS FIRST) */
+        {currentStep === 1 && (
+          /* STEP 1: TOPIC SEARCH & SETUP PAGE */
           <PresentationSetup
             prompt={prompt}
             setPrompt={setPrompt}
             slideCount={slideCount}
             setSlideCount={setSlideCount}
-            audience={audience}
-            setAudience={setAudience}
-            tone={tone}
-            setTone={setTone}
-            language={language}
-            setLanguage={setLanguage}
             depth={depth}
             setDepth={setDepth}
             style={style}
             setStyle={setStyle}
             userRequirements={userRequirements}
             setUserRequirements={setUserRequirements}
+            audience={audience}
+            setAudience={setAudience}
+            tone={tone}
+            setTone={setTone}
+            language={language}
+            setLanguage={setLanguage}
             contentTheme={contentTheme}
             setContentTheme={setContentTheme}
             visualStyle={visualStyle}
@@ -1406,7 +1370,7 @@ export default function PresentationGenerator() {
             allowChart={allowChart}
             setAllowChart={setAllowChart}
             loadingPlan={loadingPlan}
-            loadingGenerate={isSaving}
+            loadingGenerate={loadingGenerate || isSaving}
             error={error || saveError}
             fetchPlan={fetchPlan}
             useCustomBrand={useCustomBrand}
@@ -1422,8 +1386,10 @@ export default function PresentationGenerator() {
             brandFooter={brandFooter}
             setBrandFooter={setBrandFooter}
           />
-        ) : (
-          /* STEP 2: SLIDE WORKSPACE & FEATURE EDITOR PAGE (OPENS AFTER CLICKING GENERATE) */
+        )}
+
+        {currentStep === 2 && (
+          /* STEP 2: SLIDE WORKSPACE & FEATURE EDITOR PAGE */
           <PresentationEditor
             plan={plan}
             setPlan={setPlan}
@@ -1461,15 +1427,21 @@ export default function PresentationGenerator() {
             handleDeleteBullet={handleDeleteBullet}
             handleAddPlugin={handleAddPlugin}
             handleDeletePlugin={handleDeletePlugin}
-            isPresenting={isPresenting}
-            presenterSlideIndex={presenterSlideIndex}
-            setPresenterSlideIndex={setPresenterSlideIndex}
-            showPresenterNotes={showPresenterNotes}
-            setShowPresenterNotes={setShowPresenterNotes}
-            minutesFormatted={minutesFormatted}
-            secondsFormatted={secondsFormatted}
-            stopPresentationMode={stopPresentationMode}
             onBackToSetup={() => setCurrentStep(1)}
+          />
+        )}
+
+        {currentStep === 3 && (
+          /* STEP 3: OPTIONAL STAGE 1 USER PREVIEW & SEQUENCE REORDERING PANEL */
+          <PresentationStage1Preview
+            planPreview={planPreview}
+            setPlanPreview={setPlanPreview}
+            onExecuteStage2={async () => {
+              await executeStage2Generate();
+              setCurrentStep(2);
+            }}
+            onBackToSetup={() => setCurrentStep(1)}
+            loadingGenerate={loadingGenerate}
           />
         )}
       </div>

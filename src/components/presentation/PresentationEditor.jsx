@@ -38,37 +38,15 @@ export const TABLE_THEME_PRESETS = [
 ];
 
 export const OFFICE_LAYOUT_PRESETS = [
-  { id: "title", label: "Title Slide", desc: "Main presentation title & cover subtitle" },
-  { id: "agenda", label: "Agenda / Overview", desc: "Table of contents & deck outline" },
-  { id: "section", label: "Section Divider", desc: "Chapter / topic transition slide" },
-  { id: "introduction", label: "Executive Introduction", desc: "Context & high-level summary" },
-  { id: "definition", label: "Concept Definition", desc: "Term definition & core meaning" },
-  { id: "concept", label: "Core Concept", desc: "Deep-dive concept breakdown" },
-  { id: "two_column", label: "Dual Column Layout", desc: "Two parallel content columns" },
-  { id: "three_cards", label: "Three Cards Grid", desc: "Trio feature & pillar cards" },
-  { id: "four_cards", label: "Four Cards Grid", desc: "Quad feature & matrix cards" },
-  { id: "comparison", label: "Feature Comparison", desc: "Side-by-side comparison matrix" },
-  { id: "process", label: "Process Steps", desc: "Sequential step-by-step flow" },
-  { id: "workflow", label: "Workflow Pipeline", desc: "Interactive workflow & system flow" },
-  { id: "timeline", label: "Timeline Roadmap", desc: "Chronological milestones & history" },
-  { id: "architecture", label: "System Architecture", desc: "Layered tech stack & architecture" },
-  { id: "hierarchy", label: "Hierarchy Tree", desc: "Organizational & structural tree" },
-  { id: "cycle", label: "Cyclic Loop", desc: "Iterative cycle & feedback loop" },
-  { id: "statistics", label: "Statistics & KPIs", desc: "High-impact metric summary cards" },
-  { id: "chart", label: "Data Visualization Chart", desc: "Bar, line, pie, radar chart" },
-  { id: "table", label: "Data Table Matrix", desc: "Tabular data comparison matrix" },
-  { id: "case_study", label: "Real-World Case Study", desc: "Problem, solution, impact case study" },
-  { id: "applications", label: "Industry Applications", desc: "Use cases & deployment domains" },
-  { id: "advantages_disadvantages", label: "Pros & Cons", desc: "Strengths vs challenges breakdown" },
-  { id: "problem_solution", label: "Problem & Solution", desc: "Pain point vs resolution analysis" },
-  { id: "risks", label: "Risk Assessment", desc: "Risks, impact & mitigation steps" },
-  { id: "roadmap", label: "Strategic Roadmap", desc: "Quarterly execution roadmap" },
-  { id: "conclusion", label: "Conclusion & Summary", desc: "Executive wrap-up & conclusion" },
-  { id: "key_takeaways", label: "Key Takeaways", desc: "Actionable summary highlights" },
-  { id: "thank_you", label: "Thank You / Q&A", desc: "Closing cover & contact details" },
-  { id: "title_subtitle", label: "Title & Subtitle (Legacy)", desc: "Main title & subtitle" },
-  { id: "title_content", label: "Title & Content (Legacy)", desc: "Header with content list" },
-  { id: "blank", label: "Blank Canvas", desc: "Empty custom slide canvas" },
+  { id: "title_subtitle", label: "Title Slide", desc: "Main title & subtitle" },
+  { id: "title_content", label: "Title and Content", desc: "Header with content list" },
+  { id: "section_header", label: "Section Header", desc: "Chapter / section divider" },
+  { id: "two_content", label: "Two Content", desc: "Side-by-side dual content" },
+  { id: "comparison", label: "Comparison", desc: "Side-by-side with headers" },
+  { id: "title_only", label: "Title Only", desc: "Top header with blank body" },
+  { id: "blank", label: "Blank", desc: "Empty custom slide canvas" },
+  { id: "content_caption", label: "Content with Caption", desc: "Text sidebar & content box" },
+  { id: "picture_caption", label: "Picture with Caption", desc: "Text sidebar & image box" },
 ];
 
 function safeArray(value) {
@@ -573,18 +551,9 @@ export default function PresentationEditor({
   handleDeleteBullet,
   handleAddPlugin,
   handleDeletePlugin,
-  isPresenting,
-  presenterSlideIndex,
-  setPresenterSlideIndex,
-  showPresenterNotes,
-  setShowPresenterNotes,
-  minutesFormatted,
-  secondsFormatted,
-  stopPresentationMode,
   onBackToSetup,
 }) {
   const activeSlide = plan?.slides?.[activeSlideIndex];
-  const presenterSlide = plan?.slides?.[presenterSlideIndex];
 
   const handleMoveSlideToPosition = (fromIdx, toIdx) => {
     if (!setPlan || fromIdx === toIdx) return;
@@ -642,7 +611,6 @@ export default function PresentationEditor({
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showLayoutModal, setShowLayoutModal] = useState(false);
   const [layoutModalMode, setLayoutModalMode] = useState("add"); // "add" | "change"
-  const [autoPlay, setAutoPlay] = useState(false);
 
   const handleAddSlideWithLayout = (layoutType = "title_content") => {
     if (!setPlan) return;
@@ -694,32 +662,30 @@ export default function PresentationEditor({
       };
     });
   };
-  const [autoPlaySpeed, setAutoPlaySpeed] = useState(5);
   const carouselRef = useRef(null);
-
-  // Auto-Play slideshow effect for Presenter Mode ⏯️
-  useEffect(() => {
-    let interval = null;
-    if (isPresenting && autoPlay) {
-      interval = setInterval(() => {
-        setPresenterSlideIndex((prevIndex) => {
-          if (prevIndex >= (plan?.slides?.length || 1) - 1) {
-            return 0;
-          }
-          return prevIndex + 1;
-        });
-      }, autoPlaySpeed * 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isPresenting, autoPlay, autoPlaySpeed, plan, setPresenterSlideIndex]);
 
   useEffect(() => {
     if (downloadUrl) {
       setShowDownloadModal(true);
     }
   }, [downloadUrl]);
+
+  // Keyboard Arrow Keys (◄ ►) Slide Navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const activeTag = document.activeElement?.tagName?.toLowerCase();
+      if (activeTag === "input" || activeTag === "textarea" || document.activeElement?.isContentEditable) {
+        return;
+      }
+      if (e.key === "ArrowLeft") {
+        setActiveSlideIndex((prev) => Math.max(0, prev - 1));
+      } else if (e.key === "ArrowRight") {
+        setActiveSlideIndex((prev) => Math.min((plan?.slides?.length || 1) - 1, prev + 1));
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [plan, setActiveSlideIndex]);
 
   const handleDirectDownload = async (e) => {
     e?.preventDefault();
@@ -836,7 +802,6 @@ export default function PresentationEditor({
   // TTS Voiceover Narration State 🎙️
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speakingSlideIdx, setSpeakingSlideIdx] = useState(null);
-  const [autoPlayVoiceover, setAutoPlayVoiceover] = useState(false);
 
   const compileSlideNarrationScript = (slide, slideIndex) => {
     if (!slide) return "";
@@ -904,13 +869,6 @@ export default function PresentationEditor({
 
     window.speechSynthesis.speak(utterance);
   };
-
-  useEffect(() => {
-    if (isPresenting && autoPlayVoiceover && plan?.slides?.[presenterSlideIndex]) {
-      handleToggleSlideVoiceover(plan.slides[presenterSlideIndex], presenterSlideIndex);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presenterSlideIndex, isPresenting, autoPlayVoiceover]);
 
   // Helper to use Gemini AI to refine, polish, or convert slide content into punchy bullets/diagram steps
   const handleAIRefine = async (pIdx, action = "bullets") => {
@@ -1050,45 +1008,6 @@ export default function PresentationEditor({
                 📥Download
               </button>
             ) : null}
-          </div>
-        </div>
-
-        {/* 2-STAGE WORKFLOW BADGE / BANNER */}
-        <div
-          style={{
-            background: "linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(99,102,241,0.1) 50%, rgba(6,182,212,0.15) 100%)",
-            border: "1px solid rgba(192, 132, 252, 0.3)",
-            borderRadius: 14,
-            padding: "12px 16px",
-            marginBottom: 16,
-            display: "flex",
-            flexDirection: "column",
-            gap: 8,
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 11, fontWeight: 900, color: "#ec4899", background: "rgba(236,72,153,0.2)", padding: "2px 8px", borderRadius: 999, border: "1px solid rgba(236,72,153,0.4)" }}>
-                STAGE 1: PPT PLANNER
-              </span>
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>➔</span>
-              <span style={{ fontSize: 11, fontWeight: 900, color: "#c084fc", background: "rgba(192,132,252,0.2)", padding: "2px 8px", borderRadius: 999, border: "1px solid rgba(192,132,252,0.4)" }}>
-                USER PREVIEW & EDIT
-              </span>
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>➔</span>
-              <span style={{ fontSize: 11, fontWeight: 900, color: "#34d399", background: "rgba(52,211,153,0.2)", padding: "2px 8px", borderRadius: 999, border: "1px solid rgba(52,211,153,0.4)" }}>
-                STAGE 2: PPT GENERATOR
-              </span>
-            </div>
-
-            <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>
-              {plan?.slides?.length || 0} Slides • 2-Stage Content & Design Specs
-            </span>
-          </div>
-
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", display: "flex", gap: 16, flexWrap: "wrap" }}>
-            <span>📝 <strong>Content Plan (WHAT):</strong> Purpose, Key Message, Concise Bullet Points & Notes</span>
-            <span>🎨 <strong>Design Plan (HOW):</strong> Layout, Color Tokens, Density & Visual Structure</span>
           </div>
         </div>
 
@@ -1303,17 +1222,95 @@ export default function PresentationEditor({
                 const hasPlugins = nonNotesPlugins.length > 0;
 
                 return (
-                  <div
-                    className="slide-canvas-box"
-                    style={{
-                      background: selectedBgConfig.bg,
-                      color: selectedBgConfig.text,
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: isVMiddle ? "center" : isVBottom ? "flex-end" : "flex-start",
-                      boxSizing: "border-box",
-                    }}
-                  >
+                  <div style={{ position: "relative", width: "100%" }}>
+                    {/* PREVIOUS SLIDE BUTTON (LEFT ◄) */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveSlideIndex((prev) => Math.max(0, prev - 1));
+                      }}
+                      disabled={activeSlideIndex === 0}
+                      style={{
+                        position: "absolute",
+                        left: -20,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        zIndex: 35,
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        background: activeSlideIndex === 0
+                          ? "rgba(15, 23, 42, 0.4)"
+                          : "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)",
+                        border: activeSlideIndex === 0
+                          ? "1px solid rgba(255, 255, 255, 0.1)"
+                          : "2px solid rgba(255, 255, 255, 0.4)",
+                        color: activeSlideIndex === 0 ? "rgba(255, 255, 255, 0.3)" : "#ffffff",
+                        fontSize: 22,
+                        lineHeight: 1,
+                        cursor: activeSlideIndex === 0 ? "not-allowed" : "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: activeSlideIndex === 0 ? "none" : "0 8px 25px rgba(0, 0, 0, 0.6), 0 0 16px rgba(168, 85, 247, 0.6)",
+                        transition: "all 0.2s ease",
+                      }}
+                      title="Previous Slide (◄)"
+                    >
+                      ◄
+                    </button>
+
+                    {/* NEXT SLIDE BUTTON (RIGHT ►) */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveSlideIndex((prev) => Math.min((plan?.slides?.length || 1) - 1, prev + 1));
+                      }}
+                      disabled={activeSlideIndex >= (plan?.slides?.length || 1) - 1}
+                      style={{
+                        position: "absolute",
+                        right: -20,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        zIndex: 35,
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        background: activeSlideIndex >= (plan?.slides?.length || 1) - 1
+                          ? "rgba(15, 23, 42, 0.4)"
+                          : "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)",
+                        border: activeSlideIndex >= (plan?.slides?.length || 1) - 1
+                          ? "1px solid rgba(255, 255, 255, 0.1)"
+                          : "2px solid rgba(255, 255, 255, 0.4)",
+                        color: activeSlideIndex >= (plan?.slides?.length || 1) - 1 ? "rgba(255, 255, 255, 0.3)" : "#ffffff",
+                        fontSize: 22,
+                        lineHeight: 1,
+                        cursor: activeSlideIndex >= (plan?.slides?.length || 1) - 1 ? "not-allowed" : "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: activeSlideIndex >= (plan?.slides?.length || 1) - 1 ? "none" : "0 8px 25px rgba(0, 0, 0, 0.6), 0 0 16px rgba(168, 85, 247, 0.6)",
+                        transition: "all 0.2s ease",
+                      }}
+                      title="Next Slide (►)"
+                    >
+                      ►
+                    </button>
+
+                    <div
+                      className="slide-canvas-box"
+                      style={{
+                        background: selectedBgConfig.bg,
+                        color: selectedBgConfig.text,
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: isVMiddle ? "center" : isVBottom ? "flex-end" : "flex-start",
+                        boxSizing: "border-box",
+                        position: "relative",
+                      }}
+                    >
                     <div
                       style={{
                         width: "100%",
@@ -2105,7 +2102,8 @@ export default function PresentationEditor({
                   </div>
                 ) : null}
               </div>
-            );
+            </div>
+          );
           })()}
 
               {/* SLIDE BASIC & FORMATTING PROPERTIES */}
@@ -4213,488 +4211,6 @@ export default function PresentationEditor({
           ) : null}
         </div>
       </div>
-
-      {/* FULLSCREEN PRESENTER OVERLAY 📺 */}
-      {isPresenting && presenterSlide ? (
-        <div
-          className="presenter-overlay"
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            width: "100vw",
-            height: "100vh",
-            zIndex: 9999,
-            background: "#090d1a",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            padding: 0,
-            overflow: "hidden",
-          }}
-        >
-          {/* TOP PRESENTATION PROGRESS BAR */}
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              height: 4,
-              width: `${((presenterSlideIndex + 1) / plan.slides.length) * 100}%`,
-              background: "linear-gradient(90deg, #8b5cf6, #ec4899, #06b6d4)",
-              boxShadow: "0 0 12px rgba(139, 92, 246, 0.8)",
-              transition: "width 0.3s ease",
-              zIndex: 10003,
-            }}
-          />
-
-          {/* FLOATING HEADER CONTROL BAR */}
-          <div
-            style={{
-              position: "fixed",
-              top: 14,
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 10002,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              width: "calc(100% - 40px)",
-              maxWidth: "1350px",
-              padding: "8px 18px",
-              background: "rgba(15, 23, 42, 0.88)",
-              borderRadius: 999,
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              backdropFilter: "blur(20px)",
-              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.6)",
-            }}
-          >
-            <div style={{ color: "#c084fc", fontWeight: "bold", fontSize: 13, display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ background: "rgba(192, 132, 252, 0.15)", border: "1px solid rgba(192, 132, 252, 0.3)", padding: "3px 12px", borderRadius: 999, color: "#c084fc", fontWeight: 800 }}>
-                SLIDE {presenterSlideIndex + 1} / {plan.slides.length}
-              </span>
-              <span style={{ opacity: 0.4 }}>│</span>
-              <span style={{ background: "rgba(255, 255, 255, 0.08)", border: "1px solid rgba(255, 255, 255, 0.12)", padding: "3px 12px", borderRadius: 999, color: "#e2e8f0" }}>
-                ⏱️ {minutesFormatted}:{secondsFormatted}
-              </span>
-            </div>
-
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              {/* AUTO PLAY TOGGLE & SPEED */}
-              <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.06)", padding: "3px 8px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.15)" }}>
-                <button
-                  className="btn-ui primary sm"
-                  onClick={() => setAutoPlay(!autoPlay)}
-                  style={{
-                    background: autoPlay ? "linear-gradient(135deg, #ef4444, #f43f5e)" : "linear-gradient(135deg, #10b981, #059669)",
-                    border: "none",
-                    fontSize: 11,
-                    padding: "3px 10px",
-                    borderRadius: 999,
-                  }}
-                >
-                  {autoPlay ? "⏸️ Pause" : "▶️ Auto Play"}
-                </button>
-                <select
-                  value={autoPlaySpeed}
-                  onChange={(e) => setAutoPlaySpeed(Number(e.target.value))}
-                  style={{ background: "rgba(0,0,0,0.5)", border: "1px solid var(--panel-border)", color: "#fff", borderRadius: 8, padding: "2px 6px", fontSize: 11 }}
-                >
-                  <option value={3}>3s / slide</option>
-                  <option value={5}>5s / slide</option>
-                  <option value={8}>8s / slide</option>
-                  <option value={10}>10s / slide</option>
-                </select>
-              </div>
-
-              <button
-                className="btn-ui primary sm"
-                onClick={() => {
-                  const noteText = presenterSlide.plugins?.find((p) => p.type === "notes")?.data?.notes || presenterSlide.title;
-                  if (window.speechSynthesis) {
-                    window.speechSynthesis.cancel();
-                    const utt = new SpeechSynthesisUtterance(noteText);
-                    window.speechSynthesis.speak(utt);
-                  }
-                }}
-                style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)", border: "none", borderRadius: 999, fontSize: 11 }}
-              >
-                🗣️ AI Voiceover
-              </button>
-
-              <button
-                className="btn-ui secondary sm"
-                onClick={() => setShowPresenterNotes(!showPresenterNotes)}
-                style={{ borderRadius: 999, fontSize: 11 }}
-              >
-                {showPresenterNotes ? "👁️ Hide Notes" : "👁️ Show Notes"}
-              </button>
-
-              <button
-                className="btn-ui secondary sm"
-                onClick={() => {
-                  if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen?.().catch(() => {});
-                  } else {
-                    document.exitFullscreen?.().catch(() => {});
-                  }
-                }}
-                title="Toggle True Browser Fullscreen"
-                style={{ borderRadius: 999, fontSize: 11 }}
-              >
-                ⛶ Fullscreen
-              </button>
-
-              <button
-                className="btn-ui danger sm"
-                onClick={() => {
-                  if (window.speechSynthesis) window.speechSynthesis.cancel();
-                  setAutoPlay(false);
-                  stopPresentationMode();
-                }}
-                style={{ borderRadius: 999, fontSize: 11 }}
-              >
-                ✕ Exit (Esc)
-              </button>
-            </div>
-          </div>
-
-          {/* FULLSCREEN CANVAS CONTAINER */}
-          <div
-            className="presenter-canvas"
-            style={{
-              flex: 1,
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "70px 40px 80px 40px",
-              boxSizing: "border-box",
-              overflow: "hidden",
-            }}
-          >
-            {/* 16:9 EDGE-TO-EDGE WIDESCREEN PRESENTATION CANVAS */}
-            {(() => {
-              const presVAlign = presenterSlide.title_valign || presenterSlide.subtitle_valign || "auto";
-              const isPresMiddle = presVAlign === "middle" || presVAlign === "center";
-              const isPresBottom = presVAlign === "bottom";
-              const presNonNotesPlugins = safeArray(presenterSlide.plugins).filter((p) => p.type !== "notes");
-              const presHasPlugins = presNonNotesPlugins.length > 0;
-
-              return (
-                <div
-                  style={{
-                    width: "100%",
-                    maxWidth: "1300px",
-                    aspectRatio: "16 / 9",
-                    background: selectedBgConfig.bg,
-                    color: selectedBgConfig.text,
-                    borderRadius: 24,
-                    padding: "44px 60px",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: isPresMiddle ? "center" : isPresBottom ? "flex-end" : "flex-start",
-                    boxShadow: "0 30px 80px -15px rgba(0, 0, 0, 0.9), 0 0 50px rgba(192, 132, 252, 0.15)",
-                    border: "1px solid rgba(255, 255, 255, 0.18)",
-                    overflow: "hidden",
-                    boxSizing: "border-box",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "100%",
-                      textAlign: presenterSlide.title_align || "left",
-                    }}
-                  >
-                    <div style={{ fontSize: 11, fontWeight: "800", opacity: 0.6, letterSpacing: 1 }}>
-                      SLIDE {presenterSlideIndex + 1} OF {plan.slides.length}
-                    </div>
-                    <h1
-                      style={{
-                        fontSize: presenterSlide.title_font_size ? presenterSlide.title_font_size * 1.3 : 38,
-                        color: presenterSlide.title_color || "inherit",
-                        textAlign: presenterSlide.title_align || "left",
-                        fontWeight: presenterSlide.title_bold === false ? 400 : 800,
-                        margin: "8px 0 6px",
-                      }}
-                    >
-                      {presenterSlide.title}
-                    </h1>
-                    {presenterSlide.subtitle ? (
-                      <div
-                        style={{
-                          fontSize: presenterSlide.subtitle_font_size ? presenterSlide.subtitle_font_size * 1.2 : 20,
-                          color: presenterSlide.subtitle_color || "inherit",
-                          textAlign: presenterSlide.subtitle_align || "left",
-                          opacity: presenterSlide.subtitle_color ? 1 : 0.85,
-                          fontWeight: 600,
-                          marginBottom: 16,
-                        }}
-                      >
-                        {presenterSlide.subtitle}
-                      </div>
-                    ) : null}
-                  </div>
-
-              {presHasPlugins && (
-                <div style={{ flex: isPresMiddle || isPresBottom ? "0 1 auto" : 1, maxHeight: "100%", overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 12 }}>
-                {(() => {
-                  const plugins = safeArray(presenterSlide.plugins);
-                  const hasImage = plugins.some((p) => p.type === "image" && (p.data?.url || p.data?.path));
-                  const hasText = plugins.some((p) => p.type === "bullets" || p.type === "paragraph");
-
-                  const renderPresenterItem = (plugin, pIdx) => (
-                    <div key={pIdx}>
-                      {plugin.type === "subtitle" || plugin.type === "text" ? (
-                        <h3 style={{ fontSize: plugin.data?.font_size || 22, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "#c084fc", margin: "4px 0" }}>
-                          {plugin.data?.text}
-                        </h3>
-                      ) : null}
-
-                      {plugin.type === "paragraph" ? (
-                        <p style={{ fontSize: plugin.data?.font_size || 18, textAlign: plugin.data?.alignment || "left", color: plugin.data?.font_color || plugin.data?.color || "inherit", lineHeight: 1.6, opacity: 0.95 }}>
-                          {plugin.data?.text}
-                        </p>
-                      ) : null}
-
-                      {plugin.type === "bullets" ? (
-                        <div style={{ display: "flex", flexDirection: "column", gap: 10, textAlign: plugin.data?.alignment || "left" }}>
-                          {safeArray(plugin.data?.points).map((pt, bIdx) => {
-                            const matchDomain = pt.match(/\((https?:\/\/[^\s)]+|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\)/);
-                            const cleanText = matchDomain ? pt.replace(matchDomain[0], "").trim() : pt;
-                            const domainUrl = matchDomain ? matchDomain[1] : null;
-
-                            return (
-                              <div
-                                key={bIdx}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 12,
-                                  background: "rgba(255, 255, 255, 0.05)",
-                                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                                  borderRadius: 12,
-                                  padding: "10px 16px",
-                                  fontSize: plugin.data?.font_size || 16,
-                                  color: plugin.data?.font_color || plugin.data?.color || "inherit",
-                                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                                  transition: "all 0.2s ease",
-                                }}
-                              >
-                                <span style={{ color: "#c084fc", fontSize: 14, fontWeight: "bold", flexShrink: 0 }}>✦</span>
-                                <span style={{ flex: 1, fontWeight: 500 }}>{cleanText}</span>
-                                {domainUrl && (
-                                  <a
-                                    href={domainUrl.startsWith("http") ? domainUrl : `https://${domainUrl}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={(e) => e.stopPropagation()}
-                                    style={{
-                                      fontSize: 11,
-                                      fontWeight: 700,
-                                      color: "#60a5fa",
-                                      background: "rgba(96, 165, 250, 0.15)",
-                                      border: "1px solid rgba(96, 165, 250, 0.3)",
-                                      borderRadius: 999,
-                                      padding: "3px 10px",
-                                      textDecoration: "none",
-                                      display: "inline-flex",
-                                      alignItems: "center",
-                                      gap: 4,
-                                      flexShrink: 0,
-                                      transition: "all 0.2s ease",
-                                    }}
-                                  >
-                                    🔗 {domainUrl}
-                                  </a>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : null}
-
-                      {plugin.type === "chart" ? (
-                        <VisualChartPreview data={plugin.data} />
-                      ) : null}
-
-                      {plugin.type === "image" && (plugin.data?.url || plugin.data?.path) ? (
-                        <div style={{ textAlign: plugin.data?.align || plugin.data?.alignment || "center", margin: "8px 0" }}>
-                          <img
-                            src={plugin.data.url || plugin.data.path}
-                            alt="slide visual"
-                            style={{
-                              maxHeight: Number(plugin.data?.img_height || plugin.data?.height || 180) * 1.25,
-                              borderRadius: 12,
-                              border: "1px solid rgba(255,255,255,0.2)",
-                              transition: "max-height 0.2s ease"
-                            }}
-                          />
-                          {plugin.data?.caption && plugin.data.caption.trim().toLowerCase() !== (activeSlide?.title || "").trim().toLowerCase() ? <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>{plugin.data.caption}</div> : null}
-                        </div>
-                      ) : null}
-
-                      {plugin.type === "stat" ? (
-                        <div style={{ display: "flex", alignItems: "baseline", gap: 12, margin: "8px 0" }}>
-                          <span style={{ fontSize: plugin.data?.font_size || 48, fontWeight: 900, color: "#c084fc" }}>{plugin.data?.number}</span>
-                          <span style={{ fontSize: 18, fontWeight: 600, opacity: 0.9 }}>{plugin.data?.label}</span>
-                        </div>
-                      ) : null}
-                    </div>
-                  );
-
-                  if (hasImage && hasText) {
-                    const textPlugins = plugins.filter((p) => p.type === "bullets" || p.type === "paragraph" || p.type === "subtitle" || p.type === "text");
-                    const imagePlugins = plugins.filter((p) => p.type === "image");
-                    const otherPlugins = plugins.filter((p) => p.type !== "bullets" && p.type !== "paragraph" && p.type !== "subtitle" && p.type !== "text" && p.type !== "image");
-
-                    return (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 20, alignItems: "center" }}>
-                          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                            {textPlugins.map((p, pIdx) => renderPresenterItem(p, `ptxt-${pIdx}`))}
-                          </div>
-                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                            {imagePlugins.map((p, pIdx) => renderPresenterItem(p, `pimg-${pIdx}`))}
-                          </div>
-                        </div>
-                        {otherPlugins.map((p, pIdx) => renderPresenterItem(p, `poth-${pIdx}`))}
-                      </div>
-                    );
-                  }
-
-                  return plugins.map((plugin, pIdx) => renderPresenterItem(plugin, pIdx));
-                })()}
-              </div>
-              )}
-            </div>
-          );
-        })()}
-
-            {showPresenterNotes ? (
-              <div
-                style={{
-                  marginTop: 10,
-                  width: "100%",
-                  maxWidth: "1300px",
-                  background: "rgba(15, 23, 42, 0.88)",
-                  backdropFilter: "blur(16px)",
-                  border: "1px solid rgba(192, 132, 252, 0.25)",
-                  borderRadius: 14,
-                  padding: "10px 18px",
-                  color: "#e2e8f0",
-                  fontSize: 13,
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-                }}
-              >
-                <span style={{ color: "#c084fc", fontWeight: 800, marginRight: 6 }}>🗣️ Presenter Notes:</span>{" "}
-                {presenterSlide.plugins?.find((p) => p.type === "notes")?.data?.notes || "No speaker notes for this slide."}
-              </div>
-            ) : null}
-          </div>
-
-          {/* FLOATING BOTTOM DOCK NAVIGATION CONTROLS */}
-          <div
-            style={{
-              position: "fixed",
-              bottom: 14,
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 10002,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 4,
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                background: "rgba(15, 23, 42, 0.88)",
-                backdropFilter: "blur(20px)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                borderRadius: 999,
-                padding: "6px 18px",
-                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.6)",
-              }}
-            >
-              <button
-                className="btn-ui secondary sm"
-                onClick={() => setPresenterSlideIndex((i) => Math.max(0, i - 1))}
-                disabled={presenterSlideIndex === 0}
-                style={{ borderRadius: 999, padding: "5px 14px" }}
-              >
-                ◀ Previous
-              </button>
-
-              {/* QUICK SLIDE DOTS / INDEX JUMP BUTTONS */}
-              <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
-                {plan.slides.map((_, sIdx) => (
-                  <button
-                    key={sIdx}
-                    onClick={() => setPresenterSlideIndex(sIdx)}
-                    style={{
-                      width: sIdx === presenterSlideIndex ? 22 : 10,
-                      height: 10,
-                      borderRadius: 999,
-                      background: sIdx === presenterSlideIndex ? "linear-gradient(135deg, #c084fc, #60a5fa)" : "rgba(255,255,255,0.2)",
-                      border: "none",
-                      cursor: "pointer",
-                      transition: "all 0.25s ease",
-                    }}
-                    title={`Jump to Slide ${sIdx + 1}`}
-                  />
-                ))}
-              </div>
-
-              <button
-                className="btn-ui primary sm"
-                onClick={() => setPresenterSlideIndex((i) => Math.min(plan.slides.length - 1, i + 1))}
-                disabled={presenterSlideIndex === plan.slides.length - 1}
-                style={{ borderRadius: 999, padding: "5px 14px" }}
-              >
-                Next ▶
-              </button>
-
-              <div style={{ height: 16, width: 1, background: "rgba(255,255,255,0.2)", margin: "0 4px" }} />
-
-              <button
-                type="button"
-                className="btn-ui secondary sm"
-                onClick={() => handleToggleSlideVoiceover(plan.slides[presenterSlideIndex], presenterSlideIndex)}
-                style={{
-                  borderRadius: 999,
-                  padding: "5px 14px",
-                  background: isSpeaking && speakingSlideIdx === presenterSlideIndex ? "rgba(239, 68, 68, 0.3)" : "rgba(139, 92, 246, 0.25)",
-                  border: isSpeaking && speakingSlideIdx === presenterSlideIndex ? "1px solid #ef4444" : "1px solid rgba(139, 92, 246, 0.5)",
-                }}
-              >
-                {isSpeaking && speakingSlideIdx === presenterSlideIndex ? "⏹️ Stop Voice" : "🎙️ Narration"}
-              </button>
-
-              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.8)", cursor: "pointer", userSelect: "none" }}>
-                <input
-                  type="checkbox"
-                  checked={autoPlayVoiceover}
-                  onChange={(e) => setAutoPlayVoiceover(e.target.checked)}
-                  style={{ accentColor: "#8b5cf6", cursor: "pointer" }}
-                />
-                Auto-Voiceover
-              </label>
-            </div>
-
-            <div style={{ fontSize: 10, color: "rgba(255, 255, 255, 0.4)", fontWeight: 600 }}>
-              ⌨️ Use ◄ ► Arrow Keys or Spacebar to Navigate
-            </div>
-          </div>
-        </div>
-      ) : null}
 
       {/* DOWNLOAD SUCCESS POPUP MODAL 🎁 */}
       {showDownloadModal && (
