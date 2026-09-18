@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { API_BASE_URL, getAuthHeaders } from "../../services/api";
 import PresentationSetup from "./PresentationSetup";
-import PresentationStage1Preview from "./PresentationStage1Preview";
 import PresentationEditor, { BACKGROUND_PRESETS } from "./PresentationEditor";
 
 const DEFAULT_API_BASE = `${API_BASE_URL}/api/presentation`;
@@ -264,13 +263,12 @@ export default function PresentationGenerator() {
   const [visualStyle, setVisualStyle] = useState("minimal");
 
   const [planPreview, setPlanPreview] = useState(null);
-  const [loadingGenerate, setLoadingGenerate] = useState(false);
 
   const [includeSpeakerNotes, setIncludeSpeakerNotes] = useState(true);
   const [includeAgendaSlide, setIncludeAgendaSlide] = useState(true);
   const [useWebSearch, setUseWebSearch] = useState(true);
   const [useAiImageGen, setUseAiImageGen] = useState(true);
-  const [smartMode, setSmartMode] = useState(true);
+  const [smartMode] = useState(true);
   const [allowChart, setAllowChart] = useState(true);
 
   // Master Template Selection State 📐
@@ -428,7 +426,7 @@ export default function PresentationGenerator() {
     const controller = new AbortController();
     const checkService = async () => {
       try {
-        await fetch(joinUrl(DEFAULT_API_BASE, "/health"), { signal: controller.signal });
+        await fetch(joinUrl(DEFAULT_API_BASE, "/"), { signal: controller.signal });
       } catch {
         // service check
       }
@@ -637,55 +635,6 @@ export default function PresentationGenerator() {
       setError(err?.message || "Something went wrong generating presentation");
     } finally {
       setLoadingPlan(false);
-    }
-  };
-
-  // STAGE 2 API CALL: Generate Final PPTX Presentation Deck ⚡
-  const executeStage2Generate = async () => {
-    setError("");
-    setSaveError("");
-    setLoadingGenerate(true);
-
-    try {
-      const payload = buildPayload({ includePlan: true });
-      const res = await fetch(joinUrl(DEFAULT_API_BASE, "/stage2/generate"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await readResponse(res);
-      if (!res.ok) throw new Error(data?.detail || "Failed to generate Stage 2 presentation");
-
-      if (data.plan) {
-        setPlan(data.plan);
-      } else if (planPreview?.plan) {
-        setPlan(planPreview.plan);
-      }
-
-      if (data.download_url) {
-        const fullUrl = resolveDownloadUrl(data.download_url);
-        setDownloadUrl(fullUrl);
-        setSavedMeta({
-          presentation_id: data.job_id || "gen_stage2",
-          file_name: data.file_name || "presentation.pptx",
-          download_url: fullUrl,
-          message: "Stage 2 presentation generated successfully",
-        });
-        setIsSaved(true);
-      }
-
-      setGeneratedMeta({
-        title: data.title || plan?.title || "Presentation Deck",
-        slides: data.slides_count || previewCount || 8,
-      });
-
-      setActiveSlideIndex(0);
-      setCurrentStep(3); // 🚀 Switch to Stage 2 Presentation Editor!
-    } catch (err) {
-      setError(err?.message || "Something went wrong generating Stage 2 PPT");
-    } finally {
-      setLoadingGenerate(false);
     }
   };
 
@@ -1380,7 +1329,7 @@ export default function PresentationGenerator() {
             allowChart={allowChart}
             setAllowChart={setAllowChart}
             loadingPlan={loadingPlan}
-            loadingGenerate={loadingGenerate || isSaving}
+            loadingGenerate={isSaving}
             error={error || saveError}
             fetchPlan={fetchPlan}
             useCustomBrand={useCustomBrand}
@@ -1442,20 +1391,6 @@ export default function PresentationGenerator() {
             handleAddPlugin={handleAddPlugin}
             handleDeletePlugin={handleDeletePlugin}
             onBackToSetup={() => setCurrentStep(1)}
-          />
-        )}
-
-        {currentStep === 3 && (
-          /* STEP 3: OPTIONAL STAGE 1 USER PREVIEW & SEQUENCE REORDERING PANEL */
-          <PresentationStage1Preview
-            planPreview={planPreview}
-            setPlanPreview={setPlanPreview}
-            onExecuteStage2={async () => {
-              await executeStage2Generate();
-              setCurrentStep(2);
-            }}
-            onBackToSetup={() => setCurrentStep(1)}
-            loadingGenerate={loadingGenerate}
           />
         )}
       </div>
