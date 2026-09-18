@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
-
-
-const TONE_OPTIONS = [
-  { id: "Professional", label: "Professional & Clean", icon: "💼" },
-  { id: "Inspiring", label: "Inspiring & Energetic", icon: "🚀" },
-  { id: "Educational", label: "Educational & Detailed", icon: "📚" },
-  { id: "Formal", label: "Formal Executive", icon: "👔" },
+const SLIDE_COUNT_OPTIONS = [
+  { id: "auto", label: "Auto", desc: "Auto-generated", icon: "✨" },
+  { id: 6, label: "6 Slides", desc: "~7 Mins presentation",},
+  { id: 8, label: "8 Slides ", desc: "~10 Mins standard deck",},
+  { id: 10, label: "10 Slides", desc: "~12 Mins pitch deck",},
+  { id: 15, label: "15 Slides", desc: "~18 Mins deep dive",},
+  { id: 20, label: "20 Slides", desc: "~24 Mins comprehensive",},
+  { id: 25, label: "25 Slides", desc: "~30 Mins workshop",},
+  { id: 30, label: "30 Slides", desc: "~36 Mins masterclass",},
 ];
 
 const LANGUAGE_OPTIONS = [
@@ -18,20 +20,198 @@ const LANGUAGE_OPTIONS = [
   { id: "German", label: "German", flag: "🇩🇪" },
 ];
 
-const DEPTH_OPTIONS = [
-  { id: "basic", label: "Basic Overview", desc: "High-level summary" },
-  { id: "medium", label: "Standard Medium", desc: "Balanced depth & data" },
-  { id: "detailed", label: "Deep Enterprise", desc: "Comprehensive technical specs" },
+const STYLE_OPTIONS = [
+  { id: "professional", label: "Executive Professional", icon: "💼" },
+  { id: "corporate", label: "Corporate Enterprise", icon: "🏢" },
+  { id: "modern", label: "Modern Minimal", icon: "✨" },
+  { id: "academic", label: "Academic Research", icon: "🎓" },
+  { id: "creative", label: "Creative Showcase", icon: "🎨" },
+  { id: "minimal", label: "Minimalist Clean", icon: "🌿" },
 ];
 
-const STYLE_OPTIONS = [
-  { id: "professional", label: "Executive Professional" },
-  { id: "corporate", label: "Corporate Enterprise" },
-  { id: "modern", label: "Modern Minimal" },
-  { id: "academic", label: "Academic Research" },
-  { id: "creative", label: "Creative Showcase" },
-  { id: "minimal", label: "Minimalist Clean" },
+export const MASTER_TEMPLATE_OPTIONS = [
+  { id: "base_template", label: "Default Slate Teal", icon: "🛡️", desc: "Dark Slate & Teal Widescreen", category: "Corporate" },
+  { id: "ion_boardroom", label: "Ion Boardroom", icon: "🍇", desc: "Magenta Tag & Midnight Violet", category: "Corporate" },
+  { id: "berlin_executive", label: "Berlin Executive", icon: "🏢", desc: "Burnt Orange & Charcoal Bar", category: "Corporate" },
+  { id: "quotable_teal", label: "Quotable Teal", icon: "💬", desc: "Cyan & Charcoal Dual Block", category: "Corporate" },
+  { id: "geometric_block", label: "Geometric Color Block", icon: "🟣", desc: "Pastel Lavender & Royal Blue Arches", category: "Modern & Geometric" },
+  { id: "urban_monochrome", label: "Urban Monochrome", icon: "🏛️", desc: "Architectural Slate Grid", category: "Modern & Geometric" },
+  { id: "crop_frame", label: "Crop Bracket Minimal", icon: "📐", desc: "Warm Sand & Corner Brackets", category: "Minimal & Clean" },
+  { id: "circuit_tech", label: "Circuit Tech Cyber", icon: "⚡", desc: "Electric Cyan & Blue Mesh", category: "Tech & Cyber" },
+  { id: "celestial_night", label: "Celestial Night", icon: "🌌", desc: "Deep Space Indigo & Radar Rings", category: "Tech & Cyber" },
+  { id: "artistic_neon", label: "Artistic Neon", icon: "🎨", desc: "Asymmetric Orange & Dark Canvas", category: "Creative & Editorial" },
+  { id: "atlas_bold", label: "Atlas Crimson Banner", icon: "🚩", desc: "Crimson Red Callout Badge", category: "Corporate" },
+  { id: "organic_pastel", label: "Organic Earthy Pastel", icon: "🌿", desc: "Soft Taupe & Fluid Blobs", category: "Minimal & Clean" },
+  { id: "dividend_burgundy", label: "Dividend Burgundy Block", icon: "🍷", desc: "Burgundy Footer & Clean Slate", category: "Corporate" },
+  { id: "savon_classic", label: "Savon Classic Card", icon: "📜", desc: "Mint Pattern & Framed Card", category: "Creative & Editorial" },
+  { id: "wood_type", label: "Wood Type Vintage", icon: "🪵", desc: "Timber Brown & Parchment Stamp", category: "Creative & Editorial" },
+  { id: "sidebar_executive", label: "Executive Sidebar Rail", icon: "💼", desc: "Navy Sidebar & Off-White Card", category: "Corporate" },
+  { id: "modern_glassmorphism", label: "Modern Dark Glassmorphism", icon: "✨", desc: "Glowing Purple Neon on Dark Zinc", category: "Tech & Cyber" },
 ];
+
+function CustomDropdown({ label, icon, options, value, onChange, placeholder = "Select option", headerBadge }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const selectedOption =
+    options.find((opt) => opt.id === value || String(opt.id) === String(value)) ||
+    (typeof value === "number" || (!isNaN(value) && value !== "auto")
+      ? { id: value, label: `${value} Slides`, icon: "℗" }
+      : options[0]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="field-group" style={{ position: "relative" }} ref={dropdownRef}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+        <label
+          style={{
+            fontSize: "11px",
+            fontWeight: 700,
+            color: "#c084fc",
+            margin: 0,
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <span>{icon}</span> {label}
+        </label>
+        {headerBadge && (
+          <span style={{ fontSize: 9, fontWeight: 700, color: "#c084fc", background: "rgba(139,92,246,0.15)", padding: "2px 6px", borderRadius: 999, border: "1px solid rgba(139,92,246,0.3)" }}>
+            {headerBadge}
+          </span>
+        )}
+      </div>
+
+      {/* DROPDOWN TRIGGER BUTTON */}
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        style={{
+          width: "100%",
+          padding: "9px 12px",
+          borderRadius: "10px",
+          background: isOpen ? "rgba(139, 92, 246, 0.2)" : "rgba(255, 255, 255, 0.05)",
+          border: isOpen ? "1px solid #c084fc" : "1px solid rgba(255, 255, 255, 0.12)",
+          color: "#ffffff",
+          fontSize: "12px",
+          fontWeight: 600,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          boxShadow: isOpen ? "0 0 12px rgba(139, 92, 246, 0.3)" : "none",
+          transition: "all 0.2s ease",
+          outline: "none",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", overflow: "hidden" }}>
+          {selectedOption?.flag && <span style={{ fontSize: "14px" }}>{selectedOption.flag}</span>}
+          {selectedOption?.icon && <span style={{ fontSize: "13px" }}>{selectedOption.icon}</span>}
+          <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {selectedOption?.label || placeholder}
+          </span>
+          {selectedOption?.desc && (
+            <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.45)", fontWeight: 400 }}>
+              ({selectedOption.desc})
+            </span>
+          )}
+        </div>
+        <span
+          style={{
+            fontSize: "10px",
+            color: isOpen ? "#c084fc" : "rgba(255,255,255,0.5)",
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.2s ease",
+            marginLeft: "6px",
+            flexShrink: 0,
+          }}
+        >
+          ▼
+        </span>
+      </button>
+
+      {/* DROPDOWN MENU POPOVER */}
+      {isOpen && (
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(100% + 4px)",
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            background: "#121124",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(192, 132, 252, 0.35)",
+            borderRadius: "10px",
+            padding: "5px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.7), 0 0 15px rgba(139,92,246,0.25)",
+            maxHeight: "220px",
+            overflowY: "auto",
+          }}
+        >
+          {options.map((opt) => {
+            const isSelected = opt.id === value || String(opt.id) === String(value);
+            return (
+              <div
+                key={opt.id}
+                onClick={() => {
+                  onChange?.(opt.id);
+                  setIsOpen(false);
+                }}
+                style={{
+                  padding: "7px 10px",
+                  borderRadius: "7px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  background: isSelected ? "rgba(139, 92, 246, 0.25)" : "transparent",
+                  color: isSelected ? "#ffffff" : "rgba(255, 255, 255, 0.8)",
+                  fontSize: "12px",
+                  fontWeight: isSelected ? 700 : 500,
+                  transition: "all 0.15s ease",
+                  marginBottom: "2px",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                    e.currentTarget.style.color = "#ffffff";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "rgba(255, 255, 255, 0.8)";
+                  }
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", overflow: "hidden" }}>
+                  {opt.flag && <span style={{ fontSize: "14px" }}>{opt.flag}</span>}
+                  {opt.icon && <span style={{ fontSize: "13px" }}>{opt.icon}</span>}
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span>{opt.label}</span>
+                    {opt.desc && <span style={{ fontSize: "9.5px", color: "rgba(255,255,255,0.45)" }}>{opt.desc}</span>}
+                  </div>
+                </div>
+                {isSelected && <span style={{ color: "#c084fc", fontWeight: 800, fontSize: "12px", marginLeft: "6px" }}>✓</span>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function Toggle({ label, checked, onChange, icon }) {
   return (
@@ -114,11 +294,12 @@ export default function PresentationSetup({
   setBrandFont,
   brandFooter,
   setBrandFooter,
+  templateName = "base_template",
+  setTemplateName,
 }) {
   const [isEnhanced, setIsEnhanced] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [showAiFeatures, setShowAiFeatures] = useState(true);
-  const [showBrandOptions, setShowBrandOptions] = useState(false);
 
   const handleVoiceInput = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -184,21 +365,9 @@ export default function PresentationSetup({
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 13, fontWeight: 900, color: "#c084fc", letterSpacing: "1px" }}>
-            STAGE 1: PPT PLANNER & DESIGN STUDIO
+            Presentation Setup
           </span>
-          <span
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              padding: "2px 8px",
-              borderRadius: 999,
-              background: "rgba(139,92,246,0.2)",
-              color: "#c084fc",
-              border: "1px solid rgba(139,92,246,0.3)",
-            }}
-          >
-            2-Stage Engine Active
-          </span>
+         
         </div>
 
         {/* REALTIME DECK ESTIMATE COUNTER */}
@@ -233,7 +402,7 @@ export default function PresentationSetup({
                 gap: 4,
               }}
             >
-              <span>{isListening ? "🔴 Listening..." : "🎙️Speak."}</span>
+              <span>{isListening ? "🔴Listening..." : "🎙️Speak."}</span>
             </button>
 
             <button
@@ -275,84 +444,33 @@ export default function PresentationSetup({
         />
       </div>
 
-      {/* USER REQUIREMENTS / EXTRA INSTRUCTIONS (OPTIONAL) */}
-      <div className="field-group" style={{ marginBottom: "16px" }}>
-        <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.8)", marginBottom: 4, display: "block" }}>
-          🎯 Specific User Requirements & Constraints (Optional)
-        </label>
-        <input
-          type="text"
-          value={userRequirements || ""}
-          onChange={(e) => setUserRequirements?.(e.target.value)}
-          placeholder="e.g. Include a 4-step deployment workflow slide, emphasis on ROI calculations, or specific case study..."
-          style={{
-            fontSize: 12,
-            padding: "8px 12px",
-            borderRadius: 10,
-            background: "rgba(0,0,0,0.3)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: "#fff",
-            width: "100%",
-          }}
-        />
-      </div>
 
-      {/* SLIDE COUNT & CONFIGURATION */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12, marginBottom: 16 }}>
-        <div className="field-group">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
-            <label style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, margin: 0 }}>
-              <span>📊</span> Slide Count Selection
-            </label>
-            <span style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", background: "rgba(139,92,246,0.15)", padding: "3px 8px", borderRadius: 999, border: "1px solid rgba(139,92,246,0.3)" }}>
-              ✨ Stage 1 Auto-Complexity Analyzer
-            </span>
-          </div>
 
-          {/* PRESET BUTTONS ("auto", 6, 8, 10, 15, 20, 25, 30) */}
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
-            {["auto", 6, 8, 10, 15, 20, 25, 30].map((preset) => {
-              const isSelected = slideCount === preset;
-              return (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => setSlideCount?.(preset)}
-                  style={{
-                    padding: "6px 12px",
-                    borderRadius: 8,
-                    fontSize: 11,
-                    fontWeight: isSelected ? 800 : 600,
-                    background: isSelected
-                      ? "linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)"
-                      : "rgba(255,255,255,0.05)",
-                    border: isSelected ? "1px solid #c084fc" : "1px solid rgba(255,255,255,0.1)",
-                    color: "#ffffff",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    boxShadow: isSelected ? "0 2px 8px rgba(124, 58, 237, 0.4)" : "none",
-                  }}
-                >
-                  {preset === "auto" ? "✨ Auto (AI Analyzed)" : `${preset} Slides`}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* MANUAL ADJUSTMENT STEPPER IF NOT AUTO */}
+      {/* DECK CONFIGURATION DROPDOWNS (UNIFIED CONTROL GRID) */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 12, marginBottom: 18 }}>
+        <div>
+          <CustomDropdown
+            label="Slide Count Selection"
+            icon="℗"
+            options={SLIDE_COUNT_OPTIONS}
+            value={slideCount}
+            onChange={setSlideCount}
+            
+          />
           {slideCount !== "auto" && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>Custom Count:</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, justifyContent: "flex-end" }}>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>Custom Count:</span>
               <button
                 type="button"
                 onClick={() => setSlideCount?.(Math.max(3, (Number(slideCount) || 8) - 1))}
                 style={{
-                  width: 32,
-                  height: 34,
-                  borderRadius: 8,
+                  width: 24,
+                  height: 24,
+                  borderRadius: 6,
                   border: "1px solid rgba(255,255,255,0.15)",
                   background: "rgba(255,255,255,0.06)",
                   color: "#fff",
+                  fontSize: 12,
                   fontWeight: "bold",
                   cursor: "pointer",
                   display: "flex",
@@ -371,25 +489,26 @@ export default function PresentationSetup({
                 style={{
                   textAlign: "center",
                   fontWeight: "bold",
-                  width: 60,
-                  height: 34,
-                  borderRadius: 8,
+                  width: 36,
+                  height: 24,
+                  borderRadius: 6,
                   border: "1px solid rgba(255,255,255,0.15)",
                   background: "rgba(0,0,0,0.3)",
-                  color: "#fff",
-                  fontSize: 13,
+                  color: "#c084fc",
+                  fontSize: 11,
                 }}
               />
               <button
                 type="button"
                 onClick={() => setSlideCount?.(Math.min(30, (Number(slideCount) || 8) + 1))}
                 style={{
-                  width: 32,
-                  height: 34,
-                  borderRadius: 8,
+                  width: 24,
+                  height: 24,
+                  borderRadius: 6,
                   border: "1px solid rgba(255,255,255,0.15)",
                   background: "rgba(255,255,255,0.06)",
                   color: "#fff",
+                  fontSize: 12,
                   fontWeight: "bold",
                   cursor: "pointer",
                   display: "flex",
@@ -402,304 +521,33 @@ export default function PresentationSetup({
             </div>
           )}
         </div>
+
+        <CustomDropdown
+          label="Master Slide Template"
+          icon="📐"
+          options={MASTER_TEMPLATE_OPTIONS}
+          value={templateName || "base_template"}
+          onChange={setTemplateName}
+        />
+
+        <CustomDropdown
+          label="Design Theme Style"
+          icon="🎨"
+          options={STYLE_OPTIONS}
+          value={style || "professional"}
+          onChange={setStyle}
+        />
+
+        <CustomDropdown
+          label="Output Language"
+          icon="🌐"
+          options={LANGUAGE_OPTIONS}
+          value={language || "English"}
+          onChange={setLanguage}
+        />
       </div>
 
-      {/* DEPTH & DESIGN STYLE SELECTION CARDS */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-        <div className="field-group">
-          <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", marginBottom: 6, display: "block" }}>
-            📐 Detail Depth Level
-          </label>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {DEPTH_OPTIONS.map((d) => {
-              const isSelected = (depth || "medium") === d.id;
-              return (
-                <button
-                  type="button"
-                  key={d.id}
-                  onClick={() => setDepth?.(d.id)}
-                  style={{
-                    padding: "6px 10px",
-                    borderRadius: 8,
-                    border: isSelected ? "1.5px solid #8b5cf6" : "1px solid rgba(255,255,255,0.08)",
-                    background: isSelected ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.04)",
-                    color: "#ffffff",
-                    fontSize: 11,
-                    fontWeight: isSelected ? 700 : 500,
-                    cursor: "pointer",
-                    textAlign: "left",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <span>{d.label}</span>
-                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>{d.desc}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
-        <div className="field-group">
-          <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", marginBottom: 6, display: "block" }}>
-            🎨 Design Theme Style
-          </label>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-            {STYLE_OPTIONS.map((st) => {
-              const isSelected = (style || "professional") === st.id;
-              return (
-                <button
-                  type="button"
-                  key={st.id}
-                  onClick={() => setStyle?.(st.id)}
-                  style={{
-                    padding: "6px 8px",
-                    borderRadius: 8,
-                    border: isSelected ? "1.5px solid #38bdf8" : "1px solid rgba(255,255,255,0.08)",
-                    background: isSelected ? "rgba(56,189,248,0.2)" : "rgba(255,255,255,0.04)",
-                    color: "#ffffff",
-                    fontSize: 11,
-                    fontWeight: isSelected ? 700 : 500,
-                    cursor: "pointer",
-                    textAlign: "left",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {st.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* VISUAL TONE & LANGUAGE SELECTION CARDS */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-        <div className="field-group">
-          <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", marginBottom: 6, display: "block" }}>
-            🎭 Tone of Voice
-          </label>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-            {TONE_OPTIONS.map((t) => {
-              const isSelected = (tone || "Professional") === t.id;
-              return (
-                <button
-                  type="button"
-                  key={t.id}
-                  onClick={() => setTone?.(t.id)}
-                  style={{
-                    padding: "6px 8px",
-                    borderRadius: 8,
-                    border: isSelected ? "1.5px solid #8b5cf6" : "1px solid rgba(255,255,255,0.08)",
-                    background: isSelected ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.04)",
-                    color: "#ffffff",
-                    fontSize: 11,
-                    fontWeight: isSelected ? 700 : 500,
-                    cursor: "pointer",
-                    textAlign: "left",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {t.icon} {t.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="field-group">
-          <label style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", marginBottom: 6, display: "block" }}>
-            🌐 Output Language
-          </label>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
-            {LANGUAGE_OPTIONS.map((lang) => {
-              const isSelected = (language || "English") === lang.id;
-              return (
-                <button
-                  type="button"
-                  key={lang.id}
-                  onClick={() => setLanguage?.(lang.id)}
-                  style={{
-                    padding: "6px 4px",
-                    borderRadius: 8,
-                    border: isSelected ? "1.5px solid #38bdf8" : "1px solid rgba(255,255,255,0.08)",
-                    background: isSelected ? "rgba(56,189,248,0.2)" : "rgba(255,255,255,0.04)",
-                    color: "#ffffff",
-                    fontSize: 11,
-                    fontWeight: isSelected ? 700 : 500,
-                    cursor: "pointer",
-                    textAlign: "center",
-                  }}
-                >
-                  {lang.flag} {lang.label.split(" ")[0]}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* BRANDING SECTION */}
-      <div style={{ marginBottom: 16 }}>
-        <div
-          onClick={() => setShowBrandOptions((v) => !v)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            background: useCustomBrand ? "rgba(139, 92, 246, 0.15)" : "rgba(255, 255, 255, 0.04)",
-            border: useCustomBrand ? "1px solid rgba(192, 132, 252, 0.4)" : "1px solid rgba(255, 255, 255, 0.08)",
-            padding: "10px 14px",
-            borderRadius: 12,
-            cursor: "pointer",
-            marginBottom: showBrandOptions ? 12 : 0,
-            transition: "all 0.2s ease",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 14 }}>🏢</span>
-            <span style={{ fontSize: 12, fontWeight: 800, color: "#fff" }}>
-              CUSTOM BRAND TEMPLATE & LOGO UPLOADER
-            </span>
-            {useCustomBrand && (
-              <span style={{ fontSize: 10, background: "#8b5cf6", color: "#fff", padding: "2px 8px", borderRadius: 999, fontWeight: 700 }}>
-                Active
-              </span>
-            )}
-          </div>
-          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>{showBrandOptions ? "▲ Hide" : "▼ Configure Brand"}</span>
-        </div>
-
-        {showBrandOptions && (
-          <div style={{ background: "rgba(0, 0, 0, 0.35)", padding: 14, borderRadius: 14, border: "1px solid rgba(255, 255, 255, 0.08)", display: "grid", gap: 12 }}>
-            <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", color: "#fff" }}>
-              <input
-                type="checkbox"
-                checked={useCustomBrand || false}
-                onChange={(e) => setUseCustomBrand?.(e.target.checked)}
-                style={{ accentColor: "#8b5cf6", width: 16, height: 16 }}
-              />
-              Enable Custom Corporate Brand Template for this Presentation Deck
-            </label>
-
-            {useCustomBrand && (
-              <>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.8)", marginBottom: 4, display: "block" }}>
-                      Company Logo (Upload or URL)
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onload = () => setBrandLogo?.(reader.result);
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                      style={{ fontSize: 11, color: "#fff", width: "100%", marginBottom: 6 }}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Or paste Logo URL (https://...)"
-                      value={brandLogo && !brandLogo.startsWith("data:") ? brandLogo : ""}
-                      onChange={(e) => setBrandLogo?.(e.target.value)}
-                      style={{ fontSize: 11, padding: "6px 10px", borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", width: "100%" }}
-                    />
-                    {brandLogo && (
-                      <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8 }}>
-                        <img src={brandLogo} alt="Logo preview" style={{ height: 28, maxWidth: 100, objectFit: "contain", borderRadius: 4, background: "rgba(255,255,255,0.1)", padding: 2 }} />
-                        <button type="button" onClick={() => setBrandLogo?.("")} style={{ fontSize: 10, color: "#fca5a5", background: "none", border: "none", cursor: "pointer" }}>Remove</button>
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.8)", marginBottom: 4, display: "block" }}>
-                      Brand Typography Font
-                    </label>
-                    <select
-                      value={brandFont || "Arial"}
-                      onChange={(e) => setBrandFont?.(e.target.value)}
-                      style={{ width: "100%", padding: "8px", borderRadius: 8, background: "rgba(15, 23, 42, 0.9)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", fontSize: 12 }}
-                    >
-                      <option value="Arial">Arial (Clean Modern)</option>
-                      <option value="Montserrat">Montserrat (Executive Bold)</option>
-                      <option value="Helvetica">Helvetica (Classic Corporate)</option>
-                      <option value="Georgia">Georgia (Editorial Serif)</option>
-                      <option value="Trebuchet MS">Trebuchet MS (Tech Modern)</option>
-                      <option value="Roboto">Roboto (Digital Clean)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.8)", marginBottom: 4, display: "block" }}>
-                      Brand Primary Color
-                    </label>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <input
-                        type="color"
-                        value={brandColor || "#8b5cf6"}
-                        onChange={(e) => setBrandColor?.(e.target.value)}
-                        style={{ width: 36, height: 32, border: "none", borderRadius: 6, cursor: "pointer", background: "transparent" }}
-                      />
-                      <input
-                        type="text"
-                        value={brandColor || "#8b5cf6"}
-                        onChange={(e) => setBrandColor?.(e.target.value)}
-                        style={{ fontSize: 11, padding: "6px 8px", borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", width: "100%" }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.8)", marginBottom: 4, display: "block" }}>
-                      Brand Secondary Color
-                    </label>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <input
-                        type="color"
-                        value={brandSecondaryColor || "#0f172a"}
-                        onChange={(e) => setBrandSecondaryColor?.(e.target.value)}
-                        style={{ width: 36, height: 32, border: "none", borderRadius: 6, cursor: "pointer", background: "transparent" }}
-                      />
-                      <input
-                        type="text"
-                        value={brandSecondaryColor || "#0f172a"}
-                        onChange={(e) => setBrandSecondaryColor?.(e.target.value)}
-                        style={{ fontSize: 11, padding: "6px 8px", borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", width: "100%" }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.8)", marginBottom: 4, display: "block" }}>
-                    Footer Watermark / Copyright Text
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. © 2026 Acme Corp | Confidential & Proprietary"
-                    value={brandFooter || ""}
-                    onChange={(e) => setBrandFooter?.(e.target.value)}
-                    style={{ fontSize: 11, padding: "8px 10px", borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", width: "100%" }}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </div>
 
       {/* AI & LAYOUT TOGGLES HEADER (CLEAN INLINE TEXT + ARROW TOGGLE) */}
       <div style={{ marginBottom: showAiFeatures ? 8 : 16 }}>

@@ -270,9 +270,17 @@ export default function PresentationGenerator() {
   const [includeAgendaSlide, setIncludeAgendaSlide] = useState(true);
   const [useWebSearch, setUseWebSearch] = useState(true);
   const [useAiImageGen, setUseAiImageGen] = useState(true);
-  // eslint-disable-next-line no-unused-vars
   const [smartMode, setSmartMode] = useState(true);
   const [allowChart, setAllowChart] = useState(true);
+
+  // Master Template Selection State 📐
+  const [templateName, setTemplateName] = useState(() => {
+    try {
+      return localStorage.getItem("vitya_template_name") || "base_template";
+    } catch {
+      return "base_template";
+    }
+  });
 
   // Save & Download Lifecycle State 💾
   const [isSaving, setIsSaving] = useState(false);
@@ -386,10 +394,11 @@ export default function PresentationGenerator() {
       localStorage.setItem(STORAGE_KEY_CUSTOM_BG1, customBgColor1);
       localStorage.setItem(STORAGE_KEY_CUSTOM_BG2, customBgColor2);
       localStorage.setItem(STORAGE_KEY_CUSTOM_TEXT, customTextColor);
+      localStorage.setItem("vitya_template_name", templateName);
     } catch (e) {
       console.warn("Failed to persist presentation deck to localStorage", e);
     }
-  }, [plan, currentStep, activeSlideIndex, selectedBgPreset, customBgColor1, customBgColor2, customTextColor]);
+  }, [plan, currentStep, activeSlideIndex, selectedBgPreset, customBgColor1, customBgColor2, customTextColor, templateName]);
 
   const handleResetPlanToDefault = () => {
     if (window.confirm("Start a new presentation deck? (Current draft will be reset)")) {
@@ -476,6 +485,7 @@ export default function PresentationGenerator() {
       prompt: buildPrompt(),
       topic: prompt.trim(),
       export_format: exportFormat || "pptx",
+      template_name: templateName || "base_template",
       background_theme: selectedBgPreset || "dark",
       content_theme: contentTheme || "dark",
       visual_style: style || visualStyle || "minimal",
@@ -1311,7 +1321,7 @@ export default function PresentationGenerator() {
                 className={`btn-ui sm ${currentStep === 1 ? "primary" : "secondary"}`}
                 onClick={() => setCurrentStep(1)}
               >
-                1. Setup
+                Setup
               </button>
               <button
                 className={`btn-ui sm ${currentStep === 2 ? "primary" : "secondary"}`}
@@ -1319,7 +1329,7 @@ export default function PresentationGenerator() {
                 disabled={!plan}
                 title={!plan ? "Generate presentation first" : "Open Slide Editor & Viewer"}
               >
-                2. Slide Editor {plan?.slides?.length ? `(${plan.slides.length})` : ""}
+                Slide Editor {plan?.slides?.length ? `(${plan.slides.length})` : ""}
               </button>
               {planPreview && (
                 <button
@@ -1385,6 +1395,8 @@ export default function PresentationGenerator() {
             setBrandFont={setBrandFont}
             brandFooter={brandFooter}
             setBrandFooter={setBrandFooter}
+            templateName={templateName}
+            setTemplateName={setTemplateName}
           />
         )}
 
@@ -1397,6 +1409,8 @@ export default function PresentationGenerator() {
             setActiveSlideIndex={setActiveSlideIndex}
             selectedBgPreset={selectedBgPreset}
             setSelectedBgPreset={setSelectedBgPreset}
+            templateName={templateName}
+            setTemplateName={setTemplateName}
             customBgColor1={customBgColor1}
             setCustomBgColor1={setCustomBgColor1}
             customBgColor2={customBgColor2}

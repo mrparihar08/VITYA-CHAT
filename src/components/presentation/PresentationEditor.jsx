@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { API_BASE_URL, getAuthHeaders } from "../../services/api";
 import { downloadFileAsBlob } from "./Presentation";
+import { MASTER_TEMPLATE_OPTIONS } from "./PresentationSetup";
 
 export const BACKGROUND_PRESETS = [
   { id: "dark_gradient", name: "🌌 Midnight Purple", bg: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #31104b 100%)", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#31104b" },
@@ -519,6 +520,8 @@ export default function PresentationEditor({
   setActiveSlideIndex,
   selectedBgPreset,
   setSelectedBgPreset,
+  templateName,
+  setTemplateName,
   customBgColor1,
   setCustomBgColor1,
   customBgColor2,
@@ -579,6 +582,9 @@ export default function PresentationEditor({
     if (plugins.some((p) => p.type === "image")) return "image_text";
     if (plugins.some((p) => p.type === "paragraph_2col")) return "paragraph_2col";
     if (plugins.some((p) => p.type === "diagram")) return "table_focus";
+    if (plugins.some((p) => p.type === "stat" || p.type === "kpi_grid")) return "chart_focus";
+    if (plugins.some((p) => p.type === "pros_cons")) return "comparison";
+    if (plugins.some((p) => p.type === "callout" || p.type === "roadmap" || p.type === "code_block" || p.type === "speaker_card")) return "content_caption";
     return slide.layout || "title_content";
   };
 
@@ -1144,6 +1150,20 @@ export default function PresentationEditor({
                       ))}
                     </select>
 
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", whiteSpace: "nowrap", marginLeft: 6 }}>Template:</span>
+                    <select
+                      value={templateName || "base_template"}
+                      onChange={(e) => setTemplateName && setTemplateName(e.target.value)}
+                      style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", color: "#fff", borderRadius: 8, padding: "4px 8px", fontSize: 12 }}
+                      title="Select PowerPoint Master Template design architecture"
+                    >
+                      {MASTER_TEMPLATE_OPTIONS.map((tmpl) => (
+                        <option key={tmpl.id} value={tmpl.id}>
+                          {tmpl.icon} {tmpl.label}
+                        </option>
+                      ))}
+                    </select>
+
                     <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", whiteSpace: "nowrap", marginLeft: 6 }}>Layout:</span>
                     <button
                       type="button"
@@ -1239,7 +1259,7 @@ export default function PresentationEditor({
                         zIndex: 35,
                         width: 48,
                         height: 48,
-                        borderRadius: "50%",
+                        borderRadius: "70%",
                         background: activeSlideIndex === 0
                           ? "rgba(15, 23, 42, 0.4)"
                           : "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)",
@@ -1277,7 +1297,7 @@ export default function PresentationEditor({
                         zIndex: 35,
                         width: 48,
                         height: 48,
-                        borderRadius: "50%",
+                        borderRadius: "70%",
                         background: activeSlideIndex >= (plan?.slides?.length || 1) - 1
                           ? "rgba(15, 23, 42, 0.4)"
                           : "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)",
@@ -2280,11 +2300,11 @@ export default function PresentationEditor({
                   </button>
                   <button
                     className="btn-ui secondary sm"
-                    title="Subtitle"
+                    title="Text Block"
                     onClick={() => handleAddPlugin(activeSlideIndex, "subtitle")}
                     style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
                   >
-                    <span className="btn-icon">📝</span><span className="btn-label">Subtitle</span>
+                    <span className="btn-icon">📝</span><span className="btn-label">Text Block</span>
                   </button>
                   <button
                     className="btn-ui secondary sm"
@@ -2403,11 +2423,11 @@ export default function PresentationEditor({
                   <div key={pIdx} className="feature-block-card">
                     <div className="feature-block-header">
                       <span>
-                        {(plugin.type === "subtitle" || plugin.type === "text") && "📝 Subtitle / Text Block"}
+                        {(plugin.type === "subtitle" || plugin.type === "text") && "📝 Text Block"}
                         {plugin.type === "chart" && "📊 Visual Chart Block"}
                         {plugin.type === "image" && "🖼️ Image Block"}
                         {plugin.type === "bullets" && "• Bullet Points Block"}
-                        {plugin.type === "paragraph" && "¶ Single Paragraph Block"}
+                        {plugin.type === "paragraph" && "¶ Paragraph Block"}
                         {plugin.type === "paragraph_2col" && "¶¶ Multi-Paragraph / Column Block"}
                         {plugin.type === "stat" && "📊 Key Metric / Stat"}
                         {plugin.type === "diagram" && "⚙️ Diagram Flow Block"}
@@ -3387,9 +3407,6 @@ export default function PresentationEditor({
                     {plugin.type === "bullets" ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                         <div>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 6 }}>
-                            🔢 List Indexing & Bullet Style:
-                          </label>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
                             {[
                               { style: "bullet", symbol: "•", title: "Standard Bullet Dots" },
@@ -3464,7 +3481,6 @@ export default function PresentationEditor({
                     {plugin.type === "paragraph" ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Paragraph Content:</label>
                           
                         </div>
 
