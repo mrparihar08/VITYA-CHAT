@@ -195,8 +195,12 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
       subtitle_color: slide.subtitle_color,
       subtitle_font_size: slide.subtitle_font_size,
       subtitle_align: slide.subtitle_align,
+      font_family: slide.font_family,
+      effect: slide.effect,
+      card_effect: slide.card_effect,
       plugins,
     };
+
   });
 
   return { title, theme, slides };
@@ -272,6 +276,20 @@ export default function PresentationGenerator() {
   const [allowChart, setAllowChart] = useState(true);
 
   // Master Template Selection State 📐
+  const handleTemplateChange = (val) => {
+    setTemplateName(val);
+    if (val && val !== "none") {
+      setSelectedBgPreset("none");
+    }
+  };
+
+  const handleBgPresetChange = (val) => {
+    setSelectedBgPreset(val);
+    if (val && val !== "none") {
+      setTemplateName("none");
+    }
+  };
+
   const [templateName, setTemplateName] = useState(() => {
     try {
       return localStorage.getItem("vitya_template_name") || "base_template";
@@ -483,9 +501,9 @@ export default function PresentationGenerator() {
       prompt: buildPrompt(),
       topic: prompt.trim(),
       export_format: exportFormat || "pptx",
-      template_name: templateName || "base_template",
-      background_theme: selectedBgPreset || "dark",
-      content_theme: contentTheme || "dark",
+      template_name: (templateName && templateName !== "none") ? templateName : "none",
+      background_theme: (selectedBgPreset && selectedBgPreset !== "none") ? selectedBgPreset : "none",
+      content_theme: (selectedBgPreset && selectedBgPreset !== "none") ? (contentTheme || selectedBgPreset) : "none",
       visual_style: style || visualStyle || "minimal",
       slide_count: slideCount,
       depth: depth || "medium",
@@ -730,7 +748,7 @@ export default function PresentationGenerator() {
     });
   };
 
-  // FEATURE PLUGIN HANDLERS 🧩
+  // FEATURE PLUGIN HANDLERS 
   const handlePluginTextChange = (slideIndex, pluginIndex, key, value, bulletIndex = null) => {
     setPlan((prev) => {
       if (!prev) return prev;
@@ -826,8 +844,8 @@ export default function PresentationGenerator() {
       const plugins = [...slide.plugins];
 
       let newPlugin = { type: pluginType, data: {} };
-      if (pluginType === "subtitle") {
-        newPlugin.data = { text: "New Subtitle / Section Header" };
+      if (pluginType === "text") {
+        newPlugin.data = { text: "Section Header" };
       } else if (pluginType === "chart") {
         newPlugin.data = {
           chart_type: "bar",
@@ -1345,7 +1363,7 @@ export default function PresentationGenerator() {
             brandFooter={brandFooter}
             setBrandFooter={setBrandFooter}
             templateName={templateName}
-            setTemplateName={setTemplateName}
+            setTemplateName={handleTemplateChange}
           />
         )}
 
@@ -1357,9 +1375,9 @@ export default function PresentationGenerator() {
             activeSlideIndex={activeSlideIndex}
             setActiveSlideIndex={setActiveSlideIndex}
             selectedBgPreset={selectedBgPreset}
-            setSelectedBgPreset={setSelectedBgPreset}
+            setSelectedBgPreset={handleBgPresetChange}
             templateName={templateName}
-            setTemplateName={setTemplateName}
+            setTemplateName={handleTemplateChange}
             customBgColor1={customBgColor1}
             setCustomBgColor1={setCustomBgColor1}
             customBgColor2={customBgColor2}

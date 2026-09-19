@@ -1,9 +1,10 @@
 import React, { useRef, useState, useEffect } from "react";
 import { API_BASE_URL, getAuthHeaders } from "../../services/api";
 import { downloadFileAsBlob } from "./Presentation";
-import { MASTER_TEMPLATE_OPTIONS } from "./PresentationSetup";
+import SlideEditorRibbonToolbar from "./SlideEditorRibbonToolbar";
 
 export const BACKGROUND_PRESETS = [
+  { id: "none", name: "🚫 None (Use Template BG)", bg: "none", text: "#ffffff", accent: "#c084fc", solid_bg: "transparent", bg_start: "transparent", bg_end: "transparent" },
   { id: "dark_gradient", name: "🌌 Midnight Purple", bg: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #31104b 100%)", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#31104b" },
   { id: "ocean_blue", name: "🌊 Ocean Breeze", bg: "linear-gradient(135deg, #06101e 0%, #0b2545 50%, #134074 100%)", text: "#ffffff", accent: "#38bdf8", solid_bg: "#06101e", bg_start: "#06101e", bg_end: "#134074" },
   { id: "emerald_dark", name: "🌲 Emerald Forest", bg: "linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%)", text: "#ffffff", accent: "#34d399", solid_bg: "#022c22", bg_start: "#022c22", bg_end: "#047857" },
@@ -1039,6 +1040,37 @@ export default function PresentationEditor({
         </div>
 
         <div className="editor-workspace" style={{ display: "flex", flexDirection: "column", width: "100%", gap: 16 }}>
+          {/* TAB + RIBBON CONTEXTUAL TOOLBAR (POWERPOINT / FIGMA STYLE) */}
+          <SlideEditorRibbonToolbar
+            activeSlide={activeSlide}
+            activeSlideIndex={activeSlideIndex}
+            selectedBgPreset={selectedBgPreset}
+            setSelectedBgPreset={setSelectedBgPreset}
+            templateName={templateName}
+            setTemplateName={setTemplateName}
+            customBgColor1={customBgColor1}
+            setCustomBgColor1={setCustomBgColor1}
+            customBgColor2={customBgColor2}
+            setCustomBgColor2={setCustomBgColor2}
+            customTextColor={customTextColor}
+            setCustomTextColor={setCustomTextColor}
+            handleSlidePropertyChange={handleSlidePropertyChange}
+            handleApplySlideLayout={handleApplySlideLayout}
+            handleAddSlideWithLayout={handleAddSlideWithLayout}
+            handleAddPlugin={handleAddPlugin}
+            handleDuplicateSlide={handleDuplicateSlide}
+            handleDeleteSlide={handleDeleteSlide}
+            handleToggleSlideVoiceover={handleToggleSlideVoiceover}
+            isSpeaking={isSpeaking}
+            speakingSlideIdx={speakingSlideIdx}
+            savePresentation={savePresentation}
+            isSaving={isSaving}
+            isSaved={isSaved}
+            setShowDownloadModal={setShowDownloadModal}
+            downloadUrl={downloadUrl}
+          />
+
+
           {/* HORIZONTAL SLIDE SELECTION CAROUSEL BAR (ALWAYS FULL-WIDTH ON TOP) */}
           <div className="slide-navigation-bar" style={{ background: "rgba(15, 23, 42, 0.4)", border: "1px solid var(--panel-border)", borderRadius: 14, padding: 12, marginBottom: 16, overflow: "hidden", width: "100%", boxSizing: "border-box" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
@@ -1133,105 +1165,7 @@ export default function PresentationEditor({
           {/* SELECTED SLIDE FEATURE INSPECTOR & CANVAS PREVIEW (ALWAYS BELOW SLIDE CAROUSEL) */}
           {activeSlide ? (
             <div className="feature-inspector-container" style={{ display: "flex", flexDirection: "column", width: "100%", gap: 16 }}>
-              {/* TOP SLIDE TOOLBAR & CUSTOM COLOR PICKER */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 12, border: "1px solid var(--panel-border)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "nowrap", gap: 8, overflowX: "auto" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", whiteSpace: "nowrap" }}>Theme BG:</span>
-                    <select
-                      value={selectedBgPreset}
-                      onChange={(e) => setSelectedBgPreset(e.target.value)}
-                      style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", color: "#fff", borderRadius: 8, padding: "4px 8px", fontSize: 12 }}
-                    >
-                      {BACKGROUND_PRESETS.map((bg) => (
-                        <option key={bg.id} value={bg.id}>
-                          {bg.name}
-                        </option>
-                      ))}
-                    </select>
 
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", whiteSpace: "nowrap", marginLeft: 6 }}>Template:</span>
-                    <select
-                      value={templateName || "base_template"}
-                      onChange={(e) => setTemplateName && setTemplateName(e.target.value)}
-                      style={{ background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", color: "#fff", borderRadius: 8, padding: "4px 8px", fontSize: 12 }}
-                      title="Select PowerPoint Master Template design architecture"
-                    >
-                      {MASTER_TEMPLATE_OPTIONS.map((tmpl) => (
-                        <option key={tmpl.id} value={tmpl.id}>
-                          {tmpl.icon} {tmpl.label}
-                        </option>
-                      ))}
-                    </select>
-
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", whiteSpace: "nowrap", marginLeft: 6 }}>Layout:</span>
-                    <button
-                      type="button"
-                      onClick={() => setShowLayoutModal(true)}
-                      style={{
-                        background: "rgba(0,0,0,0.4)",
-                        border: "1px solid var(--panel-border)",
-                        color: "#fff",
-                        borderRadius: 8,
-                        padding: "4px 10px",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                        cursor: "pointer",
-                      }}
-                      title="Click to view visual PowerPoint Office Theme Layouts"
-                    >
-                      <span>🔲</span>
-                      <span>
-                        {OFFICE_LAYOUT_PRESETS.find((l) => l.id === resolveActiveSlideLayout(activeSlide))?.label || "Title and Content"}
-                      </span>
-                      <span style={{ fontSize: 10, opacity: 0.7 }}>▼</span>
-                    </button>
-                  </div>
-
-                  <div style={{ display: "flex", gap: 6, flexWrap: "nowrap", alignItems: "center", flexShrink: 0 }}>
-                    <button
-                      type="button"
-                      className="btn-ui secondary sm"
-                      onClick={() => handleToggleSlideVoiceover(activeSlide, activeSlideIndex)}
-                      style={{
-                        whiteSpace: "nowrap",
-                        background: isSpeaking && speakingSlideIdx === activeSlideIndex ? "rgba(239, 68, 68, 0.25)" : "rgba(139, 92, 246, 0.2)",
-                        border: isSpeaking && speakingSlideIdx === activeSlideIndex ? "1px solid #ef4444" : "1px solid rgba(139, 92, 246, 0.4)",
-                        color: "#fff",
-                      }}
-                    >
-                      {isSpeaking && speakingSlideIdx === activeSlideIndex ? "⏹️Stop" : "🎙️Play"}
-                    </button>
-                    <button className="btn-ui secondary sm" onClick={() => handleDuplicateSlide(activeSlideIndex)} style={{ whiteSpace: "nowrap" }}>
-                      📋 Duplicate
-                    </button>
-                    <button className="btn-ui danger sm" onClick={() => handleDeleteSlide(activeSlideIndex)} style={{ flexShrink: 0 }}>
-                      🗑️
-                    </button>
-                  </div>
-                </div>
-
-                {/* CUSTOM PALETTE PICKERS */}
-                {selectedBgPreset === "custom" && (
-                  <div style={{ display: "flex", gap: 12, alignItems: "center", paddingTop: 6, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
-                    <label style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
-                      BG Start:
-                      <input type="color" value={customBgColor1} onChange={(e) => setCustomBgColor1(e.target.value)} style={{ border: "none", width: 24, height: 24, borderRadius: 4, cursor: "pointer" }} />
-                    </label>
-                    <label style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
-                      BG End:
-                      <input type="color" value={customBgColor2} onChange={(e) => setCustomBgColor2(e.target.value)} style={{ border: "none", width: 24, height: 24, borderRadius: 4, cursor: "pointer" }} />
-                    </label>
-                    <label style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
-                      Text Color:
-                      <input type="color" value={customTextColor} onChange={(e) => setCustomTextColor(e.target.value)} style={{ border: "none", width: 24, height: 24, borderRadius: 4, cursor: "pointer" }} />
-                    </label>
-                  </div>
-                )}
-              </div>
               
               {/* 16:9 LIVE CANVAS DISPLAY */}
               {(() => {
@@ -1257,12 +1191,12 @@ export default function PresentationEditor({
                         top: "50%",
                         transform: "translateY(-50%)",
                         zIndex: 35,
-                        width: 48,
-                        height: 48,
-                        borderRadius: "70%",
+                        width: 1,
+                        height: 1,
+                        borderRadius: "100%",
                         background: activeSlideIndex === 0
                           ? "rgba(15, 23, 42, 0.4)"
-                          : "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)",
+                          : "linear-gradient(135deg,  0%, 100%)",
                         border: activeSlideIndex === 0
                           ? "1px solid rgba(255, 255, 255, 0.1)"
                           : "2px solid rgba(255, 255, 255, 0.4)",
@@ -1278,7 +1212,7 @@ export default function PresentationEditor({
                       }}
                       title="Previous Slide (◄)"
                     >
-                      ◄
+                      
                     </button>
 
                     {/* NEXT SLIDE BUTTON (RIGHT ►) */}
@@ -1295,12 +1229,12 @@ export default function PresentationEditor({
                         top: "50%",
                         transform: "translateY(-50%)",
                         zIndex: 35,
-                        width: 48,
-                        height: 48,
-                        borderRadius: "70%",
+                        width: 1,
+                        height: 1,
+                        borderRadius: "100%",
                         background: activeSlideIndex >= (plan?.slides?.length || 1) - 1
                           ? "rgba(15, 23, 42, 0.4)"
-                          : "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)",
+                          : "linear-gradient(135deg,  0%,  100%)",
                         border: activeSlideIndex >= (plan?.slides?.length || 1) - 1
                           ? "1px solid rgba(255, 255, 255, 0.1)"
                           : "2px solid rgba(255, 255, 255, 0.4)",
@@ -1316,7 +1250,7 @@ export default function PresentationEditor({
                       }}
                       title="Next Slide (►)"
                     >
-                      ►
+                      
                     </button>
 
                     <div
@@ -2267,157 +2201,7 @@ export default function PresentationEditor({
                
               {/* EDITABLE FEATURE BLOCKS LIST */}
               <div>
-                <div style={{ fontWeight: 800, fontSize: 13, color: "#c084fc", marginBottom: 10 }}>
-                  🧩 Edit Feature Blocks on Slide {activeSlideIndex + 1}:
-                </div>
 
-                {/* ADD FEATURE BLOCK BUTTON BAR (ICON ONLY WITH HOVER TOOLTIPS 🎯) */}
-                <div className="add-feature-bar" style={{ marginBottom: 14, paddingBottom: 10, borderBottom: "1px dashed rgba(255,255,255,0.15)", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginRight: 4 }}></span>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Paragraph"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "paragraph")}
-                    style={{ padding: "5px 12px", fontSize: 15, fontWeight: "bold", cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">¶</span><span className="btn-label">Paragraph</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="2 Paragraphs"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "paragraph_2col")}
-                    style={{ padding: "5px 10px", fontSize: 14, fontWeight: "bold", cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">¶¶</span><span className="btn-label">2 Paragraphs</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Points"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "bullets")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">•</span><span className="btn-label">Points</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Text Block"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "subtitle")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">📝</span><span className="btn-label">Text Block</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Diagram"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "diagram")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">⚙️</span><span className="btn-label">Diagram</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Chart"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "chart")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">📊</span><span className="btn-label">Chart</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Table"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "table")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">📋</span><span className="btn-label">Table</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Metric"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "stat")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">📈</span><span className="btn-label">Metric</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Image"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "image")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">🖼️</span><span className="btn-label">Image</span>
-                  </button>
-
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Callout"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "callout")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">💡</span><span className="btn-label">Callout</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="KPI Grid"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "kpi_grid")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">🔢</span><span className="btn-label">KPI Grid</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Pros & Cons"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "pros_cons")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">⚖️</span><span className="btn-label">Pros & Cons</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Roadmap"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "roadmap")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">🗺️</span><span className="btn-label">Roadmap</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Code Block"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "code_block")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">💻</span><span className="btn-label">Code Block</span>
-                  </button>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Speaker Card"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "speaker_card")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">👤</span><span className="btn-label">Speaker Card</span>
-                  </button>
-
-                  <label
-                    className="btn-ui secondary sm"
-                    title="Upload Custom Image File from Computer"
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}
-                  >
-                    <span className="btn-icon">📤</span><span className="btn-label">Upload Image</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      onChange={(e) => handleImageFileUpload(e, null)}
-                    />
-                  </label>
-                  <button
-                    className="btn-ui secondary sm"
-                    title="Notes"
-                    onClick={() => handleAddPlugin(activeSlideIndex, "notes")}
-                    style={{ padding: "5px 12px", fontSize: 14, cursor: "pointer" }}
-                  >
-                    <span className="btn-icon">🗣️</span><span className="btn-label">Notes</span>
-                  </button>
-                </div>
 
                 {safeArray(activeSlide.plugins).map((plugin, pIdx) => (
                   <div key={pIdx} className="feature-block-card">

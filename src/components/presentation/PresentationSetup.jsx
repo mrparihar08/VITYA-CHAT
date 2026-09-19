@@ -21,18 +21,19 @@ const LANGUAGE_OPTIONS = [
 ];
 
 const STYLE_OPTIONS = [
-  { id: "professional", label: "Executive Professional", icon: "💼" },
-  { id: "corporate", label: "Corporate Enterprise", icon: "🏢" },
-  { id: "modern", label: "Modern Minimal", icon: "✨" },
-  { id: "academic", label: "Academic Research", icon: "🎓" },
-  { id: "creative", label: "Creative Showcase", icon: "🎨" },
-  { id: "minimal", label: "Minimalist Clean", icon: "🌿" },
+  { id: "professional", label: "Executive Professional" },
+  { id: "corporate", label: "Corporate Enterprise"},
+  { id: "modern", label: "Modern Minimal"},
+  { id: "academic", label: "Academic Research" },
+  { id: "creative", label: "Creative Showcase"},
+  { id: "minimal", label: "Minimalist Clean" },
 ];
 
 export const MASTER_TEMPLATE_OPTIONS = [
-  { id: "base_template", label: "Default Slate Teal", icon: "🛡️", desc: "Dark Slate & Teal Widescreen", category: "Corporate" },
-  { id: "ion_boardroom", label: "Ion Boardroom", icon: "🍇", desc: "Magenta Tag & Midnight Violet", category: "Corporate" },
-  { id: "berlin_executive", label: "Berlin Executive", icon: "🏢", desc: "Burnt Orange & Charcoal Bar", category: "Corporate" },
+  { id: "none", label: "None (Use Theme BG)", icon: "🚫", desc: "No Template - Pure Theme Background", category: "Standard" },
+  { id: "base_template", label: "Default Slate Teal",  desc: "Dark Slate & Teal Widescreen", category: "Corporate" },
+  { id: "ion_boardroom", label: "Ion Boardroom", desc: "Magenta Tag & Midnight Violet", category: "Corporate" },
+  { id: "berlin_executive", label: "Berlin Executive",  desc: "Burnt Orange & Charcoal Bar", category: "Corporate" },
   { id: "quotable_teal", label: "Quotable Teal", icon: "💬", desc: "Cyan & Charcoal Dual Block", category: "Corporate" },
   { id: "geometric_block", label: "Geometric Color Block", icon: "🟣", desc: "Pastel Lavender & Royal Blue Arches", category: "Modern & Geometric" },
   { id: "urban_monochrome", label: "Urban Monochrome", icon: "🏛️", desc: "Architectural Slate Grid", category: "Modern & Geometric" },
