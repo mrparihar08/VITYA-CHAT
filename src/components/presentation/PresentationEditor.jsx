@@ -51,6 +51,405 @@ export const OFFICE_LAYOUT_PRESETS = [
   { id: "picture_caption", label: "Picture with Caption", desc: "Text sidebar & image box" },
 ];
 
+export function renderShapeSvgPath(shapeType, fill = "#38bdf8", stroke = "#ffffff", strokeWidth = 2, strokeStyle = "solid", opacity = 1) {
+  const dashArray = strokeStyle === "dashed" ? "6,4" : strokeStyle === "dotted" ? "2,3" : "none";
+  const stProps = {
+    fill,
+    stroke,
+    strokeWidth,
+    strokeDasharray: dashArray,
+    opacity,
+    vectorEffect: "non-scaling-stroke",
+  };
+
+  switch (shapeType) {
+    case "rectangle":
+    case "flow_process":
+    case "flow_predefined":
+      return <rect x="2" y="2" width="96%" height="96%" rx="2" ry="2" {...stProps} />;
+    case "rounded_rectangle":
+    case "callout_rounded":
+      return <rect x="2" y="2" width="96%" height="96%" rx="16" ry="16" {...stProps} />;
+    case "circle":
+    case "oval":
+      return <ellipse cx="50%" cy="50%" rx="48%" ry="48%" {...stProps} />;
+    case "triangle":
+      return <polygon points="50,4 96,96 4,96" {...stProps} />;
+    case "diamond":
+    case "flow_decision":
+      return <polygon points="50,4 96,50 50,96 4,50" {...stProps} />;
+    case "pentagon":
+      return <polygon points="50,4 96,38 78,96 22,96 4,38" {...stProps} />;
+    case "hexagon":
+      return <polygon points="25,4 75,4 96,50 75,96 25,96 4,50" {...stProps} />;
+    case "octagon":
+      return <polygon points="30,4 70,4 96,30 96,70 70,96 30,96 4,70 4,30" {...stProps} />;
+    case "parallelogram":
+    case "flow_data":
+      return <polygon points="20,4 96,4 80,96 4,96" {...stProps} />;
+    case "trapezoid":
+      return <polygon points="20,4 80,4 96,96 4,96" {...stProps} />;
+    case "star":
+      return <polygon points="50,4 63,35 96,35 70,57 82,96 50,72 18,96 30,57 4,35 37,35" {...stProps} />;
+    case "heart":
+      return <path d="M50 88 C20 60 4 45 4 28 A22 22 0 0 1 48 20 A22 22 0 0 1 96 28 C96 45 80 60 50 88 Z" {...stProps} />;
+    case "cross":
+    case "eq_plus":
+      return <polygon points="35,4 65,4 65,35 96,35 96,65 65,65 65,96 35,96 35,65 4,65 4,35 35,35" {...stProps} />;
+    case "arrow":
+      return <polygon points="4,35 55,35 55,15 96,50 55,85 55,65 4,65" {...stProps} />;
+    case "double_arrow":
+      return <polygon points="4,50 25,20 25,38 75,38 75,20 96,50 75,80 75,62 25,62 25,80" {...stProps} />;
+    case "line":
+      return <line x1="4" y1="50" x2="96" y2="50" {...stProps} />;
+    case "elbow_connector":
+      return <polyline points="4,20 50,20 50,80 96,80" fill="none" {...stProps} />;
+    case "curved_connector":
+      return <path d="M4 20 C 50 20, 50 80, 96 80" fill="none" {...stProps} />;
+    case "flow_document":
+      return <path d="M4 4 L96 4 L96 80 Q75 65 50 80 Q25 95 4 80 Z" {...stProps} />;
+    case "flow_database":
+      return (
+        <g>
+          <path d="M4 20 C4 10 96 10 96 20 L96 80 C96 90 4 90 4 80 Z" {...stProps} />
+          <ellipse cx="50" cy="20" rx="46" ry="10" fill="none" stroke={stroke} strokeWidth={strokeWidth} />
+        </g>
+      );
+    case "flow_terminator":
+      return <rect x="2" y="10" width="96%" height="80%" rx="40" ry="40" {...stProps} />;
+    case "callout_speech":
+    case "callout_rect":
+      return <path d="M4 4 L96 4 L96 70 L40 70 L20 96 L25 70 L4 70 Z" {...stProps} />;
+    case "callout_cloud":
+      return <path d="M20 70 A25 25 0 0 1 30 30 A30 30 0 0 1 70 30 A25 25 0 0 1 85 65 A20 20 0 0 1 70 85 L25 85 A15 15 0 0 1 20 70 Z" {...stProps} />;
+    case "eq_minus":
+      return <rect x="4" y="40" width="92%" height="20%" rx="4" ry="4" {...stProps} />;
+    case "eq_multiply":
+      return <polygon points="20,4 50,34 80,4 96,20 66,50 96,80 80,96 50,66 20,96 4,80 34,50 4,20" {...stProps} />;
+    case "eq_divide":
+      return (
+        <g>
+          <circle cx="50" cy="20" r="8" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
+          <rect x="10" y="45" width="80%" height="10%" rx="2" ry="2" {...stProps} />
+          <circle cx="50" cy="80" r="8" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
+        </g>
+      );
+    case "eq_equals":
+      return (
+        <g>
+          <rect x="6" y="30" width="88%" height="16%" rx="3" ry="3" {...stProps} />
+          <rect x="6" y="58" width="88%" height="16%" rx="3" ry="3" {...stProps} />
+        </g>
+      );
+    case "eq_not_equal":
+      return (
+        <g>
+          <rect x="6" y="30" width="88%" height="16%" rx="3" ry="3" {...stProps} />
+          <rect x="6" y="58" width="88%" height="16%" rx="3" ry="3" {...stProps} />
+          <line x1="75" y1="10" x2="25" y2="90" stroke={stroke} strokeWidth={strokeWidth + 2} />
+        </g>
+      );
+    default:
+      return <rect x="2" y="2" width="96%" height="96%" rx="6" ry="6" {...stProps} />;
+  }
+}
+
+export function InteractiveShapeItem({
+  plugin,
+  pIdx,
+  isSelected,
+  onSelect,
+  onUpdateData,
+}) {
+  const data = plugin?.data || {};
+  const shapeType = data.shape_type || "rounded_rectangle";
+  const x = data.x ?? 80;
+  const y = data.y ?? 80;
+  const width = data.width ?? 180;
+  const height = data.height ?? 120;
+  const rotation = data.rotation ?? 0;
+  const fill = data.fill || "#38bdf8";
+  const borderColor = data.border_color || "#ffffff";
+  const borderWidth = data.border_width ?? 2;
+  const borderStyle = data.border_style || "solid";
+  const opacity = data.opacity ?? 1;
+  const text = data.text ?? "Double-click to edit text";
+  const fontSize = data.font_size ?? 14;
+  const fontFamily = data.font_family || "Inter";
+  const textColor = data.text_color || "#ffffff";
+  const isBold = data.bold ?? false;
+  const isItalic = data.italic ?? false;
+  const zIndex = data.z_index ?? (pIdx + 1) * 5;
+
+  const [isEditingText, setIsEditingText] = useState(false);
+
+  const handleMouseDown = (e) => {
+    e.stopPropagation();
+    onSelect(pIdx);
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialX = x;
+    const initialY = y;
+
+    const handleMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+      onUpdateData(pIdx, { x: Math.max(0, initialX + dx), y: Math.max(0, initialY + dy) });
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleResizeStart = (handle, e) => {
+    e.stopPropagation();
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialW = width;
+    const initialH = height;
+    const initialX = x;
+    const initialY = y;
+
+    const handleMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+
+      let newW = initialW;
+      let newH = initialH;
+      let newX = initialX;
+      let newY = initialY;
+
+      if (handle.includes("e")) newW = Math.max(30, initialW + dx);
+      if (handle.includes("s")) newH = Math.max(30, initialH + dy);
+      if (handle.includes("w")) {
+        const potentialW = initialW - dx;
+        if (potentialW > 30) {
+          newW = potentialW;
+          newX = initialX + dx;
+        }
+      }
+      if (handle.includes("n")) {
+        const potentialH = initialH - dy;
+        if (potentialH > 30) {
+          newH = potentialH;
+          newY = initialY + dy;
+        }
+      }
+
+      if (moveEvent.shiftKey) {
+        const aspect = initialW / initialH;
+        newH = newW / aspect;
+      }
+
+      onUpdateData(pIdx, { x: newX, y: newY, width: Math.round(newW), height: Math.round(newH) });
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleRotateStart = (e) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    const handleMouseMove = (moveEvent) => {
+      const radians = Math.atan2(moveEvent.clientY - centerY, moveEvent.clientX - centerX);
+      let deg = Math.round(radians * (180 / Math.PI)) + 90;
+      if (deg < 0) deg += 360;
+      onUpdateData(pIdx, { rotation: deg });
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  return (
+    <div
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect(pIdx);
+      }}
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+        setIsEditingText(true);
+      }}
+      onMouseDown={handleMouseDown}
+      style={{
+        position: "absolute",
+        left: `${x}px`,
+        top: `${y}px`,
+        width: `${width}px`,
+        height: `${height}px`,
+        transform: `rotate(${rotation}deg)`,
+        transformOrigin: "center center",
+        zIndex,
+        cursor: "move",
+        userSelect: "none",
+        boxSizing: "border-box",
+      }}
+    >
+      <svg
+        width="100%"
+        height="100%"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        style={{ overflow: "visible", display: "block" }}
+      >
+        {renderShapeSvgPath(shapeType, fill, borderColor, borderWidth, borderStyle, opacity)}
+      </svg>
+
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "8px",
+          color: textColor,
+          fontFamily,
+          fontSize: `${fontSize}px`,
+          fontWeight: isBold ? 800 : 500,
+          fontStyle: isItalic ? "italic" : "normal",
+          textAlign: "center",
+          pointerEvents: isEditingText ? "auto" : "none",
+          wordBreak: "break-word",
+          zIndex: 2,
+        }}
+      >
+        {isEditingText ? (
+          <textarea
+            autoFocus
+            value={text}
+            onChange={(e) => onUpdateData(pIdx, { text: e.target.value })}
+            onBlur={() => setIsEditingText(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                setIsEditingText(false);
+              }
+            }}
+            style={{
+              width: "100%",
+              height: "100%",
+              background: "transparent",
+              border: "none",
+              color: textColor,
+              fontFamily,
+              fontSize: `${fontSize}px`,
+              fontWeight: isBold ? 800 : 500,
+              textAlign: "center",
+              resize: "none",
+              outline: "none",
+            }}
+          />
+        ) : (
+          text
+        )}
+      </div>
+
+      {isSelected && (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              inset: -3,
+              border: "2px dashed #38bdf8",
+              borderRadius: 4,
+              boxShadow: "0 0 10px rgba(56, 189, 248, 0.6)",
+              pointerEvents: "none",
+            }}
+          />
+
+          <div
+            style={{
+              position: "absolute",
+              top: -24,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 1,
+              height: 20,
+              background: "#38bdf8",
+              zIndex: 10,
+            }}
+          />
+          <div
+            onMouseDown={handleRotateStart}
+            title="Rotate Shape"
+            style={{
+              position: "absolute",
+              top: -30,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              background: "#38bdf8",
+              border: "2px solid #fff",
+              cursor: "grab",
+              zIndex: 11,
+              boxShadow: "0 0 6px rgba(0,0,0,0.5)",
+            }}
+          />
+
+          {[
+            { id: "nw", top: -5, left: -5, cursor: "nwse-resize" },
+            { id: "n", top: -5, left: "50%", cursor: "ns-resize", transform: "translateX(-50%)" },
+            { id: "ne", top: -5, right: -5, cursor: "nesw-resize" },
+            { id: "w", top: "50%", left: -5, cursor: "ew-resize", transform: "translateY(-50%)" },
+            { id: "e", top: "50%", right: -5, cursor: "ew-resize", transform: "translateY(-50%)" },
+            { id: "sw", bottom: -5, left: -5, cursor: "nesw-resize" },
+            { id: "s", bottom: -5, left: "50%", cursor: "ns-resize", transform: "translateX(-50%)" },
+            { id: "se", bottom: -5, right: -5, cursor: "nwse-resize" },
+          ].map((h) => (
+            <div
+              key={h.id}
+              onMouseDown={(e) => handleResizeStart(h.id, e)}
+              style={{
+                position: "absolute",
+                top: h.top,
+                bottom: h.bottom,
+                left: h.left,
+                right: h.right,
+                transform: h.transform,
+                width: 10,
+                height: 10,
+                background: "#ffffff",
+                border: "2px solid #38bdf8",
+                borderRadius: 2,
+                cursor: h.cursor,
+                zIndex: 12,
+                boxShadow: "0 0 4px rgba(0,0,0,0.4)",
+              }}
+            />
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
 function safeArray(value) {
   return Array.isArray(value) ? value : [];
 }
@@ -205,7 +604,7 @@ export const getChartTypeDefaults = (chartType = "column", topic = "") => {
   };
 };
 
-export function VisualChartPreview({ data }) {
+export function VisualChartPreview({ data, onTitleChange, onLabelChange, onValueChange }) {
   const chartType = (data?.chart_type || "column").toLowerCase();
   const title = data?.title || "Data Metrics Overview";
   const defaults = getChartTypeDefaults(chartType, title);
@@ -232,8 +631,18 @@ export function VisualChartPreview({ data }) {
 
   return (
     <div style={{ background: "rgba(0,0,0,0.35)", padding: "14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.15)", margin: "10px 0" }}>
-      <div style={{ fontSize: "13px", fontWeight: "700", marginBottom: "10px", color: "#c084fc" }}>
-        📊 {title} <span style={{ fontSize: "11px", opacity: 0.7 }}>({chartType.toUpperCase()} CHART)</span>
+      <div style={{ fontSize: "13px", fontWeight: "700", marginBottom: "10px", color: "#c084fc", display: "flex", alignItems: "center", gap: 6 }}>
+        <span>📊</span>
+        <span
+          contentEditable={!!onTitleChange}
+          suppressContentEditableWarning={true}
+          onBlur={(e) => onTitleChange && onTitleChange(e.target.innerText)}
+          title="Click to edit chart title"
+          style={{ outline: "none", cursor: onTitleChange ? "text" : "default", borderBottom: onTitleChange ? "1px dashed rgba(192, 132, 252, 0.4)" : "none" }}
+        >
+          {title}
+        </span>
+        <span style={{ fontSize: "11px", opacity: 0.7 }}>({chartType.toUpperCase()} CHART)</span>
       </div>
 
       {(chartType === "column" || chartType === "bar") && (
@@ -243,7 +652,15 @@ export function VisualChartPreview({ data }) {
             const heightPct = Math.min(100, Math.max(15, (val / maxVal) * 100));
             return (
               <div key={idx} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end" }}>
-                <div style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "4px" }}>{val}</div>
+                <div
+                  contentEditable={!!onValueChange}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => onValueChange && onValueChange(idx, e.target.innerText)}
+                  title="Click to edit value"
+                  style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "4px", outline: "none", cursor: onValueChange ? "text" : "default" }}
+                >
+                  {val}
+                </div>
                 <div
                   style={{
                     width: "100%",
@@ -253,7 +670,15 @@ export function VisualChartPreview({ data }) {
                     transition: "height 0.3s ease",
                   }}
                 />
-                <div style={{ fontSize: "10px", opacity: 0.8, marginTop: "4px" }}>{lbl}</div>
+                <div
+                  contentEditable={!!onLabelChange}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => onLabelChange && onLabelChange(idx, e.target.innerText)}
+                  title="Click to edit label"
+                  style={{ fontSize: "10px", opacity: 0.8, marginTop: "4px", outline: "none", cursor: onLabelChange ? "text" : "default", textAlign: "center" }}
+                >
+                  {lbl}
+                </div>
               </div>
             );
           })}
@@ -267,11 +692,27 @@ export function VisualChartPreview({ data }) {
             const widthPct = Math.min(100, Math.max(10, (val / maxVal) * 100));
             return (
               <div key={idx} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <div style={{ fontSize: "10px", width: "75px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", opacity: 0.9 }}>{lbl}</div>
+                <div
+                  contentEditable={!!onLabelChange}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => onLabelChange && onLabelChange(idx, e.target.innerText)}
+                  title="Click to edit label"
+                  style={{ fontSize: "10px", width: "75px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", opacity: 0.9, outline: "none", cursor: onLabelChange ? "text" : "default" }}
+                >
+                  {lbl}
+                </div>
                 <div style={{ flex: 1, background: "rgba(255,255,255,0.06)", borderRadius: "4px", height: "16px", overflow: "hidden" }}>
                   <div style={{ width: `${widthPct}%`, height: "100%", background: colors[idx % colors.length], borderRadius: "4px" }} />
                 </div>
-                <div style={{ fontSize: "10px", fontWeight: "bold", width: "35px" }}>{val}</div>
+                <div
+                  contentEditable={!!onValueChange}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => onValueChange && onValueChange(idx, e.target.innerText)}
+                  title="Click to edit value"
+                  style={{ fontSize: "10px", fontWeight: "bold", width: "35px", outline: "none", cursor: onValueChange ? "text" : "default", textAlign: "right" }}
+                >
+                  {val}
+                </div>
               </div>
             );
           })}
@@ -286,7 +727,15 @@ export function VisualChartPreview({ data }) {
               const heightPct = Math.min(100, Math.max(15, (val / maxVal) * 100));
               return (
                 <div key={idx} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end" }}>
-                  <span style={{ fontSize: "9px", fontWeight: "bold", color: "#c084fc", marginBottom: "4px" }}>{val}</span>
+                  <span
+                    contentEditable={!!onValueChange}
+                    suppressContentEditableWarning={true}
+                    onBlur={(e) => onValueChange && onValueChange(idx, e.target.innerText)}
+                    title="Click to edit value"
+                    style={{ fontSize: "9px", fontWeight: "bold", color: "#c084fc", marginBottom: "4px", outline: "none", cursor: onValueChange ? "text" : "default" }}
+                  >
+                    {val}
+                  </span>
                   <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#c084fc", marginBottom: `${heightPct * 0.6}%` }} />
                 </div>
               );
@@ -294,7 +743,16 @@ export function VisualChartPreview({ data }) {
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.15)", paddingTop: "4px" }}>
             {rawLabels.map((lbl, idx) => (
-              <span key={idx} style={{ fontSize: "10px", opacity: 0.8 }}>{lbl}</span>
+              <span
+                key={idx}
+                contentEditable={!!onLabelChange}
+                suppressContentEditableWarning={true}
+                onBlur={(e) => onLabelChange && onLabelChange(idx, e.target.innerText)}
+                title="Click to edit label"
+                style={{ fontSize: "10px", opacity: 0.8, outline: "none", cursor: onLabelChange ? "text" : "default" }}
+              >
+                {lbl}
+              </span>
             ))}
           </div>
         </div>
@@ -315,7 +773,24 @@ export function VisualChartPreview({ data }) {
             {rawLabels.map((lbl, idx) => (
               <div key={idx} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px" }}>
                 <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: colors[idx % colors.length] }} />
-                <span>{lbl}: <strong>{rawValues[idx] || 0}</strong></span>
+                <span
+                  contentEditable={!!onLabelChange}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => onLabelChange && onLabelChange(idx, e.target.innerText)}
+                  title="Click to edit label"
+                  style={{ outline: "none", cursor: onLabelChange ? "text" : "default" }}
+                >
+                  {lbl}
+                </span>:{" "}
+                <strong
+                  contentEditable={!!onValueChange}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => onValueChange && onValueChange(idx, e.target.innerText)}
+                  title="Click to edit value"
+                  style={{ outline: "none", cursor: onValueChange ? "text" : "default" }}
+                >
+                  {rawValues[idx] || 0}
+                </strong>
               </div>
             ))}
           </div>
@@ -345,7 +820,24 @@ export function VisualChartPreview({ data }) {
             {rawLabels.map((lbl, idx) => (
               <div key={idx} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px" }}>
                 <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: colors[idx % colors.length] }} />
-                <span>{lbl}: <strong>{rawValues[idx] || 0}</strong></span>
+                <span
+                  contentEditable={!!onLabelChange}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => onLabelChange && onLabelChange(idx, e.target.innerText)}
+                  title="Click to edit label"
+                  style={{ outline: "none", cursor: onLabelChange ? "text" : "default" }}
+                >
+                  {lbl}
+                </span>:{" "}
+                <strong
+                  contentEditable={!!onValueChange}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => onValueChange && onValueChange(idx, e.target.innerText)}
+                  title="Click to edit value"
+                  style={{ outline: "none", cursor: onValueChange ? "text" : "default" }}
+                >
+                  {rawValues[idx] || 0}
+                </strong>
               </div>
             ))}
           </div>
@@ -359,8 +851,24 @@ export function VisualChartPreview({ data }) {
             const pct = Math.min(100, Math.max(10, (val / maxVal) * 100));
             return (
               <div key={idx} style={{ background: "rgba(192, 132, 252, 0.12)", border: "1px solid rgba(192, 132, 252, 0.4)", borderRadius: 10, padding: "8px 12px", textAlign: "center", minWidth: 100 }}>
-                <div style={{ fontSize: "10px", color: "#c084fc", fontWeight: 700 }}>🕸️ {lbl}</div>
-                <div style={{ fontSize: "14px", fontWeight: 900, color: "#fff", margin: "4px 0" }}>{val}</div>
+                <div
+                  contentEditable={!!onLabelChange}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => onLabelChange && onLabelChange(idx, e.target.innerText)}
+                  title="Click to edit label"
+                  style={{ fontSize: "10px", color: "#c084fc", fontWeight: 700, outline: "none", cursor: onLabelChange ? "text" : "default" }}
+                >
+                  🕸️ {lbl}
+                </div>
+                <div
+                  contentEditable={!!onValueChange}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => onValueChange && onValueChange(idx, e.target.innerText)}
+                  title="Click to edit value"
+                  style={{ fontSize: "14px", fontWeight: 900, color: "#fff", margin: "4px 0", outline: "none", cursor: onValueChange ? "text" : "default" }}
+                >
+                  {val}
+                </div>
                 <div style={{ background: "rgba(255,255,255,0.1)", height: 4, borderRadius: 2, overflow: "hidden" }}>
                   <div style={{ width: `${pct}%`, height: "100%", background: colors[idx % colors.length] }} />
                 </div>
@@ -375,10 +883,26 @@ export function VisualChartPreview({ data }) {
           <div style={{ position: "relative", width: 120, height: 60, overflow: "hidden" }}>
             <div style={{ width: 120, height: 120, borderRadius: "50%", background: `conic-gradient(#10b981 0% 120deg, #f59e0b 120deg 240deg, #ef4444 240deg 360deg)`, opacity: 0.85 }} />
             <div style={{ position: "absolute", top: 15, left: 15, width: 90, height: 90, borderRadius: "50%", background: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
-              <span style={{ fontSize: 16, fontWeight: 900, color: "#38bdf8" }}>{rawValues[0] || 0}%</span>
+              <span
+                contentEditable={!!onValueChange}
+                suppressContentEditableWarning={true}
+                onBlur={(e) => onValueChange && onValueChange(0, e.target.innerText.replace("%", ""))}
+                title="Click to edit gauge percentage"
+                style={{ fontSize: 16, fontWeight: 900, color: "#38bdf8", outline: "none", cursor: onValueChange ? "text" : "default" }}
+              >
+                {rawValues[0] || 0}%
+              </span>
             </div>
           </div>
-          <div style={{ fontSize: 11, fontWeight: 700, opacity: 0.9, marginTop: 6 }}>🎯 {rawLabels[0] || "Target Benchmark"}</div>
+          <div
+            contentEditable={!!onLabelChange}
+            suppressContentEditableWarning={true}
+            onBlur={(e) => onLabelChange && onLabelChange(0, e.target.innerText)}
+            title="Click to edit gauge label"
+            style={{ fontSize: 11, fontWeight: 700, opacity: 0.9, marginTop: 6, outline: "none", cursor: onLabelChange ? "text" : "default" }}
+          >
+            🎯 {rawLabels[0] || "Target Benchmark"}
+          </div>
         </div>
       )}
 
@@ -390,7 +914,15 @@ export function VisualChartPreview({ data }) {
             const heightPct = Math.min(100, Math.max(15, (Math.abs(val) / maxVal) * 100));
             return (
               <div key={idx} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end" }}>
-                <div style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "4px", color: isPositive ? "#34d399" : "#f87171" }}>{isPositive ? `+${val}` : val}</div>
+                <div
+                  contentEditable={!!onValueChange}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => onValueChange && onValueChange(idx, e.target.innerText)}
+                  title="Click to edit value"
+                  style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "4px", color: isPositive ? "#34d399" : "#f87171", outline: "none", cursor: onValueChange ? "text" : "default" }}
+                >
+                  {isPositive ? `+${val}` : val}
+                </div>
                 <div
                   style={{
                     width: "100%",
@@ -399,7 +931,15 @@ export function VisualChartPreview({ data }) {
                     borderRadius: "4px",
                   }}
                 />
-                <div style={{ fontSize: "9px", opacity: 0.8, marginTop: "4px", whiteSpace: "nowrap" }}>{lbl}</div>
+                <div
+                  contentEditable={!!onLabelChange}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => onLabelChange && onLabelChange(idx, e.target.innerText)}
+                  title="Click to edit label"
+                  style={{ fontSize: "9px", opacity: 0.8, marginTop: "4px", whiteSpace: "nowrap", outline: "none", cursor: onLabelChange ? "text" : "default" }}
+                >
+                  {lbl}
+                </div>
               </div>
             );
           })}
@@ -558,6 +1098,7 @@ export default function PresentationEditor({
   onBackToSetup,
 }) {
   const activeSlide = plan?.slides?.[activeSlideIndex];
+  const [isSlidesTrayCollapsed, setIsSlidesTrayCollapsed] = useState(false);
 
   const handleMoveSlideToPosition = (fromIdx, toIdx) => {
     if (!setPlan || fromIdx === toIdx) return;
@@ -617,7 +1158,98 @@ export default function PresentationEditor({
 
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showLayoutModal, setShowLayoutModal] = useState(false);
-  const [layoutModalMode, setLayoutModalMode] = useState("add"); // "add" | "change"
+  const [layoutModalMode] = useState("add"); // "add" | "change"
+  const [selectedPluginIndex, setSelectedPluginIndex] = useState(null);
+
+  const handleUpdatePluginData = (pIdx, updates) => {
+    if (!setPlan || pIdx === undefined || pIdx === null) return;
+    setPlan((prev) => {
+      if (!prev || !Array.isArray(prev.slides)) return prev;
+      const slides = [...prev.slides];
+      const slide = { ...slides[activeSlideIndex] };
+      const plugins = [...safeArray(slide.plugins)];
+      if (!plugins[pIdx]) return prev;
+      plugins[pIdx] = {
+        ...plugins[pIdx],
+        data: { ...plugins[pIdx].data, ...updates },
+      };
+      slide.plugins = plugins;
+      slides[activeSlideIndex] = slide;
+      return { ...prev, slides };
+    });
+  };
+
+  const handleLayerOrder = (pIdx, direction) => {
+    if (!setPlan || pIdx === undefined || pIdx === null) return;
+    setPlan((prev) => {
+      if (!prev || !Array.isArray(prev.slides)) return prev;
+      const slides = [...prev.slides];
+      const slide = { ...slides[activeSlideIndex] };
+      const plugins = [...safeArray(slide.plugins)];
+      if (pIdx < 0 || pIdx >= plugins.length) return prev;
+
+      const [target] = plugins.splice(pIdx, 1);
+      if (direction === "front") {
+        plugins.push(target);
+        setSelectedPluginIndex(plugins.length - 1);
+      } else if (direction === "back") {
+        plugins.unshift(target);
+        setSelectedPluginIndex(0);
+      } else if (direction === "forward" && pIdx < plugins.length) {
+        plugins.splice(pIdx + 1, 0, target);
+        setSelectedPluginIndex(pIdx + 1);
+      } else if (direction === "backward" && pIdx > 0) {
+        plugins.splice(pIdx - 1, 0, target);
+        setSelectedPluginIndex(pIdx - 1);
+      } else {
+        plugins.splice(pIdx, 0, target);
+      }
+
+      slide.plugins = plugins;
+      slides[activeSlideIndex] = slide;
+      return { ...prev, slides };
+    });
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (selectedPluginIndex === null || selectedPluginIndex === undefined) return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable) return;
+
+      if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        handleDeletePlugin?.(activeSlideIndex, selectedPluginIndex);
+        setSelectedPluginIndex(null);
+      } else if (e.key === "d" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        const currentPlugin = activeSlide?.plugins?.[selectedPluginIndex];
+        if (currentPlugin) {
+          const dupData = { ...currentPlugin.data, x: (currentPlugin.data?.x || 80) + 20, y: (currentPlugin.data?.y || 80) + 20 };
+          handleAddPlugin?.(activeSlideIndex, currentPlugin.type, dupData);
+        }
+      } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        const currentPlugin = activeSlide?.plugins?.[selectedPluginIndex];
+        if (currentPlugin && currentPlugin.type === "shape") {
+          e.preventDefault();
+          const step = e.shiftKey ? 10 : 1;
+          let dx = 0, dy = 0;
+          if (e.key === "ArrowLeft") dx = -step;
+          if (e.key === "ArrowRight") dx = step;
+          if (e.key === "ArrowUp") dy = -step;
+          if (e.key === "ArrowDown") dy = step;
+
+          handleUpdatePluginData(selectedPluginIndex, {
+            x: Math.max(0, (currentPlugin.data?.x || 0) + dx),
+            y: Math.max(0, (currentPlugin.data?.y || 0) + dy),
+          });
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPluginIndex, activeSlideIndex, activeSlide]);
 
   const handleAddSlideWithLayout = (layoutType = "title_content") => {
     if (!setPlan) return;
@@ -669,6 +1301,24 @@ export default function PresentationEditor({
       };
     });
   };
+
+  const handleAddBlankSlide = () => {
+    if (!setPlan) return;
+    setPlan((prev) => {
+      const newSlide = {
+        title: "",
+        subtitle: "",
+        layout: "blank",
+        plugins: [],
+      };
+      const slides = [...(prev?.slides || []), newSlide];
+      setActiveSlideIndex(slides.length - 1);
+      return {
+        title: prev?.title || "My Presentation Deck",
+        slides,
+      };
+    });
+  };
   const carouselRef = useRef(null);
 
   useEffect(() => {
@@ -696,16 +1346,32 @@ export default function PresentationEditor({
 
   const handleDirectDownload = async (e) => {
     e?.preventDefault();
-    if (typeof downloadSavedPresentation === "function" && downloadUrl) {
+    if (typeof downloadSavedPresentation === "function") {
       await downloadSavedPresentation();
       return;
     }
 
-    if (!downloadUrl) return;
-    const fullUrl = downloadUrl.replace(/^http:\/\//i, "https://");
+    const currentPId = savedMeta?.presentation_id || plan?.presentation_id;
     const fallbackExt = exportFormat === "pdf" ? "pdf" : "pptx";
+
+    if (!downloadUrl && currentPId) {
+      const dynamicUrl = `${API_SERVER_URL}/download-presentation/${currentPId}`;
+      await downloadFileAsBlob(dynamicUrl, `presentation_${currentPId}.${fallbackExt}`);
+      return;
+    }
+
+    if (!downloadUrl) return;
+    const isLocal = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(downloadUrl);
+    const fullUrl = isLocal ? downloadUrl : downloadUrl.replace(/^http:\/\//i, "https://");
     const filename = fullUrl.split("/").pop() || `presentation.${fallbackExt}`;
-    await downloadFileAsBlob(fullUrl, filename);
+    try {
+      await downloadFileAsBlob(fullUrl, filename);
+    } catch (err) {
+      if (currentPId) {
+        const dynamicUrl = `${API_SERVER_URL}/download-presentation/${currentPId}`;
+        await downloadFileAsBlob(dynamicUrl, `presentation_${currentPId}.${fallbackExt}`);
+      }
+    }
   };
 
   const API_SERVER_URL = `${API_BASE_URL || process.env.REACT_APP_API_BASE_URL || ""}/api/presentation`;
@@ -740,18 +1406,12 @@ export default function PresentationEditor({
 
     setGeneratingAiImgIdx(pIdx);
     try {
-      const res = await fetch(`${API_SERVER_URL}/refine-slide`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-        body: JSON.stringify({
-          text: promptInput.trim(),
-          action: "image",
-          slide_title: activeSlide?.title || "",
-          presentation_title: plan?.title || "",
-        }),
-      });
+      const res = await fetch(
+        `${API_SERVER_URL}/ai-image/generate?prompt=${encodeURIComponent(promptInput.trim())}`,
+        { headers: { ...getAuthHeaders() } }
+      );
       const data = await res.json();
-      const imgUrl = data?.refined_text || data?.url;
+      const imgUrl = data?.url;
       if (imgUrl) {
         handlePluginTextChange(activeSlideIndex, pIdx, "url", imgUrl);
         handlePluginTextChange(activeSlideIndex, pIdx, "path", imgUrl);
@@ -759,7 +1419,7 @@ export default function PresentationEditor({
         return;
       }
     } catch (err) {
-      console.warn("AI image generation endpoint call failed, falling back to direct engine", err);
+      console.warn("Backend AI image generation failed, falling back to direct engine", err);
     }
 
     try {
@@ -834,20 +1494,55 @@ export default function PresentationEditor({
     return parts.filter(Boolean).join(" ");
   };
 
-  const handleToggleSlideVoiceover = (slide, slideIndex) => {
+  const audioInstanceRef = useRef(null);
+
+  const fallbackToSpeechSynthesis = (script, slideIndex) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      alert("Speech synthesis is not supported in your browser. Please try Chrome, Edge, or Safari.");
+      setIsSpeaking(false);
+      setSpeakingSlideIdx(null);
       return;
     }
+    const utterance = new SpeechSynthesisUtterance(script);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+      setSpeakingSlideIdx(slideIndex);
+    };
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      setSpeakingSlideIdx(null);
+    };
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      setSpeakingSlideIdx(null);
+    };
+    window.speechSynthesis.speak(utterance);
+  };
 
-    if (window.speechSynthesis.speaking && speakingSlideIdx === slideIndex && isSpeaking) {
-      window.speechSynthesis.cancel();
+  const handleToggleSlideVoiceover = async (slide, slideIndex) => {
+    // 1. If currently playing, stop both HTML5 audio and speechSynthesis
+    if (isSpeaking && speakingSlideIdx === slideIndex) {
+      if (audioInstanceRef.current) {
+        audioInstanceRef.current.pause();
+        audioInstanceRef.current = null;
+      }
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
       setIsSpeaking(false);
       setSpeakingSlideIdx(null);
       return;
     }
 
-    window.speechSynthesis.cancel();
+    // Stop any existing playback
+    if (audioInstanceRef.current) {
+      audioInstanceRef.current.pause();
+      audioInstanceRef.current = null;
+    }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
 
     const script = compileSlideNarrationScript(slide, slideIndex);
     if (!script.trim()) {
@@ -855,26 +1550,45 @@ export default function PresentationEditor({
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(script);
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
+    setIsSpeaking(true);
+    setSpeakingSlideIdx(slideIndex);
 
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-      setSpeakingSlideIdx(slideIndex);
-    };
+    // 2. Try Neural Server Voiceover via backend API (edge-tts)
+    try {
+      const res = await fetch(`${API_SERVER_URL}/voiceover/synthesize`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify({
+          text: script,
+          language: plan?.language || "en-US",
+          slide_index: slideIndex,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data?.audio_url) {
+        const fullAudioUrl = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(data.audio_url)
+          ? data.audio_url
+          : data.audio_url.replace(/^http:\/\//i, "https://");
 
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      setSpeakingSlideIdx(null);
-    };
+        const audio = new Audio(fullAudioUrl);
+        audioInstanceRef.current = audio;
+        audio.onended = () => {
+          setIsSpeaking(false);
+          setSpeakingSlideIdx(null);
+          audioInstanceRef.current = null;
+        };
+        audio.onerror = () => {
+          fallbackToSpeechSynthesis(script, slideIndex);
+        };
+        await audio.play();
+        return;
+      }
+    } catch (err) {
+      console.warn("Backend neural TTS voiceover failed, falling back to local speech synthesis", err);
+    }
 
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-      setSpeakingSlideIdx(null);
-    };
-
-    window.speechSynthesis.speak(utterance);
+    // 3. Fallback: Browser Web Speech API
+    fallbackToSpeechSynthesis(script, slideIndex);
   };
 
   // Helper to use Gemini AI to refine, polish, or convert slide content into punchy bullets/diagram steps
@@ -1068,98 +1782,125 @@ export default function PresentationEditor({
             isSaved={isSaved}
             setShowDownloadModal={setShowDownloadModal}
             downloadUrl={downloadUrl}
+            selectedPluginIndex={selectedPluginIndex}
+            handleUpdatePluginData={handleUpdatePluginData}
+            handleLayerOrder={handleLayerOrder}
           />
 
 
           {/* HORIZONTAL SLIDE SELECTION CAROUSEL BAR (ALWAYS FULL-WIDTH ON TOP) */}
-          <div className="slide-navigation-bar" style={{ background: "rgba(15, 23, 42, 0.4)", border: "1px solid var(--panel-border)", borderRadius: 14, padding: 12, marginBottom: 16, overflow: "hidden", width: "100%", boxSizing: "border-box" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
+          <div className="slide-navigation-bar" style={{ background: "rgba(15, 23, 42, 0.4)", border: "1px solid var(--panel-border)", borderRadius: 14, padding: isSlidesTrayCollapsed ? "10px 14px" : 12, marginBottom: 16, overflow: "hidden", width: "100%", boxSizing: "border-box", transition: "padding 0.2s ease" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isSlidesTrayCollapsed ? 0 : 10, flexWrap: "wrap", gap: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "#c084fc", letterSpacing: 0.5 }}>
                   Presentation Slides ({plan?.slides?.length || 0})
                 </span>
-              </div>
-              <button
-                className="btn-ui primary sm"
-                onClick={() => {
-                  setLayoutModalMode("add");
-                  setShowLayoutModal(true);
-                }}
-                style={{ flexShrink: 0, padding: "5px 12px", display: "inline-flex", alignItems: "center", gap: 6 }}
-                title="Click to select visual PowerPoint Office Theme layout for new slide"
-              >
-                <span>+ Add New Slide</span>
-                <span style={{ fontSize: 10, opacity: 0.8 }}>▼</span>
-              </button>
-            </div>
-
-            <div className="slide-horizontal-carousel" ref={carouselRef}>
-              {safeArray(plan?.slides).map((slideItem, idx) => (
-                <div
-                  key={idx}
-                  className={`slide-tab-item ${activeSlideIndex === idx ? "active" : ""}`}
-                  onClick={() => setActiveSlideIndex(idx)}
-                  draggable={true}
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData("text/plain", idx.toString());
-                    e.dataTransfer.effectAllowed = "move";
+                <button
+                  type="button"
+                  onClick={() => setIsSlidesTrayCollapsed((prev) => !prev)}
+                  className="btn-ui secondary sm"
+                  style={{
+                    padding: "3px 8px",
+                    fontSize: 11,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    cursor: "pointer",
+                    borderRadius: 6,
+                    background: isSlidesTrayCollapsed ? "rgba(168, 85, 247, 0.15)" : "rgba(255, 255, 255, 0.05)",
+                    border: "1px solid rgba(168, 85, 247, 0.3)",
+                    color: isSlidesTrayCollapsed ? "#d8b4fe" : "#cbd5e1",
+                    transition: "all 0.2s ease"
                   }}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = "move";
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    const fromIdx = parseInt(e.dataTransfer.getData("text/plain"), 10);
-                    if (!isNaN(fromIdx) && fromIdx !== idx) {
-                      handleMoveSlideToPosition(fromIdx, idx);
-                    }
-                  }}
-                  style={{ cursor: "grab" }}
-                  title="Drag & Drop to reorder slide"
+                  title={isSlidesTrayCollapsed ? "Slides dikhayein (Expand)" : "Slides chupayein (Collapse)"}
                 >
-                  <div>
-                    <div className="slide-tab-number">Slide {idx + 1}</div>
-                    <div className="slide-tab-title">{slideItem.title || "Untitled Slide"}</div>
-                    {slideItem.subtitle ? (
-                      <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {slideItem.subtitle}
-                      </div>
-                    ) : null}
-                  </div>
-
-                  {/* REORDER / DELETE CONTROLS */}
-                  <div style={{ display: "flex", gap: 4, marginTop: 10, width: "100%" }} onClick={(e) => e.stopPropagation()}>
-                    <button
-                      className="btn-ui secondary sm"
-                      onClick={() => handleMoveSlide(idx, -1)}
-                      disabled={idx === 0}
-                      title="Move Left"
-                      style={{ flex: 1, padding: "3px 6px", fontSize: 10, whiteSpace: "nowrap" }}
-                    >
-                      ← Left
-                    </button>
-                    <button
-                      className="btn-ui secondary sm"
-                      onClick={() => handleMoveSlide(idx, 1)}
-                      disabled={idx === (plan?.slides?.length || 0) - 1}
-                      title="Move Right"
-                      style={{ flex: 1, padding: "3px 6px", fontSize: 10, whiteSpace: "nowrap" }}
-                    >
-                      Right →
-                    </button>
-                    <button
-                      className="btn-ui danger sm"
-                      onClick={() => handleDeleteSlide(idx)}
-                      title="Delete Slide"
-                      style={{ padding: "3px 8px", fontSize: 11 }}
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </div>
-              ))}
+                  <span style={{ fontSize: 10, display: "inline-block", transform: isSlidesTrayCollapsed ? "rotate(-90deg)" : "rotate(0deg)", transition: "transform 0.2s ease" }}>
+                    ▼
+                  </span>
+                  <span>{isSlidesTrayCollapsed ? "Show Slides" : "Hide Slides"}</span>
+                </button>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  className="btn-ui primary sm"
+                  onClick={handleAddBlankSlide}
+                  style={{ flexShrink: 0, padding: "5px 14px", display: "inline-flex", alignItems: "center", gap: 6 }}
+                  title="Click to add a new blank slide"
+                >
+                  <span>+ Add New Slide</span>
+                </button>
+              </div>
             </div>
+
+            {!isSlidesTrayCollapsed && (
+              <div className="slide-horizontal-carousel" ref={carouselRef}>
+                {safeArray(plan?.slides).map((slideItem, idx) => (
+                  <div
+                    key={idx}
+                    className={`slide-tab-item ${activeSlideIndex === idx ? "active" : ""}`}
+                    onClick={() => setActiveSlideIndex(idx)}
+                    draggable={true}
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData("text/plain", idx.toString());
+                      e.dataTransfer.effectAllowed = "move";
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const fromIdx = parseInt(e.dataTransfer.getData("text/plain"), 10);
+                      if (!isNaN(fromIdx) && fromIdx !== idx) {
+                        handleMoveSlideToPosition(fromIdx, idx);
+                      }
+                    }}
+                    style={{ cursor: "grab" }}
+                    title="Drag & Drop to reorder slide"
+                  >
+                    <div>
+                      <div className="slide-tab-number">Slide {idx + 1}</div>
+                      <div className="slide-tab-title">{slideItem.title || "Untitled Slide"}</div>
+                      {slideItem.subtitle ? (
+                        <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {slideItem.subtitle}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    {/* REORDER / DELETE CONTROLS */}
+                    <div style={{ display: "flex", gap: 4, marginTop: 10, width: "100%" }} onClick={(e) => e.stopPropagation()}>
+                      <button
+                        className="btn-ui secondary sm"
+                        onClick={() => handleMoveSlide(idx, -1)}
+                        disabled={idx === 0}
+                        title="Move Left"
+                        style={{ flex: 1, padding: "3px 6px", fontSize: 10, whiteSpace: "nowrap" }}
+                      >
+                        ← Left
+                      </button>
+                      <button
+                        className="btn-ui secondary sm"
+                        onClick={() => handleMoveSlide(idx, 1)}
+                        disabled={idx === (plan?.slides?.length || 0) - 1}
+                        title="Move Right"
+                        style={{ flex: 1, padding: "3px 6px", fontSize: 10, whiteSpace: "nowrap" }}
+                      >
+                        Right →
+                      </button>
+                      <button
+                        className="btn-ui danger sm"
+                        onClick={() => handleDeleteSlide(idx)}
+                        title="Delete Slide"
+                        style={{ padding: "3px 8px", fontSize: 11 }}
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
            
           {/* SELECTED SLIDE FEATURE INSPECTOR & CANVAS PREVIEW (ALWAYS BELOW SLIDE CAROUSEL) */}
@@ -1187,16 +1928,16 @@ export default function PresentationEditor({
                       disabled={activeSlideIndex === 0}
                       style={{
                         position: "absolute",
-                        left: -20,
+                        left: -25,
                         top: "50%",
                         transform: "translateY(-50%)",
                         zIndex: 35,
-                        width: 1,
-                        height: 1,
+                        width: 20,
+                        height: 20,
                         borderRadius: "100%",
                         background: activeSlideIndex === 0
                           ? "rgba(15, 23, 42, 0.4)"
-                          : "linear-gradient(135deg,  0%, 100%)",
+                          : "linear-gradient(135deg,  0% , 100% rgba(168, 85, 247, 0.6), rgba(139, 92, 246, 0.6))",
                         border: activeSlideIndex === 0
                           ? "1px solid rgba(255, 255, 255, 0.1)"
                           : "2px solid rgba(255, 255, 255, 0.4)",
@@ -1210,8 +1951,8 @@ export default function PresentationEditor({
                         boxShadow: activeSlideIndex === 0 ? "none" : "0 8px 25px rgba(0, 0, 0, 0.6), 0 0 16px rgba(168, 85, 247, 0.6)",
                         transition: "all 0.2s ease",
                       }}
-                      title="Previous Slide (◄)"
-                    >
+                      title="Previous Slide (◂)"
+                    >◂
                       
                     </button>
 
@@ -1225,16 +1966,16 @@ export default function PresentationEditor({
                       disabled={activeSlideIndex >= (plan?.slides?.length || 1) - 1}
                       style={{
                         position: "absolute",
-                        right: -20,
+                        right: -25,
                         top: "50%",
                         transform: "translateY(-50%)",
                         zIndex: 35,
-                        width: 1,
-                        height: 1,
+                        width: 20,
+                        height: 20,
                         borderRadius: "100%",
                         background: activeSlideIndex >= (plan?.slides?.length || 1) - 1
                           ? "rgba(15, 23, 42, 0.4)"
-                          : "linear-gradient(135deg,  0%,  100%)",
+                          : "linear-gradient(135deg,  0% , 100% rgba(168, 85, 247, 0.6), rgba(139, 92, 246, 0.6))",
                         border: activeSlideIndex >= (plan?.slides?.length || 1) - 1
                           ? "1px solid rgba(255, 255, 255, 0.1)"
                           : "2px solid rgba(255, 255, 255, 0.4)",
@@ -1248,8 +1989,8 @@ export default function PresentationEditor({
                         boxShadow: activeSlideIndex >= (plan?.slides?.length || 1) - 1 ? "none" : "0 8px 25px rgba(0, 0, 0, 0.6), 0 0 16px rgba(168, 85, 247, 0.6)",
                         transition: "all 0.2s ease",
                       }}
-                      title="Next Slide (►)"
-                    >
+                      title="Next Slide (▸)"
+                    >▸
                       
                     </button>
 
@@ -1265,57 +2006,116 @@ export default function PresentationEditor({
                         position: "relative",
                       }}
                     >
+                    {/* POWERPOINT-STYLE TITLE PLACEHOLDER BOX */}
                     <div
+                      className="ppt-title-box"
                       style={{
                         width: "100%",
                         textAlign: activeSlide.title_align || "left",
+                        border: "1.5px dashed transparent",
+                        borderRadius: 8,
+                        padding: "4px 8px",
+                        transition: "all 0.15s ease",
+                        position: "relative",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.35)";
+                      }}
+                      onMouseLeave={(e) => {
+                        if (document.activeElement !== e.currentTarget.querySelector("h2")) {
+                          e.currentTarget.style.borderColor = "transparent";
+                        }
                       }}
                     >
-                      <div style={{ fontSize: 11, fontWeight: "800", color: selectedBgConfig?.accent || "inherit", opacity: 0.9, letterSpacing: 1 }}>
-                        SLIDE {activeSlideIndex + 1} OF {plan.slides.length}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+                        <div style={{ fontSize: 11, fontWeight: "800", color: selectedBgConfig?.accent || "inherit", opacity: 0.85, letterSpacing: 1 }}>
+                          SLIDE {activeSlideIndex + 1} OF {plan.slides.length}
+                        </div>
+                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>✎ Click text to edit</span>
                       </div>
                       <h2
                         contentEditable={true}
                         suppressContentEditableWarning={true}
-                        onBlur={(e) => handleSlideTitleChange(activeSlideIndex, e.target.innerText)}
+                        onFocus={(e) => {
+                          e.currentTarget.parentElement.style.borderColor = "#38bdf8";
+                          e.currentTarget.parentElement.style.background = "rgba(56, 189, 248, 0.04)";
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.parentElement.style.borderColor = "transparent";
+                          e.currentTarget.parentElement.style.background = "transparent";
+                          handleSlideTitleChange(activeSlideIndex, e.target.innerText.trim() || "Click to add title");
+                        }}
                         title="Click to edit slide title inline"
                         style={{
-                          fontSize: `clamp(18px, 4vw, ${activeSlide.title_font_size || (activeSlideIndex === 0 ? 50 : 29)}px)`,
+                          fontSize: `clamp(18px, 4vw, ${activeSlide.title_font_size || (activeSlideIndex === 0 ? 46 : 28)}px)`,
                           color: activeSlide.title_color || "inherit",
                           textAlign: activeSlide.title_align || "left",
                           fontWeight: activeSlide.title_bold === false ? 400 : 800,
-                          margin: "6px 0 4px",
+                          margin: "2px 0",
                           wordBreak: "break-word",
                           outline: "none",
                           cursor: "text",
+                          opacity: activeSlide.title ? 1 : 0.45,
                         }}
                       >
-                        {activeSlide.title || "Slide Title"}
+                        {activeSlide.title || "Click to add title"}
                       </h2>
-                      {activeSlide.subtitle ? (
-                        <div
-                          contentEditable={true}
-                          suppressContentEditableWarning={true}
-                          onBlur={(e) => handleSlideSubtitleChange(activeSlideIndex, e.target.innerText)}
-                          title="Click to edit slide subtitle inline"
-                          style={{
-                            fontSize: `clamp(12px, 3vw, ${activeSlide.subtitle_font_size || 23}px)`,
-                            color: activeSlide.subtitle_color || "inherit",
-                            textAlign: activeSlide.subtitle_align || "left",
-                            opacity: activeSlide.subtitle_color ? 1 : 0.8,
-                            fontWeight: 600,
-                            wordBreak: "break-word",
-                            outline: "none",
-                            cursor: "text",
-                          }}
-                        >
-                          {activeSlide.subtitle}
-                        </div>
-                      ) : null}
+                    </div>
+
+                    {/* POWERPOINT-STYLE SUBTITLE PLACEHOLDER BOX */}
+                    <div
+                      className="ppt-subtitle-box"
+                      style={{
+                        width: "100%",
+                        textAlign: activeSlide.subtitle_align || "left",
+                        border: "1.5px dashed transparent",
+                        borderRadius: 8,
+                        padding: "4px 8px",
+                        marginTop: 2,
+                        transition: "all 0.15s ease",
+                        position: "relative",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = "rgba(192, 132, 252, 0.35)";
+                      }}
+                      onMouseLeave={(e) => {
+                        if (document.activeElement !== e.currentTarget.querySelector(".ppt-sub-input")) {
+                          e.currentTarget.style.borderColor = "transparent";
+                        }
+                      }}
+                    >
+                      <div
+                        className="ppt-sub-input"
+                        contentEditable={true}
+                        suppressContentEditableWarning={true}
+                        onFocus={(e) => {
+                          e.currentTarget.parentElement.style.borderColor = "#c084fc";
+                          e.currentTarget.parentElement.style.background = "rgba(192, 132, 252, 0.04)";
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.parentElement.style.borderColor = "transparent";
+                          e.currentTarget.parentElement.style.background = "transparent";
+                          handleSlideSubtitleChange(activeSlideIndex, e.target.innerText.trim());
+                        }}
+                        title="Click to edit slide subtitle inline"
+                        style={{
+                          fontSize: `clamp(12px, 3vw, ${activeSlide.subtitle_font_size || 20}px)`,
+                          color: activeSlide.subtitle_color || "inherit",
+                          textAlign: activeSlide.subtitle_align || "left",
+                          opacity: activeSlide.subtitle ? 0.9 : 0.4,
+                          fontWeight: 600,
+                          wordBreak: "break-word",
+                          outline: "none",
+                          cursor: "text",
+                          fontStyle: activeSlide.subtitle ? "normal" : "italic",
+                        }}
+                      >
+                        {activeSlide.subtitle || "Click to add subtitle"}
+                      </div>
                     </div>
 
                 {/* LIVE PLUGINS CONTENT */}
-                {hasPlugins && (
+                {hasPlugins ? (
                   <div style={{ flex: isVMiddle || isVBottom ? "0 1 auto" : 1, maxHeight: "100%", overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 10, paddingRight: 4 }}>
                   {(() => {
                     const plugins = safeArray(activeSlide.plugins);
@@ -1495,7 +2295,27 @@ export default function PresentationEditor({
                         ) : null}
 
                         {p.type === "chart" ? (
-                          <VisualChartPreview data={p.data} />
+                          (() => {
+                            const rawLabels = safeArray(p.data?.labels).length ? p.data.labels : (safeArray(p.data?.categories).length ? p.data.categories : ["Category 1", "Category 2", "Category 3"]);
+                            const rawValues = safeArray(p.data?.values).map(Number).filter((v) => !isNaN(v));
+                            return (
+                              <VisualChartPreview
+                                data={p.data}
+                                onTitleChange={(newTitle) => handlePluginTextChange(activeSlideIndex, pIdx, "title", newTitle)}
+                                onLabelChange={(lblIdx, newLbl) => {
+                                  const updatedLabels = [...rawLabels];
+                                  updatedLabels[lblIdx] = newLbl;
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "labels", updatedLabels);
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "categories", updatedLabels);
+                                }}
+                                onValueChange={(valIdx, newVal) => {
+                                  const updatedVals = [...rawValues];
+                                  updatedVals[valIdx] = Number(newVal) || 0;
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "values", updatedVals);
+                                }}
+                              />
+                            );
+                          })()
                         ) : null}
 
                         {p.type === "image" ? (
@@ -1512,16 +2332,38 @@ export default function PresentationEditor({
                                 }}
                               />
                             ) : null}
-                            {p.data?.caption && p.data.caption.trim().toLowerCase() !== (activeSlide?.title || "").trim().toLowerCase() ? (
-                              <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>{p.data.caption}</div>
-                            ) : null}
+                            <div
+                              contentEditable={true}
+                              suppressContentEditableWarning={true}
+                              onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "caption", e.target.innerText)}
+                              title="Click to edit image caption inline"
+                              style={{ fontSize: 11, opacity: 0.8, marginTop: 4, outline: "none", cursor: "text", minHeight: "16px" }}
+                            >
+                              {p.data?.caption || (p.data?.url || p.data?.path ? "Click to add image caption..." : "")}
+                            </div>
                           </div>
                         ) : null}
 
                         {p.type === "stat" ? (
                           <div style={{ display: "flex", alignItems: "baseline", gap: 10, margin: "8px 0" }}>
-                            <span style={{ fontSize: p.data?.font_size || 36, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc" }}>{p.data?.number}</span>
-                            <span style={{ fontSize: 14, fontWeight: 600, opacity: 0.85 }}>{p.data?.label}</span>
+                            <span
+                              contentEditable={true}
+                              suppressContentEditableWarning={true}
+                              onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "number", e.target.innerText)}
+                              title="Click to edit metric value inline"
+                              style={{ fontSize: p.data?.font_size || 36, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc", outline: "none", cursor: "text" }}
+                            >
+                              {p.data?.number || "100%"}
+                            </span>
+                            <span
+                              contentEditable={true}
+                              suppressContentEditableWarning={true}
+                              onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "label", e.target.innerText)}
+                              title="Click to edit metric label inline"
+                              style={{ fontSize: 14, fontWeight: 600, opacity: 0.85, outline: "none", cursor: "text" }}
+                            >
+                              {p.data?.label || "Metric Label"}
+                            </span>
                           </div>
                         ) : null}
 
@@ -1544,6 +2386,17 @@ export default function PresentationEditor({
                                 steps.push(cleaned);
                               }
                             }
+                            if (!steps.length) {
+                              steps.push("Step 1", "Step 2", "Step 3");
+                            }
+
+                            const updateDiagramStep = (sIdx, newText) => {
+                              const newSteps = [...steps];
+                              newSteps[sIdx] = newText;
+                              const serialized = newSteps.map((s) => `[${s}]`).join(" ➜ ");
+                              handlePluginTextChange(activeSlideIndex, pIdx, "diagram", serialized);
+                              handlePluginTextChange(activeSlideIndex, pIdx, "text", serialized);
+                            };
                             
                             const headers = {
                               tree: "🌳 TREE HIERARCHY & DECISION BRANCHES",
@@ -1563,13 +2416,30 @@ export default function PresentationEditor({
 
                             return (
                               <div style={{ background: `${selectedBgConfig?.accent || "#c084fc"}1f`, border: `1px dashed ${selectedBgConfig?.accent || "#c084fc"}80`, borderRadius: 10, padding: 12, textAlign: p.data?.alignment || "center", margin: "8px 0" }}>
-                                <div style={{ fontSize: 11, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 8, letterSpacing: 0.5 }}>
+                                <div
+                                  contentEditable={true}
+                                  suppressContentEditableWarning={true}
+                                  onBlur={(e) => {
+                                    const newT = e.target.innerText;
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "title", newT);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "diagram_title", newT);
+                                    handlePluginTextChange(activeSlideIndex, pIdx, "header", newT);
+                                  }}
+                                  title="Click to edit diagram title inline"
+                                  style={{ fontSize: 11, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 8, letterSpacing: 0.5, outline: "none", cursor: "text" }}
+                                >
                                   {headerTitle}
                                 </div>
                                 
                                 {diagType === "tree" && (
                                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "8px 0" }}>
-                                    <div style={{ background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}, #3b82f6)`, color: "#fff", fontWeight: 900, padding: "8px 24px", borderRadius: 12, fontSize: 13, boxShadow: "0 4px 16px rgba(192, 132, 252, 0.4)", border: "1.5px solid rgba(255,255,255,0.3)" }}>
+                                    <div
+                                      contentEditable={true}
+                                      suppressContentEditableWarning={true}
+                                      onBlur={(e) => updateDiagramStep(0, e.target.innerText)}
+                                      title="Click to edit root node inline"
+                                      style={{ background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}, #3b82f6)`, color: "#fff", fontWeight: 900, padding: "8px 24px", borderRadius: 12, fontSize: 13, boxShadow: "0 4px 16px rgba(192, 132, 252, 0.4)", border: "1.5px solid rgba(255,255,255,0.3)", outline: "none", cursor: "text" }}
+                                    >
                                       🌳 {steps[0] || "Root Concept"}
                                     </div>
                                     {steps.length > 1 && (
@@ -1577,7 +2447,14 @@ export default function PresentationEditor({
                                         <div style={{ width: 2, height: 16, background: selectedBgConfig?.accent || "#c084fc" }} />
                                         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
                                           {steps.slice(1).map((subStep, sIdx) => (
-                                            <div key={sIdx} style={{ background: "rgba(15,23,42,0.9)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 10, padding: "8px 14px", fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,0.3)" }}>
+                                            <div
+                                              key={sIdx}
+                                              contentEditable={true}
+                                              suppressContentEditableWarning={true}
+                                              onBlur={(e) => updateDiagramStep(sIdx + 1, e.target.innerText.replace(/^🌿\s*Node\s*\d+:\s*/i, ""))}
+                                              title="Click to edit node inline"
+                                              style={{ background: "rgba(15,23,42,0.9)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 10, padding: "8px 14px", fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,0.3)", outline: "none", cursor: "text" }}
+                                            >
                                               <span style={{ color: selectedBgConfig?.accent || "#c084fc", marginRight: 4 }}>🌿 Node {sIdx + 1}:</span>
                                               {subStep}
                                             </div>
@@ -1592,28 +2469,28 @@ export default function PresentationEditor({
                                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", padding: "10px 0" }}>
                                     {steps.map((step, sIdx) => {
                                       const isStartEnd = sIdx === 0 || sIdx === steps.length - 1;
-                                      const hasColon = step.includes(":");
-                                      const stepTitle = hasColon ? step.split(":")[0].trim() : step;
-                                      const stepDesc = hasColon ? step.split(":").slice(1).join(":").trim() : "";
                                       return (
                                         <React.Fragment key={sIdx}>
-                                          <div style={{
-                                            background: isStartEnd ? selectedBgConfig?.accent || "#c084fc" : "rgba(15,23,42,0.85)",
-                                            color: isStartEnd ? "#000" : "#fff",
-                                            border: `2px solid ${selectedBgConfig?.accent || "#c084fc"}`,
-                                            borderRadius: isStartEnd ? "24px" : "8px",
-                                            padding: "8px 16px",
-                                            fontSize: p.data?.font_size || 12,
-                                            fontWeight: 800,
-                                            boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
-                                            textAlign: "center",
-                                          }}>
-                                            <div>{isStartEnd ? `🏁 ${stepTitle}` : `⚙️ ${stepTitle}`}</div>
-                                            {stepDesc && (
-                                              <div style={{ fontSize: 10, fontWeight: 500, opacity: 0.8, marginTop: 2, color: isStartEnd ? "rgba(0,0,0,0.8)" : "rgba(255,255,255,0.75)" }}>
-                                                {stepDesc}
-                                              </div>
-                                            )}
+                                          <div
+                                            contentEditable={true}
+                                            suppressContentEditableWarning={true}
+                                            onBlur={(e) => updateDiagramStep(sIdx, e.target.innerText.replace(/^[🏁⚙️]\s*/, ""))}
+                                            title="Click to edit flowchart step inline"
+                                            style={{
+                                              background: isStartEnd ? selectedBgConfig?.accent || "#c084fc" : "rgba(15,23,42,0.85)",
+                                              color: isStartEnd ? "#000" : "#fff",
+                                              border: `2px solid ${selectedBgConfig?.accent || "#c084fc"}`,
+                                              borderRadius: isStartEnd ? "24px" : "8px",
+                                              padding: "8px 16px",
+                                              fontSize: p.data?.font_size || 12,
+                                              fontWeight: 800,
+                                              boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+                                              textAlign: "center",
+                                              outline: "none",
+                                              cursor: "text"
+                                            }}
+                                          >
+                                            {isStartEnd ? `🏁 ${step}` : `⚙️ ${step}`}
                                           </div>
                                           {sIdx < steps.length - 1 && <span style={{ color: selectedBgConfig?.accent || "#c084fc", fontSize: 18, fontWeight: 900 }}>➜</span>}
                                         </React.Fragment>
@@ -1644,7 +2521,15 @@ export default function PresentationEditor({
                                           <span style={{ fontSize: 10, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc", background: "rgba(0,0,0,0.5)", border: `1px solid ${selectedBgConfig?.accent || "#c084fc"}60`, padding: "3px 10px", borderRadius: 6, letterSpacing: 0.5 }}>
                                             TIER {sIdx + 1}
                                           </span>
-                                          <span style={{ fontWeight: 800, fontSize: 13, textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{step}</span>
+                                          <span
+                                            contentEditable={true}
+                                            suppressContentEditableWarning={true}
+                                            onBlur={(e) => updateDiagramStep(sIdx, e.target.innerText)}
+                                            title="Click to edit architecture tier title"
+                                            style={{ fontWeight: 800, fontSize: 13, textShadow: "0 1px 4px rgba(0,0,0,0.5)", outline: "none", cursor: "text" }}
+                                          >
+                                            {step}
+                                          </span>
                                           <span style={{ fontSize: 10, fontWeight: 700, opacity: 0.75, color: selectedBgConfig?.accent || "#c084fc" }}>Layer {sIdx + 1}</span>
                                         </div>
                                         {sIdx < steps.length - 1 && (
@@ -1668,7 +2553,15 @@ export default function PresentationEditor({
                                           </div>
                                           <div style={{ background: "rgba(15,23,42,0.9)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "6px 8px", width: "100%" }}>
                                             <div style={{ fontSize: 9, color: selectedBgConfig?.accent || "#c084fc", fontWeight: 800, textTransform: "uppercase" }}>MILESTONE {sIdx + 1}</div>
-                                            <div style={{ fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff", marginTop: 2 }}>{step}</div>
+                                            <div
+                                              contentEditable={true}
+                                              suppressContentEditableWarning={true}
+                                              onBlur={(e) => updateDiagramStep(sIdx, e.target.innerText)}
+                                              title="Click to edit milestone"
+                                              style={{ fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff", marginTop: 2, outline: "none", cursor: "text" }}
+                                            >
+                                              {step}
+                                            </div>
                                           </div>
                                         </div>
                                       ))}
@@ -1688,7 +2581,15 @@ export default function PresentationEditor({
                                       return (
                                         <div key={sIdx} style={{ background: st.bg, border: `1.5px solid ${st.border}`, borderRadius: 12, padding: 12, textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
                                           <div style={{ fontSize: 10, fontWeight: 900, color: st.border, marginBottom: 6, letterSpacing: 0.5 }}>{st.title}</div>
-                                          <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700 }}>{step}</div>
+                                          <div
+                                            contentEditable={true}
+                                            suppressContentEditableWarning={true}
+                                            onBlur={(e) => updateDiagramStep(sIdx, e.target.innerText)}
+                                            title="Click to edit IO card text"
+                                            style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700, outline: "none", cursor: "text" }}
+                                          >
+                                            {step}
+                                          </div>
                                         </div>
                                       );
                                     })}
@@ -1697,7 +2598,13 @@ export default function PresentationEditor({
 
                                 {diagType === "mindmap" && (
                                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "8px 0" }}>
-                                    <div style={{ background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}, #ec4899)`, color: "#fff", fontWeight: 900, padding: "8px 20px", borderRadius: 24, fontSize: 13, boxShadow: "0 4px 16px rgba(192, 132, 252, 0.4)" }}>
+                                    <div
+                                      contentEditable={true}
+                                      suppressContentEditableWarning={true}
+                                      onBlur={(e) => updateDiagramStep(0, e.target.innerText.replace(/^🧠\s*/, ""))}
+                                      title="Click to edit core concept"
+                                      style={{ background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}, #ec4899)`, color: "#fff", fontWeight: 900, padding: "8px 20px", borderRadius: 24, fontSize: 13, boxShadow: "0 4px 16px rgba(192, 132, 252, 0.4)", outline: "none", cursor: "text" }}
+                                    >
                                       🧠 {steps[0] || "Core Concept"}
                                     </div>
                                     {steps.length > 1 && (
@@ -1705,7 +2612,14 @@ export default function PresentationEditor({
                                         <div style={{ width: 2, height: 16, background: selectedBgConfig?.accent || "#c084fc" }} />
                                         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
                                           {steps.slice(1).map((subStep, sIdx) => (
-                                            <div key={sIdx} style={{ background: "rgba(15,23,42,0.85)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 14, padding: "6px 14px", fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff" }}>
+                                            <div
+                                              key={sIdx}
+                                              contentEditable={true}
+                                              suppressContentEditableWarning={true}
+                                              onBlur={(e) => updateDiagramStep(sIdx + 1, e.target.innerText.replace(/^🔹\s*/, ""))}
+                                              title="Click to edit branch"
+                                              style={{ background: "rgba(15,23,42,0.85)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`, borderRadius: 14, padding: "6px 14px", fontSize: p.data?.font_size || 11, fontWeight: 700, color: "#fff", outline: "none", cursor: "text" }}
+                                            >
                                               🔹 {subStep}
                                             </div>
                                           ))}
@@ -1722,6 +2636,10 @@ export default function PresentationEditor({
                                       return (
                                         <div
                                           key={sIdx}
+                                          contentEditable={true}
+                                          suppressContentEditableWarning={true}
+                                          onBlur={(e) => updateDiagramStep(sIdx, e.target.innerText.replace(/^STAGE\s*\d+:\s*/i, ""))}
+                                          title="Click to edit funnel stage"
                                           style={{
                                             width: `${widthPct}%`,
                                             background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}ee 0%, ${selectedBgConfig?.accent || "#c084fc"}44 100%)`,
@@ -1732,7 +2650,9 @@ export default function PresentationEditor({
                                             fontWeight: 800,
                                             textAlign: "center",
                                             color: "#fff",
-                                            boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
+                                            boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+                                            outline: "none",
+                                            cursor: "text"
                                           }}
                                         >
                                           STAGE {sIdx + 1}: {step}
@@ -1787,6 +2707,10 @@ export default function PresentationEditor({
                                       return (
                                         <div
                                           key={sIdx}
+                                          contentEditable={true}
+                                          suppressContentEditableWarning={true}
+                                          onBlur={(e) => updateDiagramStep(sIdx, e.target.innerText.replace(/^\d+[.)]\s*/, ""))}
+                                          title="Click to edit cycle step"
                                           style={{
                                             position: "absolute",
                                             transform: `translate(${x}px, ${y}px)`,
@@ -1803,6 +2727,8 @@ export default function PresentationEditor({
                                             maxWidth: "140px",
                                             textOverflow: "ellipsis",
                                             overflow: "hidden",
+                                            outline: "none",
+                                            cursor: "text"
                                           }}
                                         >
                                           <span style={{ color: selectedBgConfig?.accent || "#c084fc", marginRight: 4 }}>
@@ -1822,6 +2748,10 @@ export default function PresentationEditor({
                                       return (
                                         <div
                                           key={sIdx}
+                                          contentEditable={true}
+                                          suppressContentEditableWarning={true}
+                                          onBlur={(e) => updateDiagramStep(sIdx, e.target.innerText.replace(/^TIER\s*\d+:\s*/i, ""))}
+                                          title="Click to edit pyramid tier"
                                           style={{
                                             width: `${widthPct}%`,
                                             background: `linear-gradient(135deg, ${selectedBgConfig?.accent || "#c084fc"}33 0%, ${selectedBgConfig?.accent || "#c084fc"}aa 100%)`,
@@ -1832,7 +2762,9 @@ export default function PresentationEditor({
                                             fontWeight: 800,
                                             textAlign: "center",
                                             color: "#fff",
-                                            boxShadow: "0 4px 10px rgba(0,0,0,0.3)"
+                                            boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+                                            outline: "none",
+                                            cursor: "text"
                                           }}
                                         >
                                           TIER {sIdx + 1}: {step}
@@ -1851,7 +2783,15 @@ export default function PresentationEditor({
                                           <div style={{ fontSize: 10, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
                                             {quadNames[sIdx] || `QUADRANT ${sIdx + 1}`}
                                           </div>
-                                          <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700 }}>{step}</div>
+                                          <div
+                                            contentEditable={true}
+                                            suppressContentEditableWarning={true}
+                                            onBlur={(e) => updateDiagramStep(sIdx, e.target.innerText)}
+                                            title="Click to edit quadrant content"
+                                            style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700, outline: "none", cursor: "text" }}
+                                          >
+                                            {step}
+                                          </div>
                                         </div>
                                       );
                                     })}
@@ -1865,7 +2805,15 @@ export default function PresentationEditor({
                                         <div style={{ fontSize: 10, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 6 }}>
                                           ⚔️ OPTION {sIdx + 1}
                                         </div>
-                                        <div style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700 }}>{step}</div>
+                                        <div
+                                          contentEditable={true}
+                                          suppressContentEditableWarning={true}
+                                          onBlur={(e) => updateDiagramStep(sIdx, e.target.innerText)}
+                                          title="Click to edit option content"
+                                          style={{ fontSize: p.data?.font_size || 12, color: "#fff", fontWeight: 700, outline: "none", cursor: "text" }}
+                                        >
+                                          {step}
+                                        </div>
                                       </div>
                                     ))}
                                   </div>
@@ -1882,7 +2830,20 @@ export default function PresentationEditor({
                                 <thead>
                                   <tr style={{ background: p.data?.header_bg || `${selectedBgConfig?.accent || "#c084fc"}33` }}>
                                     {p.data.headers.map((h, hIdx) => (
-                                      <th key={hIdx} style={{ padding: "6px 10px", textAlign: p.data?.align || "left", borderBottom: "1px solid rgba(255,255,255,0.15)", fontWeight: 700, fontSize: p.data?.header_font_size || 12, color: p.data?.header_color || selectedBgConfig?.accent || "#c084fc" }}>{h}</th>
+                                      <th
+                                        key={hIdx}
+                                        contentEditable={true}
+                                        suppressContentEditableWarning={true}
+                                        onBlur={(e) => {
+                                          const newHeaders = [...p.data.headers];
+                                          newHeaders[hIdx] = e.target.innerText;
+                                          handlePluginTextChange(activeSlideIndex, pIdx, "headers", newHeaders);
+                                        }}
+                                        title="Click to edit header cell inline"
+                                        style={{ padding: "6px 10px", textAlign: p.data?.align || "left", borderBottom: "1px solid rgba(255,255,255,0.15)", fontWeight: 700, fontSize: p.data?.header_font_size || 12, color: p.data?.header_color || selectedBgConfig?.accent || "#c084fc", outline: "none", cursor: "text" }}
+                                      >
+                                        {h}
+                                      </th>
                                     ))}
                                   </tr>
                                 </thead>
@@ -1891,7 +2852,24 @@ export default function PresentationEditor({
                                 {safeArray(p.data?.rows).map((row, rIdx) => (
                                   <tr key={rIdx} style={{ background: p.data?.cell_bg ? p.data.cell_bg : (rIdx % 2 === 1 ? "rgba(255,255,255,0.04)" : "transparent"), borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                                     {safeArray(row).map((cell, cIdx) => (
-                                      <td key={cIdx} style={{ padding: "6px 10px", textAlign: p.data?.align || "left", color: p.data?.cell_color || "inherit", opacity: p.data?.cell_color ? 1 : 0.9 }}>{cell}</td>
+                                      <td
+                                        key={cIdx}
+                                        contentEditable={true}
+                                        suppressContentEditableWarning={true}
+                                        onBlur={(e) => {
+                                          const newRows = safeArray(p.data?.rows).map((r, ri) => {
+                                            if (ri !== rIdx) return r;
+                                            const newR = [...safeArray(r)];
+                                            newR[cIdx] = e.target.innerText;
+                                            return newR;
+                                          });
+                                          handlePluginTextChange(activeSlideIndex, pIdx, "rows", newRows);
+                                        }}
+                                        title="Click to edit cell inline"
+                                        style={{ padding: "6px 10px", textAlign: p.data?.align || "left", color: p.data?.cell_color || "inherit", opacity: p.data?.cell_color ? 1 : 0.9, outline: "none", cursor: "text" }}
+                                      >
+                                        {cell}
+                                      </td>
                                     ))}
                                   </tr>
                                 ))}
@@ -1902,124 +2880,351 @@ export default function PresentationEditor({
 
                         {p.type === "callout" ? (
                           <div style={{ background: "rgba(255,255,255,0.04)", borderLeft: `4px solid ${selectedBgConfig?.accent || "#c084fc"}`, border: "1px solid rgba(255,255,255,0.1)", borderRadius: "0 10px 10px 0", padding: "12px 16px", margin: "8px 0" }}>
-                            <div style={{ fontSize: 11, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4 }}>
-                              {p.data?.icon || "💡"} {(p.data?.title || p.data?.header || "KEY TAKEAWAY").toUpperCase()}
+                            <div style={{ fontSize: 11, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
+                              <span>{p.data?.icon || "💡"}</span>
+                              <span
+                                contentEditable={true}
+                                suppressContentEditableWarning={true}
+                                onBlur={(e) => {
+                                  const newTitle = e.target.innerText;
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "title", newTitle);
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "header", newTitle);
+                                }}
+                                title="Click to edit callout title inline"
+                                style={{ outline: "none", cursor: "text", flex: 1 }}
+                              >
+                                {(p.data?.title || p.data?.header || "KEY TAKEAWAY").toUpperCase()}
+                              </span>
                             </div>
-                            <div style={{ fontSize: 13, lineHeight: 1.5, opacity: 0.9 }}>
+                            <div
+                              contentEditable={true}
+                              suppressContentEditableWarning={true}
+                              onBlur={(e) => {
+                                const newText = e.target.innerText;
+                                handlePluginTextChange(activeSlideIndex, pIdx, "text", newText);
+                                handlePluginTextChange(activeSlideIndex, pIdx, "takeaway", newText);
+                                handlePluginTextChange(activeSlideIndex, pIdx, "quote", newText);
+                              }}
+                              title="Click to edit callout text inline"
+                              style={{ fontSize: 13, lineHeight: 1.5, opacity: 0.9, outline: "none", cursor: "text" }}
+                            >
                               {p.data?.text || p.data?.takeaway || p.data?.quote || "Key takeaway summary..."}
                             </div>
                           </div>
                         ) : null}
 
                         {p.type === "kpi_grid" ? (
-                          <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(safeArray(p.data?.kpis || p.data?.items).length || 3, 4)}, 1fr)`, gap: 12, margin: "10px 0" }}>
-                            {safeArray(p.data?.kpis || p.data?.items || [
+                          (() => {
+                            const kpiList = safeArray(p.data?.kpis || p.data?.items || [
                               { number: "$12.5M", label: "ARR Revenue", trend: "+34% ↗" },
                               { number: "99.99%", label: "SLA Uptime", trend: "+0.5% ↗" },
                               { number: "450K", label: "Active Users", trend: "+18% ↗" }
-                            ]).map((kpi, kIdx) => (
-                              <div key={kIdx} style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: 12, textAlign: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
-                                <div style={{ fontSize: 24, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc" }}>
-                                  {typeof kpi === "object" ? kpi.number || kpi.value : kpi}
-                                </div>
-                                <div style={{ fontSize: 11, fontWeight: 700, opacity: 0.85, marginTop: 2 }}>
-                                  {typeof kpi === "object" ? kpi.label || kpi.title : `Metric ${kIdx + 1}`}
-                                </div>
-                                {typeof kpi === "object" && kpi.trend ? (
-                                  <div style={{ fontSize: 10, fontWeight: 800, color: (kpi.trend.includes("+") || kpi.trend.includes("↗")) ? "#10b981" : "#f43f5e", marginTop: 4 }}>
-                                    {kpi.trend}
-                                  </div>
-                                ) : null}
-                              </div>
-                            ))}
-                          </div>
-                        ) : null}
+                            ]);
+                            const updateKpiItem = (kIdx, field, val) => {
+                              const updated = kpiList.map((item, i) => {
+                                if (i !== kIdx) return item;
+                                if (typeof item === "object") {
+                                  return { ...item, [field]: val };
+                                }
+                                return { number: field === "number" ? val : item, label: field === "label" ? val : `Metric ${i + 1}` };
+                              });
+                              handlePluginTextChange(activeSlideIndex, pIdx, "kpis", updated);
+                              handlePluginTextChange(activeSlideIndex, pIdx, "items", updated);
+                            };
 
-                        {p.type === "pros_cons" ? (
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, margin: "10px 0" }}>
-                            <div style={{ background: "rgba(16, 185, 129, 0.06)", border: "1.5px solid #10b981", borderRadius: 10, padding: 12 }}>
-                              <div style={{ fontSize: 12, fontWeight: 800, color: "#10b981", marginBottom: 6 }}>
-                                {p.data?.pros_title || "✅ STRENGTHS & ADVANTAGES"}
-                              </div>
-                              {safeArray(p.data?.pros || p.data?.strengths || ["High Scalability", "Low Query Latency"]).map((pro, prIdx) => (
-                                <div key={prIdx} style={{ fontSize: 11, marginBottom: 4, display: "flex", gap: 6, alignItems: "center" }}>
-                                  <span style={{ color: "#10b981" }}>✔</span>
-                                  <span>{pro}</span>
-                                </div>
-                              ))}
-                            </div>
-                            <div style={{ background: "rgba(239, 68, 68, 0.06)", border: "1.5px solid #ef4444", borderRadius: 10, padding: 12 }}>
-                              <div style={{ fontSize: 12, fontWeight: 800, color: "#ef4444", marginBottom: 6 }}>
-                                {p.data?.cons_title || "❌ CHALLENGES & CONSIDERATIONS"}
-                              </div>
-                              {safeArray(p.data?.cons || p.data?.weaknesses || ["Initial Setup Overhead", "Cloud Refactoring Effort"]).map((con, cnIdx) => (
-                                <div key={cnIdx} style={{ fontSize: 11, marginBottom: 4, display: "flex", gap: 6, alignItems: "center" }}>
-                                  <span style={{ color: "#ef4444" }}>✖</span>
-                                  <span>{con}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ) : null}
-
-                        {p.type === "roadmap" ? (
-                          <div style={{ position: "relative", padding: "16px 8px 8px", margin: "10px 0" }}>
-                            <div style={{ position: "absolute", top: "36px", left: "4%", right: "4%", height: "3px", background: selectedBgConfig?.accent || "#c084fc", borderRadius: 2, zIndex: 1 }} />
-                            <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(safeArray(p.data?.phases || p.data?.milestones).length || 4, 4)}, 1fr)`, gap: 10, position: "relative", zIndex: 2 }}>
-                              {safeArray(p.data?.phases || p.data?.milestones || [
-                                { phase: "Q1 2026", title: "Architecture", status: "COMPLETED" },
-                                { phase: "Q2 2026", title: "Platform Build", status: "IN PROGRESS" },
-                                { phase: "Q3 2026", title: "Market Launch", status: "PLANNED" }
-                              ]).map((rm, rmIdx) => (
-                                <div key={rmIdx} style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-                                  <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: selectedBgConfig?.accent || "#c084fc", color: "#000", fontWeight: 900, fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
-                                    {rmIdx + 1}
-                                  </div>
-                                  <div style={{ background: "rgba(15,23,42,0.85)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, padding: 8, width: "100%" }}>
-                                    <div style={{ fontSize: 10, color: selectedBgConfig?.accent || "#c084fc", fontWeight: 800 }}>{typeof rm === "object" ? rm.phase : `Phase ${rmIdx + 1}`}</div>
-                                    <div style={{ fontSize: 11, fontWeight: 700, color: "#fff", marginTop: 2 }}>{typeof rm === "object" ? rm.title : rm}</div>
-                                    {typeof rm === "object" && rm.status ? (
-                                      <div style={{ fontSize: 9, fontWeight: 800, marginTop: 4, color: rm.status.includes("COMPLET") ? "#10b981" : (rm.status.includes("PROGRESS") ? "#3b82f6" : "#94a3b8") }}>
-                                        [{rm.status}]
+                            return (
+                              <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(kpiList.length || 3, 4)}, 1fr)`, gap: 12, margin: "10px 0" }}>
+                                {kpiList.map((kpi, kIdx) => (
+                                  <div key={kIdx} style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: 12, textAlign: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
+                                    <div
+                                      contentEditable={true}
+                                      suppressContentEditableWarning={true}
+                                      onBlur={(e) => updateKpiItem(kIdx, "number", e.target.innerText)}
+                                      title="Click to edit KPI metric value inline"
+                                      style={{ fontSize: 24, fontWeight: 900, color: selectedBgConfig?.accent || "#c084fc", outline: "none", cursor: "text" }}
+                                    >
+                                      {typeof kpi === "object" ? (kpi.number || kpi.value || "100") : kpi}
+                                    </div>
+                                    <div
+                                      contentEditable={true}
+                                      suppressContentEditableWarning={true}
+                                      onBlur={(e) => updateKpiItem(kIdx, "label", e.target.innerText)}
+                                      title="Click to edit KPI label inline"
+                                      style={{ fontSize: 11, fontWeight: 700, opacity: 0.85, marginTop: 2, outline: "none", cursor: "text" }}
+                                    >
+                                      {typeof kpi === "object" ? (kpi.label || kpi.title || `Metric ${kIdx + 1}`) : `Metric ${kIdx + 1}`}
+                                    </div>
+                                    {typeof kpi === "object" ? (
+                                      <div
+                                        contentEditable={true}
+                                        suppressContentEditableWarning={true}
+                                        onBlur={(e) => updateKpiItem(kIdx, "trend", e.target.innerText)}
+                                        title="Click to edit KPI trend inline"
+                                        style={{ fontSize: 10, fontWeight: 800, color: ((kpi.trend || "").includes("+") || (kpi.trend || "").includes("↗")) ? "#10b981" : "#f43f5e", marginTop: 4, outline: "none", cursor: "text", minHeight: "14px" }}
+                                      >
+                                        {kpi.trend || "+0% ↗"}
                                       </div>
                                     ) : null}
                                   </div>
+                                ))}
+                              </div>
+                            );
+                          })()
+                        ) : null}
+
+                        {p.type === "pros_cons" ? (
+                          (() => {
+                            const pros = safeArray(p.data?.pros || p.data?.strengths || ["High Scalability", "Low Query Latency"]);
+                            const cons = safeArray(p.data?.cons || p.data?.weaknesses || ["Initial Setup Overhead", "Cloud Refactoring Effort"]);
+
+                            const updatePro = (idx, text) => {
+                              const updated = [...pros];
+                              updated[idx] = text;
+                              handlePluginTextChange(activeSlideIndex, pIdx, "pros", updated);
+                              handlePluginTextChange(activeSlideIndex, pIdx, "strengths", updated);
+                            };
+
+                            const updateCon = (idx, text) => {
+                              const updated = [...cons];
+                              updated[idx] = text;
+                              handlePluginTextChange(activeSlideIndex, pIdx, "cons", updated);
+                              handlePluginTextChange(activeSlideIndex, pIdx, "weaknesses", updated);
+                            };
+
+                            return (
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, margin: "10px 0" }}>
+                                <div style={{ background: "rgba(16, 185, 129, 0.06)", border: "1.5px solid #10b981", borderRadius: 10, padding: 12 }}>
+                                  <div
+                                    contentEditable={true}
+                                    suppressContentEditableWarning={true}
+                                    onBlur={(e) => {
+                                      handlePluginTextChange(activeSlideIndex, pIdx, "pros_title", e.target.innerText);
+                                    }}
+                                    title="Click to edit pros title inline"
+                                    style={{ fontSize: 12, fontWeight: 800, color: "#10b981", marginBottom: 6, outline: "none", cursor: "text" }}
+                                  >
+                                    {p.data?.pros_title || "✅ STRENGTHS & ADVANTAGES"}
+                                  </div>
+                                  {pros.map((pro, prIdx) => (
+                                    <div key={prIdx} style={{ fontSize: 11, marginBottom: 4, display: "flex", gap: 6, alignItems: "center" }}>
+                                      <span style={{ color: "#10b981" }}>✔</span>
+                                      <span
+                                        contentEditable={true}
+                                        suppressContentEditableWarning={true}
+                                        onBlur={(e) => updatePro(prIdx, e.target.innerText)}
+                                        title="Click to edit strength point inline"
+                                        style={{ outline: "none", cursor: "text", flex: 1 }}
+                                      >
+                                        {pro}
+                                      </span>
+                                    </div>
+                                  ))}
                                 </div>
-                              ))}
-                            </div>
-                          </div>
+                                <div style={{ background: "rgba(239, 68, 68, 0.06)", border: "1.5px solid #ef4444", borderRadius: 10, padding: 12 }}>
+                                  <div
+                                    contentEditable={true}
+                                    suppressContentEditableWarning={true}
+                                    onBlur={(e) => {
+                                      handlePluginTextChange(activeSlideIndex, pIdx, "cons_title", e.target.innerText);
+                                    }}
+                                    title="Click to edit cons title inline"
+                                    style={{ fontSize: 12, fontWeight: 800, color: "#ef4444", marginBottom: 6, outline: "none", cursor: "text" }}
+                                  >
+                                    {p.data?.cons_title || "❌ CHALLENGES & CONSIDERATIONS"}
+                                  </div>
+                                  {cons.map((con, cnIdx) => (
+                                    <div key={cnIdx} style={{ fontSize: 11, marginBottom: 4, display: "flex", gap: 6, alignItems: "center" }}>
+                                      <span style={{ color: "#ef4444" }}>✖</span>
+                                      <span
+                                        contentEditable={true}
+                                        suppressContentEditableWarning={true}
+                                        onBlur={(e) => updateCon(cnIdx, e.target.innerText)}
+                                        title="Click to edit challenge point inline"
+                                        style={{ outline: "none", cursor: "text", flex: 1 }}
+                                      >
+                                        {con}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })()
+                        ) : null}
+
+                        {p.type === "roadmap" ? (
+                          (() => {
+                            const milestones = safeArray(p.data?.phases || p.data?.milestones || [
+                              { phase: "Q1 2026", title: "Architecture", status: "COMPLETED" },
+                              { phase: "Q2 2026", title: "Platform Build", status: "IN PROGRESS" },
+                              { phase: "Q3 2026", title: "Market Launch", status: "PLANNED" }
+                            ]);
+
+                            const updateMilestone = (idx, field, val) => {
+                              const updated = milestones.map((m, i) => {
+                                if (i !== idx) return m;
+                                if (typeof m === "object") {
+                                  return { ...m, [field]: val };
+                                }
+                                return { phase: field === "phase" ? val : `Phase ${i + 1}`, title: field === "title" ? val : m, status: field === "status" ? val : "PLANNED" };
+                              });
+                              handlePluginTextChange(activeSlideIndex, pIdx, "phases", updated);
+                              handlePluginTextChange(activeSlideIndex, pIdx, "milestones", updated);
+                            };
+
+                            return (
+                              <div style={{ position: "relative", padding: "16px 8px 8px", margin: "10px 0" }}>
+                                <div style={{ position: "absolute", top: "36px", left: "4%", right: "4%", height: "3px", background: selectedBgConfig?.accent || "#c084fc", borderRadius: 2, zIndex: 1 }} />
+                                <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(milestones.length || 4, 4)}, 1fr)`, gap: 10, position: "relative", zIndex: 2 }}>
+                                  {milestones.map((rm, rmIdx) => (
+                                    <div key={rmIdx} style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+                                      <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: selectedBgConfig?.accent || "#c084fc", color: "#000", fontWeight: 900, fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
+                                        {rmIdx + 1}
+                                      </div>
+                                      <div style={{ background: "rgba(15,23,42,0.85)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, padding: 8, width: "100%" }}>
+                                        <div
+                                          contentEditable={true}
+                                          suppressContentEditableWarning={true}
+                                          onBlur={(e) => updateMilestone(rmIdx, "phase", e.target.innerText)}
+                                          title="Click to edit phase inline"
+                                          style={{ fontSize: 10, color: selectedBgConfig?.accent || "#c084fc", fontWeight: 800, outline: "none", cursor: "text" }}
+                                        >
+                                          {typeof rm === "object" ? (rm.phase || `Phase ${rmIdx + 1}`) : `Phase ${rmIdx + 1}`}
+                                        </div>
+                                        <div
+                                          contentEditable={true}
+                                          suppressContentEditableWarning={true}
+                                          onBlur={(e) => updateMilestone(rmIdx, "title", e.target.innerText)}
+                                          title="Click to edit milestone title inline"
+                                          style={{ fontSize: 11, fontWeight: 700, color: "#fff", marginTop: 2, outline: "none", cursor: "text" }}
+                                        >
+                                          {typeof rm === "object" ? (rm.title || "Milestone") : rm}
+                                        </div>
+                                        <div
+                                          contentEditable={true}
+                                          suppressContentEditableWarning={true}
+                                          onBlur={(e) => updateMilestone(rmIdx, "status", e.target.innerText.replace(/[[\]]/g, ""))}
+                                          title="Click to edit status inline"
+                                          style={{
+                                            fontSize: 9,
+                                            fontWeight: 800,
+                                            marginTop: 4,
+                                            outline: "none",
+                                            cursor: "text",
+                                            color: typeof rm === "object" && rm.status?.includes("COMPLET") ? "#10b981" : (typeof rm === "object" && rm.status?.includes("PROGRESS") ? "#3b82f6" : "#94a3b8")
+                                          }}
+                                        >
+                                          [{typeof rm === "object" && rm.status ? rm.status : "PLANNED"}]
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })()
                         ) : null}
 
                         {p.type === "code_block" ? (
                           <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 10, overflow: "hidden", margin: "10px 0", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
                             <div style={{ background: "#1e293b", padding: "4px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #334155" }}>
-                              <span style={{ fontSize: 10, color: "#94a3b8" }}>🔴 🟡 🟢 {p.data?.title || "code_snippet.py"} ({p.data?.language || "PYTHON"})</span>
+                              <span
+                                contentEditable={true}
+                                suppressContentEditableWarning={true}
+                                onBlur={(e) => {
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "title", e.target.innerText);
+                                }}
+                                title="Click to edit code file title inline"
+                                style={{ fontSize: 10, color: "#94a3b8", outline: "none", cursor: "text" }}
+                              >
+                                🔴 🟡 🟢 {p.data?.title || "code_snippet.py"} ({p.data?.language || "PYTHON"})
+                              </span>
                             </div>
                             <pre style={{ padding: 12, margin: 0, fontFamily: "Consolas, monospace", fontSize: 11, color: "#f8fafc", overflowX: "auto", lineHeight: 1.4 }}>
-                              <code>{p.data?.code || p.data?.snippet || 'print("Hello Antigravity")'}</code>
+                              <code
+                                contentEditable={true}
+                                suppressContentEditableWarning={true}
+                                onBlur={(e) => {
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "code", e.target.innerText);
+                                  handlePluginTextChange(activeSlideIndex, pIdx, "snippet", e.target.innerText);
+                                }}
+                                title="Click to edit code snippet inline"
+                                style={{ outline: "none", cursor: "text", display: "block" }}
+                              >
+                                {p.data?.code || p.data?.snippet || 'print("Hello Antigravity")'}
+                              </code>
                             </pre>
                           </div>
                         ) : null}
 
                         {p.type === "speaker_card" ? (
-                          <div style={{ background: "rgba(15,23,42,0.7)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}44`, borderRadius: 12, padding: 14, display: "flex", gap: 14, alignItems: "center", margin: "10px 0" }}>
-                            <div style={{ width: 44, height: 44, borderRadius: "50%", background: selectedBgConfig?.accent || "#c084fc", color: "#000", fontSize: 22, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                              👤
-                            </div>
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontSize: 16, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc" }}>
-                                {p.data?.name || p.data?.speaker || "Presenter Name"}
-                              </div>
-                              <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.9, marginTop: 2 }}>
-                                {p.data?.role || p.data?.title || "Keynote Speaker"}
-                              </div>
-                              {safeArray(p.data?.bio || p.data?.highlights).map((bPt, bIdx) => (
-                                <div key={bIdx} style={{ fontSize: 11, opacity: 0.8, marginTop: 2 }}>
-                                  • {bPt}
+                          (() => {
+                            const bios = safeArray(p.data?.bio || p.data?.highlights || ["Lead Speaker & Researcher", "Industry Specialist"]);
+                            const updateBioPoint = (bIdx, text) => {
+                              const updated = [...bios];
+                              updated[bIdx] = text;
+                              handlePluginTextChange(activeSlideIndex, pIdx, "bio", updated);
+                              handlePluginTextChange(activeSlideIndex, pIdx, "highlights", updated);
+                            };
+
+                            return (
+                              <div style={{ background: "rgba(15,23,42,0.7)", border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}44`, borderRadius: 12, padding: 14, display: "flex", gap: 14, alignItems: "center", margin: "10px 0" }}>
+                                <div style={{ width: 44, height: 44, borderRadius: "50%", background: selectedBgConfig?.accent || "#c084fc", color: "#000", fontSize: 22, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                  👤
                                 </div>
-                              ))}
-                            </div>
-                          </div>
+                                <div style={{ flex: 1 }}>
+                                  <div
+                                    contentEditable={true}
+                                    suppressContentEditableWarning={true}
+                                    onBlur={(e) => {
+                                      handlePluginTextChange(activeSlideIndex, pIdx, "name", e.target.innerText);
+                                      handlePluginTextChange(activeSlideIndex, pIdx, "speaker", e.target.innerText);
+                                    }}
+                                    title="Click to edit speaker name inline"
+                                    style={{ fontSize: 16, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", outline: "none", cursor: "text" }}
+                                  >
+                                    {p.data?.name || p.data?.speaker || "Presenter Name"}
+                                  </div>
+                                  <div
+                                    contentEditable={true}
+                                    suppressContentEditableWarning={true}
+                                    onBlur={(e) => {
+                                      handlePluginTextChange(activeSlideIndex, pIdx, "role", e.target.innerText);
+                                      handlePluginTextChange(activeSlideIndex, pIdx, "title", e.target.innerText);
+                                    }}
+                                    title="Click to edit speaker role inline"
+                                    style={{ fontSize: 12, fontWeight: 700, opacity: 0.9, marginTop: 2, outline: "none", cursor: "text" }}
+                                  >
+                                    {p.data?.role || p.data?.title || "Keynote Speaker"}
+                                  </div>
+                                  {bios.map((bPt, bIdx) => (
+                                    <div key={bIdx} style={{ fontSize: 11, opacity: 0.8, marginTop: 2, display: "flex", gap: 4 }}>
+                                      <span>•</span>
+                                      <span
+                                        contentEditable={true}
+                                        suppressContentEditableWarning={true}
+                                        onBlur={(e) => updateBioPoint(bIdx, e.target.innerText)}
+                                        title="Click to edit speaker bio point inline"
+                                        style={{ outline: "none", cursor: "text", flex: 1 }}
+                                      >
+                                        {bPt}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })()
+                        ) : null}
+                        {p.type === "shape" ? (
+                          <InteractiveShapeItem
+                            key={pIdx}
+                            plugin={p}
+                            pIdx={pIdx}
+                            isSelected={selectedPluginIndex === pIdx}
+                            onSelect={(idx) => setSelectedPluginIndex(idx)}
+                            onUpdateData={handleUpdatePluginData}
+                          />
                         ) : null}
                       </div>
                     );
@@ -2027,10 +3232,11 @@ export default function PresentationEditor({
                     if (hasImage && hasText) {
                       const textPlugins = plugins.filter((p) => p.type === "bullets" || p.type === "paragraph" || p.type === "subtitle" || p.type === "text");
                       const imagePlugins = plugins.filter((p) => p.type === "image");
-                      const otherPlugins = plugins.filter((p) => p.type !== "bullets" && p.type !== "paragraph" && p.type !== "subtitle" && p.type !== "text" && p.type !== "image");
+                      const shapePlugins = plugins.filter((p) => p.type === "shape");
+                      const otherPlugins = plugins.filter((p) => p.type !== "bullets" && p.type !== "paragraph" && p.type !== "subtitle" && p.type !== "text" && p.type !== "image" && p.type !== "shape");
 
                       return (
-                        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10, position: "relative" }}>
                           <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 16, alignItems: "center" }}>
                             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                               {textPlugins.map((p, pIdx) => renderPluginItem(p, `txt-${pIdx}`))}
@@ -2040,13 +3246,193 @@ export default function PresentationEditor({
                             </div>
                           </div>
                           {otherPlugins.map((p, pIdx) => renderPluginItem(p, `oth-${pIdx}`))}
+                          {shapePlugins.map((p, sIdx) => {
+                            const actualIdx = plugins.indexOf(p);
+                            return (
+                              <InteractiveShapeItem
+                                key={`shp-${sIdx}`}
+                                plugin={p}
+                                pIdx={actualIdx}
+                                isSelected={selectedPluginIndex === actualIdx}
+                                onSelect={(idx) => setSelectedPluginIndex(idx)}
+                                onUpdateData={handleUpdatePluginData}
+                              />
+                            );
+                          })}
                         </div>
                       );
                     }
 
-                    return plugins.map((p, pIdx) => renderPluginItem(p, pIdx));
+                    return (
+                      <div style={{ position: "relative" }}>
+                        {plugins.filter((p) => p.type !== "shape").map((p, pIdx) => {
+                          const actualIdx = plugins.indexOf(p);
+                          return renderPluginItem(p, actualIdx);
+                        })}
+                        {plugins.filter((p) => p.type === "shape").map((p, sIdx) => {
+                          const actualIdx = plugins.indexOf(p);
+                          return (
+                            <InteractiveShapeItem
+                              key={`shp-${sIdx}`}
+                              plugin={p}
+                              pIdx={actualIdx}
+                              isSelected={selectedPluginIndex === actualIdx}
+                              onSelect={(idx) => setSelectedPluginIndex(idx)}
+                              onUpdateData={handleUpdatePluginData}
+                            />
+                          );
+                        })}
+                      </div>
+                    );
                   })()}
                 </div>
+                ) : (
+                  /* POWERPOINT-STYLE CONTENT PLACEHOLDER BOX */
+                  <div
+                    style={{
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "2px dashed rgba(255, 255, 255, 0.18)",
+                      borderRadius: 12,
+                      padding: "20px 16px",
+                      margin: "12px 0 4px",
+                      background: "rgba(15, 23, 42, 0.25)",
+                      transition: "all 0.2s ease",
+                      minHeight: 160,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.5)";
+                      e.currentTarget.style.background = "rgba(56, 189, 248, 0.03)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.18)";
+                      e.currentTarget.style.background = "rgba(15, 23, 42, 0.25)";
+                    }}
+                  >
+                    <div
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => {
+                        const val = e.target.innerText.trim();
+                        if (val && val !== "Click to add text / bullet points...") {
+                          handleAddPlugin(activeSlideIndex, "paragraph", { text: val });
+                        }
+                      }}
+                      title="Click to type text directly on slide"
+                      style={{
+                        fontSize: 15,
+                        color: "rgba(255, 255, 255, 0.5)",
+                        textAlign: "center",
+                        marginBottom: 14,
+                        outline: "none",
+                        cursor: "text",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      Click to add text / bullet points...
+                    </div>
+
+                    {/* PowerPoint-style Quick Insert Object Tiles */}
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
+                      {[
+                        {
+                          icon: "📝",
+                          label: "Bullets",
+                          color: "#38bdf8",
+                          action: () =>
+                            handleAddPlugin(activeSlideIndex, "paragraph", {
+                              points: ["First strategic takeaway", "Second key point", "Third core takeaway"],
+                            }),
+                        },
+                        {
+                          icon: "📊",
+                          label: "Chart",
+                          color: "#34d399",
+                          action: () =>
+                            handleAddPlugin(activeSlideIndex, "chart", {
+                              chart_type: "bar",
+                              title: "Key Metrics",
+                              labels: ["Q1", "Q2", "Q3", "Q4"],
+                              series: [{ name: "Growth", data: [65, 80, 75, 90] }],
+                            }),
+                        },
+                        {
+                          icon: "▨",
+                          label: "Table",
+                          color: "#fbbf24",
+                          action: () =>
+                            handleAddPlugin(activeSlideIndex, "table", {
+                              headers: ["Category", "Current", "Projected"],
+                              rows: [
+                                ["Users", "10k", "50k"],
+                                ["Revenue", "$120k", "$450k"],
+                              ],
+                            }),
+                        },
+                        {
+                          icon: "🖼️",
+                          label: "Picture",
+                          color: "#f43f5e",
+                          action: () => handleAddPlugin(activeSlideIndex, "image", { caption: "Slide Image" }),
+                        },
+                        {
+                          icon: "▭",
+                          label: "Shape",
+                          color: "#c084fc",
+                          action: () => handleAddPlugin(activeSlideIndex, "shape", { shape_type: "rectangle", fill: "#38bdf8", border_color: "#ffffff" }),
+                        },
+                        {
+                          icon: "🔢",
+                          label: "KPI Grid",
+                          color: "#a78bfa",
+                          action: () =>
+                            handleAddPlugin(activeSlideIndex, "kpi_grid", {
+                              items: [
+                                { label: "Revenue", value: "$1.2M" },
+                                { label: "Users", value: "45k" },
+                                { label: "Growth", value: "+85%" },
+                              ],
+                            }),
+                        },
+                      ].map((tile, tIdx) => (
+                        <button
+                          key={tIdx}
+                          type="button"
+                          onClick={tile.action}
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 4,
+                            padding: "8px 12px",
+                            background: "rgba(15, 23, 42, 0.75)",
+                            border: `1px solid ${tile.color}55`,
+                            borderRadius: 8,
+                            color: "#fff",
+                            cursor: "pointer",
+                            transition: "all 0.15s ease",
+                            minWidth: 72,
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = `${tile.color}22`;
+                            e.currentTarget.style.borderColor = tile.color;
+                            e.currentTarget.style.transform = "translateY(-2px)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "rgba(15, 23, 42, 0.75)";
+                            e.currentTarget.style.borderColor = `${tile.color}55`;
+                            e.currentTarget.style.transform = "none";
+                          }}
+                        >
+                          <span style={{ fontSize: 18 }}>{tile.icon}</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: tile.color }}>{tile.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 )}
                 
                 {/* SPEAKER NOTES DISPLAY */}

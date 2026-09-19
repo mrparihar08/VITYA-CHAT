@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { PageShell } from "../auth/AuthCommon";
+import { api } from "../../services/api";
 import "../auth/Auth.css";
 
 export function AppearancePage({ insideDashboard = false }) {
@@ -12,6 +13,35 @@ export function AppearancePage({ insideDashboard = false }) {
   const showToast = (msg) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(""), 3500);
+  };
+
+  // Sync with cloud settings on load
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    api
+      .get("/api/settings/")
+      .then((res) => {
+        if (res.data?.theme && res.data.theme !== theme) {
+          setTheme?.(res.data.theme);
+        }
+      })
+      .catch(() => {});
+  }, [setTheme, theme]);
+
+  const handleSelectTheme = async (t) => {
+    setTheme?.(t.id);
+    showToast(`Theme switched to ${t.name}`);
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        await api.put("/api/settings/", { theme: t.id, accent_color: t.accent });
+      } catch (e) {
+        console.warn("Could not save theme to cloud settings", e);
+      }
+    }
   };
 
   const themeList = Object.values(presets || {});
@@ -46,7 +76,7 @@ export function AppearancePage({ insideDashboard = false }) {
             <div className="vitya-header-icon bg-teal">🎨</div>
             <div className="vitya-header-title-block">
               <h3>Dynamic Workspace Theme Presets</h3>
-              <p>Select your preferred theme. Changes apply instantly across the entire application.</p>
+              <p>Select your preferred theme. Changes sync with your MOTHER account across devices.</p>
             </div>
           </div>
 
@@ -56,10 +86,7 @@ export function AppearancePage({ insideDashboard = false }) {
               return (
                 <div
                   key={t.id}
-                  onClick={() => {
-                    setTheme?.(t.id);
-                    showToast(`Theme switched to ${t.name}`);
-                  }}
+                  onClick={() => handleSelectTheme(t)}
                   style={{
                     background: "rgba(255, 255, 255, 0.05)",
                     border: isSelected ? `2px solid ${t.accent}` : "1px solid rgba(255, 255, 255, 0.1)",

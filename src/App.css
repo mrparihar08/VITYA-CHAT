@@ -653,6 +653,11 @@ body {
   border-radius: 4px;
 }
 
+.ribbon-scroll-container::-webkit-scrollbar {
+  display: none;
+  height: 0px;
+}
+
 .slide-tab-item {
   flex: 1 1 calc(50% - 6px);
   min-width: 240px;

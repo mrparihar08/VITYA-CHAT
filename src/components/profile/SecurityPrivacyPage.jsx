@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   PageShell,
   Input,
-  PasswordField,
   FieldLabel,
 } from "../auth/AuthCommon";
+import { api, handleApiError } from "../../services/api";
 import "../auth/Auth.css";
 
 export function SecurityPrivacyPage({ insideDashboard = false }) {
@@ -24,7 +24,22 @@ export function SecurityPrivacyPage({ insideDashboard = false }) {
     setTimeout(() => setToastMsg(""), 3500);
   };
 
-  const handlePasswordSubmit = (e) => {
+  // Load 2FA status from cloud
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    api
+      .get("/api/settings/")
+      .then((res) => {
+        if (typeof res.data?.two_factor_enabled === "boolean") {
+          setTwoFactorEnabled(res.data.two_factor_enabled);
+        }
+      })
+      .catch((e) => console.warn("Could not load security settings", e));
+  }, []);
+
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (!currentPassword || !newPassword || !confirmPassword) {
       showToast("Please fill in all password fields.");
@@ -39,20 +54,55 @@ export function SecurityPrivacyPage({ insideDashboard = false }) {
       return;
     }
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      showToast("Please login first to update password.");
+      return;
+    }
+
     setSavingPassword(true);
-    setTimeout(() => {
-      showToast("Password updated successfully!");
+    try {
+      const res = await api.post("/api/settings/change-password", {
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+      showToast(res.data?.message || "Password updated successfully!");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+    } catch (err) {
+      showToast(handleApiError(err) || "Failed to update password");
+    } finally {
       setSavingPassword(false);
-    }, 600);
+    }
+  };
+
+  const handleToggle2FA = async () => {
+    const nextState = !twoFactorEnabled;
+    setTwoFactorEnabled(nextState);
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        await api.put("/api/settings/", { two_factor_enabled: nextState });
+        showToast(
+          nextState
+            ? "Two-Factor Authentication Enabled & Synced!"
+            : "Two-Factor Authentication Disabled!"
+        );
+      } catch (err) {
+        showToast(handleApiError(err) || "Failed to update 2FA status");
+        setTwoFactorEnabled(!nextState); // revert
+      }
+    } else {
+      showToast(nextState ? "2FA Enabled (local)" : "2FA Disabled (local)");
+    }
   };
 
   return (
     <PageShell
       title="Security & Privacy"
-      subtitle="Manage your password, 2FA authentication, and data privacy."
+      subtitle="Manage your password, 2FA authentication, and account security synced with MOTHER."
       plain={insideDashboard}
       hideBrandRow={insideDashboard}
       wide={true}
@@ -76,55 +126,75 @@ export function SecurityPrivacyPage({ insideDashboard = false }) {
         {/* CHANGE PASSWORD */}
         <div className="vitya-settings-card">
           <div className="vitya-card-header">
-            <div className="vitya-header-icon bg-purple">🔐</div>
+            <div className="vitya-header-icon bg-emerald">🔑</div>
             <div className="vitya-header-title-block">
               <h3>Change Password</h3>
-              <p>Update your password regularly to keep your Vitya.AI account secure</p>
+              <p>Ensure your account stays secure by using a strong, unique password</p>
             </div>
           </div>
 
-          <form onSubmit={handlePasswordSubmit} className="vitya-edit-form-grid">
-            <div className="vitya-input-group full-width">
-              <FieldLabel label="Current Password">
-                <PasswordField
+          <form onSubmit={handlePasswordSubmit}>
+            <div className="formGroup">
+              <FieldLabel htmlFor="current-pwd">Current Password</FieldLabel>
+              <div className="passwordWrapper">
+                <Input
+                  id="current-pwd"
+                  type={showCurrent ? "text" : "password"}
+                  placeholder="Enter current password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Enter current password"
-                  show={showCurrent}
-                  toggleShow={() => setShowCurrent(!showCurrent)}
+                  autoComplete="current-password"
                 />
-              </FieldLabel>
+                <button
+                  type="button"
+                  className="eyeBtn"
+                  onClick={() => setShowCurrent(!showCurrent)}
+                  tabIndex="-1"
+                >
+                  {showCurrent ? "👁️" : "🙈"}
+                </button>
+              </div>
             </div>
 
-            <div className="vitya-input-group">
-              <FieldLabel label="New Password">
-                <PasswordField
+            <div className="formGroup">
+              <FieldLabel htmlFor="new-pwd">New Password</FieldLabel>
+              <div className="passwordWrapper">
+                <Input
+                  id="new-pwd"
+                  type={showNew ? "text" : "password"}
+                  placeholder="At least 6 characters"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="At least 6 characters"
-                  show={showNew}
-                  toggleShow={() => setShowNew(!showNew)}
+                  autoComplete="new-password"
                 />
-              </FieldLabel>
+                <button
+                  type="button"
+                  className="eyeBtn"
+                  onClick={() => setShowNew(!showNew)}
+                  tabIndex="-1"
+                >
+                  {showNew ? "👁️" : "🙈"}
+                </button>
+              </div>
             </div>
 
-            <div className="vitya-input-group">
-              <FieldLabel label="Confirm New Password">
-                <Input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter new password"
-                />
-              </FieldLabel>
+            <div className="formGroup">
+              <FieldLabel htmlFor="confirm-pwd">Confirm New Password</FieldLabel>
+              <Input
+                id="confirm-pwd"
+                type="password"
+                placeholder="Re-type new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+              />
             </div>
 
-            <div className="vitya-input-group full-width" style={{ marginTop: 8 }}>
+            <div className="vitya-actions-row" style={{ marginTop: 20 }}>
               <button
                 type="submit"
                 className="vitya-save-btn"
                 disabled={savingPassword}
-                style={{ width: "fit-content" }}
               >
                 {savingPassword ? "Updating Password..." : "Update Password"}
               </button>
@@ -138,7 +208,7 @@ export function SecurityPrivacyPage({ insideDashboard = false }) {
             <div className="vitya-header-icon bg-blue">🛡️</div>
             <div className="vitya-header-title-block">
               <h3>Two-Factor Authentication (2FA)</h3>
-              <p>Add an extra layer of security to your account using an authenticator app</p>
+              <p>Add an extra layer of security to your account using authenticator verification</p>
             </div>
           </div>
 
@@ -160,14 +230,7 @@ export function SecurityPrivacyPage({ insideDashboard = false }) {
                 fontSize: 13,
                 padding: "8px 16px",
               }}
-              onClick={() => {
-                setTwoFactorEnabled(!twoFactorEnabled);
-                showToast(
-                  !twoFactorEnabled
-                    ? "Two-Factor Authentication Enabled!"
-                    : "Two-Factor Authentication Disabled!"
-                );
-              }}
+              onClick={handleToggle2FA}
             >
               {twoFactorEnabled ? "Disable 2FA" : "Enable 2FA"}
             </button>

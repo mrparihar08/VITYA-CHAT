@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageShell } from "../auth/AuthCommon";
+import { api, handleApiError } from "../../services/api";
 import "../auth/Auth.css";
 
 export function NotificationsPage({ insideDashboard = false }) {
@@ -16,34 +17,77 @@ export function NotificationsPage({ insideDashboard = false }) {
     setTimeout(() => setToastMsg(""), 3500);
   };
 
+  // Load from backend
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    api
+      .get("/api/settings/")
+      .then((res) => {
+        if (res.data) {
+          if (typeof res.data.email_alerts === "boolean") setEmailAlerts(res.data.email_alerts);
+          if (typeof res.data.security_alerts === "boolean") setSecurityAlerts(res.data.security_alerts);
+          if (typeof res.data.ai_updates === "boolean") setAiUpdates(res.data.ai_updates);
+          if (typeof res.data.marketing === "boolean") setMarketing(res.data.marketing);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not load notification settings from backend", err);
+      });
+  }, []);
+
+  const handleToggle = async (key, val, label) => {
+    const stateSetters = {
+      security_alerts: setSecurityAlerts,
+      email_alerts: setEmailAlerts,
+      ai_updates: setAiUpdates,
+      marketing: setMarketing,
+    };
+    stateSetters[key]?.(val);
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        await api.put("/api/settings/", { [key]: val });
+        showToast(`${label} ${val ? "Enabled" : "Disabled"}`);
+      } catch (err) {
+        showToast(handleApiError(err) || "Failed to update notification setting");
+        stateSetters[key]?.(!val); // revert on failure
+      }
+    } else {
+      showToast(`${label} ${val ? "Enabled" : "Disabled"} (local)`);
+    }
+  };
+
   const notificationOptions = [
     {
-      id: "security",
+      id: "security_alerts",
       title: "🛡️ Security & Account Alerts",
       desc: "Receive immediate notifications for new logins, password changes, and 2FA activities.",
       checked: securityAlerts,
-      onChange: setSecurityAlerts,
+      label: "Security Alerts",
     },
     {
-      id: "email",
+      id: "email_alerts",
       title: "📧 Email Digest & Summaries",
       desc: "Get periodic financial reports and chat history summaries delivered to your inbox.",
       checked: emailAlerts,
-      onChange: setEmailAlerts,
+      label: "Email Digest",
     },
     {
-      id: "ai",
+      id: "ai_updates",
       title: "🤖 AI Assistant & Product Updates",
       desc: "Stay notified when new AI models, presentation tools, or apps are released.",
       checked: aiUpdates,
-      onChange: setAiUpdates,
+      label: "AI Updates",
     },
     {
-      id: "tips",
+      id: "marketing",
       title: "🎁 Tips & Productivity Offers",
       desc: "Occasional updates about productivity tips and special Vitya.AI workspace features.",
       checked: marketing,
-      onChange: setMarketing,
+      label: "Offers & Tips",
     },
   ];
 
@@ -73,10 +117,10 @@ export function NotificationsPage({ insideDashboard = false }) {
 
         <div className="vitya-settings-card">
           <div className="vitya-card-header">
-            <div className="vitya-header-icon bg-amber">🔔</div>
+            <div className="vitya-header-icon bg-indigo">🔔</div>
             <div className="vitya-header-title-block">
-              <h3>Notification Preferences</h3>
-              <p>Toggle individual alerts and summary reports</p>
+              <h3>Notification Channels & Delivery</h3>
+              <p>Configure which alerts and automated reports are delivered to your devices and inbox.</p>
             </div>
           </div>
 
@@ -94,10 +138,7 @@ export function NotificationsPage({ insideDashboard = false }) {
                   <input
                     type="checkbox"
                     checked={opt.checked}
-                    onChange={(e) => {
-                      opt.onChange(e.target.checked);
-                      showToast(`${opt.title.substring(opt.title.indexOf(" ") + 1)} ${e.target.checked ? "Enabled" : "Disabled"}`);
-                    }}
+                    onChange={(e) => handleToggle(opt.id, e.target.checked, opt.label)}
                   />
                   <span className="slider round" />
                 </label>

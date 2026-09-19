@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { API_BASE_URL } from "../../services/api";
 
 const SLIDE_COUNT_OPTIONS = [
   { id: "auto", label: "Auto", desc: "Auto-generated", icon: "✨" },
@@ -301,6 +302,36 @@ export default function PresentationSetup({
   const [isEnhanced, setIsEnhanced] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [showAiFeatures, setShowAiFeatures] = useState(true);
+  const [availableTemplates, setAvailableTemplates] = useState(MASTER_TEMPLATE_OPTIONS);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/presentation/templates`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const tList = Array.isArray(data) ? data : data?.templates;
+        if (Array.isArray(tList) && tList.length > 0) {
+          const existingIds = new Set(MASTER_TEMPLATE_OPTIONS.map((t) => t.id));
+          const additions = [];
+          for (const item of tList) {
+            const id = typeof item === "string" ? item : item?.id;
+            if (id && !existingIds.has(id)) {
+              additions.push({
+                id,
+                label: (typeof item === "object" && (item.name || item.label)) || id.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+                desc: "Server Template Preset",
+                category: "Server Presets",
+                icon: "📐",
+              });
+              existingIds.add(id);
+            }
+          }
+          if (additions.length > 0) {
+            setAvailableTemplates((prev) => [...prev, ...additions]);
+          }
+        }
+      })
+      .catch((err) => console.warn("Could not fetch server presentation templates", err));
+  }, []);
 
   const handleVoiceInput = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -452,7 +483,7 @@ export default function PresentationSetup({
         <div>
           <CustomDropdown
             label="Slide Count Selection"
-            icon="℗"
+            icon="✽"
             options={SLIDE_COUNT_OPTIONS}
             value={slideCount}
             onChange={setSlideCount}
@@ -525,8 +556,8 @@ export default function PresentationSetup({
 
         <CustomDropdown
           label="Master Slide Template"
-          icon="📐"
-          options={MASTER_TEMPLATE_OPTIONS}
+          icon="✽"
+          options={availableTemplates}
           value={templateName || "base_template"}
           onChange={setTemplateName}
         />

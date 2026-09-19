@@ -22,9 +22,17 @@ function joinUrl(base, path) {
   return `${b}/${p}`;
 }
 
+function ensureHttpsExceptLocal(url) {
+  if (!url) return "";
+  if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(url)) {
+    return url;
+  }
+  return url.replace(/^http:\/\//i, "https://");
+}
+
 function resolveDownloadUrl(path) {
   if (!path) return "";
-  if (isAbsoluteUrl(path)) return path.replace(/^http:\/\//i, "https://");
+  if (isAbsoluteUrl(path)) return ensureHttpsExceptLocal(path);
   return path.startsWith("/")
     ? `${API_BASE_URL}${path}`
     : joinUrl(DEFAULT_API_BASE, path);
@@ -32,7 +40,7 @@ function resolveDownloadUrl(path) {
 
 export async function downloadFileAsBlob(url, filename = "presentation.pptx") {
   if (!url) return;
-  const targetUrl = url.replace(/^http:\/\//i, "https://");
+  const targetUrl = ensureHttpsExceptLocal(url);
 
   try {
     const res = await fetch(targetUrl);
@@ -242,7 +250,7 @@ const DEFAULT_PLAN = {
   ]
 };
 
-export default function PresentationGenerator() {
+export default function PresentationGenerator({ presentationId = null }) {
   // Page Step State: 1 = Setup, 2 = Slide Editor (Restored from localStorage)
   const [currentStep, setCurrentStep] = useState(() => {
     try {
@@ -359,6 +367,22 @@ export default function PresentationGenerator() {
   });
 
   useEffect(() => {
+    fetch(`${DEFAULT_API_BASE}/brand-profile`, { headers: getAuthHeaders() })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) {
+          if (data.brand_logo) setBrandLogo(data.brand_logo);
+          if (data.brand_color) setBrandColor(data.brand_color);
+          if (data.brand_secondary_color) setBrandSecondaryColor(data.brand_secondary_color);
+          if (data.brand_font) setBrandFont(data.brand_font);
+          if (data.brand_footer) setBrandFooter(data.brand_footer);
+          if (data.brand_logo || data.brand_footer) setUseCustomBrand(true);
+        }
+      })
+      .catch((err) => console.warn("Could not sync brand profile from database", err));
+  }, []);
+
+  useEffect(() => {
     try {
       localStorage.setItem("vitya_brand_active", String(useCustomBrand));
       localStorage.setItem("vitya_brand_logo", brandLogo || "");
@@ -369,6 +393,25 @@ export default function PresentationGenerator() {
     } catch (e) {
       console.warn("Failed to persist brand settings to localStorage", e);
     }
+
+    const timer = setTimeout(() => {
+      if (useCustomBrand) {
+        fetch(`${DEFAULT_API_BASE}/brand-profile`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify({
+            brand_name: "My Brand",
+            brand_logo: brandLogo,
+            brand_color: brandColor,
+            brand_secondary_color: brandSecondaryColor,
+            brand_font: brandFont,
+            brand_footer: brandFooter,
+          }),
+        }).catch((err) => console.warn("Could not save brand profile to database", err));
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, [useCustomBrand, brandLogo, brandColor, brandSecondaryColor, brandFont, brandFooter]);
 
   // Export Format State 📑
@@ -415,6 +458,28 @@ export default function PresentationGenerator() {
       console.warn("Failed to persist presentation deck to localStorage", e);
     }
   }, [plan, currentStep, activeSlideIndex, selectedBgPreset, customBgColor1, customBgColor2, customTextColor, templateName]);
+
+  useEffect(() => {
+    if (!presentationId) return;
+    const fetchSavedPresentation = async () => {
+      try {
+        const res = await fetch(joinUrl(DEFAULT_API_BASE, `/${presentationId}`), {
+          headers: getAuthHeaders(),
+        });
+        if (!res.ok) return;
+        const data = await readResponse(res);
+        if (data && data.plan) {
+          setPlan(data.plan);
+          if (data.theme_name) setSelectedBgPreset(data.theme_name);
+          if (data.download_url) setDownloadUrl(resolveDownloadUrl(data.download_url));
+          setCurrentStep(2);
+        }
+      } catch (err) {
+        console.warn("Failed to load presentation by id", err);
+      }
+    };
+    fetchSavedPresentation();
+  }, [presentationId]);
 
   const handleResetPlanToDefault = () => {
     if (window.confirm("Start a new presentation deck? (Current draft will be reset)")) {
@@ -530,7 +595,30 @@ export default function PresentationGenerator() {
     };
   };
 
-  // Save Presentation to Backend API 💾
+  const [isCleaningCache, setIsCleaningCache] = useState(false);
+  const [cleanupMessage, setCleanupMessage] = useState("");
+
+  const handleTriggerCacheCleanup = async () => {
+    setIsCleaningCache(true);
+    setCleanupMessage("");
+    try {
+      const res = await fetch(joinUrl(DEFAULT_API_BASE, "/cleanup"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+      });
+      const data = await readResponse(res);
+      const msg = data?.message || `Cache cleaned: ${data?.deleted_files ?? 0} expired files removed (${data?.freed_space_mb ?? "0"} MB freed).`;
+      setCleanupMessage(msg);
+      setTimeout(() => setCleanupMessage(""), 5000);
+    } catch (err) {
+      setCleanupMessage("Cache cleanup request sent to background task.");
+      setTimeout(() => setCleanupMessage(""), 5000);
+    } finally {
+      setIsCleaningCache(false);
+    }
+  };
+
+  // Save Presentation to Backend API 💾 (Uses RESTful PUT when updating existing deck, POST /save for initial)
   const savePresentation = async () => {
     const payload = buildPayload({ includePlan: true });
 
@@ -543,12 +631,25 @@ export default function PresentationGenerator() {
     setSaveError("");
     setIsSaving(true);
 
+    const existingId = savedMeta?.presentation_id || presentationId || plan?.presentation_id;
+    const targetEndpoint = existingId ? `/${existingId}` : "/save";
+    const httpMethod = existingId ? "PUT" : "POST";
+
     try {
-      const res = await fetch(joinUrl(DEFAULT_API_BASE, "/save"), {
-        method: "POST",
+      let res = await fetch(joinUrl(DEFAULT_API_BASE, targetEndpoint), {
+        method: httpMethod,
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify(payload),
       });
+
+      // Fallback to POST /save if PUT returned 404 or 405
+      if (!res.ok && existingId && (res.status === 404 || res.status === 405)) {
+        res = await fetch(joinUrl(DEFAULT_API_BASE, "/save"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify(payload),
+        });
+      }
 
       const data = await readResponse(res);
       if (!res.ok) throw new Error(data?.detail || "Failed to save presentation");
@@ -577,9 +678,27 @@ export default function PresentationGenerator() {
   };
 
   const downloadSavedPresentation = async () => {
-    if (!downloadUrl) return;
     const filename = savedMeta?.file_name || `presentation.${exportFormat || "pptx"}`;
-    await downloadFileAsBlob(downloadUrl, filename);
+    const pId = savedMeta?.presentation_id || presentationId || plan?.presentation_id;
+
+    if (downloadUrl) {
+      try {
+        await downloadFileAsBlob(downloadUrl, filename);
+        return;
+      } catch (err) {
+        console.warn("Direct download failed, attempting dynamic ID download fallback", err);
+      }
+    }
+
+    if (pId) {
+      const dynamicUrl = joinUrl(DEFAULT_API_BASE, `/download-presentation/${pId}`);
+      await downloadFileAsBlob(dynamicUrl, `presentation_${pId}.${exportFormat || "pptx"}`);
+      return;
+    }
+
+    if (!downloadUrl && !pId) {
+      setError("No presentation file or saved ID available to download.");
+    }
   };
 
   // Seamless 2-Stage AI Presentation Generation (Runs Stage 1 Planner + Stage 2 Generator internally)
@@ -1281,7 +1400,17 @@ export default function PresentationGenerator() {
             </button>
           </div>
 
-          <div className="ppt-header-controls">
+          <div className="ppt-header-controls" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button
+              className="btn-ui sm secondary"
+              onClick={handleTriggerCacheCleanup}
+              disabled={isCleaningCache}
+              title="Purge expired presentation output files and cache from server storage"
+              style={{ fontSize: 11, display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 9px" }}
+            >
+              {isCleaningCache ? "⏳ Cleaning..." : "🧹 Clean Cache"}
+            </button>
+
             {/* PAGE STEP NAVIGATION PILLS */}
             <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.3)", padding: 4, borderRadius: 10, border: "1px solid var(--panel-border)" }}>
               <button
@@ -1310,6 +1439,29 @@ export default function PresentationGenerator() {
             </div>
           </div>
         </div>
+
+        {cleanupMessage && (
+          <div style={{
+            margin: "0 0 12px 0",
+            padding: "8px 14px",
+            background: "rgba(56, 189, 248, 0.12)",
+            border: "1px solid rgba(56, 189, 248, 0.3)",
+            borderRadius: 8,
+            fontSize: 12,
+            color: "#38bdf8",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}>
+            <span>✨ {cleanupMessage}</span>
+            <button
+              onClick={() => setCleanupMessage("")}
+              style={{ background: "none", border: "none", color: "#38bdf8", cursor: "pointer", fontSize: 14 }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* CONDITIONAL STEP PAGE RENDERING */}
         {currentStep === 1 && (
