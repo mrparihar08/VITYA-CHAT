@@ -16,7 +16,7 @@ export const BACKGROUND_PRESETS = [
   { id: "clean_light", name: "☀️ Minimal Light", bg: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)", text: "#0f172a", accent: "#2563eb", solid_bg: "#f8fafc", bg_start: "#f8fafc", bg_end: "#e2e8f0" },
   { id: "titanium_white", name: "🏛️ Titanium White", bg: "linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #f4f4f5 100%)", text: "#18181b", accent: "#4f46e5", solid_bg: "#ffffff", bg_start: "#ffffff", bg_end: "#f4f4f5" },
   { id: "sunset_glow", name: "🌅 Sunset Glow", bg: "linear-gradient(135deg, #2e1065 0%, #701a75 50%, #9f1239 100%)", text: "#ffffff", accent: "#fb7185", solid_bg: "#2e1065", bg_start: "#2e1065", bg_end: "#9f1239" },
-  { id: "custom", name: "🎨 Custom Palette", bg: "custom", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#1e1b4b", bg_end: "#0f172a" },
+  { id: "custom", name: "🎨 Palette", bg: "custom", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#1e1b4b", bg_end: "#0f172a" },
 ];
 
 export const TABLE_THEME_PRESETS = [
@@ -1081,6 +1081,8 @@ export default function PresentationEditor({
   savedMeta,
   savePresentation,
   downloadSavedPresentation,
+  setIsSaved,
+  setDownloadUrl,
   handleDeckTitleChange,
   handleSlideTitleChange,
   handleSlideSubtitleChange,
@@ -1102,6 +1104,8 @@ export default function PresentationEditor({
 
   const handleMoveSlideToPosition = (fromIdx, toIdx) => {
     if (!setPlan || fromIdx === toIdx) return;
+    setIsSaved?.(false);
+    setDownloadUrl?.("");
     setPlan((prev) => {
       if (!prev || !Array.isArray(prev.slides)) return prev;
       const slides = [...prev.slides];
@@ -1115,23 +1119,25 @@ export default function PresentationEditor({
 
   const resolveActiveSlideLayout = (slide) => {
     if (!slide) return "title_content";
-    if (slide.layout && slide.layout !== "title_subtitle" && slide.layout !== "title_content") {
+    if (slide.layout) {
       return slide.layout;
     }
     const plugins = safeArray(slide.plugins);
     if (plugins.some((p) => p.type === "table")) return "table_focus";
     if (plugins.some((p) => p.type === "chart")) return "chart_focus";
-    if (plugins.some((p) => p.type === "image")) return "image_text";
-    if (plugins.some((p) => p.type === "paragraph_2col")) return "paragraph_2col";
+    if (plugins.some((p) => p.type === "image")) return "picture_caption";
+    if (plugins.some((p) => p.type === "paragraph_2col")) return "two_content";
     if (plugins.some((p) => p.type === "diagram")) return "table_focus";
     if (plugins.some((p) => p.type === "stat" || p.type === "kpi_grid")) return "chart_focus";
     if (plugins.some((p) => p.type === "pros_cons")) return "comparison";
     if (plugins.some((p) => p.type === "callout" || p.type === "roadmap" || p.type === "code_block" || p.type === "speaker_card")) return "content_caption";
-    return slide.layout || "title_content";
+    return "title_content";
   };
 
   const handleApplySlideLayout = (layoutType) => {
     if (!handleSlidePropertyChange) return;
+    setIsSaved?.(false);
+    setDownloadUrl?.("");
     handleSlidePropertyChange(activeSlideIndex, "layout", layoutType);
 
     const existingPlugins = safeArray(activeSlide?.plugins);
@@ -1139,16 +1145,33 @@ export default function PresentationEditor({
       handleAddPlugin(activeSlideIndex, "paragraph_2col");
     } else if (layoutType === "chart_focus" && !existingPlugins.some((p) => p.type === "chart")) {
       handleAddPlugin(activeSlideIndex, "chart");
-    } else if (layoutType === "image_text" && !existingPlugins.some((p) => p.type === "image")) {
+    } else if ((layoutType === "image_text" || layoutType === "picture_caption") && !existingPlugins.some((p) => p.type === "image")) {
       handleAddPlugin(activeSlideIndex, "image");
     } else if (layoutType === "table_focus" && !existingPlugins.some((p) => p.type === "table")) {
       handleAddPlugin(activeSlideIndex, "table");
+    } else if (layoutType === "two_content" && existingPlugins.length < 2) {
+      if (existingPlugins.length === 0) {
+        handleAddPlugin(activeSlideIndex, "bullets");
+        handleAddPlugin(activeSlideIndex, "paragraph");
+      } else {
+        handleAddPlugin(activeSlideIndex, existingPlugins[0].type === "bullets" ? "paragraph" : "bullets");
+      }
+    } else if (layoutType === "comparison" && !existingPlugins.some((p) => p.type === "pros_cons" || p.type === "paragraph_2col")) {
+      if (existingPlugins.length < 2) {
+        handleAddPlugin(activeSlideIndex, "pros_cons");
+      }
+    } else if (layoutType === "content_caption" && !existingPlugins.some((p) => p.type === "callout")) {
+      if (existingPlugins.length === 0) {
+        handleAddPlugin(activeSlideIndex, "callout");
+      }
     }
   };
 
   const handleMoveBulletPoint = (pIdx, fromBIdx, toBIdx) => {
     const plugin = activeSlide?.plugins?.[pIdx];
     if (!plugin || plugin.type !== "bullets" || !Array.isArray(plugin.data?.points)) return;
+    setIsSaved?.(false);
+    setDownloadUrl?.("");
     const points = [...plugin.data.points];
     if (fromBIdx < 0 || fromBIdx >= points.length || toBIdx < 0 || toBIdx >= points.length) return;
     const [moved] = points.splice(fromBIdx, 1);
@@ -1163,6 +1186,8 @@ export default function PresentationEditor({
 
   const handleUpdatePluginData = (pIdx, updates) => {
     if (!setPlan || pIdx === undefined || pIdx === null) return;
+    setIsSaved?.(false);
+    setDownloadUrl?.("");
     setPlan((prev) => {
       if (!prev || !Array.isArray(prev.slides)) return prev;
       const slides = [...prev.slides];
@@ -1181,6 +1206,8 @@ export default function PresentationEditor({
 
   const handleLayerOrder = (pIdx, direction) => {
     if (!setPlan || pIdx === undefined || pIdx === null) return;
+    setIsSaved?.(false);
+    setDownloadUrl?.("");
     setPlan((prev) => {
       if (!prev || !Array.isArray(prev.slides)) return prev;
       const slides = [...prev.slides];
@@ -1253,6 +1280,8 @@ export default function PresentationEditor({
 
   const handleAddSlideWithLayout = (layoutType = "title_content") => {
     if (!setPlan) return;
+    setIsSaved?.(false);
+    setDownloadUrl?.("");
     setPlan((prev) => {
       const count = (prev?.slides?.length || 0) + 1;
       const layoutObj = OFFICE_LAYOUT_PRESETS.find((l) => l.id === layoutType) || { label: "New Slide" };
@@ -1304,6 +1333,8 @@ export default function PresentationEditor({
 
   const handleAddBlankSlide = () => {
     if (!setPlan) return;
+    setIsSaved?.(false);
+    setDownloadUrl?.("");
     setPlan((prev) => {
       const newSlide = {
         title: "",
@@ -1320,12 +1351,6 @@ export default function PresentationEditor({
     });
   };
   const carouselRef = useRef(null);
-
-  useEffect(() => {
-    if (downloadUrl) {
-      setShowDownloadModal(true);
-    }
-  }, [downloadUrl]);
 
   // Keyboard Arrow Keys (◄ ►) Slide Navigation
   useEffect(() => {
@@ -1686,7 +1711,7 @@ export default function PresentationEditor({
   return (
     <>
       <div className="card-box">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
           <div className="section-label" style={{ margin: 0 }}>Slide Navigation & Feature Editor</div>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             {saveError ? (
@@ -1694,8 +1719,6 @@ export default function PresentationEditor({
                 ⚠️ {saveError}
               </span>
             ) : null}
-
-
 
             <button
               type="button"
@@ -1710,31 +1733,39 @@ export default function PresentationEditor({
                 cursor: isSaving ? "not-allowed" : "pointer",
                 boxShadow: "0 4px 12px rgba(139, 92, 246, 0.4)",
               }}
+              title={isSaved ? "All changes saved to presentation" : "Save current slide edits to backend"}
             >
-              {isSaving ? "⏳ Saving..." : isSaved ? "💾 Save Changes" : "💾 Save Presentation"}
+              {isSaving ? "⏳ Saving & Exporting PPT..." : isSaved ? "✅ Saved (Latest)" : "💾 Save Changes"}
             </button>
 
-            {isSaved || downloadUrl ? (
-              <button
-                type="button"
-                className="btn-ui primary sm"
-                onClick={() => setShowDownloadModal(true)}
-                style={{
-                  background: "linear-gradient(135deg, #10b981, #059669)",
-                  border: "none",
-                  cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.4)",
-                }}
-              >
-                📥Download
-              </button>
-            ) : null}
+            <button
+              type="button"
+              className="btn-ui primary sm"
+              onClick={async (e) => {
+                e?.preventDefault();
+                if (typeof downloadSavedPresentation === "function") {
+                  await downloadSavedPresentation();
+                } else {
+                  await handleDirectDownload(e);
+                }
+              }}
+              disabled={isSaving}
+              style={{
+                background: "linear-gradient(135deg, #10b981, #059669)",
+                border: "none",
+                cursor: isSaving ? "not-allowed" : "pointer",
+                boxShadow: "0 4px 12px rgba(16, 185, 129, 0.4)",
+              }}
+              title={!isSaved ? "Save and download updated PPT with latest edits" : "Download latest saved PPT"}
+            >
+              📥 {!isSaved ? "Save & Download PPT" : "Download PPT"}
+            </button>
           </div>
         </div>
 
         {/* DECK TITLE BAR */}
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)" }}>Presentation Deck Title:</label>
+        <div style={{ marginBottom: 8 }}>
+          <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)" }}>Presentation Deck Title:</label>
           <input
             type="text"
             value={plan?.title || ""}
@@ -1743,17 +1774,17 @@ export default function PresentationEditor({
               width: "100%",
               background: "rgba(0,0,0,0.4)",
               border: "1px solid var(--accent)",
-              borderRadius: 10,
-              padding: "10px 14px",
+              borderRadius: 8,
+              padding: "6px 12px",
               color: "#fff",
-              fontWeight: 800,
-              fontSize: 16,
-              marginTop: 4,
+              fontWeight: 700,
+              fontSize: 14,
+              marginTop: 2,
             }}
           />
         </div>
 
-        <div className="editor-workspace" style={{ display: "flex", flexDirection: "column", width: "100%", gap: 16 }}>
+        <div className="editor-workspace" style={{ display: "flex", flexDirection: "column", width: "100%", gap: 8 }}>
           {/* TAB + RIBBON CONTEXTUAL TOOLBAR (POWERPOINT / FIGMA STYLE) */}
           <SlideEditorRibbonToolbar
             activeSlide={activeSlide}
@@ -1788,124 +1819,115 @@ export default function PresentationEditor({
           />
 
 
-          {/* HORIZONTAL SLIDE SELECTION CAROUSEL BAR (ALWAYS FULL-WIDTH ON TOP) */}
-          <div className="slide-navigation-bar" style={{ background: "rgba(15, 23, 42, 0.4)", border: "1px solid var(--panel-border)", borderRadius: 14, padding: isSlidesTrayCollapsed ? "10px 14px" : 12, marginBottom: 16, overflow: "hidden", width: "100%", boxSizing: "border-box", transition: "padding 0.2s ease" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isSlidesTrayCollapsed ? 0 : 10, flexWrap: "wrap", gap: 8 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: "#c084fc", letterSpacing: 0.5 }}>
-                  Presentation Slides ({plan?.slides?.length || 0})
+          {/* 2-COLUMN WORKSPACE: LEFT = VERTICAL SLIDE LIST RAIL, RIGHT = CANVAS & FEATURES */}
+          <div className="slide-editor-main-layout">
+            {/* LEFT COLUMN: VERTICAL SLIDE LIST RAIL (Beside slide canvas on Laptop & Tablet) */}
+            <div className="slide-sidebar-rail">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2, paddingBottom: 6, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: "#c084fc", letterSpacing: 0.5 }}>
+                  Slides ({plan?.slides?.length || 0})
                 </span>
                 <button
                   type="button"
-                  onClick={() => setIsSlidesTrayCollapsed((prev) => !prev)}
-                  className="btn-ui secondary sm"
-                  style={{
-                    padding: "3px 8px",
-                    fontSize: 11,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    cursor: "pointer",
-                    borderRadius: 6,
-                    background: isSlidesTrayCollapsed ? "rgba(168, 85, 247, 0.15)" : "rgba(255, 255, 255, 0.05)",
-                    border: "1px solid rgba(168, 85, 247, 0.3)",
-                    color: isSlidesTrayCollapsed ? "#d8b4fe" : "#cbd5e1",
-                    transition: "all 0.2s ease"
-                  }}
-                  title={isSlidesTrayCollapsed ? "Slides dikhayein (Expand)" : "Slides chupayein (Collapse)"}
-                >
-                  <span style={{ fontSize: 10, display: "inline-block", transform: isSlidesTrayCollapsed ? "rotate(-90deg)" : "rotate(0deg)", transition: "transform 0.2s ease" }}>
-                    ▼
-                  </span>
-                  <span>{isSlidesTrayCollapsed ? "Show Slides" : "Hide Slides"}</span>
-                </button>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button
                   className="btn-ui primary sm"
                   onClick={handleAddBlankSlide}
-                  style={{ flexShrink: 0, padding: "5px 14px", display: "inline-flex", alignItems: "center", gap: 6 }}
-                  title="Click to add a new blank slide"
+                  style={{ padding: "3px 8px", fontSize: 11, display: "inline-flex", alignItems: "center", gap: 4 }}
+                  title="Add New Blank Slide"
                 >
-                  <span>+ Add New Slide</span>
+                  <span>+ Add Slide</span>
                 </button>
               </div>
-            </div>
 
-            {!isSlidesTrayCollapsed && (
-              <div className="slide-horizontal-carousel" ref={carouselRef}>
-                {safeArray(plan?.slides).map((slideItem, idx) => (
-                  <div
-                    key={idx}
-                    className={`slide-tab-item ${activeSlideIndex === idx ? "active" : ""}`}
-                    onClick={() => setActiveSlideIndex(idx)}
-                    draggable={true}
-                    onDragStart={(e) => {
-                      e.dataTransfer.setData("text/plain", idx.toString());
-                      e.dataTransfer.effectAllowed = "move";
-                    }}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      e.dataTransfer.dropEffect = "move";
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      const fromIdx = parseInt(e.dataTransfer.getData("text/plain"), 10);
-                      if (!isNaN(fromIdx) && fromIdx !== idx) {
-                        handleMoveSlideToPosition(fromIdx, idx);
-                      }
-                    }}
-                    style={{ cursor: "grab" }}
-                    title="Drag & Drop to reorder slide"
-                  >
-                    <div>
-                      <div className="slide-tab-number">Slide {idx + 1}</div>
-                      <div className="slide-tab-title">{slideItem.title || "Untitled Slide"}</div>
+              <div className="slide-vertical-list" ref={carouselRef}>
+                {safeArray(plan?.slides).map((slideItem, idx) => {
+                  const isCurrentActive = activeSlideIndex === idx;
+                  return (
+                    <div
+                      key={idx}
+                      className={`slide-vertical-item ${isCurrentActive ? "active" : ""}`}
+                      onClick={() => setActiveSlideIndex(idx)}
+                      draggable={true}
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("text/plain", idx.toString());
+                        e.dataTransfer.effectAllowed = "move";
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = "move";
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const fromIdx = parseInt(e.dataTransfer.getData("text/plain"), 10);
+                        if (!isNaN(fromIdx) && fromIdx !== idx) {
+                          handleMoveSlideToPosition(fromIdx, idx);
+                        }
+                      }}
+                      title="Drag & Drop to reorder slide"
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: isCurrentActive ? "#38bdf8" : "#c084fc", textTransform: "uppercase" }}>
+                          Slide {idx + 1}
+                        </span>
+                        {isCurrentActive && (
+                          <span style={{ fontSize: 9, fontWeight: 700, color: "#38bdf8", background: "rgba(56,189,248,0.15)", padding: "1px 5px", borderRadius: 4, border: "1px solid rgba(56,189,248,0.4)" }}>
+                            ACTIVE
+                          </span>
+                        )}
+                      </div>
+
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#ffffff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {slideItem.title || "Untitled Slide"}
+                      </div>
+
                       {slideItem.subtitle ? (
-                        <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <div style={{ fontSize: 9.5, color: "var(--text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {slideItem.subtitle}
                         </div>
                       ) : null}
-                    </div>
 
-                    {/* REORDER / DELETE CONTROLS */}
-                    <div style={{ display: "flex", gap: 4, marginTop: 10, width: "100%" }} onClick={(e) => e.stopPropagation()}>
-                      <button
-                        className="btn-ui secondary sm"
-                        onClick={() => handleMoveSlide(idx, -1)}
-                        disabled={idx === 0}
-                        title="Move Left"
-                        style={{ flex: 1, padding: "3px 6px", fontSize: 10, whiteSpace: "nowrap" }}
-                      >
-                        ← Left
-                      </button>
-                      <button
-                        className="btn-ui secondary sm"
-                        onClick={() => handleMoveSlide(idx, 1)}
-                        disabled={idx === (plan?.slides?.length || 0) - 1}
-                        title="Move Right"
-                        style={{ flex: 1, padding: "3px 6px", fontSize: 10, whiteSpace: "nowrap" }}
-                      >
-                        Right →
-                      </button>
-                      <button
-                        className="btn-ui danger sm"
-                        onClick={() => handleDeleteSlide(idx)}
-                        title="Delete Slide"
-                        style={{ padding: "3px 8px", fontSize: 11 }}
-                      >
-                        🗑️
-                      </button>
+                      {/* REORDER / DELETE CONTROLS */}
+                      <div style={{ display: "flex", gap: 4, marginTop: 4, width: "100%" }} onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          className="btn-ui secondary sm"
+                          onClick={() => handleMoveSlide(idx, -1)}
+                          disabled={idx === 0}
+                          title="Move Up"
+                          style={{ flex: 1, padding: "2px 4px", fontSize: 9.5, whiteSpace: "nowrap" }}
+                        >
+                          ↑ Up
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-ui secondary sm"
+                          onClick={() => handleMoveSlide(idx, 1)}
+                          disabled={idx === (plan?.slides?.length || 0) - 1}
+                          title="Move Down"
+                          style={{ flex: 1, padding: "2px 4px", fontSize: 9.5, whiteSpace: "nowrap" }}
+                        >
+                          Down ↓
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-ui danger sm"
+                          onClick={() => handleDeleteSlide(idx)}
+                          title="Delete Slide"
+                          style={{ padding: "2px 6px", fontSize: 10 }}
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-            )}
-          </div>
-           
-          {/* SELECTED SLIDE FEATURE INSPECTOR & CANVAS PREVIEW (ALWAYS BELOW SLIDE CAROUSEL) */}
-          {activeSlide ? (
-            <div className="feature-inspector-container" style={{ display: "flex", flexDirection: "column", width: "100%", gap: 16 }}>
+            </div>
+
+            {/* RIGHT COLUMN: CANVAS & FEATURE BLOCKS INSPECTOR */}
+            <div className="canvas-inspector-col">
+              {/* SELECTED SLIDE FEATURE INSPECTOR & CANVAS PREVIEW */}
+              {activeSlide ? (
+                <div className="feature-inspector-container" style={{ display: "flex", flexDirection: "column", width: "100%", gap: 12 }}>
 
               
               {/* 16:9 LIVE CANVAS DISPLAY */}
@@ -1952,9 +1974,7 @@ export default function PresentationEditor({
                         transition: "all 0.2s ease",
                       }}
                       title="Previous Slide (◂)"
-                    >◂
-                      
-                    </button>
+                    ></button>
 
                     {/* NEXT SLIDE BUTTON (RIGHT ►) */}
                     <button
@@ -1990,15 +2010,14 @@ export default function PresentationEditor({
                         transition: "all 0.2s ease",
                       }}
                       title="Next Slide (▸)"
-                    >▸
-                      
-                    </button>
+                    ></button>
 
                     <div
                       className="slide-canvas-box"
                       style={{
                         background: selectedBgConfig.bg,
                         color: selectedBgConfig.text,
+                        fontFamily: activeSlide.font_family ? `"${activeSlide.font_family}", sans-serif` : "inherit",
                         display: "flex",
                         flexDirection: "column",
                         justifyContent: isVMiddle ? "center" : isVBottom ? "flex-end" : "flex-start",
@@ -3229,23 +3248,85 @@ export default function PresentationEditor({
                       </div>
                     );
 
+                    const nonShapePlugins = plugins.filter((p) => p.type !== "shape");
+                    const shapePlugins = plugins.filter((p) => p.type === "shape");
+                    const currentLayout = activeSlide.layout || "title_content";
+
+                    const isTwoCol = currentLayout === "two_content" || currentLayout === "comparison" || (nonShapePlugins.length === 2 && !hasImage && currentLayout !== "content_caption");
+                    const isCaptionLayout = (currentLayout === "content_caption" || currentLayout === "picture_caption") && nonShapePlugins.length === 2;
+
                     if (hasImage && hasText) {
                       const textPlugins = plugins.filter((p) => p.type === "bullets" || p.type === "paragraph" || p.type === "subtitle" || p.type === "text");
                       const imagePlugins = plugins.filter((p) => p.type === "image");
-                      const shapePlugins = plugins.filter((p) => p.type === "shape");
                       const otherPlugins = plugins.filter((p) => p.type !== "bullets" && p.type !== "paragraph" && p.type !== "subtitle" && p.type !== "text" && p.type !== "image" && p.type !== "shape");
 
                       return (
                         <div style={{ display: "flex", flexDirection: "column", gap: 10, position: "relative" }}>
-                          <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 16, alignItems: "center" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: currentLayout === "picture_caption" ? "0.9fr 1.1fr" : "1.1fr 0.9fr", gap: 16, alignItems: "center" }}>
                             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                              {textPlugins.map((p, pIdx) => renderPluginItem(p, `txt-${pIdx}`))}
+                              {textPlugins.map((p, pIdx) => renderPluginItem(p, plugins.indexOf(p)))}
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                              {imagePlugins.map((p, pIdx) => renderPluginItem(p, `img-${pIdx}`))}
+                              {imagePlugins.map((p, pIdx) => renderPluginItem(p, plugins.indexOf(p)))}
                             </div>
                           </div>
-                          {otherPlugins.map((p, pIdx) => renderPluginItem(p, `oth-${pIdx}`))}
+                          {otherPlugins.map((p, pIdx) => renderPluginItem(p, plugins.indexOf(p)))}
+                          {shapePlugins.map((p, sIdx) => {
+                            const actualIdx = plugins.indexOf(p);
+                            return (
+                              <InteractiveShapeItem
+                                key={`shp-${sIdx}`}
+                                plugin={p}
+                                pIdx={actualIdx}
+                                isSelected={selectedPluginIndex === actualIdx}
+                                onSelect={(idx) => setSelectedPluginIndex(idx)}
+                                onUpdateData={handleUpdatePluginData}
+                              />
+                            );
+                          })}
+                        </div>
+                      );
+                    }
+
+                    if (isTwoCol && nonShapePlugins.length === 2) {
+                      return (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10, position: "relative" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, alignItems: "stretch" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                              {renderPluginItem(nonShapePlugins[0], plugins.indexOf(nonShapePlugins[0]))}
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                              {renderPluginItem(nonShapePlugins[1], plugins.indexOf(nonShapePlugins[1]))}
+                            </div>
+                          </div>
+                          {shapePlugins.map((p, sIdx) => {
+                            const actualIdx = plugins.indexOf(p);
+                            return (
+                              <InteractiveShapeItem
+                                key={`shp-${sIdx}`}
+                                plugin={p}
+                                pIdx={actualIdx}
+                                isSelected={selectedPluginIndex === actualIdx}
+                                onSelect={(idx) => setSelectedPluginIndex(idx)}
+                                onUpdateData={handleUpdatePluginData}
+                              />
+                            );
+                          })}
+                        </div>
+                      );
+                    }
+
+                    if (isCaptionLayout && nonShapePlugins.length === 2) {
+                      return (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10, position: "relative" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.8fr", gap: 16, alignItems: "center" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                              {renderPluginItem(nonShapePlugins[0], plugins.indexOf(nonShapePlugins[0]))}
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                              {renderPluginItem(nonShapePlugins[1], plugins.indexOf(nonShapePlugins[1]))}
+                            </div>
+                          </div>
                           {shapePlugins.map((p, sIdx) => {
                             const actualIdx = plugins.indexOf(p);
                             return (
@@ -3446,144 +3527,6 @@ export default function PresentationEditor({
           );
           })()}
 
-              {/* SLIDE BASIC & FORMATTING PROPERTIES */}
-              <div className="card-box" style={{ background: "rgba(0,0,0,0.3)" }}>
-                <div style={{ fontWeight: 800, fontSize: 13, color: "#c084fc", marginBottom: 10 }}>
-                  ✏️ Edit Slide {activeSlideIndex + 1} General Info & Title Styling:
-                </div>
-                <div className="title-subtitle-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)" }}>Slide Main Title:</label>
-                    <input
-                      type="text"
-                      value={activeSlide.title || ""}
-                      onChange={(e) => handleSlideTitleChange(activeSlideIndex, e.target.value)}
-                      style={{ width: "100%", boxSizing: "border-box", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)" }}>Slide Subtitle / Tagline:</label>
-                    <input
-                      type="text"
-                      value={activeSlide.subtitle || ""}
-                      onChange={(e) => handleSlideSubtitleChange(activeSlideIndex, e.target.value)}
-                      placeholder="e.g. Overview & Key Metrics"
-                      style={{ width: "100%", boxSizing: "border-box", background: "rgba(0,0,0,0.4)", border: "1px solid var(--panel-border)", borderRadius: 8, padding: 8, color: "#fff", fontSize: 13 }}
-                    />
-                  </div>
-                </div>
-
-                {/* TITLE & SUBTITLE FORMATTING BAR */}
-                <div className="title-subtitle-formatting-bar" style={{ marginTop: 10, paddingTop: 10, borderTop: "1px dashed rgba(255,255,255,0.1)", display: "flex", gap: 16, alignItems: "flex-end", flexWrap: "wrap", justifyContent: "flex-start" }}>
-                  {/* TITLE CONTROLS */}
-                  <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
-                    <div style={{ fontSize: 12, fontWeight: "700", color: "#c084fc", marginBottom: "5px" }}>Title:</div>
-                    <div>
-                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>Font Size (Pt):</label>
-                      <input
-                        type="number"
-                        min="14"
-                        max="60"
-                        value={activeSlide.title_font_size || (activeSlideIndex === 0 ? 50 : 29)}
-                        onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_font_size", Number(e.target.value))}
-                        style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 70, height: 28, boxSizing: "border-box" }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>Font Color:</label>
-                      <div style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 2, display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 28, boxSizing: "border-box" }}>
-                        <input
-                          type="color"
-                          value={activeSlide.title_color || "#ffffff"}
-                          onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_color", e.target.value)}
-                          style={{ border: "none", width: 26, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>H-Align:</label>
-                      <select
-                        value={activeSlide.title_align || "auto"}
-                        onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_align", e.target.value)}
-                        style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 95, height: 28, boxSizing: "border-box" }}
-                      >
-                       
-                        <option value="left">Left</option>
-                        <option value="center">Center</option>
-                        <option value="right">Right</option>
-                        <option value="justify">Justify</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>V-Align:</label>
-                      <select
-                        value={activeSlide.title_valign || "auto"}
-                        onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "title_valign", e.target.value)}
-                        style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 95, height: 28, boxSizing: "border-box" }}
-                      >
-                       
-                        <option value="top">Top</option>
-                        <option value="middle">Middle</option>
-                        <option value="bottom">Bottom</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* SUBTITLE CONTROLS */}
-                  <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
-                    <div style={{ fontSize: 12, fontWeight: "700", color: "#c084fc", marginBottom: "5px" }}>Subtitle:</div>
-                    <div>
-                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>Font Size (Pt):</label>
-                      <input
-                        type="number"
-                        min="10"
-                        max="36"
-                        value={activeSlide.subtitle_font_size || 23}
-                        onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_font_size", Number(e.target.value))}
-                        style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 70, height: 28, boxSizing: "border-box" }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>Font Color:</label>
-                      <div style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 2, display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 28, boxSizing: "border-box" }}>
-                        <input
-                          type="color"
-                          value={activeSlide.subtitle_color || "#94a3b8"}
-                          onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_color", e.target.value)}
-                          style={{ border: "none", width: 26, height: 22, borderRadius: 4, cursor: "pointer", background: "none" }}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>H-Align:</label>
-                      <select
-                        value={activeSlide.subtitle_align || "auto"}
-                        onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_align", e.target.value)}
-                        style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 95, height: 28, boxSizing: "border-box" }}
-                      >
-                       
-                        <option value="left">Left</option>
-                        <option value="center">Center</option>
-                        <option value="right">Right</option>
-                        <option value="justify">Justify</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 11, fontWeight: "500", color: "rgba(255,255,255,0.65)", marginBottom: 4, display: "block" }}>V-Align:</label>
-                      <select
-                        value={activeSlide.subtitle_valign || "auto"}
-                        onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "subtitle_valign", e.target.value)}
-                        style={{ background: "#090d16", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "4px 8px", color: "#fff", fontSize: 12, width: 95, height: 28, boxSizing: "border-box" }}
-                      >
-                        
-                        <option value="top">Top</option>
-                        <option value="middle">Middle</option>
-                        <option value="bottom">Bottom</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
                
               {/* EDITABLE FEATURE BLOCKS LIST */}
               <div>
@@ -5397,6 +5340,8 @@ export default function PresentationEditor({
           ) : null}
         </div>
       </div>
+    </div>
+  </div>
 
       {/* DOWNLOAD SUCCESS POPUP MODAL 🎁 */}
       {showDownloadModal && (
@@ -5518,10 +5463,14 @@ export default function PresentationEditor({
                 className="btn-ui primary"
                 onClick={async (e) => {
                   e?.preventDefault();
-                  await handleDirectDownload(e);
+                  if (typeof downloadSavedPresentation === "function") {
+                    await downloadSavedPresentation();
+                  } else {
+                    await handleDirectDownload(e);
+                  }
                   setShowDownloadModal(false);
                 }}
-                disabled={loadingGenerate}
+                disabled={isSaving || loadingGenerate}
                 style={{
                   flex: 1,
                   padding: "13px 24px",
@@ -5529,12 +5478,12 @@ export default function PresentationEditor({
                   fontWeight: 800,
                   color: "#ffffff",
                   WebkitTextFillColor: "#ffffff",
-                  background: loadingGenerate
+                  background: (isSaving || loadingGenerate)
                     ? "linear-gradient(135deg, #4b5563, #374151)"
                     : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
                   border: "none",
                   borderRadius: 14,
-                  cursor: loadingGenerate ? "not-allowed" : "pointer",
+                  cursor: (isSaving || loadingGenerate) ? "not-allowed" : "pointer",
                   boxShadow: "0 8px 24px rgba(16, 185, 129, 0.4)",
                   display: "inline-flex",
                   alignItems: "center",
@@ -5542,20 +5491,8 @@ export default function PresentationEditor({
                   gap: 8,
                   transition: "all 0.2s ease",
                 }}
-                onMouseEnter={(e) => {
-                  if (!loadingGenerate) {
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow = "0 12px 28px rgba(16, 185, 129, 0.5)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!loadingGenerate) {
-                    e.currentTarget.style.transform = "none";
-                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(16, 185, 129, 0.4)";
-                  }
-                }}
               >
-                {loadingGenerate ? "⏳ Compiling PPTX..." : "📥 Download Now"}
+                {isSaving ? "⏳ Saving & Compiling PPTX..." : "📥 Download Latest PPT"}
               </button>
             </div>
           </div>

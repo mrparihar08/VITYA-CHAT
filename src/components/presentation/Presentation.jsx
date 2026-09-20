@@ -41,9 +41,12 @@ function resolveDownloadUrl(path) {
 export async function downloadFileAsBlob(url, filename = "presentation.pptx") {
   if (!url) return;
   const targetUrl = ensureHttpsExceptLocal(url);
+  const cacheBustUrl = targetUrl.includes("?")
+    ? `${targetUrl}&_t=${Date.now()}`
+    : `${targetUrl}?_t=${Date.now()}`;
 
   try {
-    const res = await fetch(targetUrl);
+    const res = await fetch(cacheBustUrl, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const blob = await res.blob();
     const blobUrl = window.URL.createObjectURL(blob);
@@ -57,7 +60,7 @@ export async function downloadFileAsBlob(url, filename = "presentation.pptx") {
     setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000);
   } catch (err) {
     console.warn("Blob download failed, using direct window open fallback", err);
-    window.open(targetUrl, "_blank");
+    window.open(cacheBustUrl, "_blank");
   }
 }
 
@@ -184,6 +187,96 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
           type: "notes",
           data: { ...pluginData, notes: String(pluginData.notes || "").trim() },
         });
+      } else if (p.type === "shape") {
+        plugins.push({
+          type: "shape",
+          data: {
+            ...pluginData,
+            shape_type: pluginData.shape_type || pluginData.type || "rectangle",
+            fill_color: pluginData.fill_color || pluginData.fill || "#38bdf8",
+            stroke_color: pluginData.stroke_color || pluginData.stroke || "#0284c7",
+            stroke_width: Number(pluginData.stroke_width || pluginData.line_width) || 1.5,
+            x: Number(pluginData.x !== undefined ? pluginData.x : pluginData.left) || 0.8,
+            y: Number(pluginData.y !== undefined ? pluginData.y : pluginData.top) || 1.8,
+            width: Number(pluginData.width || pluginData.w) || 3.0,
+            height: Number(pluginData.height || pluginData.h) || 1.8,
+            text: String(pluginData.text || "").trim(),
+          },
+        });
+      } else if (p.type === "callout") {
+        plugins.push({
+          type: "callout",
+          data: {
+            ...pluginData,
+            title: String(pluginData.title || "KEY TAKEAWAY").trim(),
+            text: String(pluginData.text || "").trim(),
+            icon: String(pluginData.icon || "💡").trim(),
+            variant: pluginData.variant || "info",
+          },
+        });
+      } else if (p.type === "kpi_grid") {
+        const rawKpis = safeArray(pluginData.items || pluginData.kpis);
+        plugins.push({
+          type: "kpi_grid",
+          data: {
+            ...pluginData,
+            title: String(pluginData.title || "Key Performance Indicators").trim(),
+            kpis: rawKpis.map((k) => ({
+              number: String(k.number || "0").trim(),
+              label: String(k.label || "Metric").trim(),
+              trend: String(k.trend || k.change || "").trim(),
+            })),
+            items: rawKpis,
+          },
+        });
+      } else if (p.type === "pros_cons") {
+        plugins.push({
+          type: "pros_cons",
+          data: {
+            ...pluginData,
+            title: String(pluginData.title || "Pros & Cons Analysis").trim(),
+            pros_title: String(pluginData.pros_title || "✅ STRENGTHS & ADVANTAGES").trim(),
+            pros: safeArray(pluginData.pros).map((x) => String(x).trim()).filter(Boolean),
+            cons_title: String(pluginData.cons_title || "❌ CHALLENGES & CONSIDERATIONS").trim(),
+            cons: safeArray(pluginData.cons).map((x) => String(x).trim()).filter(Boolean),
+          },
+        });
+      } else if (p.type === "roadmap") {
+        const rawSteps = safeArray(pluginData.steps || pluginData.phases);
+        plugins.push({
+          type: "roadmap",
+          data: {
+            ...pluginData,
+            title: String(pluginData.title || "Roadmap Timeline").trim(),
+            phases: rawSteps.map((s) => ({
+              phase: String(s.phase || "Phase").trim(),
+              title: String(s.title || "Milestone").trim(),
+              status: String(s.status || "PLANNED").trim(),
+              description: String(s.description || "").trim(),
+            })),
+            steps: rawSteps,
+          },
+        });
+      } else if (p.type === "code_block") {
+        plugins.push({
+          type: "code_block",
+          data: {
+            ...pluginData,
+            title: String(pluginData.title || "Code Snippet").trim(),
+            code: String(pluginData.code || "").trim(),
+            language: String(pluginData.language || "python").trim(),
+          },
+        });
+      } else if (p.type === "speaker_card") {
+        plugins.push({
+          type: "speaker_card",
+          data: {
+            ...pluginData,
+            name: String(pluginData.name || "Speaker Name").trim(),
+            role: String(pluginData.role || "Keynote Presenter").trim(),
+            bio: safeArray(pluginData.bio).map((b) => String(b).trim()).filter(Boolean),
+          },
+        });
       } else {
         plugins.push({
           type: p.type,
@@ -200,9 +293,11 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
       title_font_size: slide.title_font_size,
       title_bold: slide.title_bold,
       title_align: slide.title_align,
+      title_valign: slide.title_valign,
       subtitle_color: slide.subtitle_color,
       subtitle_font_size: slide.subtitle_font_size,
       subtitle_align: slide.subtitle_align,
+      subtitle_valign: slide.subtitle_valign,
       font_family: slide.font_family,
       effect: slide.effect,
       card_effect: slide.card_effect,
@@ -585,7 +680,7 @@ export default function PresentationGenerator({ presentationId = null }) {
       allow_bullets: true,
       allow_chart: allowChart,
       allow_section_slide: true,
-      plan: planPreview?.structured_plan || sanitizedPlan,
+      plan: sanitizedPlan || planPreview?.structured_plan || planPreview?.plan,
       brand_logo: useCustomBrand ? brandLogo : undefined,
       brand_color: useCustomBrand ? brandColor : undefined,
       brand_secondary_color: useCustomBrand ? brandSecondaryColor : undefined,
@@ -624,7 +719,7 @@ export default function PresentationGenerator({ presentationId = null }) {
 
     if (!payload.prompt || !payload.prompt.trim()) {
       setError("Please describe the presentation you want to create.");
-      return;
+      return { success: false, error: "Prompt required" };
     }
 
     setError("");
@@ -667,23 +762,47 @@ export default function PresentationGenerator({ presentationId = null }) {
         title: plan?.title || "Your presentation deck",
         slides: previewCount || slideCount,
       });
+      // Keep planPreview in sync with the saved structured plan
+      if (data.structured_plan || data.plan) {
+        setPlanPreview((prev) => (prev ? { ...prev, structured_plan: data.structured_plan, plan: data.plan } : null));
+      }
       setIsSaved(true);
+      return {
+        success: true,
+        downloadUrl: fullUrl,
+        fileName: data.file_name || `presentation.${ext}`,
+        presentationId: data.presentation_id,
+      };
     } catch (err) {
       const errMsg = err?.message || "Something went wrong saving presentation";
       setSaveError(errMsg);
       setError(errMsg);
+      return { success: false, error: errMsg };
     } finally {
       setIsSaving(false);
     }
   };
 
   const downloadSavedPresentation = async () => {
-    const filename = savedMeta?.file_name || `presentation.${exportFormat || "pptx"}`;
-    const pId = savedMeta?.presentation_id || presentationId || plan?.presentation_id;
+    let currentDownloadUrl = downloadUrl;
+    let currentFilename = savedMeta?.file_name || `presentation.${exportFormat || "pptx"}`;
+    let pId = savedMeta?.presentation_id || presentationId || plan?.presentation_id;
 
-    if (downloadUrl) {
+    // 🚀 If there are unsaved edits or no download URL yet, save and re-render first!
+    if (!isSaved || !currentDownloadUrl) {
+      const saveRes = await savePresentation();
+      if (saveRes && saveRes.success) {
+        currentDownloadUrl = saveRes.downloadUrl;
+        currentFilename = saveRes.fileName || currentFilename;
+        pId = saveRes.presentationId || pId;
+      } else {
+        return;
+      }
+    }
+
+    if (currentDownloadUrl) {
       try {
-        await downloadFileAsBlob(downloadUrl, filename);
+        await downloadFileAsBlob(currentDownloadUrl, currentFilename);
         return;
       } catch (err) {
         console.warn("Direct download failed, attempting dynamic ID download fallback", err);
@@ -696,7 +815,7 @@ export default function PresentationGenerator({ presentationId = null }) {
       return;
     }
 
-    if (!downloadUrl && !pId) {
+    if (!currentDownloadUrl && !pId) {
       setError("No presentation file or saved ID available to download.");
     }
   };
@@ -749,17 +868,15 @@ export default function PresentationGenerator({ presentationId = null }) {
         setPlan(data1.plan);
       }
 
-      if (data2.download_url) {
-        const fullUrl = resolveDownloadUrl(data2.download_url);
-        setDownloadUrl(fullUrl);
-        setSavedMeta({
-          presentation_id: data2.job_id || "gen_stage2",
-          file_name: data2.file_name || "presentation.pptx",
-          download_url: fullUrl,
-          message: "Presentation deck generated successfully",
-        });
-        setIsSaved(true);
-      }
+      // Keep in draft mode so user can review and edit before saving / downloading
+      setSavedMeta({
+        presentation_id: data2.job_id || "gen_stage2",
+        file_name: data2.file_name || "presentation.pptx",
+        download_url: "",
+        message: "Presentation generated as draft. Review and edit, then click Save to export PPT.",
+      });
+      setDownloadUrl("");
+      setIsSaved(false);
 
       setGeneratedMeta({
         title: data2.title || data1.topic || "Presentation Deck",
@@ -775,12 +892,16 @@ export default function PresentationGenerator({ presentationId = null }) {
     }
   };
 
-  // SLIDE MANAGEMENT HANDLERS ✏️
+  // SLIDE MANAGEMENT HANDLERS ✏️ (All modifications mark deck as unsaved draft)
   const handleDeckTitleChange = (newTitle) => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => (prev ? { ...prev, title: newTitle } : prev));
   };
 
   const handleSlideTitleChange = (index, newTitle) => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => {
       if (!prev) return prev;
       const slides = [...prev.slides];
@@ -790,6 +911,8 @@ export default function PresentationGenerator({ presentationId = null }) {
   };
 
   const handleSlideSubtitleChange = (index, newSubtitle) => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => {
       if (!prev) return prev;
       const slides = [...prev.slides];
@@ -799,6 +922,8 @@ export default function PresentationGenerator({ presentationId = null }) {
   };
 
   const handleSlidePropertyChange = (index, key, value) => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => {
       if (!prev) return prev;
       const slides = [...prev.slides];
@@ -808,6 +933,8 @@ export default function PresentationGenerator({ presentationId = null }) {
   };
 
   const handleAddSlide = () => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => {
       const count = (prev?.slides?.length || 0) + 1;
       const newSlide = {
@@ -831,6 +958,8 @@ export default function PresentationGenerator({ presentationId = null }) {
   };
 
   const handleDuplicateSlide = (index) => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => {
       if (!prev) return prev;
       const slideCopy = JSON.parse(JSON.stringify(prev.slides[index]));
@@ -843,6 +972,8 @@ export default function PresentationGenerator({ presentationId = null }) {
   };
 
   const handleDeleteSlide = (index) => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => {
       if (!prev) return prev;
       const slides = prev.slides.filter((_, i) => i !== index);
@@ -854,6 +985,8 @@ export default function PresentationGenerator({ presentationId = null }) {
   };
 
   const handleMoveSlide = (index, direction) => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => {
       if (!prev) return prev;
       const slides = [...prev.slides];
@@ -869,6 +1002,8 @@ export default function PresentationGenerator({ presentationId = null }) {
 
   // FEATURE PLUGIN HANDLERS 
   const handlePluginTextChange = (slideIndex, pluginIndex, key, value, bulletIndex = null) => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => {
       if (!prev) return prev;
       const slides = [...prev.slides];
@@ -894,6 +1029,8 @@ export default function PresentationGenerator({ presentationId = null }) {
   };
 
   const handleChartDataChange = (slideIndex, pluginIndex, field, rawInput) => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => {
       if (!prev) return prev;
       const slides = [...prev.slides];
@@ -924,6 +1061,8 @@ export default function PresentationGenerator({ presentationId = null }) {
   };
 
   const handleAddBullet = (slideIndex, pluginIndex) => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => {
       if (!prev) return prev;
       const slides = [...prev.slides];
@@ -940,6 +1079,8 @@ export default function PresentationGenerator({ presentationId = null }) {
   };
 
   const handleDeleteBullet = (slideIndex, pluginIndex, bulletIndex) => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => {
       if (!prev) return prev;
       const slides = [...prev.slides];
@@ -955,33 +1096,54 @@ export default function PresentationGenerator({ presentationId = null }) {
     });
   };
 
-  const handleAddPlugin = (slideIndex, pluginType) => {
+  const handleAddPlugin = (slideIndex, pluginType, initialData = {}) => {
+    setIsSaved(false);
+    setDownloadUrl("");
     setPlan((prev) => {
       if (!prev) return prev;
       const slides = [...prev.slides];
       const slide = { ...slides[slideIndex] };
       const plugins = [...slide.plugins];
 
-      let newPlugin = { type: pluginType, data: {} };
-      if (pluginType === "text") {
-        newPlugin.data = { text: "Section Header" };
+      let newPlugin = { type: pluginType, data: { ...initialData } };
+      if (pluginType === "shape") {
+        newPlugin.data = {
+          shape_type: initialData.shape_type || initialData.shape || "rectangle",
+          fill_color: initialData.fill_color || initialData.fill || "#38bdf8",
+          stroke_color: initialData.stroke_color || initialData.stroke || "#0284c7",
+          stroke_width: initialData.stroke_width !== undefined ? initialData.stroke_width : 2,
+          opacity: initialData.opacity !== undefined ? initialData.opacity : 1.0,
+          text: initialData.text || "",
+          text_color: initialData.text_color || "#ffffff",
+          font_size: initialData.font_size || 14,
+          x: initialData.x !== undefined ? initialData.x : 0.8,
+          y: initialData.y !== undefined ? initialData.y : 1.8,
+          width: initialData.width || 3.0,
+          height: initialData.height || 1.8,
+          rotation: initialData.rotation || 0,
+          ...initialData
+        };
+      } else if (pluginType === "text") {
+        newPlugin.data = { text: "Section Header", ...initialData };
       } else if (pluginType === "chart") {
         newPlugin.data = {
           chart_type: "bar",
           title: "Quarterly Performance",
           labels: ["Q1", "Q2", "Q3", "Q4"],
-          values: [40, 65, 85, 95]
+          values: [40, 65, 85, 95],
+          ...initialData
         };
       } else if (pluginType === "image") {
         newPlugin.data = {
           url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600",
           caption: "Technology Visual Element",
-          align: "center"
+          align: "center",
+          ...initialData
         };
       } else if (pluginType === "bullets") {
-        newPlugin.data = { points: ["Key bullet item 1", "Key bullet item 2"] };
+        newPlugin.data = { points: ["Key bullet item 1", "Key bullet item 2"], ...initialData };
       } else if (pluginType === "paragraph") {
-        newPlugin.data = { text: "Enter descriptive paragraph narrative here..." };
+        newPlugin.data = { text: "Enter descriptive paragraph narrative here...", ...initialData };
       } else if (pluginType === "paragraph_2col") {
         newPlugin.data = {
           items: [
@@ -991,14 +1153,15 @@ export default function PresentationGenerator({ presentationId = null }) {
           left_title: "Left Column Concept",
           left_text: "First detailed paragraph narrative for the left column...",
           right_title: "Right Column Concept",
-          right_text: "Second detailed paragraph narrative for the right column..."
+          right_text: "Second detailed paragraph narrative for the right column...",
+          ...initialData
         };
       } else if (pluginType === "stat") {
-        newPlugin.data = { number: "95%", label: "Key Metric / Growth Rate" };
+        newPlugin.data = { number: "95%", label: "Key Metric / Growth Rate", ...initialData };
       } else if (pluginType === "notes") {
-        newPlugin.data = { notes: "Speaker notes for presentation..." };
+        newPlugin.data = { notes: "Speaker notes for presentation...", ...initialData };
       } else if (pluginType === "diagram") {
-        newPlugin.data = { diagram: "[Input Data] ➔ [Processing Engine] ➔ [Model Inference] ➔ [Output Analytics]" };
+        newPlugin.data = { diagram: "[Input Data] ➔ [Processing Engine] ➔ [Model Inference] ➔ [Output Analytics]", ...initialData };
       } else if (pluginType === "table") {
         newPlugin.data = {
           title: "Feature Comparison Matrix",
@@ -1007,13 +1170,15 @@ export default function PresentationGenerator({ presentationId = null }) {
             ["Performance", "High (99.9% Uptime)", "Standard"],
             ["Cost Tier", "Enterprise", "Pay-as-you-go"],
             ["Security", "Advanced Encryption", "Standard OAuth"]
-          ]
+          ],
+          ...initialData
         };
       } else if (pluginType === "callout") {
         newPlugin.data = {
           text: "AI automation accelerated operational throughput by 45% across enterprise services.",
           title: "KEY TAKEAWAY",
-          icon: "💡"
+          icon: "💡",
+          ...initialData
         };
       } else if (pluginType === "kpi_grid") {
         newPlugin.data = {
@@ -1022,14 +1187,16 @@ export default function PresentationGenerator({ presentationId = null }) {
             { number: "99.99%", label: "SLA Uptime", trend: "+0.5% ↗" },
             { number: "450K", label: "Active Users", trend: "+18% ↗" },
             { number: "< 12ms", label: "API Latency", trend: "-25% ↘" }
-          ]
+          ],
+          ...initialData
         };
       } else if (pluginType === "pros_cons") {
         newPlugin.data = {
           pros_title: "✅ STRENGTHS & ADVANTAGES",
           pros: ["High Horizontal Scalability", "Low Query Latency", "Zero Downtime Deployments"],
           cons_title: "❌ CHALLENGES & CONSIDERATIONS",
-          cons: ["Initial Setup Overhead", "Cloud Migration Refactoring Effort"]
+          cons: ["Initial Setup Overhead", "Cloud Migration Refactoring Effort"],
+          ...initialData
         };
       } else if (pluginType === "roadmap") {
         newPlugin.data = {
@@ -1038,19 +1205,22 @@ export default function PresentationGenerator({ presentationId = null }) {
             { phase: "Q2 2026", title: "Platform Core Build", status: "IN PROGRESS" },
             { phase: "Q3 2026", title: "Market Beta Testing", status: "PLANNED" },
             { phase: "Q4 2026", title: "Global Enterprise Scale", status: "PLANNED" }
-          ]
+          ],
+          ...initialData
         };
       } else if (pluginType === "code_block") {
         newPlugin.data = {
           code: "async def get_presentation_telemetry(job_id: str):\n    result = await service.fetch(job_id)\n    return {\"status\": \"ok\", \"telemetry\": result}",
           title: "api_router.py",
-          language: "python"
+          language: "python",
+          ...initialData
         };
       } else if (pluginType === "speaker_card") {
         newPlugin.data = {
           name: "Dr. Alex Vance",
           role: "Chief AI Architect & Principal Engineer",
-          bio: ["Lead Architect at Antigravity AI Systems", "15+ Years Distributed Systems Experience"]
+          bio: ["Lead Architect at Antigravity AI Systems", "15+ Years Distributed Systems Experience"],
+          ...initialData
         };
       }
 
@@ -1099,12 +1269,12 @@ export default function PresentationGenerator({ presentationId = null }) {
           background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 60%, var(--bg-0) 100%);
         }
 
-        .ppt-shell { min-height: 100vh; padding: 20px; width: 100%; max-width: 100%; margin: 0; }
+        .ppt-shell { min-height: 100vh; padding: 10px 14px; width: 100%; max-width: 100%; margin: 0; }
 
         @media (max-width: 768px) {
           .ppt-shell { padding: 4px !important; }
-          .card-box { padding: 10px 6px !important; border-radius: 12px !important; }
-          .ppt-header-bar { padding: 10px 12px !important; border-radius: 12px !important; }
+          .card-box { padding: 8px 6px !important; border-radius: 10px !important; }
+          .ppt-header-bar { padding: 8px 10px !important; border-radius: 10px !important; }
           .feature-block-card { padding: 8px 6px !important; margin-bottom: 8px !important; }
           .slide-canvas-box { aspect-ratio: 16 / 10 !important; width: 100% !important; min-height: 250px !important; padding: 12px 10px !important; border-radius: 12px !important; box-sizing: border-box !important; }
           .slide-canvas-box h2 { font-size: clamp(14px, 3.8vw, 18px) !important; margin: 3px 0 2px !important; line-height: 1.25 !important; }
@@ -1119,12 +1289,12 @@ export default function PresentationGenerator({ presentationId = null }) {
           justify-content: space-between;
           align-items: center;
           flex-wrap: wrap;
-          gap: 14px;
+          gap: 10px;
           background: rgba(15, 23, 42, 0.9);
           border: 1px solid var(--panel-border);
-          border-radius: var(--radius-lg);
-          padding: 16px 24px;
-          margin-bottom: 20px;
+          border-radius: 12px;
+          padding: 8px 16px;
+          margin-bottom: 10px;
           backdrop-filter: blur(16px);
         }
 
@@ -1134,7 +1304,7 @@ export default function PresentationGenerator({ presentationId = null }) {
 
         .ppt-header-title h1 {
           margin: 0;
-          font-size: 22px;
+          font-size: 20px;
           font-weight: 800;
           background: linear-gradient(135deg, #c084fc, #60a5fa);
           -webkit-background-clip: text;
@@ -1142,15 +1312,15 @@ export default function PresentationGenerator({ presentationId = null }) {
           white-space: nowrap;
         }
         .ppt-header-title p {
-          margin: 4px 0 0;
-          font-size: 13px;
+          margin: 2px 0 0;
+          font-size: 12px;
           color: var(--text-muted);
           white-space: nowrap;
         }
 
         .ppt-header-controls {
           display: flex;
-          gap: 10px;
+          gap: 8px;
           align-items: center;
           flex-wrap: wrap;
         }
@@ -1158,8 +1328,8 @@ export default function PresentationGenerator({ presentationId = null }) {
         .card-box {
           background: var(--panel);
           border: 1px solid var(--panel-border);
-          border-radius: var(--radius-lg);
-          padding: 20px;
+          border-radius: 12px;
+          padding: 12px 16px;
           backdrop-filter: blur(16px);
           box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
@@ -1546,6 +1716,8 @@ export default function PresentationGenerator({ presentationId = null }) {
             savedMeta={savedMeta}
             savePresentation={savePresentation}
             downloadSavedPresentation={downloadSavedPresentation}
+            setIsSaved={setIsSaved}
+            setDownloadUrl={setDownloadUrl}
             handleDeckTitleChange={handleDeckTitleChange}
             handleSlideTitleChange={handleSlideTitleChange}
             handleSlideSubtitleChange={handleSlideSubtitleChange}

@@ -4,17 +4,26 @@ import { API_BASE_URL } from "../../services/api";
 
 const DEFAULT_TEMPLATE_PREVIEWS = [
   { id: "base_template", name: "Default Slate Teal", bg: "linear-gradient(135deg, #0f172a 0%, #115e59 100%)", accent: "#2dd4bf", badge: "TEAL", category: "Corporate" },
-  { id: "ion_boardroom", name: "Ion Boardroom", bg: "linear-gradient(135deg, #090d16 0%, #31104b 100%)", accent: "#ec4899", badge: "ION", category: "Corporate" },
+  { id: "sidebar_executive", name: "Executive Sidebar Rail", bg: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", accent: "#38bdf8", badge: "RAIL", category: "Corporate" },
+  { id: "corporate_light", name: "Corporate Light", bg: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)", accent: "#0284c7", badge: "LIGHT", category: "Corporate" },
+  { id: "executive_gold", name: "Executive Gold", bg: "linear-gradient(135deg, #1c1917 0%, #78350f 100%)", accent: "#fbbf24", badge: "GOLD", category: "Corporate" },
+  { id: "ion_boardroom", name: "Ion Boardroom", bg: "linear-gradient(135deg, #090d16 0%, #31104b 100%)", accent: "#ec4899", badge: "ION", category: "Modern" },
   { id: "berlin_executive", name: "Berlin Executive", bg: "linear-gradient(135deg, #18181b 0%, #27272a 100%)", accent: "#f97316", badge: "EXEC", category: "Corporate" },
-  { id: "quotable_teal", name: "Quotable Teal", bg: "linear-gradient(135deg, #042f2e 0%, #0f766e 100%)", accent: "#06b6d4", badge: "QUOTE", category: "Corporate" },
+  { id: "quotable_teal", name: "Quotable Teal", bg: "linear-gradient(135deg, #042f2e 0%, #0f766e 100%)", accent: "#06b6d4", badge: "QUOTE", category: "Editorial" },
   { id: "geometric_block", name: "Geometric Color Block", bg: "linear-gradient(135deg, #3b0764 0%, #1e1b4b 100%)", accent: "#3b82f6", badge: "GEO", category: "Modern & Geometric" },
-  { id: "circuit_cyber", name: "Circuit Tech Cyber", bg: "linear-gradient(135deg, #09090b 0%, #581c87 100%)", accent: "#22d3ee", badge: "CYBER", category: "Tech & Cyber" },
+  { id: "urban_monochrome", name: "Urban Monochrome", bg: "linear-gradient(135deg, #0f172a 0%, #334155 100%)", accent: "#38bdf8", badge: "URBAN", category: "Modern & Geometric" },
+  { id: "crop_frame", name: "Crop Bracket Minimal", bg: "linear-gradient(135deg, #1c1917 0%, #292524 100%)", accent: "#e7e5e4", badge: "MINIMAL", category: "Minimal & Clean" },
+  { id: "circuit_tech", name: "Circuit Tech Cyber", bg: "linear-gradient(135deg, #09090b 0%, #581c87 100%)", accent: "#22d3ee", badge: "CYBER", category: "Tech & Cyber" },
+  { id: "cyber_neon", name: "Cyberpunk Neon", bg: "linear-gradient(135deg, #050505 0%, #2e0854 100%)", accent: "#00ffcc", badge: "NEON", category: "Tech & Cyber" },
   { id: "celestial_night", name: "Celestial Night", bg: "linear-gradient(135deg, #090d18 0%, #1e1b4b 100%)", accent: "#818cf8", badge: "SPACE", category: "Tech & Cyber" },
   { id: "modern_glassmorphism", name: "Modern Dark Glass", bg: "linear-gradient(135deg, #18181b 0%, #27272a 100%)", accent: "#c084fc", badge: "GLASS", category: "Tech & Cyber" },
-  { id: "executive_gold", name: "Executive Gold", bg: "linear-gradient(135deg, #1c1917 0%, #78350f 100%)", accent: "#fbbf24", badge: "GOLD", category: "Corporate" },
-  { id: "nordic_frost", name: "Nordic Frost", bg: "linear-gradient(135deg, #0c4a6e 0%, #0284c7 100%)", accent: "#7dd3fc", badge: "FROST", category: "Minimal & Clean" },
-  { id: "crop_frame", label: "Crop Bracket Minimal", bg: "linear-gradient(135deg, #1c1917 0%, #292524 100%)", accent: "#e7e5e4", badge: "MINIMAL", category: "Minimal & Clean" },
-  { id: "artistic_neon", name: "Artistic Neon", bg: "linear-gradient(135deg, #09090b 0%, #2e1065 100%)", accent: "#ff5e00", badge: "NEON", category: "Creative & Editorial" },
+  { id: "artistic_neon", name: "Artistic Neon", bg: "linear-gradient(135deg, #09090b 0%, #2e1065 100%)", accent: "#ff5e00", badge: "ART", category: "Creative & Editorial" },
+  { id: "atlas_bold", name: "Atlas Crimson Banner", bg: "linear-gradient(135deg, #450a0a 0%, #1c1917 100%)", accent: "#ef4444", badge: "ATLAS", category: "Creative & Editorial" },
+  { id: "organic_pastel", name: "Organic Earthy Pastel", bg: "linear-gradient(135deg, #14532d 0%, #1c1917 100%)", accent: "#86efac", badge: "NATURE", category: "Minimal & Clean" },
+  { id: "emerald_nature", name: "Emerald Forest Nature", bg: "linear-gradient(135deg, #064e3b 0%, #022c22 100%)", accent: "#10b981", badge: "EMERALD", category: "Minimal & Clean" },
+  { id: "dividend_burgundy", name: "Dividend Burgundy", bg: "linear-gradient(135deg, #4a044e 0%, #1e1b4b 100%)", accent: "#f43f5e", badge: "DIVIDEND", category: "Corporate" },
+  { id: "savon_classic", name: "Savon Classic Card", bg: "linear-gradient(135deg, #3f3f46 0%, #18181b 100%)", accent: "#a1a1aa", badge: "SAVON", category: "Corporate" },
+  { id: "wood_type", name: "Wood Type Vintage", bg: "linear-gradient(135deg, #451a03 0%, #1c1917 100%)", accent: "#f59e0b", badge: "WOOD", category: "Creative & Editorial" },
 ];
 
 export default function SlideEditorRibbonToolbar({
@@ -135,10 +144,10 @@ export default function SlideEditorRibbonToolbar({
         width: "100%",
         background: "linear-gradient(180deg, #0b0f19 0%, #0e1424 100%)",
         border: "1px solid rgba(56, 189, 248, 0.25)",
-        borderRadius: "14px",
-        boxShadow: "0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+        borderRadius: "12px",
+        boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
         overflow: "hidden",
-        marginBottom: "16px",
+        marginBottom: "0px",
         backdropFilter: "blur(16px)",
       }}
     >
@@ -148,17 +157,17 @@ export default function SlideEditorRibbonToolbar({
       <div
         style={{
           display: "flex",
-          justify: "space-between",
+          justifyContent: "space-between",
           alignItems: "center",
           background: "rgba(6, 9, 16, 0.8)",
           borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          padding: "4px 12px 0 12px",
+          padding: "2px 10px 0 10px",
           flexWrap: "wrap",
-          gap: 8,
+          gap: 6,
         }}
       >
         {/* TABS LIST */}
-        <div style={{ display: "flex", alignItems: "center", gap: 4, overflowX: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 3, overflowX: "auto" }}>
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -169,21 +178,21 @@ export default function SlideEditorRibbonToolbar({
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 6,
-                  padding: "7px 15px",
-                  fontSize: 12,
+                  gap: 5,
+                  padding: "5px 12px",
+                  fontSize: 11.5,
                   fontWeight: isActive ? 800 : 600,
                   color: isActive ? "#38bdf8" : "rgba(255, 255, 255, 0.7)",
                   background: isActive
-                    ? "linear-gradient(180deg, rgba(56, 189, 248, 0.15) 0%, rgba(192, 132, 252, 0.1) 100%)"
+                    ? "linear-gradient(180deg, rgba(56, 189, 248, 0.15) 0%, rgba(192, 132, 252, 0.1) 100%"
                     : "transparent",
                   border: "none",
                   borderBottom: isActive ? "2px solid #38bdf8" : "2px solid transparent",
-                  borderRadius: "8px 8px 0 0",
+                  borderRadius: "6px 6px 0 0",
                   cursor: "pointer",
                   transition: "all 0.2s ease",
-                  textShadow: isActive ? "0 0 10px rgba(56, 189, 248, 0.6)" : "none",
-                  boxShadow: isActive ? "0 -2px 10px rgba(56, 189, 248, 0.15)" : "none",
+                  textShadow: isActive ? "0 0 8px rgba(56, 189, 248, 0.6)" : "none",
+                  boxShadow: isActive ? "0 -2px 8px rgba(56, 189, 248, 0.15)" : "none",
                   whiteSpace: "nowrap",
                 }}
               >
@@ -202,11 +211,11 @@ export default function SlideEditorRibbonToolbar({
       <div
         className="ribbon-scroll-container"
         style={{
-          minHeight: activeTab === "layout" ? "118px" : (activeTab === "shapes" ? "72px" : "70px"),
-          padding: activeTab === "shapes" ? "6px 12px" : "8px 16px",
+          minHeight: activeTab === "layout" ? "108px" : (activeTab === "shapes" ? "64px" : "56px"),
+          padding: activeTab === "shapes" ? "4px 10px" : "6px 12px",
           display: "flex",
           alignItems: "center",
-          gap: "16px",
+          gap: "12px",
           overflowX: "auto",
           background: "rgba(11, 15, 25, 0.6)",
           transition: "min-height 0.2s ease",
@@ -252,29 +261,28 @@ export default function SlideEditorRibbonToolbar({
             {/* Quick Color Presets */}
             <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: 0.5 }}>
-                Colors
+                Theme Palettes
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                {["dark_gradient", "ocean_blue", "emerald_dark", "cyberpunk_neon", "executive_gold", "velvet_rose"].map((presetId) => {
-                  const presetObj = BACKGROUND_PRESETS.find((p) => p.id === presetId);
-                  const isSelected = selectedBgPreset === presetId;
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                {BACKGROUND_PRESETS.filter((p) => p.id !== "none" && p.id !== "custom").map((presetObj) => {
+                  const isSelected = selectedBgPreset === presetObj.id;
                   return (
                     <button
-                      key={presetId}
+                      key={presetObj.id}
                       type="button"
-                      onClick={() => setSelectedBgPreset(presetId)}
+                      onClick={() => setSelectedBgPreset(presetObj.id)}
                       style={{
-                        width: 22,
-                        height: 22,
+                        width: 20,
+                        height: 20,
                         borderRadius: "50%",
-                        background: presetObj?.bg || "#38bdf8",
-                        border: isSelected ? "2px solid #38bdf8" : "1px solid rgba(255,255,255,0.2)",
+                        background: presetObj.bg,
+                        border: isSelected ? "2px solid #38bdf8" : "1px solid rgba(255,255,255,0.25)",
                         boxShadow: isSelected ? "0 0 8px #38bdf8" : "none",
                         cursor: "pointer",
                         transform: isSelected ? "scale(1.15)" : "scale(1)",
-                        transition: "all 0.2s ease",
+                        transition: "all 0.15s ease",
                       }}
-                      title={presetObj?.name}
+                      title={presetObj.name}
                     />
                   );
                 })}
@@ -283,82 +291,10 @@ export default function SlideEditorRibbonToolbar({
 
             <RibbonSeparator />
 
-            {/* Fonts & Effects */}
+            {/* Custom Dual-Stop Gradient & Text Color Picker */}
             <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: 0.5 }}>
-                Fonts & FX
-              </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <select
-                  value={activeFont}
-                  onChange={(e) => {
-                    const font = e.target.value;
-                    setActiveFont(font);
-                    handleSlidePropertyChange?.(activeSlideIndex, "font_family", font);
-                  }}
-                  style={{
-                    background: "rgba(15, 23, 42, 0.8)",
-                    border: "1px solid rgba(192, 132, 252, 0.3)",
-                    color: "#fff",
-                    borderRadius: 6,
-                    padding: "4px 8px",
-                    fontSize: 11,
-                    outline: "none",
-                  }}
-                >
-                  <option value="Inter">Inter</option>
-                  <option value="Roboto">Roboto</option>
-                  <option value="Fira Code">Fira Code</option>
-                  <option value="Outfit">Outfit</option>
-                </select>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedBgPreset("cyberpunk_neon");
-                    handleSlidePropertyChange?.(activeSlideIndex, "effect", "glow");
-                  }}
-                  style={{
-                    background: "rgba(192, 132, 252, 0.15)",
-                    border: "1px solid rgba(192, 132, 252, 0.4)",
-                    color: "#c084fc",
-                    borderRadius: 6,
-                    padding: "4px 8px",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  ✨ Neon Glow
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedBgPreset("dark_gradient");
-                    handleSlidePropertyChange?.(activeSlideIndex, "effect", "glass");
-                  }}
-                  style={{
-                    background: "rgba(56, 189, 248, 0.15)",
-                    border: "1px solid rgba(56, 189, 248, 0.4)",
-                    color: "#38bdf8",
-                    borderRadius: 6,
-                    padding: "4px 8px",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  🪞 Glassmorphism
-                </button>
-              </div>
-
-            </div>
-
-            <RibbonSeparator />
-
-            {/* Custom Palette Option */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: 0.5 }}>
-                Custom Palette
+                Custom Gradient
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <button
@@ -367,7 +303,7 @@ export default function SlideEditorRibbonToolbar({
                   style={{
                     background: selectedBgPreset === "custom" ? "rgba(56, 189, 248, 0.25)" : "rgba(255,255,255,0.06)",
                     border: selectedBgPreset === "custom" ? "1px solid #38bdf8" : "1px solid rgba(255,255,255,0.15)",
-                    color: "#fff",
+                    color: selectedBgPreset === "custom" ? "#38bdf8" : "#fff",
                     borderRadius: 6,
                     padding: "4px 8px",
                     fontSize: 11,
@@ -375,34 +311,50 @@ export default function SlideEditorRibbonToolbar({
                     cursor: "pointer",
                   }}
                 >
-                  🎨 Custom Colors
+                  🎨 Gradient
                 </button>
 
-                {selectedBgPreset === "custom" && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(15,23,42,0.6)", padding: "2px 6px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 10, color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
+                    <span>Start:</span>
                     <input
                       type="color"
                       value={customBgColor1}
-                      onChange={(e) => setCustomBgColor1(e.target.value)}
-                      style={{ width: 22, height: 22, borderRadius: 4, border: "none", cursor: "pointer" }}
-                      title="Start Gradient Color"
+                      onChange={(e) => {
+                        setSelectedBgPreset("custom");
+                        setCustomBgColor1(e.target.value);
+                      }}
+                      style={{ width: 18, height: 18, borderRadius: 3, border: "none", cursor: "pointer", padding: 0, background: "none" }}
+                      title="Gradient Start Color"
                     />
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 10, color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
+                    <span>End:</span>
                     <input
                       type="color"
                       value={customBgColor2}
-                      onChange={(e) => setCustomBgColor2(e.target.value)}
-                      style={{ width: 22, height: 22, borderRadius: 4, border: "none", cursor: "pointer" }}
-                      title="End Gradient Color"
+                      onChange={(e) => {
+                        setSelectedBgPreset("custom");
+                        setCustomBgColor2(e.target.value);
+                      }}
+                      style={{ width: 18, height: 18, borderRadius: 3, border: "none", cursor: "pointer", padding: 0, background: "none" }}
+                      title="Gradient End Color"
                     />
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 10, color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
+                    <span>Text:</span>
                     <input
                       type="color"
                       value={customTextColor}
-                      onChange={(e) => setCustomTextColor(e.target.value)}
-                      style={{ width: 22, height: 22, borderRadius: 4, border: "none", cursor: "pointer" }}
-                      title="Text Color"
+                      onChange={(e) => {
+                        setSelectedBgPreset("custom");
+                        setCustomTextColor(e.target.value);
+                      }}
+                      style={{ width: 18, height: 18, borderRadius: 3, border: "none", cursor: "pointer", padding: 0, background: "none" }}
+                      title="Text Contrast Color"
                     />
-                  </div>
-                )}
+                  </label>
+                </div>
               </div>
             </div>
           </div>
@@ -998,22 +950,23 @@ export default function SlideEditorRibbonToolbar({
         )}
 
         {/* ----------------------------------------------------------------------- */}
-        {/* ELEMENTS TAB RIBBON (SMART DECORATORS, CODE & DIAGRAMS)                  */}
+        {/* ELEMENTS TAB RIBBON (INTERACTIVE COMPONENTS & CARDS)                    */}
         {/* ----------------------------------------------------------------------- */}
         {activeTab === "elements" && (
-          <div style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", overflowX: "auto" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", overflowX: "auto", paddingBottom: 2 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", textTransform: "uppercase", letterSpacing: 0.5 }}>
-                Interactive Objects & Diagrams
+                Interactive Elements & Cards
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <RibbonButton icon="▢" label="Vector Shapes" onClick={() => setActiveTab("shapes")} />
-                <RibbonButton icon="🔘" label="Callout Button" onClick={() => handleAddPlugin(activeSlideIndex, "callout")} />
+                <RibbonButton icon="💡" label="Callout Card" onClick={() => handleAddPlugin(activeSlideIndex, "callout")} />
                 <RibbonButton icon="📈" label="Single KPI Stat" onClick={() => handleAddPlugin(activeSlideIndex, "stat")} />
                 <RibbonButton icon="💻" label="Code Snippet" onClick={() => handleAddPlugin(activeSlideIndex, "code_block")} />
+                <RibbonButton icon="🚀" label="Roadmap Timeline" onClick={() => handleAddPlugin(activeSlideIndex, "roadmap")} />
+                <RibbonButton icon="👤" label="Speaker Profile" onClick={() => handleAddPlugin(activeSlideIndex, "speaker_card")} />
                 <RibbonButton icon="🔄" label="Workflow Diagram" onClick={() => handleAddPlugin(activeSlideIndex, "diagram")} />
                 <RibbonButton icon="📖" label="Speaker Notes" onClick={() => handleAddPlugin(activeSlideIndex, "notes")} />
-                <RibbonButton icon="⚡" label="AI Custom Block" onClick={() => handleAddPlugin(activeSlideIndex, "custom")} />
               </div>
             </div>
           </div>
@@ -1022,18 +975,145 @@ export default function SlideEditorRibbonToolbar({
         {/* ----------------------------------------------------------------------- */}
         {/* INSERT TAB RIBBON (MEDIA ATTACHMENTS & DATA IMPORTS)                    */}
         {/* ----------------------------------------------------------------------- */}
+        {/* ----------------------------------------------------------------------- */}
+        {/* INSERT TAB RIBBON (CHARTS, TABLES, IMAGES & DIAGRAMS)                   */}
+        {/* ----------------------------------------------------------------------- */}
         {activeTab === "insert" && (
-          <div style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", overflowX: "auto" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, width: "100%", overflowX: "auto", paddingBottom: 2 }}>
+            {/* 1. CHARTS & METRICS */}
             <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: "#34d399", textTransform: "uppercase", letterSpacing: 0.5 }}>
-                Media & Data Attachments
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#38bdf8", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                Charts & Data
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <RibbonButton icon="▢" label="Vector Shapes" onClick={() => setActiveTab("shapes")} />
-                <RibbonButton icon="📷" label="Image / Photo" onClick={() => handleAddPlugin(activeSlideIndex, "image")} />
-                <RibbonButton icon="📊" label="Data Chart" onClick={() => handleAddPlugin(activeSlideIndex, "chart")} />
-                <RibbonButton icon="📑" label="Data Table" onClick={() => handleAddPlugin(activeSlideIndex, "table")} />
-                <RibbonButton icon="🎥" label="Video Embed" onClick={() => handleAddPlugin(activeSlideIndex, "video")} />
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <RibbonButton
+                  icon="📊"
+                  label="Bar Chart"
+                  onClick={() => handleAddPlugin(activeSlideIndex, "chart", { chart_type: "bar", title: "Metrics Overview", labels: ["Jan", "Feb", "Mar", "Apr"], values: [45, 70, 85, 100] })}
+                />
+                <RibbonButton
+                  icon="📈"
+                  label="Line Trend"
+                  onClick={() => handleAddPlugin(activeSlideIndex, "chart", { chart_type: "line", title: "Growth Trend", labels: ["2023", "2024", "2025", "2026"], values: [20, 55, 80, 120] })}
+                />
+                <RibbonButton
+                  icon="🍩"
+                  label="Pie / Donut"
+                  onClick={() => handleAddPlugin(activeSlideIndex, "chart", { chart_type: "pie", title: "Market Share Distribution", labels: ["Product A", "Product B", "Product C"], values: [50, 30, 20] })}
+                />
+              </div>
+            </div>
+
+            <RibbonSeparator />
+
+            {/* 2. TABLES */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#a855f7", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                Tables & Matrices
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <RibbonButton
+                  icon="📑"
+                  label="Data Table"
+                  onClick={() => handleAddPlugin(activeSlideIndex, "table", {
+                    title: "Feature Comparison Matrix",
+                    headers: ["Feature", "Standard", "Enterprise"],
+                    rows: [
+                      ["Cloud Sync", "Standard", "Real-Time 24/7"],
+                      ["Security", "AES-128", "End-to-End Encrypted"],
+                      ["Support SLA", "48 Hours", "15 Mins Dedicated"]
+                    ]
+                  })}
+                />
+              </div>
+            </div>
+
+            <RibbonSeparator />
+
+            {/* 3. MEDIA & SHAPES */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#10b981", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                Media & Visuals
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <RibbonButton
+                  icon="🖼️"
+                  label="Image Photo"
+                  onClick={() => handleAddPlugin(activeSlideIndex, "image", {
+                    url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600",
+                    caption: "Visual Architecture Reference",
+                    align: "center"
+                  })}
+                />
+                <RibbonButton
+                  icon="▢"
+                  label="Shapes Library"
+                  onClick={() => setActiveTab("shapes")}
+                />
+              </div>
+            </div>
+
+            <RibbonSeparator />
+
+            {/* 4. PROCESS & DIAGRAMS */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#f59e0b", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                Process & Diagrams
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <RibbonButton
+                  icon="⚙️"
+                  label="Flowchart"
+                  onClick={() => handleAddPlugin(activeSlideIndex, "diagram", {
+                    diagram: "[User Request] ➔ [API Gateway] ➔ [Microservice Engine] ➔ [Output Response]",
+                    diagram_type: "flowchart",
+                    title: "System Execution Workflow"
+                  })}
+                />
+                <RibbonButton
+                  icon="🧠"
+                  label="Mindmap"
+                  onClick={() => handleAddPlugin(activeSlideIndex, "diagram", {
+                    diagram: "[Core Strategy] ➔ [Product AI] | [Market Growth] | [Global Scale]",
+                    diagram_type: "mindmap",
+                    title: "Strategic Mindmap Breakdown"
+                  })}
+                />
+                <RibbonButton
+                  icon="🔻"
+                  label="Funnel"
+                  onClick={() => handleAddPlugin(activeSlideIndex, "diagram", {
+                    diagram: "[Awareness] ➔ [Evaluation] ➔ [Purchase] ➔ [Retention]",
+                    diagram_type: "funnel",
+                    title: "Conversion Funnel"
+                  })}
+                />
+              </div>
+            </div>
+
+            <RibbonSeparator />
+
+            {/* 5. TEXT & NOTES */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#f43f5e", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                Text & Notes
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <RibbonButton
+                  icon="•"
+                  label="Bullet Points"
+                  onClick={() => handleAddPlugin(activeSlideIndex, "bullets", { points: ["Key point or strategic takeaway 1", "Key point or strategic takeaway 2"] })}
+                />
+                <RibbonButton
+                  icon="¶"
+                  label="Paragraph"
+                  onClick={() => handleAddPlugin(activeSlideIndex, "paragraph", { text: "Add comprehensive descriptive narrative and structured insights for this slide." })}
+                />
+                <RibbonButton
+                  icon="🎙️"
+                  label="Presenter Notes"
+                  onClick={() => handleAddPlugin(activeSlideIndex, "notes", { notes: "Speaker delivery remarks and presentation talking points." })}
+                />
               </div>
             </div>
           </div>
@@ -1043,37 +1123,212 @@ export default function SlideEditorRibbonToolbar({
         {/* ----------------------------------------------------------------------- */}
         {/* STYLE TAB RIBBON                                                        */}
         {/* ----------------------------------------------------------------------- */}
+        {/* ----------------------------------------------------------------------- */}
+        {/* STYLE TAB RIBBON                                                        */}
+        {/* ----------------------------------------------------------------------- */}
         {activeTab === "style" && (
-          <div style={{ display: "flex", alignItems: "center", gap: 16, width: "100%", overflowX: "auto" }}>
-            {/* Alignment Group */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14, width: "100%", overflowX: "auto", paddingBottom: 2 }}>
+            {/* 1. FONT FAMILY SELECTOR */}
             <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
-                Alignment
+                Font Family
               </span>
-              <div style={{ display: "flex", gap: 4 }}>
-                {["Left", "Center", "Right"].map((align) => {
-                  const val = align.toLowerCase();
-                  const isCur = (activeSlide?.title_align || "left") === val;
+              <select
+                value={activeSlide?.font_family || "Inter"}
+                onChange={(e) => handleSlidePropertyChange?.(activeSlideIndex, "font_family", e.target.value)}
+                style={{
+                  padding: "4px 8px",
+                  background: "rgba(15, 23, 42, 0.9)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  borderRadius: 6,
+                  color: "#fff",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  outline: "none",
+                  cursor: "pointer",
+                  minWidth: 110,
+                }}
+              >
+                {["Inter", "Arial", "Calibri", "Segoe UI", "Montserrat", "Roboto", "Georgia", "Playfair Display", "Trebuchet MS", "Fira Code"].map((font) => (
+                  <option key={font} value={font} style={{ background: "#0f172a", color: "#fff" }}>
+                    {font}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <RibbonSeparator />
+
+            {/* 2. TITLE & SUBTITLE FONT SIZES */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+                Title Size
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <button
+                  type="button"
+                  title="Decrease Title Size"
+                  onClick={() => {
+                    const cur = Number(activeSlide?.title_font_size || (activeSlideIndex === 0 ? 46 : 28));
+                    handleSlidePropertyChange?.(activeSlideIndex, "title_font_size", Math.max(16, cur - 2));
+                  }}
+                  style={{ width: 24, height: 24, borderRadius: 5, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontWeight: 800, cursor: "pointer" }}
+                >
+                  -
+                </button>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", minWidth: 26, textAlign: "center" }}>
+                  {activeSlide?.title_font_size || (activeSlideIndex === 0 ? 46 : 28)}
+                </span>
+                <button
+                  type="button"
+                  title="Increase Title Size"
+                  onClick={() => {
+                    const cur = Number(activeSlide?.title_font_size || (activeSlideIndex === 0 ? 46 : 28));
+                    handleSlidePropertyChange?.(activeSlideIndex, "title_font_size", Math.min(72, cur + 2));
+                  }}
+                  style={{ width: 24, height: 24, borderRadius: 5, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontWeight: 800, cursor: "pointer" }}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+                Sub Size
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <button
+                  type="button"
+                  title="Decrease Subtitle Size"
+                  onClick={() => {
+                    const cur = Number(activeSlide?.subtitle_font_size || (activeSlideIndex === 0 ? 20 : 18));
+                    handleSlidePropertyChange?.(activeSlideIndex, "subtitle_font_size", Math.max(10, cur - 2));
+                  }}
+                  style={{ width: 24, height: 24, borderRadius: 5, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontWeight: 800, cursor: "pointer" }}
+                >
+                  -
+                </button>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", minWidth: 24, textAlign: "center" }}>
+                  {activeSlide?.subtitle_font_size || (activeSlideIndex === 0 ? 20 : 18)}
+                </span>
+                <button
+                  type="button"
+                  title="Increase Subtitle Size"
+                  onClick={() => {
+                    const cur = Number(activeSlide?.subtitle_font_size || (activeSlideIndex === 0 ? 20 : 18));
+                    handleSlidePropertyChange?.(activeSlideIndex, "subtitle_font_size", Math.min(36, cur + 2));
+                  }}
+                  style={{ width: 24, height: 24, borderRadius: 5, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontWeight: 800, cursor: "pointer" }}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <RibbonSeparator />
+
+            {/* 3. BOLD TOGGLE */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+                Weight
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  const isBold = activeSlide?.title_bold !== false;
+                  handleSlidePropertyChange?.(activeSlideIndex, "title_bold", !isBold);
+                }}
+                style={{
+                  padding: "4px 10px",
+                  background: activeSlide?.title_bold !== false ? "rgba(56, 189, 248, 0.25)" : "rgba(15, 23, 42, 0.8)",
+                  border: activeSlide?.title_bold !== false ? "1px solid #38bdf8" : "1px solid rgba(255, 255, 255, 0.15)",
+                  borderRadius: 6,
+                  color: activeSlide?.title_bold !== false ? "#38bdf8" : "#fff",
+                  fontSize: 12,
+                  fontWeight: 900,
+                  cursor: "pointer",
+                }}
+                title="Toggle Bold Title"
+              >
+                B
+              </button>
+            </div>
+
+            <RibbonSeparator />
+
+            {/* 4. HORIZONTAL ALIGNMENT */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+                H-Align
+              </span>
+              <div style={{ display: "flex", gap: 3 }}>
+                {[
+                  { label: "⯇", val: "left", title: "Left" },
+                  { label: "≡", val: "center", title: "Center" },
+                  { label: "⯈", val: "right", title: "Right" },
+                ].map((item) => {
+                  const isCur = (activeSlide?.title_align || "left") === item.val;
                   return (
                     <button
-                      key={align}
+                      key={item.val}
                       type="button"
+                      title={`Align ${item.title}`}
                       onClick={() => {
-                        handleSlidePropertyChange?.(activeSlideIndex, "title_align", val);
-                        handleSlidePropertyChange?.(activeSlideIndex, "subtitle_align", val);
+                        handleSlidePropertyChange?.(activeSlideIndex, "title_align", item.val);
+                        handleSlidePropertyChange?.(activeSlideIndex, "subtitle_align", item.val);
                       }}
                       style={{
-                        padding: "4px 10px",
-                        background: isCur ? "rgba(56, 189, 248, 0.2)" : "rgba(15, 23, 42, 0.8)",
+                        padding: "3px 8px",
+                        background: isCur ? "rgba(56, 189, 248, 0.25)" : "rgba(15, 23, 42, 0.8)",
                         border: isCur ? "1px solid #38bdf8" : "1px solid rgba(255, 255, 255, 0.15)",
-                        borderRadius: 6,
+                        borderRadius: 5,
                         color: isCur ? "#38bdf8" : "#fff",
-                        fontSize: 11,
-                        fontWeight: isCur ? 800 : 600,
+                        fontSize: 12,
+                        fontWeight: 800,
                         cursor: "pointer",
                       }}
                     >
-                      {align}
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 5. VERTICAL ALIGNMENT */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+                V-Align
+              </span>
+              <div style={{ display: "flex", gap: 3 }}>
+                {[
+                  { label: "⭡", val: "top", title: "Top" },
+                  { label: "⬍", val: "middle", title: "Middle" },
+                  { label: "⭣", val: "bottom", title: "Bottom" },
+                ].map((item) => {
+                  const isCur = (activeSlide?.title_valign || "top") === item.val;
+                  return (
+                    <button
+                      key={item.val}
+                      type="button"
+                      title={`Vertical Align ${item.title}`}
+                      onClick={() => {
+                        handleSlidePropertyChange?.(activeSlideIndex, "title_valign", item.val);
+                        handleSlidePropertyChange?.(activeSlideIndex, "subtitle_valign", item.val);
+                      }}
+                      style={{
+                        padding: "3px 8px",
+                        background: isCur ? "rgba(192, 132, 252, 0.25)" : "rgba(15, 23, 42, 0.8)",
+                        border: isCur ? "1px solid #c084fc" : "1px solid rgba(255, 255, 255, 0.15)",
+                        borderRadius: 5,
+                        color: isCur ? "#c084fc" : "#fff",
+                        fontSize: 12,
+                        fontWeight: 800,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {item.label}
                     </button>
                   );
                 })}
@@ -1082,75 +1337,91 @@ export default function SlideEditorRibbonToolbar({
 
             <RibbonSeparator />
 
-            {/* Colors & Fill */}
+            {/* 6. COLORS & CUSTOM PICKER */}
             <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
-                Color & Fill
+                Text Color
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                {["#38bdf8", "#c084fc", "#f43f5e", "#10b981", "#fbbf24"].map((color) => (
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                {["#ffffff", "#38bdf8", "#c084fc", "#f43f5e", "#10b981", "#fbbf24"].map((color) => (
                   <button
                     key={color}
                     type="button"
+                    title={`Color ${color}`}
                     onClick={() => {
                       setSelectedStyleColor(color);
                       handleSlidePropertyChange?.(activeSlideIndex, "title_color", color);
                       setCustomTextColor?.(color);
                     }}
                     style={{
-                      width: 22,
-                      height: 22,
+                      width: 20,
+                      height: 20,
                       borderRadius: "50%",
                       background: color,
-                      border: selectedStyleColor === color || activeSlide?.title_color === color ? "2px solid #fff" : "none",
+                      border: selectedStyleColor === color || activeSlide?.title_color === color ? "2px solid #fff" : "1px solid rgba(255,255,255,0.3)",
                       boxShadow: selectedStyleColor === color || activeSlide?.title_color === color ? `0 0 8px ${color}` : "none",
                       cursor: "pointer",
                     }}
                   />
                 ))}
+                <input
+                  type="color"
+                  value={activeSlide?.title_color || "#ffffff"}
+                  onChange={(e) => {
+                    const color = e.target.value;
+                    setSelectedStyleColor(color);
+                    handleSlidePropertyChange?.(activeSlideIndex, "title_color", color);
+                    setCustomTextColor?.(color);
+                  }}
+                  title="Custom Color Picker"
+                  style={{
+                    width: 22,
+                    height: 22,
+                    padding: 0,
+                    borderRadius: 4,
+                    border: "1px solid rgba(255,255,255,0.3)",
+                    background: "none",
+                    cursor: "pointer",
+                  }}
+                />
               </div>
             </div>
 
             <RibbonSeparator />
 
-            {/* Border & Shadow */}
+            {/* 7. CARD / SLIDE EFFECTS */}
             <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
-                Border & Shadow
+                Card Style
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <button
-                  type="button"
-                  onClick={() => handleSlidePropertyChange?.(activeSlideIndex, "card_effect", "border")}
-                  style={{
-                    padding: "4px 10px",
-                    background: activeSlide?.card_effect === "border" ? "rgba(56, 189, 248, 0.3)" : "rgba(56, 189, 248, 0.15)",
-                    border: "1px solid rgba(56, 189, 248, 0.4)",
-                    borderRadius: 6,
-                    color: "#38bdf8",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  Subtle Border
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSlidePropertyChange?.(activeSlideIndex, "card_effect", "glow")}
-                  style={{
-                    padding: "4px 10px",
-                    background: activeSlide?.card_effect === "glow" ? "rgba(192, 132, 252, 0.3)" : "rgba(192, 132, 252, 0.15)",
-                    border: "1px solid rgba(192, 132, 252, 0.4)",
-                    borderRadius: 6,
-                    color: "#c084fc",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  Glow Shadow
-                </button>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                {[
+                  { id: "clean", label: "Clean" },
+                  { id: "border", label: "Border" },
+                  { id: "glow", label: "Glow" },
+                  { id: "glassmorphism", label: "Glass" },
+                ].map((eff) => {
+                  const isCur = (activeSlide?.card_effect || "border") === eff.id;
+                  return (
+                    <button
+                      key={eff.id}
+                      type="button"
+                      onClick={() => handleSlidePropertyChange?.(activeSlideIndex, "card_effect", eff.id)}
+                      style={{
+                        padding: "4px 8px",
+                        background: isCur ? "rgba(56, 189, 248, 0.25)" : "rgba(255, 255, 255, 0.05)",
+                        border: isCur ? "1px solid #38bdf8" : "1px solid rgba(255, 255, 255, 0.12)",
+                        borderRadius: 6,
+                        color: isCur ? "#38bdf8" : "#fff",
+                        fontSize: 10,
+                        fontWeight: isCur ? 800 : 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {eff.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
