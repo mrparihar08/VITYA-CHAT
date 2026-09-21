@@ -644,7 +644,7 @@ export default function PresentationSetup({
       >
         {loadingPlan ? (
           <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-            <span className="spinner-sm" /> Analyzing Topic & Generating AI Slide Deck...
+            <span className="spinner-sm" />Working on your AI Slide Deck...
           </span>
         ) : (
           "⚡ Generate AI Slide Deck"

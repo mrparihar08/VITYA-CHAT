@@ -5,17 +5,17 @@ import SlideEditorRibbonToolbar from "./SlideEditorRibbonToolbar";
 
 export const BACKGROUND_PRESETS = [
   { id: "none", name: "🚫 None (Use Template BG)", bg: "none", text: "#ffffff", accent: "#c084fc", solid_bg: "transparent", bg_start: "transparent", bg_end: "transparent" },
-  { id: "dark_gradient", name: "🌌 Midnight Purple", bg: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #31104b 100%)", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#31104b" },
-  { id: "ocean_blue", name: "🌊 Ocean Breeze", bg: "linear-gradient(135deg, #06101e 0%, #0b2545 50%, #134074 100%)", text: "#ffffff", accent: "#38bdf8", solid_bg: "#06101e", bg_start: "#06101e", bg_end: "#134074" },
-  { id: "emerald_dark", name: "🌲 Emerald Forest", bg: "linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%)", text: "#ffffff", accent: "#34d399", solid_bg: "#022c22", bg_start: "#022c22", bg_end: "#047857" },
-  { id: "cyberpunk_neon", name: "⚡ Cyberpunk Neon", bg: "linear-gradient(135deg, #09090b 0%, #2e1065 50%, #581c87 100%)", text: "#ffffff", accent: "#f43f5e", solid_bg: "#09090b", bg_start: "#09090b", bg_end: "#581c87" },
-  { id: "wall_street", name: "💵 Wall Street Finance", bg: "linear-gradient(135deg, #022c22 0%, #0f172a 50%, #1e293b 100%)", text: "#ffffff", accent: "#10b981", solid_bg: "#022c22", bg_start: "#022c22", bg_end: "#1e293b" },
-  { id: "executive_gold", name: "🏆 Executive Gold", bg: "linear-gradient(135deg, #1c1917 0%, #451a03 50%, #78350f 100%)", text: "#ffffff", accent: "#f59e0b", solid_bg: "#1c1917", bg_start: "#1c1917", bg_end: "#78350f" },
-  { id: "velvet_rose", name: "🌹 Velvet Rose", bg: "linear-gradient(135deg, #2a0813 0%, #4c0519 50%, #881337 100%)", text: "#ffffff", accent: "#fb7185", solid_bg: "#2a0813", bg_start: "#2a0813", bg_end: "#881337" },
-  { id: "executive_slate", name: "🪨 Executive Slate", bg: "linear-gradient(135deg, #18181b 0%, #27272a 50%, #3f3f46 100%)", text: "#ffffff", accent: "#a1a1aa", solid_bg: "#18181b", bg_start: "#18181b", bg_end: "#3f3f46" },
-  { id: "clean_light", name: "☀️ Minimal Light", bg: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)", text: "#0f172a", accent: "#2563eb", solid_bg: "#f8fafc", bg_start: "#f8fafc", bg_end: "#e2e8f0" },
-  { id: "titanium_white", name: "🏛️ Titanium White", bg: "linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #f4f4f5 100%)", text: "#18181b", accent: "#4f46e5", solid_bg: "#ffffff", bg_start: "#ffffff", bg_end: "#f4f4f5" },
-  { id: "sunset_glow", name: "🌅 Sunset Glow", bg: "linear-gradient(135deg, #2e1065 0%, #701a75 50%, #9f1239 100%)", text: "#ffffff", accent: "#fb7185", solid_bg: "#2e1065", bg_start: "#2e1065", bg_end: "#9f1239" },
+  { id: "dark_gradient", name: "Midnight Purple", bg: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #31104b 100%)", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#31104b" },
+  { id: "ocean_blue", name: "Ocean Breeze", bg: "linear-gradient(135deg, #06101e 0%, #0b2545 50%, #134074 100%)", text: "#ffffff", accent: "#38bdf8", solid_bg: "#06101e", bg_start: "#06101e", bg_end: "#134074" },
+  { id: "emerald_dark", name: "Emerald Forest", bg: "linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%)", text: "#ffffff", accent: "#34d399", solid_bg: "#022c22", bg_start: "#022c22", bg_end: "#047857" },
+  { id: "cyberpunk_neon", name: "Cyberpunk Neon", bg: "linear-gradient(135deg, #09090b 0%, #2e1065 50%, #581c87 100%)", text: "#ffffff", accent: "#f43f5e", solid_bg: "#09090b", bg_start: "#09090b", bg_end: "#581c87" },
+  { id: "wall_street", name: "Wall Street Finance", bg: "linear-gradient(135deg, #022c22 0%, #0f172a 50%, #1e293b 100%)", text: "#ffffff", accent: "#10b981", solid_bg: "#022c22", bg_start: "#022c22", bg_end: "#1e293b" },
+  { id: "executive_gold", name: "Executive Gold", bg: "linear-gradient(135deg, #1c1917 0%, #451a03 50%, #78350f 100%)", text: "#ffffff", accent: "#f59e0b", solid_bg: "#1c1917", bg_start: "#1c1917", bg_end: "#78350f" },
+  { id: "velvet_rose", name: "Velvet Rose", bg: "linear-gradient(135deg, #2a0813 0%, #4c0519 50%, #881337 100%)", text: "#ffffff", accent: "#fb7185", solid_bg: "#2a0813", bg_start: "#2a0813", bg_end: "#881337" },
+  { id: "executive_slate", name: "Executive Slate", bg: "linear-gradient(135deg, #18181b 0%, #27272a 50%, #3f3f46 100%)", text: "#ffffff", accent: "#a1a1aa", solid_bg: "#18181b", bg_start: "#18181b", bg_end: "#3f3f46" },
+  { id: "clean_light", name: "Minimal Light", bg: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)", text: "#0f172a", accent: "#2563eb", solid_bg: "#f8fafc", bg_start: "#f8fafc", bg_end: "#e2e8f0" },
+  { id: "titanium_white", name: "Titanium White", bg: "linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #f4f4f5 100%)", text: "#18181b", accent: "#4f46e5", solid_bg: "#ffffff", bg_start: "#ffffff", bg_end: "#f4f4f5" },
+  { id: "sunset_glow", name: "Sunset Glow", bg: "linear-gradient(135deg, #2e1065 0%, #701a75 50%, #9f1239 100%)", text: "#ffffff", accent: "#fb7185", solid_bg: "#2e1065", bg_start: "#2e1065", bg_end: "#9f1239" },
   { id: "custom", name: "🎨 Palette", bg: "custom", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#1e1b4b", bg_end: "#0f172a" },
 ];
 
@@ -35,7 +35,7 @@ export const TABLE_THEME_PRESETS = [
   { id: "monochrome_black", name: "Monochrome Black", icon: "🕶️", header_bg: "#334155", header_color: "#ffffff", cell_bg: "#000000", cell_color: "#ffffff" },
   { id: "executive_slate", name: "Executive Slate", icon: "🪨", header_bg: "#6366f1", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
   { id: "clean_light", name: "Minimal Light", icon: "☀️", header_bg: "#2563eb", header_color: "#ffffff", cell_bg: "#f1f5f9", cell_color: "#0f172a" },
-  { id: "sunset_glow", name: "Sunset Glow", icon: "🌅", header_bg: "#ea580c", header_color: "#ffffff", cell_bg: "#431407", cell_color: "#ffffff" },
+  { id: "sunset_glow", name: "Sunset Glow", header_bg: "#ea580c", header_color: "#ffffff", cell_bg: "#431407", cell_color: "#ffffff" },
   { id: "custom", name: "Custom Palette", icon: "🎨", header_bg: "#8b5cf6", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
 ];
 
@@ -1369,6 +1369,16 @@ export default function PresentationEditor({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [plan, setActiveSlideIndex]);
 
+  // Auto-scroll active slide into view (supports both horizontal carousel on mobile and vertical list on desktop)
+  useEffect(() => {
+    if (carouselRef.current) {
+      const activeEl = carouselRef.current.querySelector(".slide-vertical-item.active");
+      if (activeEl) {
+        activeEl.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+      }
+    }
+  }, [activeSlideIndex]);
+
   const handleDirectDownload = async (e) => {
     e?.preventDefault();
     if (typeof downloadSavedPresentation === "function") {
@@ -1868,11 +1878,24 @@ export default function PresentationEditor({
                         <span style={{ fontSize: 10, fontWeight: 800, color: isCurrentActive ? "#38bdf8" : "#c084fc", textTransform: "uppercase" }}>
                           Slide {idx + 1}
                         </span>
-                        {isCurrentActive && (
-                          <span style={{ fontSize: 9, fontWeight: 700, color: "#38bdf8", background: "rgba(56,189,248,0.15)", padding: "1px 5px", borderRadius: 4, border: "1px solid rgba(56,189,248,0.4)" }}>
-                            ACTIVE
-                          </span>
-                        )}
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          {(() => {
+                            const totalS = plan?.slides?.length || 1;
+                            const isLast = idx === totalS - 1 && totalS > 1;
+                            const step = idx === 0 ? 0 : (isLast ? 5 : ((idx - 1) % 4 + 1));
+                            const tagLabels = ["🌟 Cover", "📌 Agenda", "🏛️ Deep-Dive", "📊 Data", "⚖️ Compare", "🎯 Summary"];
+                            return (
+                              <span style={{ fontSize: 8.5, fontWeight: 700, color: "rgba(255,255,255,0.6)", background: "rgba(255,255,255,0.06)", padding: "1px 4px", borderRadius: 3 }}>
+                                {tagLabels[step] || "Slide"}
+                              </span>
+                            );
+                          })()}
+                          {isCurrentActive && (
+                            <span style={{ fontSize: 8.5, fontWeight: 800, color: "#38bdf8", background: "rgba(56,189,248,0.18)", padding: "1px 5px", borderRadius: 3, border: "1px solid rgba(56,189,248,0.4)" }}>
+                              ACTIVE
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <div style={{ fontSize: 12, fontWeight: 700, color: "#ffffff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -2023,14 +2046,159 @@ export default function PresentationEditor({
                         justifyContent: isVMiddle ? "center" : isVBottom ? "flex-end" : "flex-start",
                         boxSizing: "border-box",
                         position: "relative",
+                        overflow: "hidden",
                       }}
                     >
+                    {/* DYNAMIC MULTI-SLIDE BACKGROUND ARCHETYPE DECORATIONS */}
+                    {(() => {
+                      const totalS = plan?.slides?.length || 1;
+                      const isLast = activeSlideIndex === totalS - 1 && totalS > 1;
+                      const step = activeSlideIndex === 0 ? 0 : (isLast ? 5 : ((activeSlideIndex - 1) % 4 + 1));
+                      const acc = selectedBgConfig?.accent || "#c084fc";
+
+                      return (
+                        <>
+                          {/* Slide 2 Archetype: Top Header Accent Strip */}
+                          {step === 1 && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                height: 4,
+                                background: `linear-gradient(90deg, ${acc}, transparent 80%)`,
+                                borderRadius: "12px 12px 0 0",
+                                zIndex: 1,
+                              }}
+                            />
+                          )}
+
+                          {/* Slide 3 Archetype: Left Vertical Accent Rail */}
+                          {step === 2 && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                left: 0,
+                                top: 24,
+                                bottom: 24,
+                                width: 4,
+                                background: `linear-gradient(180deg, ${acc}dd, transparent)`,
+                                borderRadius: "0 4px 4px 0",
+                                zIndex: 1,
+                              }}
+                            />
+                          )}
+
+                          {/* Slide 4 Archetype: Bottom Data Floor Accent Bar */}
+                          {step === 3 && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                bottom: 0,
+                                left: 24,
+                                right: 24,
+                                height: 3.5,
+                                background: `linear-gradient(90deg, transparent, ${acc}, transparent)`,
+                                borderRadius: "3px 3px 0 0",
+                                zIndex: 1,
+                              }}
+                            />
+                          )}
+
+                          {/* Slide 5 Archetype: Dual Corner Accent Brackets */}
+                          {step === 4 && (
+                            <>
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: 10,
+                                  right: 10,
+                                  width: 22,
+                                  height: 22,
+                                  borderTop: `2.5px solid ${acc}99`,
+                                  borderRight: `2.5px solid ${acc}99`,
+                                  borderRadius: "0 6px 0 0",
+                                  pointerEvents: "none",
+                                  zIndex: 1,
+                                }}
+                              />
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  bottom: 10,
+                                  left: 10,
+                                  width: 22,
+                                  height: 22,
+                                  borderBottom: `2.5px solid ${acc}99`,
+                                  borderLeft: `2.5px solid ${acc}99`,
+                                  borderRadius: "0 0 0 6px",
+                                  pointerEvents: "none",
+                                  zIndex: 1,
+                                }}
+                              />
+                            </>
+                          )}
+
+                          {/* Slide 6+ / Final Archetype: Inset Glow Card Frame */}
+                          {step === 5 && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                inset: 0,
+                                borderRadius: 12,
+                                pointerEvents: "none",
+                                border: `1px solid ${acc}2b`,
+                                boxShadow: `inset 0 0 24px ${acc}15`,
+                                zIndex: 1,
+                              }}
+                            />
+                          )}
+                        </>
+                      );
+                    })()}
+
+                    {/* THEME-SPECIFIC COVER BADGE (SLIDE 1) */}
+                    {activeSlideIndex === 0 && (
+                      <div style={{ display: "flex", justifyContent: activeSlide.title_align === "left" ? "flex-start" : "center", marginBottom: 6 }}>
+                        <div
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
+                            padding: "4px 14px",
+                            borderRadius: selectedBgPreset === "executive_gold" ? "4px" : "20px",
+                            background: selectedBgPreset === "executive_gold"
+                              ? "rgba(245, 158, 11, 0.18)"
+                              : selectedBgPreset === "cyberpunk_neon"
+                              ? "rgba(244, 63, 94, 0.22)"
+                              : "rgba(139, 92, 246, 0.2)",
+                            border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`,
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: selectedBgConfig?.accent || "#c084fc",
+                            letterSpacing: "1px",
+                            textTransform: "uppercase",
+                            boxShadow: selectedBgPreset === "cyberpunk_neon" ? "0 0 12px rgba(244, 63, 94, 0.35)" : "none",
+                          }}
+                        >
+                          {selectedBgPreset === "executive_gold" ? "✦ EXECUTIVE BRIEFING ✦" :
+                           selectedBgPreset === "cyberpunk_neon" ? "⚡ AI & TECH INTELLIGENCE" :
+                           selectedBgPreset === "emerald_dark" || selectedBgPreset === "wall_street" ? "📊 STRATEGIC OVERVIEW" :
+                           selectedBgPreset === "ocean_blue" ? "🌊 ENTERPRISE ARCHITECTURE" :
+                           selectedBgPreset === "velvet_rose" || selectedBgPreset === "sunset_glow" ? "🔥 KEYNOTE INSIGHTS" :
+                           selectedBgPreset === "clean_light" || selectedBgPreset === "titanium_white" ? "🏢 EXECUTIVE REPORT" :
+                           "✨ EXECUTIVE PRESENTATION"}
+                        </div>
+                      </div>
+                    )}
+
                     {/* POWERPOINT-STYLE TITLE PLACEHOLDER BOX */}
                     <div
                       className="ppt-title-box"
                       style={{
                         width: "100%",
-                        textAlign: activeSlide.title_align || "left",
+                        textAlign: activeSlide.title_align || (activeSlideIndex === 0 ? "center" : "left"),
                         border: "1.5px dashed transparent",
                         borderRadius: 8,
                         padding: "4px 8px",
@@ -2066,27 +2234,54 @@ export default function PresentationEditor({
                         }}
                         title="Click to edit slide title inline"
                         style={{
-                          fontSize: `clamp(18px, 4vw, ${activeSlide.title_font_size || (activeSlideIndex === 0 ? 46 : 28)}px)`,
+                          fontSize: `clamp(20px, 4.2vw, ${activeSlide.title_font_size || (activeSlideIndex === 0 ? 44 : 28)}px)`,
                           color: activeSlide.title_color || "inherit",
-                          textAlign: activeSlide.title_align || "left",
+                          textAlign: activeSlide.title_align || (activeSlideIndex === 0 ? "center" : "left"),
                           fontWeight: activeSlide.title_bold === false ? 400 : 800,
                           margin: "2px 0",
                           wordBreak: "break-word",
                           outline: "none",
                           cursor: "text",
                           opacity: activeSlide.title ? 1 : 0.45,
+                          lineHeight: 1.25,
                         }}
                       >
                         {activeSlide.title || "Click to add title"}
                       </h2>
                     </div>
 
+                    {/* THEME-SPECIFIC ACCENT DIVIDER BAR (SLIDE 1) */}
+                    {activeSlideIndex === 0 && (
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: activeSlide.title_align === "left" ? "flex-start" : "center",
+                          margin: "8px 0 10px 0",
+                          width: "100%",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: selectedBgPreset === "executive_gold" ? "130px" : "96px",
+                            height: selectedBgPreset === "executive_gold" ? "2px" : "3.5px",
+                            borderRadius: "4px",
+                            background: selectedBgPreset === "cyberpunk_neon"
+                              ? "linear-gradient(90deg, #f43f5e, #06b6d4)"
+                              : selectedBgPreset === "executive_gold"
+                              ? "linear-gradient(90deg, #f59e0b, #d97706)"
+                              : `linear-gradient(90deg, ${selectedBgConfig?.accent || "#c084fc"}, rgba(255,255,255,0.2))`,
+                            boxShadow: selectedBgPreset === "cyberpunk_neon" ? "0 0 10px #f43f5e" : "none",
+                          }}
+                        />
+                      </div>
+                    )}
+
                     {/* POWERPOINT-STYLE SUBTITLE PLACEHOLDER BOX */}
                     <div
                       className="ppt-subtitle-box"
                       style={{
                         width: "100%",
-                        textAlign: activeSlide.subtitle_align || "left",
+                        textAlign: activeSlide.subtitle_align || (activeSlideIndex === 0 ? "center" : "left"),
                         border: "1.5px dashed transparent",
                         borderRadius: 8,
                         padding: "4px 8px",
@@ -2118,20 +2313,41 @@ export default function PresentationEditor({
                         }}
                         title="Click to edit slide subtitle inline"
                         style={{
-                          fontSize: `clamp(12px, 3vw, ${activeSlide.subtitle_font_size || 20}px)`,
-                          color: activeSlide.subtitle_color || "inherit",
-                          textAlign: activeSlide.subtitle_align || "left",
-                          opacity: activeSlide.subtitle ? 0.9 : 0.4,
-                          fontWeight: 600,
+                          fontSize: `clamp(13px, 2.4vw, ${activeSlide.subtitle_font_size || (activeSlideIndex === 0 ? 18 : 16)}px)`,
+                          color: activeSlide.subtitle_color || (activeSlideIndex === 0 ? (selectedBgConfig.id === "clean_light" || selectedBgConfig.id === "titanium_white" ? "#334155" : "#e2e8f0") : "inherit"),
+                          textAlign: activeSlide.subtitle_align || (activeSlideIndex === 0 ? "center" : "left"),
+                          opacity: activeSlide.subtitle ? 0.95 : 0.45,
+                          fontWeight: 500,
                           wordBreak: "break-word",
                           outline: "none",
                           cursor: "text",
                           fontStyle: activeSlide.subtitle ? "normal" : "italic",
+                          lineHeight: 1.4,
                         }}
                       >
                         {activeSlide.subtitle || "Click to add subtitle"}
                       </div>
                     </div>
+
+                    {/* COVER FOOTER (SLIDE 1) */}
+                    {activeSlideIndex === 0 && (
+                      <div
+                        style={{
+                          marginTop: "auto",
+                          paddingTop: 14,
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          fontSize: "10.5px",
+                          color: "rgba(255,255,255,0.5)",
+                          borderTop: "1px solid rgba(255,255,255,0.08)",
+                          width: "100%",
+                        }}
+                      >
+                        <span style={{ fontWeight: 600 }}>👤 Executive Presentation</span>
+                        <span style={{ opacity: 0.8 }}>📅 {new Date().getFullYear()}</span>
+                      </div>
+                    )}
 
                 {/* LIVE PLUGINS CONTENT */}
                 {hasPlugins ? (
