@@ -1100,7 +1100,6 @@ export default function PresentationEditor({
   onBackToSetup,
 }) {
   const activeSlide = plan?.slides?.[activeSlideIndex];
-  const [isSlidesTrayCollapsed, setIsSlidesTrayCollapsed] = useState(false);
 
   const handleMoveSlideToPosition = (fromIdx, toIdx) => {
     if (!setPlan || fromIdx === toIdx) return;

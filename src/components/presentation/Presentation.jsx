@@ -83,13 +83,27 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
   const title = (rawPlan.title || "Presentation Deck").trim();
   const theme = themeConfig
     ? {
+        theme_name: themeConfig.theme_name || "custom",
+        solid_bg: themeConfig.solid_bg || "#0f172a",
         bg_color: themeConfig.solid_bg || "#0f172a",
         bg_gradient_start: themeConfig.bg_start || "#0f172a",
         bg_gradient_end: themeConfig.bg_end || "#31104b",
         text_color: themeConfig.text || "#ffffff",
         accent_color: themeConfig.accent || "#c084fc",
       }
-    : undefined;
+    : rawPlan.theme;
+
+  const design_system = themeConfig
+    ? {
+        theme_name: themeConfig.theme_name || "custom",
+        bg_color: themeConfig.solid_bg || "#0f172a",
+        bg_gradient_start: themeConfig.bg_start || "#0f172a",
+        bg_gradient_end: themeConfig.bg_end || "#31104b",
+        text_color: themeConfig.text || "#ffffff",
+        accent_color: themeConfig.accent || "#c084fc",
+        font_family: "Inter",
+      }
+    : rawPlan.design_system;
 
   const slides = safeArray(rawPlan.slides).map((slide, idx) => {
     const slideTitle = (slide.title || `Slide ${idx + 1}`).trim();
@@ -97,6 +111,11 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
     let layout = slide.layout || "title_content";
 
     const plugins = [];
+    let extractedSubtitle = slideSubtitle || "";
+    let extractedParagraphs = [];
+    let extractedBullets = [];
+    let extractedNotes = "";
+    let extractedImageUrl = "";
 
     safeArray(slide.plugins).forEach((p) => {
       if (!p || !p.type) return;
@@ -105,14 +124,17 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
 
       if (p.type === "bullets") {
         const points = safeArray(pluginData.points).map((pt) => String(pt).trim()).filter(Boolean);
+        extractedBullets.push(...points);
         plugins.push({
           type: "bullets",
           data: { ...pluginData, points: points.length ? points : ["Key takeaway point"] },
         });
       } else if (p.type === "paragraph") {
+        const textVal = String(pluginData.text || "").trim();
+        if (textVal) extractedParagraphs.push(textVal);
         plugins.push({
           type: "paragraph",
-          data: { ...pluginData, text: String(pluginData.text || "").trim() },
+          data: { ...pluginData, text: textVal },
         });
       } else if (p.type === "paragraph_2col") {
         const rawItems = Array.isArray(pluginData.items) && pluginData.items.length > 0
@@ -121,6 +143,7 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
               { title: String(pluginData.left_title || "").trim(), text: String(pluginData.left_text || pluginData.text || "").trim() },
               { title: String(pluginData.right_title || "").trim(), text: String(pluginData.right_text || "").trim() }
             ];
+        rawItems.forEach(it => { if (it.text) extractedParagraphs.push(it.text); });
         plugins.push({
           type: "paragraph_2col",
           data: {
@@ -133,9 +156,11 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
           },
         });
       } else if (p.type === "subtitle" || p.type === "text") {
+        const subVal = String(pluginData.text || "").trim();
+        if (subVal && !extractedSubtitle) extractedSubtitle = subVal;
         plugins.push({
           type: "text",
-          data: { ...pluginData, text: String(pluginData.text || "").trim() },
+          data: { ...pluginData, text: subVal },
         });
       } else if (p.type === "chart") {
         plugins.push({
@@ -178,14 +203,17 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
         });
       } else if (p.type === "image") {
         const url = String(pluginData.url || pluginData.path || "").trim();
+        if (url) extractedImageUrl = url;
         plugins.push({
           type: "image",
           data: { ...pluginData, url, path: url, caption: String(pluginData.caption || "").trim() },
         });
       } else if (p.type === "notes") {
+        const notesVal = String(pluginData.notes || "").trim();
+        if (notesVal) extractedNotes = notesVal;
         plugins.push({
           type: "notes",
-          data: { ...pluginData, notes: String(pluginData.notes || "").trim() },
+          data: { ...pluginData, notes: notesVal },
         });
       } else if (p.type === "shape") {
         plugins.push({
@@ -204,12 +232,14 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
           },
         });
       } else if (p.type === "callout") {
+        const calloutText = String(pluginData.text || "").trim();
+        if (calloutText) extractedParagraphs.push(calloutText);
         plugins.push({
           type: "callout",
           data: {
             ...pluginData,
             title: String(pluginData.title || "KEY TAKEAWAY").trim(),
-            text: String(pluginData.text || "").trim(),
+            text: calloutText,
             icon: String(pluginData.icon || "💡").trim(),
             variant: pluginData.variant || "info",
           },
@@ -288,13 +318,28 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
     return {
       layout,
       title: slideTitle,
-      subtitle: slideSubtitle || undefined,
-      title_color: slide.title_color,
+      subtitle: extractedSubtitle || slideSubtitle || undefined,
+      content: extractedParagraphs.join("\n\n") || slide.content || undefined,
+      paragraph: extractedParagraphs.join("\n\n") || slide.paragraph || undefined,
+      bullets: extractedBullets.length ? extractedBullets : (slide.bullets || slide.points || undefined),
+      points: extractedBullets.length ? extractedBullets : (slide.points || slide.bullets || undefined),
+      notes: extractedNotes || slide.notes || undefined,
+      image_url: extractedImageUrl || slide.image_url || undefined,
+      bg_color: slide.bg_color || themeConfig?.solid_bg || theme?.bg_color || "#0f172a",
+      background_color: slide.background_color || slide.bg_color || themeConfig?.solid_bg || theme?.bg_color || "#0f172a",
+      bg_gradient_start: slide.bg_gradient_start || themeConfig?.bg_start || theme?.bg_gradient_start || "#0f172a",
+      bg_gradient_end: slide.bg_gradient_end || themeConfig?.bg_end || theme?.bg_gradient_end || "#31104b",
+      text_color: slide.text_color || themeConfig?.text || theme?.text_color || "#ffffff",
+      accent_color: slide.accent_color || themeConfig?.accent || theme?.accent_color || "#c084fc",
+      background_theme: slide.background_theme || themeConfig?.theme_name || rawPlan.background_theme || "custom",
+      theme: slide.theme || theme,
+      design_system: slide.design_system || design_system,
+      title_color: slide.title_color || themeConfig?.text || "#ffffff",
+      subtitle_color: slide.subtitle_color || themeConfig?.text || "#ffffff",
       title_font_size: slide.title_font_size,
       title_bold: slide.title_bold,
       title_align: slide.title_align,
       title_valign: slide.title_valign,
-      subtitle_color: slide.subtitle_color,
       subtitle_font_size: slide.subtitle_font_size,
       subtitle_align: slide.subtitle_align,
       subtitle_valign: slide.subtitle_valign,
@@ -306,7 +351,7 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
 
   });
 
-  return { title, theme, slides };
+  return { title, theme, design_system, background_theme: themeConfig?.theme_name || rawPlan.background_theme, slides };
 }
 
 const STORAGE_KEY_PLAN = "vitya_ppt_saved_plan_v2";
@@ -384,6 +429,8 @@ export default function PresentationGenerator({ presentationId = null }) {
     if (val && val !== "none") {
       setSelectedBgPreset("none");
     }
+    setIsSaved(false);
+    setDownloadUrl(null);
   };
 
   const handleBgPresetChange = (val) => {
@@ -391,6 +438,29 @@ export default function PresentationGenerator({ presentationId = null }) {
     if (val && val !== "none") {
       setTemplateName("none");
     }
+    setIsSaved(false);
+    setDownloadUrl(null);
+  };
+
+  const handleCustomBgColor1Change = (val) => {
+    setCustomBgColor1(val);
+    setSelectedBgPreset("custom");
+    setIsSaved(false);
+    setDownloadUrl(null);
+  };
+
+  const handleCustomBgColor2Change = (val) => {
+    setCustomBgColor2(val);
+    setSelectedBgPreset("custom");
+    setIsSaved(false);
+    setDownloadUrl(null);
+  };
+
+  const handleCustomTextColorChange = (val) => {
+    setCustomTextColor(val);
+    setSelectedBgPreset("custom");
+    setIsSaved(false);
+    setDownloadUrl(null);
   };
 
   const [templateName, setTemplateName] = useState(() => {
@@ -648,6 +718,7 @@ export default function PresentationGenerator({ presentationId = null }) {
 
   const buildPayload = ({ includePlan = false } = {}) => {
     const activeThemeConfig = {
+      theme_name: selectedBgPreset,
       solid_bg: selectedBgPreset === "custom" ? customBgColor1 : (selectedBgConfig?.solid_bg || "#0f172a"),
       bg_start: selectedBgPreset === "custom" ? customBgColor1 : (selectedBgConfig?.bg_start || "#0f172a"),
       bg_end: selectedBgPreset === "custom" ? customBgColor2 : (selectedBgConfig?.bg_end || "#31104b"),
@@ -664,6 +735,22 @@ export default function PresentationGenerator({ presentationId = null }) {
       template_name: (templateName && templateName !== "none") ? templateName : "none",
       background_theme: (selectedBgPreset && selectedBgPreset !== "none") ? selectedBgPreset : "none",
       content_theme: (selectedBgPreset && selectedBgPreset !== "none") ? (contentTheme || selectedBgPreset) : "none",
+      theme_name: selectedBgPreset,
+      theme_config: activeThemeConfig,
+      bg_color: activeThemeConfig.solid_bg,
+      bg_gradient_start: activeThemeConfig.bg_start,
+      bg_gradient_end: activeThemeConfig.bg_end,
+      text_color: activeThemeConfig.text,
+      accent_color: activeThemeConfig.accent,
+      design_system: {
+        theme_name: selectedBgPreset,
+        bg_color: activeThemeConfig.solid_bg,
+        bg_gradient_start: activeThemeConfig.bg_start,
+        bg_gradient_end: activeThemeConfig.bg_end,
+        text_color: activeThemeConfig.text,
+        accent_color: activeThemeConfig.accent,
+        font_family: "Inter",
+      },
       visual_style: style || visualStyle || "minimal",
       slide_count: slideCount,
       depth: depth || "medium",
@@ -847,10 +934,21 @@ export default function PresentationGenerator({ presentationId = null }) {
 
       setPlanPreview(data1);
 
+      const rawPlanFromStage1 = data1.structured_plan || data1.plan;
+      const activeThemeConfig = {
+        theme_name: selectedBgPreset,
+        solid_bg: selectedBgPreset === "custom" ? customBgColor1 : (selectedBgConfig?.solid_bg || "#0f172a"),
+        bg_start: selectedBgPreset === "custom" ? customBgColor1 : (selectedBgConfig?.bg_start || "#0f172a"),
+        bg_end: selectedBgPreset === "custom" ? customBgColor2 : (selectedBgConfig?.bg_end || "#31104b"),
+        text: selectedBgPreset === "custom" ? customTextColor : (selectedBgConfig?.text || "#ffffff"),
+        accent: selectedBgConfig?.accent || "#c084fc",
+      };
+      const sanitizedStage1Plan = sanitizePlanForBackend(rawPlanFromStage1, activeThemeConfig);
+
       // 2. Stage 2 Generator Execution (Internal background rendering)
       const payload2 = {
         ...buildPayload({ includePlan: true }),
-        plan: data1.structured_plan || data1.plan,
+        plan: sanitizedStage1Plan || rawPlanFromStage1,
       };
 
       const res2 = await fetch(joinUrl(DEFAULT_API_BASE, "/stage2/generate"), {
@@ -862,10 +960,12 @@ export default function PresentationGenerator({ presentationId = null }) {
       const data2 = await readResponse(res2);
       if (!res2.ok) throw new Error(data2?.detail || "Failed to generate presentation deck");
 
-      if (data2.plan) {
-        setPlan(data2.plan);
-      } else if (data1.plan) {
-        setPlan(data1.plan);
+      const rawGenPlan = data2.plan || sanitizedStage1Plan || data1.plan;
+      const finalPlanWithTheme = sanitizePlanForBackend(rawGenPlan, activeThemeConfig);
+      if (finalPlanWithTheme) {
+        setPlan(finalPlanWithTheme);
+      } else if (rawGenPlan) {
+        setPlan(rawGenPlan);
       }
 
       // Keep in draft mode so user can review and edit before saving / downloading
@@ -1701,11 +1801,11 @@ export default function PresentationGenerator({ presentationId = null }) {
             templateName={templateName}
             setTemplateName={handleTemplateChange}
             customBgColor1={customBgColor1}
-            setCustomBgColor1={setCustomBgColor1}
+            setCustomBgColor1={handleCustomBgColor1Change}
             customBgColor2={customBgColor2}
-            setCustomBgColor2={setCustomBgColor2}
+            setCustomBgColor2={handleCustomBgColor2Change}
             customTextColor={customTextColor}
-            setCustomTextColor={setCustomTextColor}
+            setCustomTextColor={handleCustomTextColorChange}
             selectedBgConfig={selectedBgConfig}
             downloadUrl={downloadUrl}
             exportFormat={exportFormat}

@@ -59,7 +59,6 @@ export default function SlideEditorRibbonToolbar({
   handleLayerOrder,
 }) {
   const [activeTab, setActiveTab] = useState("design"); // "design" | "templates" | "layout" | "feature_blocks" | "elements" | "insert" | "style" | "shapes"
-  const [activeFont, setActiveFont] = useState("Inter");
   const [selectedStyleColor, setSelectedStyleColor] = useState("#38bdf8");
   const [activeShapeCategory, setActiveShapeCategory] = useState("basic");
   const [serverTemplates, setServerTemplates] = useState([]);
