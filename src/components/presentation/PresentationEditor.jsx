@@ -1221,6 +1221,613 @@ export function InteractiveShapeItem({
   );
 }
 
+export function DraggableSlideTitleBox({
+  activeSlide,
+  activeSlideIndex,
+  totalSlides,
+  isSelected,
+  onSelect,
+  onChangeTitle,
+  onChangeProperty,
+  selectedBgPreset,
+  selectedBgConfig,
+  templateName,
+}) {
+  const title = activeSlide?.title || "";
+  const isMoved = activeSlide?.title_x !== undefined || activeSlide?.title_y !== undefined;
+  const x = activeSlide?.title_x ?? 12;
+  const y = activeSlide?.title_y ?? 10;
+  const width = activeSlide?.title_width ?? (isMoved ? 600 : undefined);
+  const height = activeSlide?.title_height ?? (isMoved ? 80 : undefined);
+  const fontSize = activeSlide?.title_font_size || (activeSlideIndex === 0 ? 44 : 28);
+  const fontColor = activeSlide?.title_color || "inherit";
+  const alignment = activeSlide?.title_align || (activeSlideIndex === 0 ? "center" : "left");
+  const isBold = activeSlide?.title_bold !== false;
+  const isItalic = !!activeSlide?.title_italic;
+  const themeDS = getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig);
+
+  const titleInputRef = useRef(null);
+
+  const handleMouseDown = (e) => {
+    if (e.target.tagName === "H2" || e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest(".formatting-toolbar")) {
+      return;
+    }
+    e.stopPropagation();
+    onSelect("title");
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialX = activeSlide?.title_x ?? (e.currentTarget.offsetLeft || 12);
+    const initialY = activeSlide?.title_y ?? (e.currentTarget.offsetTop || 10);
+
+    const handleMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+      onChangeProperty(activeSlideIndex, "title_x", Math.max(0, Math.round(initialX + dx)));
+      onChangeProperty(activeSlideIndex, "title_y", Math.max(0, Math.round(initialY + dy)));
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleResizeStart = (handle, e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialW = e.currentTarget.parentElement?.offsetWidth || (width || 600);
+    const initialH = e.currentTarget.parentElement?.offsetHeight || (height || 80);
+    const initialX = activeSlide?.title_x ?? 12;
+    const initialY = activeSlide?.title_y ?? 10;
+
+    const handleMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+      let newW = initialW;
+      let newH = initialH;
+      let newX = initialX;
+      let newY = initialY;
+
+      if (handle.includes("e")) newW = Math.max(120, initialW + dx);
+      if (handle.includes("s")) newH = Math.max(40, initialH + dy);
+      if (handle.includes("w")) {
+        const potW = initialW - dx;
+        if (potW > 120) {
+          newW = potW;
+          newX = initialX + dx;
+        }
+      }
+      if (handle.includes("n")) {
+        const potH = initialH - dy;
+        if (potH > 40) {
+          newH = potH;
+          newY = initialY + dy;
+        }
+      }
+
+      onChangeProperty(activeSlideIndex, "title_x", Math.max(0, Math.round(newX)));
+      onChangeProperty(activeSlideIndex, "title_y", Math.max(0, Math.round(newY)));
+      onChangeProperty(activeSlideIndex, "title_width", Math.round(newW));
+      onChangeProperty(activeSlideIndex, "title_height", Math.round(newH));
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  return (
+    <div
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect("title");
+      }}
+      onMouseDown={handleMouseDown}
+      style={{
+        position: isMoved ? "absolute" : "relative",
+        left: isMoved ? `${x}px` : undefined,
+        top: isMoved ? `${y}px` : undefined,
+        width: width ? `${width}px` : "100%",
+        minHeight: height ? `${height}px` : undefined,
+        zIndex: isSelected ? 40 : 15,
+        outline: isSelected ? "2px solid #38bdf8" : "1.5px dashed transparent",
+        boxShadow: isSelected ? "0 0 16px rgba(56, 189, 248, 0.4)" : "none",
+        borderRadius: 8,
+        padding: "4px 8px",
+        boxSizing: "border-box",
+        cursor: isSelected ? "move" : "pointer",
+        transition: "outline 0.15s ease, box-shadow 0.15s ease",
+        marginBottom: isMoved ? 0 : 4,
+      }}
+      onMouseEnter={(e) => {
+        if (!isSelected) e.currentTarget.style.outline = "1.5px dashed rgba(56, 189, 248, 0.4)";
+      }}
+      onMouseLeave={(e) => {
+        if (!isSelected) e.currentTarget.style.outline = "1.5px dashed transparent";
+      }}
+    >
+      {/* POWERPOINT 365 TITLE QUICK FORMATTING MINI TOOLBAR */}
+      {isSelected && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="formatting-toolbar"
+          style={{
+            position: "absolute",
+            top: -40,
+            left: 0,
+            zIndex: 50,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            background: "linear-gradient(180deg, #090d16 0%, #1e293b 100%)",
+            border: "1px solid rgba(56, 189, 248, 0.6)",
+            borderRadius: 7,
+            padding: "3px 8px",
+            boxShadow: "0 6px 20px rgba(0, 0, 0, 0.7), 0 0 10px rgba(56, 189, 248, 0.3)",
+            whiteSpace: "nowrap",
+            backdropFilter: "blur(12px)",
+          }}
+        >
+          <span style={{ fontSize: 9.5, fontWeight: 900, color: "#38bdf8", paddingRight: 4, borderRight: "1px solid rgba(255,255,255,0.15)" }}>
+            ✥ TITLE
+          </span>
+
+          {/* FONT SIZE CONTROLS */}
+          <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <button
+              type="button"
+              onClick={() => onChangeProperty(activeSlideIndex, "title_font_size", Math.max(12, Number(fontSize) - 2))}
+              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 4, width: 20, height: 20, fontSize: 11, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+              title="Decrease Font Size"
+            >
+              −
+            </button>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", minWidth: 26, textAlign: "center" }}>
+              {fontSize}pt
+            </span>
+            <button
+              type="button"
+              onClick={() => onChangeProperty(activeSlideIndex, "title_font_size", Math.min(80, Number(fontSize) + 2))}
+              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 4, width: 20, height: 20, fontSize: 11, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+              title="Increase Font Size"
+            >
+              +
+            </button>
+          </div>
+
+          <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+
+          {/* BOLD & ITALIC */}
+          <button
+            type="button"
+            onClick={() => onChangeProperty(activeSlideIndex, "title_bold", !isBold)}
+            style={{ background: isBold ? "rgba(56, 189, 248, 0.3)" : "rgba(255,255,255,0.1)", border: isBold ? "1px solid #38bdf8" : "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 4, width: 20, height: 20, fontSize: 10, fontWeight: 900, cursor: "pointer" }}
+            title="Bold (B)"
+          >
+            B
+          </button>
+          <button
+            type="button"
+            onClick={() => onChangeProperty(activeSlideIndex, "title_italic", !isItalic)}
+            style={{ background: isItalic ? "rgba(56, 189, 248, 0.3)" : "rgba(255,255,255,0.1)", border: isItalic ? "1px solid #38bdf8" : "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 4, width: 20, height: 20, fontSize: 10, fontStyle: "italic", cursor: "pointer" }}
+            title="Italic (I)"
+          >
+            I
+          </button>
+
+          <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+
+          {/* COLOR PICKER */}
+          <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <span style={{ fontSize: 9.5, color: "rgba(255,255,255,0.7)" }}>🎨</span>
+            <input
+              type="color"
+              value={fontColor.startsWith("#") ? fontColor : "#ffffff"}
+              onChange={(e) => onChangeProperty(activeSlideIndex, "title_color", e.target.value)}
+              style={{ width: 20, height: 18, border: "none", borderRadius: 3, cursor: "pointer", background: "none" }}
+              title="Title Color"
+            />
+          </div>
+
+          <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+
+          {/* ALIGNMENT */}
+          <div style={{ display: "flex", gap: 2 }}>
+            {["left", "center", "right"].map((al) => (
+              <button
+                key={al}
+                type="button"
+                onClick={() => onChangeProperty(activeSlideIndex, "title_align", al)}
+                style={{
+                  background: alignment === al ? "rgba(56, 189, 248, 0.3)" : "rgba(255,255,255,0.1)",
+                  border: alignment === al ? "1px solid #38bdf8" : "1px solid rgba(255,255,255,0.2)",
+                  color: "#fff",
+                  borderRadius: 4,
+                  padding: "1px 4px",
+                  fontSize: 9,
+                  cursor: "pointer",
+                }}
+                title={`Align ${al}`}
+              >
+                {al === "left" ? "⬅" : al === "center" ? "⬍" : "➡"}
+              </button>
+            ))}
+          </div>
+
+          {isMoved && (
+            <>
+              <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+              <button
+                type="button"
+                onClick={() => {
+                  onChangeProperty(activeSlideIndex, "title_x", undefined);
+                  onChangeProperty(activeSlideIndex, "title_y", undefined);
+                  onChangeProperty(activeSlideIndex, "title_width", undefined);
+                  onChangeProperty(activeSlideIndex, "title_height", undefined);
+                }}
+                style={{ background: "rgba(244, 63, 94, 0.2)", border: "1px solid rgba(244, 63, 94, 0.4)", color: "#f43f5e", borderRadius: 4, padding: "1px 6px", fontSize: 9.5, fontWeight: 700, cursor: "pointer" }}
+                title="Reset position to default top"
+              >
+                ↺ Reset Pos
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* 8 RESIZE HANDLES */}
+      {isSelected && (
+        <>
+          <div onMouseDown={(e) => handleResizeStart("nw", e)} style={{ position: "absolute", top: -4, left: -4, width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "nwse-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("n", e)} style={{ position: "absolute", top: -4, left: "50%", transform: "translateX(-50%)", width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "ns-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("ne", e)} style={{ position: "absolute", top: -4, right: -4, width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "nesw-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("e", e)} style={{ position: "absolute", top: "50%", right: -4, transform: "translateY(-50%)", width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "ew-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("se", e)} style={{ position: "absolute", bottom: -4, right: -4, width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "nwse-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("s", e)} style={{ position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)", width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "ns-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("sw", e)} style={{ position: "absolute", bottom: -4, left: -4, width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "nesw-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("w", e)} style={{ position: "absolute", top: "50%", left: -4, transform: "translateY(-50%)", width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "ew-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+        </>
+      )}
+
+      {/* TOP TRACKER TAG */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+        <div style={{ fontSize: 11, fontWeight: "800", color: selectedBgConfig?.accent || "#38bdf8", opacity: 0.85, letterSpacing: 1 }}>
+          SLIDE {activeSlideIndex + 1} OF {totalSlides}
+        </div>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>✎ Click text to edit • ✥ Drag to move</span>
+      </div>
+
+      <h2
+        ref={titleInputRef}
+        contentEditable={true}
+        suppressContentEditableWarning={true}
+        onFocus={(e) => {
+          onSelect("title");
+        }}
+        onBlur={(e) => {
+          onChangeTitle(activeSlideIndex, e.target.innerText.trim() || "Click to add title");
+        }}
+        title="Click to edit slide title inline"
+        style={{
+          fontSize: `clamp(18px, 4vw, ${fontSize}px)`,
+          fontFamily: themeDS.titleFontFamily,
+          letterSpacing: themeDS.titleLetterSpacing,
+          textTransform: themeDS.titleTransform,
+          color: fontColor,
+          textAlign: alignment,
+          fontWeight: isBold ? 800 : 400,
+          fontStyle: isItalic ? "italic" : "normal",
+          margin: "2px 0",
+          wordBreak: "break-word",
+          outline: "none",
+          cursor: "text",
+          opacity: title ? 1 : 0.45,
+          lineHeight: 1.25,
+        }}
+      >
+        {title || "Click to add title"}
+      </h2>
+    </div>
+  );
+}
+
+export function DraggableSlideSubtitleBox({
+  activeSlide,
+  activeSlideIndex,
+  isSelected,
+  onSelect,
+  onChangeSubtitle,
+  onChangeProperty,
+  selectedBgPreset,
+  selectedBgConfig,
+  templateName,
+}) {
+  const subtitle = activeSlide?.subtitle || "";
+  const isMoved = activeSlide?.subtitle_x !== undefined || activeSlide?.subtitle_y !== undefined;
+  const x = activeSlide?.subtitle_x ?? 12;
+  const y = activeSlide?.subtitle_y ?? 65;
+  const width = activeSlide?.subtitle_width ?? (isMoved ? 500 : undefined);
+  const height = activeSlide?.subtitle_height ?? (isMoved ? 50 : undefined);
+  const fontSize = activeSlide?.subtitle_font_size || (activeSlideIndex === 0 ? 18 : 16);
+  const fontColor = activeSlide?.subtitle_color || (activeSlideIndex === 0 ? (selectedBgConfig.id === "clean_light" || selectedBgConfig.id === "titanium_white" ? "#334155" : "#e2e8f0") : "inherit");
+  const alignment = activeSlide?.subtitle_align || (activeSlideIndex === 0 ? "center" : "left");
+  const isItalic = activeSlide?.subtitle_italic !== undefined ? activeSlide.subtitle_italic : !subtitle;
+
+  const subInputRef = useRef(null);
+
+  const handleMouseDown = (e) => {
+    if (e.target.className?.includes?.("ppt-sub-input") || e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest(".formatting-toolbar")) {
+      return;
+    }
+    e.stopPropagation();
+    onSelect("subtitle");
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialX = activeSlide?.subtitle_x ?? (e.currentTarget.offsetLeft || 12);
+    const initialY = activeSlide?.subtitle_y ?? (e.currentTarget.offsetTop || 65);
+
+    const handleMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+      onChangeProperty(activeSlideIndex, "subtitle_x", Math.max(0, Math.round(initialX + dx)));
+      onChangeProperty(activeSlideIndex, "subtitle_y", Math.max(0, Math.round(initialY + dy)));
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleResizeStart = (handle, e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialW = e.currentTarget.parentElement?.offsetWidth || (width || 500);
+    const initialH = e.currentTarget.parentElement?.offsetHeight || (height || 50);
+    const initialX = activeSlide?.subtitle_x ?? 12;
+    const initialY = activeSlide?.subtitle_y ?? 65;
+
+    const handleMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+      let newW = initialW;
+      let newH = initialH;
+      let newX = initialX;
+      let newY = initialY;
+
+      if (handle.includes("e")) newW = Math.max(100, initialW + dx);
+      if (handle.includes("s")) newH = Math.max(30, initialH + dy);
+      if (handle.includes("w")) {
+        const potW = initialW - dx;
+        if (potW > 100) {
+          newW = potW;
+          newX = initialX + dx;
+        }
+      }
+      if (handle.includes("n")) {
+        const potH = initialH - dy;
+        if (potH > 30) {
+          newH = potH;
+          newY = initialY + dy;
+        }
+      }
+
+      onChangeProperty(activeSlideIndex, "subtitle_x", Math.max(0, Math.round(newX)));
+      onChangeProperty(activeSlideIndex, "subtitle_y", Math.max(0, Math.round(newY)));
+      onChangeProperty(activeSlideIndex, "subtitle_width", Math.round(newW));
+      onChangeProperty(activeSlideIndex, "subtitle_height", Math.round(newH));
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  return (
+    <div
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect("subtitle");
+      }}
+      onMouseDown={handleMouseDown}
+      style={{
+        position: isMoved ? "absolute" : "relative",
+        left: isMoved ? `${x}px` : undefined,
+        top: isMoved ? `${y}px` : undefined,
+        width: width ? `${width}px` : "100%",
+        minHeight: height ? `${height}px` : undefined,
+        zIndex: isSelected ? 40 : 14,
+        outline: isSelected ? "2px solid #c084fc" : "1.5px dashed transparent",
+        boxShadow: isSelected ? "0 0 16px rgba(192, 132, 252, 0.4)" : "none",
+        borderRadius: 8,
+        padding: "4px 8px",
+        boxSizing: "border-box",
+        cursor: isSelected ? "move" : "pointer",
+        transition: "outline 0.15s ease, box-shadow 0.15s ease",
+        marginTop: isMoved ? 0 : 2,
+        marginBottom: isMoved ? 0 : 6,
+      }}
+      onMouseEnter={(e) => {
+        if (!isSelected) e.currentTarget.style.outline = "1.5px dashed rgba(192, 132, 252, 0.4)";
+      }}
+      onMouseLeave={(e) => {
+        if (!isSelected) e.currentTarget.style.outline = "1.5px dashed transparent";
+      }}
+    >
+      {/* POWERPOINT 365 SUBTITLE QUICK FORMATTING MINI TOOLBAR */}
+      {isSelected && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="formatting-toolbar"
+          style={{
+            position: "absolute",
+            top: -40,
+            left: 0,
+            zIndex: 50,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            background: "linear-gradient(180deg, #090d16 0%, #1e293b 100%)",
+            border: "1px solid rgba(192, 132, 252, 0.6)",
+            borderRadius: 7,
+            padding: "3px 8px",
+            boxShadow: "0 6px 20px rgba(0, 0, 0, 0.7), 0 0 10px rgba(192, 132, 252, 0.3)",
+            whiteSpace: "nowrap",
+            backdropFilter: "blur(12px)",
+          }}
+        >
+          <span style={{ fontSize: 9.5, fontWeight: 900, color: "#c084fc", paddingRight: 4, borderRight: "1px solid rgba(255,255,255,0.15)" }}>
+            ✥ SUBTITLE
+          </span>
+
+          {/* FONT SIZE CONTROLS */}
+          <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <button
+              type="button"
+              onClick={() => onChangeProperty(activeSlideIndex, "subtitle_font_size", Math.max(10, Number(fontSize) - 1))}
+              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 4, width: 20, height: 20, fontSize: 11, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+              title="Decrease Font Size"
+            >
+              −
+            </button>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#c084fc", minWidth: 26, textAlign: "center" }}>
+              {fontSize}pt
+            </span>
+            <button
+              type="button"
+              onClick={() => onChangeProperty(activeSlideIndex, "subtitle_font_size", Math.min(50, Number(fontSize) + 1))}
+              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 4, width: 20, height: 20, fontSize: 11, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+              title="Increase Font Size"
+            >
+              +
+            </button>
+          </div>
+
+          <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+
+          {/* COLOR PICKER */}
+          <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <span style={{ fontSize: 9.5, color: "rgba(255,255,255,0.7)" }}>🎨</span>
+            <input
+              type="color"
+              value={fontColor.startsWith("#") ? fontColor : "#e2e8f0"}
+              onChange={(e) => onChangeProperty(activeSlideIndex, "subtitle_color", e.target.value)}
+              style={{ width: 20, height: 18, border: "none", borderRadius: 3, cursor: "pointer", background: "none" }}
+              title="Subtitle Color"
+            />
+          </div>
+
+          <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+
+          {/* ALIGNMENT */}
+          <div style={{ display: "flex", gap: 2 }}>
+            {["left", "center", "right"].map((al) => (
+              <button
+                key={al}
+                type="button"
+                onClick={() => onChangeProperty(activeSlideIndex, "subtitle_align", al)}
+                style={{
+                  background: alignment === al ? "rgba(192, 132, 252, 0.3)" : "rgba(255,255,255,0.1)",
+                  border: alignment === al ? "1px solid #c084fc" : "1px solid rgba(255,255,255,0.2)",
+                  color: "#fff",
+                  borderRadius: 4,
+                  padding: "1px 4px",
+                  fontSize: 9,
+                  cursor: "pointer",
+                }}
+                title={`Align ${al}`}
+              >
+                {al === "left" ? "⬅" : al === "center" ? "⬍" : "➡"}
+              </button>
+            ))}
+          </div>
+
+          {isMoved && (
+            <>
+              <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+              <button
+                type="button"
+                onClick={() => {
+                  onChangeProperty(activeSlideIndex, "subtitle_x", undefined);
+                  onChangeProperty(activeSlideIndex, "subtitle_y", undefined);
+                  onChangeProperty(activeSlideIndex, "subtitle_width", undefined);
+                  onChangeProperty(activeSlideIndex, "subtitle_height", undefined);
+                }}
+                style={{ background: "rgba(244, 63, 94, 0.2)", border: "1px solid rgba(244, 63, 94, 0.4)", color: "#f43f5e", borderRadius: 4, padding: "1px 6px", fontSize: 9.5, fontWeight: 700, cursor: "pointer" }}
+                title="Reset position to default"
+              >
+                ↺ Reset Pos
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* 8 RESIZE HANDLES */}
+      {isSelected && (
+        <>
+          <div onMouseDown={(e) => handleResizeStart("nw", e)} style={{ position: "absolute", top: -4, left: -4, width: 8, height: 8, background: "#ffffff", border: "1.5px solid #a855f7", borderRadius: "50%", cursor: "nwse-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("n", e)} style={{ position: "absolute", top: -4, left: "50%", transform: "translateX(-50%)", width: 8, height: 8, background: "#ffffff", border: "1.5px solid #a855f7", borderRadius: "50%", cursor: "ns-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("ne", e)} style={{ position: "absolute", top: -4, right: -4, width: 8, height: 8, background: "#ffffff", border: "1.5px solid #a855f7", borderRadius: "50%", cursor: "nesw-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("e", e)} style={{ position: "absolute", top: "50%", right: -4, transform: "translateY(-50%)", width: 8, height: 8, background: "#ffffff", border: "1.5px solid #a855f7", borderRadius: "50%", cursor: "ew-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("se", e)} style={{ position: "absolute", bottom: -4, right: -4, width: 8, height: 8, background: "#ffffff", border: "1.5px solid #a855f7", borderRadius: "50%", cursor: "nwse-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("s", e)} style={{ position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)", width: 8, height: 8, background: "#ffffff", border: "1.5px solid #a855f7", borderRadius: "50%", cursor: "ns-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("sw", e)} style={{ position: "absolute", bottom: -4, left: -4, width: 8, height: 8, background: "#ffffff", border: "1.5px solid #a855f7", borderRadius: "50%", cursor: "nesw-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+          <div onMouseDown={(e) => handleResizeStart("w", e)} style={{ position: "absolute", top: "50%", left: -4, transform: "translateY(-50%)", width: 8, height: 8, background: "#ffffff", border: "1.5px solid #a855f7", borderRadius: "50%", cursor: "ew-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }} />
+        </>
+      )}
+
+      <div
+        ref={subInputRef}
+        className="ppt-sub-input"
+        contentEditable={true}
+        suppressContentEditableWarning={true}
+        onFocus={(e) => {
+          onSelect("subtitle");
+        }}
+        onBlur={(e) => {
+          onChangeSubtitle(activeSlideIndex, e.target.innerText.trim());
+        }}
+        title="Click to edit slide subtitle inline"
+        style={{
+          fontSize: `clamp(12px, 2.2vw, ${fontSize}px)`,
+          color: fontColor,
+          textAlign: alignment,
+          opacity: subtitle ? 0.95 : 0.45,
+          fontWeight: 500,
+          wordBreak: "break-word",
+          outline: "none",
+          cursor: "text",
+          fontStyle: isItalic ? "italic" : "normal",
+          lineHeight: 1.4,
+        }}
+      >
+        {subtitle || "Click to add subtitle"}
+      </div>
+    </div>
+  );
+}
+
 export function SelectablePluginWrapper({
   plugin,
   pIdx,
@@ -1238,30 +1845,95 @@ export function SelectablePluginWrapper({
   const currentFontColor = data.font_color || data.color || data.text_color || "inherit";
   const currentBgColor = data.bg_color || data.background || data.fill || "transparent";
   const currentPadding = data.padding !== undefined ? data.padding : 8;
+  const currentAlignment = data.alignment || data.align || "left";
+  const isBold = data.bold ?? (plugin?.type === "subtitle" ? true : false);
+  const isItalic = !!data.italic;
+  const isMoved = data.x !== undefined || data.y !== undefined;
+  const x = data.x ?? 0;
+  const y = data.y ?? 0;
   const currentWidth = data.width;
+  const currentHeight = data.height;
+
+  const handleMouseDown = (e) => {
+    if (
+      e.target.isContentEditable ||
+      e.target.tagName === "INPUT" ||
+      e.target.tagName === "TEXTAREA" ||
+      e.target.tagName === "SELECT" ||
+      e.target.tagName === "BUTTON" ||
+      e.target.closest(".formatting-toolbar") ||
+      e.target.closest("button")
+    ) {
+      return;
+    }
+    e.stopPropagation();
+    onSelect(pIdx);
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialX = data.x ?? (e.currentTarget.offsetLeft || 0);
+    const initialY = data.y ?? (e.currentTarget.offsetTop || 0);
+
+    const handleMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+      onUpdateData(pIdx, {
+        x: Math.max(0, Math.round(initialX + dx)),
+        y: Math.max(0, Math.round(initialY + dy)),
+      });
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
 
   const handleResizeStart = (handle, e) => {
     e.stopPropagation();
     e.preventDefault();
     const startX = e.clientX;
     const startY = e.clientY;
-    const initialWidth = e.currentTarget.parentElement?.offsetWidth || 400;
-    const initialPadding = typeof currentPadding === "number" ? currentPadding : 8;
+    const initialWidth = e.currentTarget.parentElement?.offsetWidth || (currentWidth || 400);
+    const initialHeight = e.currentTarget.parentElement?.offsetHeight || (currentHeight || 80);
+    const initialX = data.x ?? (e.currentTarget.parentElement?.offsetLeft || 0);
+    const initialY = data.y ?? (e.currentTarget.parentElement?.offsetTop || 0);
 
     const handleMouseMove = (moveEvent) => {
       const dx = moveEvent.clientX - startX;
       const dy = moveEvent.clientY - startY;
 
-      if (handle.includes("e") || handle.includes("w")) {
-        const factor = handle.includes("w") ? -1 : 1;
-        const newW = Math.max(140, initialWidth + dx * factor * 2);
-        onUpdateData(pIdx, { width: Math.round(newW) });
+      let newW = initialWidth;
+      let newH = initialHeight;
+      let newX = initialX;
+      let newY = initialY;
+
+      if (handle.includes("e")) newW = Math.max(80, initialWidth + dx);
+      if (handle.includes("s")) newH = Math.max(30, initialHeight + dy);
+      if (handle.includes("w")) {
+        const potW = initialWidth - dx;
+        if (potW > 80) {
+          newW = potW;
+          newX = initialX + dx;
+        }
       }
-      if (handle.includes("s") || handle.includes("n")) {
-        const factor = handle.includes("n") ? -1 : 1;
-        const newPad = Math.max(2, Math.min(32, initialPadding + Math.round(dy * factor / 4)));
-        onUpdateData(pIdx, { padding: newPad });
+      if (handle.includes("n")) {
+        const potH = initialHeight - dy;
+        if (potH > 30) {
+          newH = potH;
+          newY = initialY + dy;
+        }
       }
+
+      onUpdateData(pIdx, {
+        x: Math.max(0, Math.round(newX)),
+        y: Math.max(0, Math.round(newY)),
+        width: Math.round(newW),
+        height: Math.round(newH),
+      });
     };
 
     const handleMouseUp = () => {
@@ -1279,21 +1951,26 @@ export function SelectablePluginWrapper({
         e.stopPropagation();
         onSelect(pIdx);
       }}
+      onMouseDown={handleMouseDown}
       style={{
-        position: "relative",
+        position: isMoved ? "absolute" : "relative",
+        left: isMoved ? `${x}px` : undefined,
+        top: isMoved ? `${y}px` : undefined,
         borderRadius: 8,
         outline: isSelected ? "2px solid #38bdf8" : "1.5px dashed transparent",
-        boxShadow: isSelected ? "0 0 14px rgba(56, 189, 248, 0.4)" : "none",
+        boxShadow: isSelected ? "0 0 16px rgba(56, 189, 248, 0.4)" : "none",
         background: currentBgColor !== "transparent" ? currentBgColor : undefined,
         color: currentFontColor !== "inherit" ? currentFontColor : undefined,
         fontSize: currentFontSize ? `${currentFontSize}px` : undefined,
         padding: isSelected ? Math.max(4, currentPadding) : currentPadding,
         width: currentWidth ? `${currentWidth}px` : "100%",
+        minHeight: currentHeight ? `${currentHeight}px` : undefined,
         maxWidth: "100%",
         boxSizing: "border-box",
         transition: "outline 0.15s ease, box-shadow 0.15s ease",
-        cursor: isSelected ? "default" : "pointer",
-        margin: "3px 0",
+        cursor: isSelected ? "move" : "pointer",
+        margin: isMoved ? 0 : "3px 0",
+        zIndex: isSelected ? 40 : (data.z_index || 10),
       }}
       onMouseEnter={(e) => {
         if (!isSelected) e.currentTarget.style.outline = "1.5px dashed rgba(56, 189, 248, 0.4)";
@@ -1306,26 +1983,31 @@ export function SelectablePluginWrapper({
       {isSelected && (
         <div
           onClick={(e) => e.stopPropagation()}
+          className="formatting-toolbar"
           style={{
             position: "absolute",
-            top: -38,
+            top: -40,
             left: 0,
-            zIndex: 45,
+            zIndex: 50,
             display: "inline-flex",
             alignItems: "center",
             gap: 5,
             background: "linear-gradient(180deg, #090d16 0%, #1e293b 100%)",
             border: "1px solid rgba(56, 189, 248, 0.6)",
             borderRadius: 7,
-            padding: "2px 8px",
+            padding: "3px 8px",
             boxShadow: "0 6px 20px rgba(0, 0, 0, 0.7), 0 0 10px rgba(56, 189, 248, 0.3)",
             whiteSpace: "nowrap",
             backdropFilter: "blur(12px)",
           }}
         >
+          {/* ELEMENT BADGE */}
+          <span style={{ fontSize: 9.5, fontWeight: 900, color: "#38bdf8", paddingRight: 4, borderRight: "1px solid rgba(255,255,255,0.15)" }}>
+            ✥ {String(plugin?.type || "ELEMENT").toUpperCase()}
+          </span>
+
           {/* FONT SIZE CONTROLS */}
           <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.6)", marginRight: 2 }}>A</span>
             <button
               type="button"
               onClick={() => onUpdateData(pIdx, { font_size: Math.max(9, Math.round(currentFontSize) - 1) })}
@@ -1375,9 +2057,49 @@ export function SelectablePluginWrapper({
 
           <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
 
+          {/* BOLD & ITALIC */}
+          <button
+            type="button"
+            onClick={() => onUpdateData(pIdx, { bold: !isBold })}
+            style={{
+              background: isBold ? "rgba(56, 189, 248, 0.3)" : "rgba(255,255,255,0.1)",
+              border: isBold ? "1px solid #38bdf8" : "1px solid rgba(255,255,255,0.2)",
+              color: "#fff",
+              borderRadius: 4,
+              width: 18,
+              height: 18,
+              fontSize: 10,
+              fontWeight: 900,
+              cursor: "pointer",
+            }}
+            title="Bold (B)"
+          >
+            B
+          </button>
+          <button
+            type="button"
+            onClick={() => onUpdateData(pIdx, { italic: !isItalic })}
+            style={{
+              background: isItalic ? "rgba(56, 189, 248, 0.3)" : "rgba(255,255,255,0.1)",
+              border: isItalic ? "1px solid #38bdf8" : "1px solid rgba(255,255,255,0.2)",
+              color: "#fff",
+              borderRadius: 4,
+              width: 18,
+              height: 18,
+              fontSize: 10,
+              fontStyle: "italic",
+              cursor: "pointer",
+            }}
+            title="Italic (I)"
+          >
+            I
+          </button>
+
+          <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+
           {/* FONT COLOR PICKER */}
-          <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-            <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.6)" }}>COLOR</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.6)" }}>🎨</span>
             <label
               title="Text Font Color"
               style={{
@@ -1406,8 +2128,8 @@ export function SelectablePluginWrapper({
           <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
 
           {/* BACKGROUND FILL PICKER */}
-          <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-            <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.6)" }}>BG</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.6)" }}>🔲</span>
             <label
               title="Box Background Color"
               style={{
@@ -1444,49 +2166,27 @@ export function SelectablePluginWrapper({
 
           <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
 
-          {/* BOX SIZE (PADDING / WIDTH / SCALE) */}
-          <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.6)" }}>BOX</span>
-            <button
-              type="button"
-              onClick={() => {
-                const newPad = Math.max(2, (typeof currentPadding === "number" ? currentPadding : 8) - 2);
-                onUpdateData(pIdx, { padding: newPad });
-              }}
-              style={{
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                borderRadius: 4,
-                padding: "1px 4px",
-                fontSize: 9.5,
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-              title="Decrease Box Size (Padding)"
-            >
-              Size −
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const newPad = Math.min(32, (typeof currentPadding === "number" ? currentPadding : 8) + 2);
-                onUpdateData(pIdx, { padding: newPad });
-              }}
-              style={{
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                borderRadius: 4,
-                padding: "1px 4px",
-                fontSize: 9.5,
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-              title="Increase Box Size (Padding)"
-            >
-              Size +
-            </button>
+          {/* ALIGNMENT */}
+          <div style={{ display: "flex", gap: 2 }}>
+            {["left", "center", "right"].map((al) => (
+              <button
+                key={al}
+                type="button"
+                onClick={() => onUpdateData(pIdx, { alignment: al, align: al })}
+                style={{
+                  background: currentAlignment === al ? "rgba(56, 189, 248, 0.3)" : "rgba(255,255,255,0.1)",
+                  border: currentAlignment === al ? "1px solid #38bdf8" : "1px solid rgba(255,255,255,0.2)",
+                  color: "#fff",
+                  borderRadius: 4,
+                  padding: "1px 4px",
+                  fontSize: 9,
+                  cursor: "pointer",
+                }}
+                title={`Align ${al}`}
+              >
+                {al === "left" ? "⬅" : al === "center" ? "⬍" : "➡"}
+              </button>
+            ))}
           </div>
 
           <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
@@ -1500,7 +2200,7 @@ export function SelectablePluginWrapper({
               border: "1px solid rgba(56, 189, 248, 0.4)",
               color: "#38bdf8",
               borderRadius: 4,
-              padding: "1px 4px",
+              padding: "1px 5px",
               fontSize: 9.5,
               fontWeight: 700,
               cursor: "pointer",
@@ -1517,7 +2217,7 @@ export function SelectablePluginWrapper({
               border: "1px solid rgba(244, 63, 94, 0.4)",
               color: "#f43f5e",
               borderRadius: 4,
-              padding: "1px 4px",
+              padding: "1px 5px",
               fontSize: 9.5,
               fontWeight: 700,
               cursor: "pointer",
@@ -1526,44 +2226,37 @@ export function SelectablePluginWrapper({
           >
             🗑️
           </button>
+
+          {isMoved && (
+            <>
+              <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+              <button
+                type="button"
+                onClick={() => {
+                  onUpdateData(pIdx, { x: undefined, y: undefined, width: undefined, height: undefined });
+                }}
+                style={{
+                  background: "rgba(244, 63, 94, 0.2)",
+                  border: "1px solid rgba(244, 63, 94, 0.4)",
+                  color: "#f43f5e",
+                  borderRadius: 4,
+                  padding: "1px 6px",
+                  fontSize: 9.5,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+                title="Reset position to default flow"
+              >
+                ↺ Reset Pos
+              </button>
+            </>
+          )}
         </div>
       )}
 
       {/* 8 RESIZE HANDLES & TOP ROTATION STEM (AUTHENTIC POWERPOINT 365 STYLE) */}
       {isSelected && (
         <>
-          {/* TOP ROTATION STEM & CIRCLE */}
-          <div
-            style={{
-              position: "absolute",
-              top: -18,
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: 1,
-              height: 14,
-              background: "#38bdf8",
-              zIndex: 30,
-              pointerEvents: "none",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              top: -24,
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: 10,
-              height: 10,
-              borderRadius: "50%",
-              background: "#ffffff",
-              border: "1.5px solid #0284c7",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.4)",
-              cursor: "grab",
-              zIndex: 31,
-            }}
-            title="Rotate"
-          />
-
           {/* 8 CIRCULAR WHITE GRAB HANDLES */}
           <div
             onMouseDown={(e) => handleResizeStart("nw", e)}
@@ -2349,6 +3042,8 @@ export default function PresentationEditor({
   const [showNotesPane, setShowNotesPane] = useState(false);
   const [viewMode, setViewMode] = useState("normal"); // "normal" | "sorter" | "reading" | "slideshow"
   const [contextMenu, setContextMenu] = useState(null);
+  const [clipboardPlugin, setClipboardPlugin] = useState(null);
+  const [contextSearchQuery, setContextSearchQuery] = useState("");
 
   useEffect(() => {
     const handleCloseMenu = () => setContextMenu(null);
@@ -3007,24 +3702,35 @@ export default function PresentationEditor({
             {/* LEFT COLUMN: VERTICAL SLIDE LIST RAIL (POWERPOINT 365 16:9 THUMBNAIL RAIL) */}
             <div className="slide-sidebar-rail">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4, paddingBottom: 6, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", letterSpacing: 0.5, textTransform: "uppercase" }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: "#c084fc", letterSpacing: 0.5, textTransform: "uppercase" }}>
                   Slides ({plan?.slides?.length || 0})
                 </span>
                 <button
                   type="button"
                   onClick={handleAddBlankSlide}
                   style={{
-                    background: "rgba(234, 88, 12, 0.15)",
-                    border: "1px solid rgba(234, 88, 12, 0.5)",
-                    color: "#ea580c",
-                    borderRadius: 4,
-                    padding: "2px 6px",
+                    background: "rgba(139, 92, 246, 0.15)",
+                    border: "1px solid rgba(139, 92, 246, 0.4)",
+                    color: "#c084fc",
+                    borderRadius: 6,
+                    padding: "3px 8px",
                     fontSize: 10,
                     fontWeight: 700,
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 3,
                     cursor: "pointer",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = "rgba(139, 92, 246, 0.3)";
+                    e.currentTarget.style.borderColor = "#38bdf8";
+                    e.currentTarget.style.color = "#38bdf8";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = "rgba(139, 92, 246, 0.15)";
+                    e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.4)";
+                    e.currentTarget.style.color = "#c084fc";
                   }}
                   title="Add New Blank Slide"
                 >
@@ -3403,6 +4109,7 @@ export default function PresentationEditor({
 
                     <div
                       className="slide-canvas-box"
+                      onClick={() => setSelectedPluginIndex(null)}
                       onContextMenu={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -3413,6 +4120,9 @@ export default function PresentationEditor({
                         });
                       }}
                       style={{
+                        borderRadius: 0,
+                        margin: 0,
+                        padding: 2,
                         background: activeSlide?.customBgColor1
                           ? (activeSlide.customBgColor2 ? `linear-gradient(135deg, ${activeSlide.customBgColor1} 0%, ${activeSlide.customBgColor2} 100%)` : activeSlide.customBgColor1)
                           : (selectedBgConfig.bg),
@@ -3697,68 +4407,19 @@ export default function PresentationEditor({
                       </div>
                     )}
 
-                    {/* POWERPOINT-STYLE TITLE PLACEHOLDER BOX */}
-                    <div
-                      className="ppt-title-box"
-                      style={{
-                        width: "100%",
-                        textAlign: activeSlide.title_align || (activeSlideIndex === 0 ? "center" : "left"),
-                        paddingLeft: (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "sidebar_rail" || getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).archetype === "sidebar_rail" ? 48 : (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "split_geometric" ? 42 : 8)),
-                        paddingRight: 8,
-                        paddingTop: (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "top_header_bar" || getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "crimson_banner" ? 34 : 4),
-                        border: "1.5px dashed transparent",
-                        borderRadius: 8,
-                        paddingBottom: 4,
-                        transition: "all 0.15s ease",
-                        position: "relative",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.35)";
-                      }}
-                      onMouseLeave={(e) => {
-                        if (document.activeElement !== e.currentTarget.querySelector("h2")) {
-                          e.currentTarget.style.borderColor = "transparent";
-                        }
-                      }}
-                    >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
-                        <div style={{ fontSize: 11, fontWeight: "800", color: selectedBgConfig?.accent || "inherit", opacity: 0.85, letterSpacing: 1 }}>
-                          SLIDE {activeSlideIndex + 1} OF {plan.slides.length}
-                        </div>
-                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>✎ Click text to edit</span>
-                      </div>
-                      <h2
-                        contentEditable={true}
-                        suppressContentEditableWarning={true}
-                        onFocus={(e) => {
-                          e.currentTarget.parentElement.style.borderColor = "#38bdf8";
-                          e.currentTarget.parentElement.style.background = "rgba(56, 189, 248, 0.04)";
-                        }}
-                        onBlur={(e) => {
-                          e.currentTarget.parentElement.style.borderColor = "transparent";
-                          e.currentTarget.parentElement.style.background = "transparent";
-                          handleSlideTitleChange(activeSlideIndex, e.target.innerText.trim() || "Click to add title");
-                        }}
-                        title="Click to edit slide title inline"
-                        style={{
-                          fontSize: `clamp(20px, 4.2vw, ${activeSlide.title_font_size || (activeSlideIndex === 0 ? 44 : 28)}px)`,
-                          fontFamily: getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).titleFontFamily,
-                          letterSpacing: getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).titleLetterSpacing,
-                          textTransform: getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).titleTransform,
-                          color: activeSlide.title_color || "inherit",
-                          textAlign: activeSlide.title_align || (activeSlideIndex === 0 ? "center" : "left"),
-                          fontWeight: activeSlide.title_bold === false ? 400 : 800,
-                          margin: "2px 0",
-                          wordBreak: "break-word",
-                          outline: "none",
-                          cursor: "text",
-                          opacity: activeSlide.title ? 1 : 0.45,
-                          lineHeight: 1.25,
-                        }}
-                      >
-                        {activeSlide.title || "Click to add title"}
-                      </h2>
-                    </div>
+                    {/* DRAGGABLE & RESIZABLE SLIDE TITLE BOX */}
+                    <DraggableSlideTitleBox
+                      activeSlide={activeSlide}
+                      activeSlideIndex={activeSlideIndex}
+                      totalSlides={plan?.slides?.length || 1}
+                      isSelected={selectedPluginIndex === "title"}
+                      onSelect={(val) => setSelectedPluginIndex(val)}
+                      onChangeTitle={handleSlideTitleChange}
+                      onChangeProperty={handleSlidePropertyChange}
+                      selectedBgPreset={selectedBgPreset}
+                      selectedBgConfig={selectedBgConfig}
+                      templateName={templateName}
+                    />
 
                     {/* THEME-SPECIFIC ACCENT DIVIDER BAR (SLIDE 1) */}
                     {activeSlideIndex === 0 && (
@@ -3783,61 +4444,18 @@ export default function PresentationEditor({
                       </div>
                     )}
 
-                    {/* POWERPOINT-STYLE SUBTITLE PLACEHOLDER BOX */}
-                    <div
-                      className="ppt-subtitle-box"
-                      style={{
-                        width: "100%",
-                        textAlign: activeSlide.subtitle_align || (activeSlideIndex === 0 ? "center" : "left"),
-                        paddingLeft: (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "sidebar_rail" || getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).archetype === "sidebar_rail" ? 48 : (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "split_geometric" ? 42 : 8)),
-                        paddingRight: 8,
-                        border: "1.5px dashed transparent",
-                        borderRadius: 8,
-                        paddingTop: 4,
-                        paddingBottom: 4,
-                        marginTop: 2,
-                        transition: "all 0.15s ease",
-                        position: "relative",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = "rgba(192, 132, 252, 0.35)";
-                      }}
-                      onMouseLeave={(e) => {
-                        if (document.activeElement !== e.currentTarget.querySelector(".ppt-sub-input")) {
-                          e.currentTarget.style.borderColor = "transparent";
-                        }
-                      }}
-                    >
-                      <div
-                        className="ppt-sub-input"
-                        contentEditable={true}
-                        suppressContentEditableWarning={true}
-                        onFocus={(e) => {
-                          e.currentTarget.parentElement.style.borderColor = "#c084fc";
-                          e.currentTarget.parentElement.style.background = "rgba(192, 132, 252, 0.04)";
-                        }}
-                        onBlur={(e) => {
-                          e.currentTarget.parentElement.style.borderColor = "transparent";
-                          e.currentTarget.parentElement.style.background = "transparent";
-                          handleSlideSubtitleChange(activeSlideIndex, e.target.innerText.trim());
-                        }}
-                        title="Click to edit slide subtitle inline"
-                        style={{
-                          fontSize: `clamp(13px, 2.4vw, ${activeSlide.subtitle_font_size || (activeSlideIndex === 0 ? 18 : 16)}px)`,
-                          color: activeSlide.subtitle_color || (activeSlideIndex === 0 ? (selectedBgConfig.id === "clean_light" || selectedBgConfig.id === "titanium_white" ? "#334155" : "#e2e8f0") : "inherit"),
-                          textAlign: activeSlide.subtitle_align || (activeSlideIndex === 0 ? "center" : "left"),
-                          opacity: activeSlide.subtitle ? 0.95 : 0.45,
-                          fontWeight: 500,
-                          wordBreak: "break-word",
-                          outline: "none",
-                          cursor: "text",
-                          fontStyle: activeSlide.subtitle ? "normal" : "italic",
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        {activeSlide.subtitle || "Click to add subtitle"}
-                      </div>
-                    </div>
+                    {/* DRAGGABLE & RESIZABLE SLIDE SUBTITLE BOX */}
+                    <DraggableSlideSubtitleBox
+                      activeSlide={activeSlide}
+                      activeSlideIndex={activeSlideIndex}
+                      isSelected={selectedPluginIndex === "subtitle"}
+                      onSelect={(val) => setSelectedPluginIndex(val)}
+                      onChangeSubtitle={handleSlideSubtitleChange}
+                      onChangeProperty={handleSlidePropertyChange}
+                      selectedBgPreset={selectedBgPreset}
+                      selectedBgConfig={selectedBgConfig}
+                      templateName={templateName}
+                    />
 
                     {/* COVER FOOTER (SLIDE 1) */}
                     {activeSlideIndex === 0 && (
@@ -7220,114 +7838,120 @@ export default function PresentationEditor({
               />
             </div>
           )}
-
-          {/* POWERPOINT 365 BOTTOM STATUS BAR */}
-          <div className="ppt-bottom-status-bar">
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <span>Slide {activeSlideIndex + 1} of {plan?.slides?.length || 1}</span>
-              <span style={{ opacity: 0.5 }}>|</span>
-              <span>English (United States)</span>
-              <span style={{ opacity: 0.5 }}>|</span>
-              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <span style={{ color: "#22c55e", fontSize: 10 }}>●</span> Accessibility: Good
-              </span>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <button
-                type="button"
-                className={`ppt-status-btn ${showNotesPane ? "active" : ""}`}
-                onClick={() => setShowNotesPane((prev) => !prev)}
-                title="Toggle Speaker Notes Pane"
-              >
-                📝 Notes
-              </button>
-              <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.15)" }} />
-              <button
-                type="button"
-                className={`ppt-status-btn ${viewMode === "normal" ? "active" : ""}`}
-                onClick={() => setViewMode("normal")}
-                title="Normal View"
-              >
-                🔲 Normal
-              </button>
-              <button
-                type="button"
-                className={`ppt-status-btn ${viewMode === "sorter" ? "active" : ""}`}
-                onClick={() => setViewMode("sorter")}
-                title="Slide Sorter"
-              >
-                ▦ Sorter
-              </button>
-              <button
-                type="button"
-                className={`ppt-status-btn ${viewMode === "reading" ? "active" : ""}`}
-                onClick={() => setViewMode("reading")}
-                title="Reading View"
-              >
-                📖 Reading
-              </button>
-              <button
-                type="button"
-                className="ppt-status-btn"
-                onClick={() => setViewMode("slideshow")}
-                style={{ color: "#ea580c", fontWeight: 700 }}
-                title="Start Slide Show (Fullscreen)"
-              >
-                ▶ Slide Show
-              </button>
-              <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.15)" }} />
-              {/* POWERPOINT ZOOM CONTROLS */}
-              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <button
-                  type="button"
-                  onClick={() => setZoomLevel((prev) => Math.max(50, prev - 10))}
-                  style={{ background: "none", border: "none", color: "#cbd5e1", cursor: "pointer", fontWeight: 700, padding: "0 2px" }}
-                  title="Zoom Out (−)"
-                >
-                  −
-                </button>
-                <input
-                  type="range"
-                  min={50}
-                  max={150}
-                  step={5}
-                  value={zoomLevel}
-                  onChange={(e) => setZoomLevel(Number(e.target.value))}
-                  style={{ width: 65, height: 3, accentColor: "#ea580c", cursor: "pointer" }}
-                  title={`Zoom: ${zoomLevel}%`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setZoomLevel((prev) => Math.min(150, prev + 10))}
-                  style={{ background: "none", border: "none", color: "#cbd5e1", cursor: "pointer", fontWeight: 700, padding: "0 2px" }}
-                  title="Zoom In (+)"
-                >
-                  +
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setZoomLevel(100)}
-                  style={{
-                    background: "rgba(255,255,255,0.08)",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    borderRadius: 4,
-                    color: "#cbd5e1",
-                    fontSize: 10,
-                    padding: "1px 5px",
-                    cursor: "pointer",
-                  }}
-                  title="Reset Zoom to 100% (Fit to Window)"
-                >
-                  {zoomLevel}% ⊡
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
+      </div>
+
+  {/* POWERPOINT 365 BOTTOM STATUS BAR (FULL WIDTH SPANNING UNDER SIDEBAR & CANVAS) */}
+  <div className="ppt-bottom-status-bar">
+    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+      <span style={{ fontWeight: 600, color: "#f8fafc" }}>Slide {activeSlideIndex + 1} of {plan?.slides?.length || 1}</span>
+      <span style={{ opacity: 0.3, color: "#8b5cf6" }}>|</span>
+      <span>English (United States)</span>
+      <span style={{ opacity: 0.3, color: "#8b5cf6" }}>|</span>
+      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <span style={{ color: "#22c55e", fontSize: 10 }}>●</span> Accessibility: Good
+      </span>
+    </div>
+
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <button
+        type="button"
+        className={`ppt-status-btn ${showNotesPane ? "active" : ""}`}
+        onClick={() => setShowNotesPane((prev) => !prev)}
+        title="Toggle Speaker Notes Pane"
+      >
+        📝 Notes
+      </button>
+      <div style={{ width: 1, height: 12, background: "rgba(139, 92, 246, 0.25)" }} />
+      <button
+        type="button"
+        className={`ppt-status-btn ${viewMode === "normal" ? "active" : ""}`}
+        onClick={() => setViewMode("normal")}
+        title="Normal View"
+      >
+        🔲 Normal
+      </button>
+      <button
+        type="button"
+        className={`ppt-status-btn ${viewMode === "sorter" ? "active" : ""}`}
+        onClick={() => setViewMode("sorter")}
+        title="Slide Sorter"
+      >
+        ▦ Sorter
+      </button>
+      <button
+        type="button"
+        className={`ppt-status-btn ${viewMode === "reading" ? "active" : ""}`}
+        onClick={() => setViewMode("reading")}
+        title="Reading View"
+      >
+        📖 Reading
+      </button>
+      <button
+        type="button"
+        className="ppt-status-btn"
+        onClick={() => setViewMode("slideshow")}
+        style={{
+          color: "#38bdf8",
+          fontWeight: 700,
+          background: "rgba(56, 189, 248, 0.12)",
+          border: "1px solid rgba(56, 189, 248, 0.3)",
+        }}
+        title="Start Slide Show (Fullscreen)"
+      >
+        ▶ Slide Show
+      </button>
+      <div style={{ width: 1, height: 12, background: "rgba(139, 92, 246, 0.25)" }} />
+      {/* POWERPOINT ZOOM CONTROLS */}
+      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <button
+          type="button"
+          onClick={() => setZoomLevel((prev) => Math.max(50, prev - 10))}
+          style={{ background: "none", border: "none", color: "#cbd5e1", cursor: "pointer", fontWeight: 700, padding: "0 2px" }}
+          title="Zoom Out (−)"
+        >
+          −
+        </button>
+        <input
+          type="range"
+          min={50}
+          max={150}
+          step={5}
+          value={zoomLevel}
+          onChange={(e) => setZoomLevel(Number(e.target.value))}
+          style={{ width: 75, height: 4, accentColor: "#8b5cf6", cursor: "pointer" }}
+          title={`Zoom: ${zoomLevel}%`}
+        />
+        <button
+          type="button"
+          onClick={() => setZoomLevel((prev) => Math.min(150, prev + 10))}
+          style={{ background: "none", border: "none", color: "#cbd5e1", cursor: "pointer", fontWeight: 700, padding: "0 2px" }}
+          title="Zoom In (+)"
+        >
+          +
+        </button>
+        <button
+          type="button"
+          onClick={() => setZoomLevel(100)}
+          style={{
+            background: "rgba(139, 92, 246, 0.15)",
+            border: "1px solid rgba(139, 92, 246, 0.3)",
+            borderRadius: 4,
+            color: "#c084fc",
+            fontSize: 10,
+            fontWeight: 700,
+            padding: "1px 6px",
+            cursor: "pointer",
+          }}
+          title="Reset Zoom to 100% (Fit to Window)"
+        >
+          {zoomLevel}% ⊡
+        </button>
       </div>
     </div>
   </div>
+</div>
+</div>
 
   {/* POWERPOINT 365 SLIDE SORTER MODAL VIEW */}
   {viewMode === "sorter" && (
@@ -7927,31 +8551,41 @@ export default function PresentationEditor({
           {/* TOP MINI FORMATTING BAR */}
           <div
             style={{
-              background: "#222222",
-              border: "1px solid rgba(255, 255, 255, 0.18)",
-              borderRadius: 6,
+              background: "#1e293b",
+              border: "1px solid rgba(56, 189, 248, 0.4)",
+              borderRadius: 8,
               padding: "4px 8px",
               display: "flex",
               alignItems: "center",
               gap: 8,
               boxShadow: "0 8px 24px rgba(0, 0, 0, 0.75)",
+              backdropFilter: "blur(12px)",
             }}
           >
-            {/* Style */}
+            {/* Style Preset Quick Cycle */}
             <button
               type="button"
               onClick={() => {
-                handleUpdatePluginData?.(contextMenu.pIdx, { fill: "#38bdf8" });
-                setContextMenu(null);
+                const styles = ["#38bdf8", "#c084fc", "#10b981", "#f59e0b", "#f43f5e"];
+                const currFill = typeof contextMenu.pIdx === "number" ? activeSlide?.plugins?.[contextMenu.pIdx]?.data?.fill : "#38bdf8";
+                const nextIdx = (styles.indexOf(currFill) + 1) % styles.length;
+                const nextColor = styles[nextIdx];
+                if (typeof contextMenu.pIdx === "number") {
+                  handleUpdatePluginData?.(contextMenu.pIdx, { fill: nextColor, bg_color: nextColor });
+                } else if (contextMenu.pIdx === "title") {
+                  handleSlidePropertyChange?.(activeSlideIndex, "title_color", nextColor);
+                } else if (contextMenu.pIdx === "subtitle") {
+                  handleSlidePropertyChange?.(activeSlideIndex, "subtitle_color", nextColor);
+                }
               }}
               style={{ background: "transparent", border: "none", color: "#fff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", fontSize: 9.5, padding: "2px 4px" }}
-              title="Style"
+              title="Cycle Theme Style Color"
             >
               <span style={{ fontSize: 13, color: "#38bdf8" }}>🖌️</span>
               <span>Style ⌄</span>
             </button>
 
-            {/* Fill with Red Bar */}
+            {/* Fill Color */}
             <label
               style={{
                 position: "relative",
@@ -7969,14 +8603,20 @@ export default function PresentationEditor({
               <input
                 type="color"
                 onChange={(e) => {
-                  handleUpdatePluginData?.(contextMenu.pIdx, { fill: e.target.value, bg_color: e.target.value });
+                  if (typeof contextMenu.pIdx === "number") {
+                    handleUpdatePluginData?.(contextMenu.pIdx, { fill: e.target.value, bg_color: e.target.value });
+                  } else if (contextMenu.pIdx === "title") {
+                    handleSlidePropertyChange?.(activeSlideIndex, "title_color", e.target.value);
+                  } else if (contextMenu.pIdx === "subtitle") {
+                    handleSlidePropertyChange?.(activeSlideIndex, "subtitle_color", e.target.value);
+                  }
                   setContextMenu(null);
                 }}
                 style={{ position: "absolute", opacity: 0, width: 24, height: 24, cursor: "pointer" }}
               />
             </label>
 
-            {/* Outline with Blue Bar */}
+            {/* Outline Color */}
             <label
               style={{
                 position: "relative",
@@ -7986,7 +8626,7 @@ export default function PresentationEditor({
                 cursor: "pointer",
                 padding: "2px 4px",
               }}
-              title="Outline Color"
+              title="Outline / Border Color"
             >
               <span style={{ fontSize: 13, color: "#38bdf8" }}>✏️</span>
               <div style={{ width: 14, height: 2.5, background: "#0284c7", marginTop: 1, borderRadius: 1 }} />
@@ -7994,7 +8634,9 @@ export default function PresentationEditor({
               <input
                 type="color"
                 onChange={(e) => {
-                  handleUpdatePluginData?.(contextMenu.pIdx, { border_color: e.target.value });
+                  if (typeof contextMenu.pIdx === "number") {
+                    handleUpdatePluginData?.(contextMenu.pIdx, { border_color: e.target.value, border_width: 2 });
+                  }
                   setContextMenu(null);
                 }}
                 style={{ position: "absolute", opacity: 0, width: 24, height: 24, cursor: "pointer" }}
@@ -8009,38 +8651,41 @@ export default function PresentationEditor({
                 setContextMenu(null);
               }}
               style={{ background: "transparent", border: "none", color: "#fff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", fontSize: 9.5, padding: "2px 4px" }}
-              title="New Comment"
+              title="Open Speaker Notes / Comments"
             >
               <span style={{ fontSize: 13, color: "#22c55e" }}>💬</span>
-              <span>New Comment</span>
+              <span>Comment</span>
             </button>
           </div>
 
           {/* MAIN CONTEXT MENU */}
           <div
             style={{
-              background: "#1f1f1f",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              borderRadius: 6,
+              background: "#0f172a",
+              border: "1px solid rgba(56, 189, 248, 0.35)",
+              borderRadius: 8,
               padding: "4px 0",
-              width: 230,
-              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.85)",
+              width: 240,
+              boxShadow: "0 14px 36px rgba(0, 0, 0, 0.85)",
               fontSize: 12,
               color: "#e2e8f0",
               userSelect: "none",
+              backdropFilter: "blur(16px)",
             }}
           >
             {/* Search The Menus */}
-            <div style={{ padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: 2 }}>
+            <div style={{ padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: 3 }}>
               <input
                 type="text"
-                placeholder="Search the menus"
+                placeholder="Search menus (e.g. copy, layer, delete)"
+                value={contextSearchQuery}
+                onChange={(e) => setContextSearchQuery(e.target.value)}
                 style={{
                   width: "100%",
-                  background: "#141414",
+                  background: "rgba(0,0,0,0.4)",
                   border: "1px solid rgba(255,255,255,0.15)",
                   borderRadius: 4,
-                  padding: "3px 6px",
+                  padding: "4px 6px",
                   color: "#fff",
                   fontSize: 11,
                   outline: "none",
@@ -8050,154 +8695,280 @@ export default function PresentationEditor({
             </div>
 
             {/* Cut */}
-            <div
-              className="ppt-context-item"
-              onClick={() => {
-                alert("Cut (Ctrl+X)");
-                setContextMenu(null);
-              }}
-              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
-            >
-              <span style={{ width: 16, color: "#38bdf8" }}>✂</span>
-              <span>Cut</span>
-            </div>
+            {(!contextSearchQuery || "cut".includes(contextSearchQuery.toLowerCase())) && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  if (typeof contextMenu.pIdx === "number") {
+                    const target = activeSlide?.plugins?.[contextMenu.pIdx];
+                    if (target) {
+                      setClipboardPlugin({ type: target.type, data: { ...target.data } });
+                      handleDeletePlugin?.(activeSlideIndex, contextMenu.pIdx);
+                    }
+                  } else if (contextMenu.pIdx === "title") {
+                    setClipboardPlugin({ type: "title", data: { text: activeSlide?.title } });
+                    handleSlideTitleChange?.(activeSlideIndex, "");
+                  } else if (contextMenu.pIdx === "subtitle") {
+                    setClipboardPlugin({ type: "subtitle", data: { text: activeSlide?.subtitle } });
+                    handleSlideSubtitleChange?.(activeSlideIndex, "");
+                  }
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "background 0.15s" }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 16, color: "#38bdf8" }}>✂</span>
+                  <span>Cut</span>
+                </div>
+                <span style={{ fontSize: 10, color: "#94a3b8" }}>Ctrl+X</span>
+              </div>
+            )}
 
             {/* Copy */}
-            <div
-              className="ppt-context-item"
-              onClick={() => {
-                alert("Copied (Ctrl+C)");
-                setContextMenu(null);
-              }}
-              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
-            >
-              <span style={{ width: 16 }}>📄</span>
-              <span>Copy</span>
-            </div>
+            {(!contextSearchQuery || "copy".includes(contextSearchQuery.toLowerCase())) && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  if (typeof contextMenu.pIdx === "number") {
+                    const target = activeSlide?.plugins?.[contextMenu.pIdx];
+                    if (target) {
+                      setClipboardPlugin({ type: target.type, data: { ...target.data } });
+                      try {
+                        navigator.clipboard?.writeText(target.data?.text || JSON.stringify(target.data));
+                      } catch (err) {}
+                    }
+                  } else if (contextMenu.pIdx === "title") {
+                    setClipboardPlugin({ type: "title", data: { text: activeSlide?.title } });
+                    try { navigator.clipboard?.writeText(activeSlide?.title || ""); } catch (err) {}
+                  } else if (contextMenu.pIdx === "subtitle") {
+                    setClipboardPlugin({ type: "subtitle", data: { text: activeSlide?.subtitle } });
+                    try { navigator.clipboard?.writeText(activeSlide?.subtitle || ""); } catch (err) {}
+                  }
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "background 0.15s" }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 16 }}>📄</span>
+                  <span>Copy</span>
+                </div>
+                <span style={{ fontSize: 10, color: "#94a3b8" }}>Ctrl+C</span>
+              </div>
+            )}
 
             {/* Paste Options */}
-            <div style={{ padding: "5px 12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600 }}>Paste Options:</span>
-              <div style={{ display: "flex", gap: 4 }}>
-                <span style={{ padding: "2px 4px", background: "#333", borderRadius: 3, cursor: "pointer" }}>📋</span>
-                <span style={{ padding: "2px 4px", background: "#333", borderRadius: 3, cursor: "pointer" }}>🖼️</span>
+            {(!contextSearchQuery || "paste".includes(contextSearchQuery.toLowerCase())) && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  if (clipboardPlugin) {
+                    if (clipboardPlugin.type === "title") {
+                      handleSlideTitleChange?.(activeSlideIndex, clipboardPlugin.data?.text || "Pasted Title");
+                    } else if (clipboardPlugin.type === "subtitle") {
+                      handleSlideSubtitleChange?.(activeSlideIndex, clipboardPlugin.data?.text || "Pasted Subtitle");
+                    } else {
+                      handleAddPlugin?.(activeSlideIndex, clipboardPlugin.type, { ...clipboardPlugin.data, x: undefined, y: undefined });
+                    }
+                  } else {
+                    handleAddPlugin?.(activeSlideIndex, "text", { text: "New Text Box" });
+                  }
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 16, color: "#38bdf8" }}>📋</span>
+                  <span>Paste {clipboardPlugin ? `(${clipboardPlugin.type})` : ""}</span>
+                </div>
+                <span style={{ fontSize: 10, color: "#94a3b8" }}>Ctrl+V</span>
               </div>
-            </div>
+            )}
+
+            {/* Duplicate */}
+            {(!contextSearchQuery || "duplicate".includes(contextSearchQuery.toLowerCase())) && typeof contextMenu.pIdx === "number" && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  const target = activeSlide?.plugins?.[contextMenu.pIdx];
+                  if (target) {
+                    handleAddPlugin?.(activeSlideIndex, target.type, {
+                      ...target.data,
+                      x: (target.data?.x || 0) + 20,
+                      y: (target.data?.y || 0) + 20,
+                    });
+                  }
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+              >
+                <span style={{ width: 16, color: "#c084fc" }}>📑</span>
+                <span>Duplicate Element</span>
+              </div>
+            )}
 
             <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "3px 0" }} />
 
             {/* Edit Text */}
-            <div
-              className="ppt-context-item"
-              onClick={() => {
-                setContextMenu(null);
-              }}
-              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
-            >
-              <span style={{ width: 16, color: "#38bdf8" }}>🅰️</span>
-              <span>Edit Text</span>
-            </div>
-
-            {/* Edit Points */}
-            <div
-              className="ppt-context-item"
-              onClick={() => setContextMenu(null)}
-              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
-            >
-              <span style={{ width: 16, color: "#38bdf8" }}>⛶</span>
-              <span>Edit Points</span>
-            </div>
-
-            <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "3px 0" }} />
+            {(!contextSearchQuery || "edit text".includes(contextSearchQuery.toLowerCase())) && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  setSelectedPluginIndex(contextMenu.pIdx);
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+              >
+                <span style={{ width: 16, color: "#38bdf8" }}>🅰️</span>
+                <span>Edit Text</span>
+              </div>
+            )}
 
             {/* Bring to Front */}
-            <div
-              className="ppt-context-item"
-              onClick={() => {
-                handleLayerOrder?.(contextMenu.pIdx ?? selectedPluginIndex, "front");
-                setContextMenu(null);
-              }}
-              style={{ padding: "5px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 16, color: "#ea580c" }}>🗂</span>
-                <span>Bring to Front</span>
+            {(!contextSearchQuery || "bring to front front layer".includes(contextSearchQuery.toLowerCase())) && typeof contextMenu.pIdx === "number" && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  handleLayerOrder?.(contextMenu.pIdx, "front");
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 16, color: "#ea580c" }}>🗂</span>
+                  <span>Bring to Front</span>
+                </div>
+                <span style={{ fontSize: 10, opacity: 0.5 }}>⇧</span>
               </div>
-              <span style={{ fontSize: 10, opacity: 0.5 }}>›</span>
-            </div>
+            )}
 
             {/* Send to Back */}
-            <div
-              className="ppt-context-item"
-              onClick={() => {
-                handleLayerOrder?.(contextMenu.pIdx ?? selectedPluginIndex, "back");
-                setContextMenu(null);
-              }}
-              style={{ padding: "5px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 16, color: "#ea580c" }}>🗂</span>
-                <span>Send to Back</span>
+            {(!contextSearchQuery || "send to back back layer".includes(contextSearchQuery.toLowerCase())) && typeof contextMenu.pIdx === "number" && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  handleLayerOrder?.(contextMenu.pIdx, "back");
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 16, color: "#ea580c" }}>🗂</span>
+                  <span>Send to Back</span>
+                </div>
+                <span style={{ fontSize: 10, opacity: 0.5 }}>⇩</span>
               </div>
-              <span style={{ fontSize: 10, opacity: 0.5 }}>›</span>
-            </div>
+            )}
 
             <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "3px 0" }} />
 
             {/* Hyperlink */}
-            <div
-              className="ppt-context-item"
-              onClick={() => setContextMenu(null)}
-              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
-            >
-              <span style={{ width: 16 }}>🔗</span>
-              <span>Hyperlink...</span>
-            </div>
+            {(!contextSearchQuery || "hyperlink link url".includes(contextSearchQuery.toLowerCase())) && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  const currLink = typeof contextMenu.pIdx === "number" ? activeSlide?.plugins?.[contextMenu.pIdx]?.data?.link : "";
+                  const newUrl = window.prompt("Enter Hyperlink URL:", currLink || "https://");
+                  if (newUrl !== null && typeof contextMenu.pIdx === "number") {
+                    handleUpdatePluginData?.(contextMenu.pIdx, { link: newUrl });
+                  }
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+              >
+                <span style={{ width: 16 }}>🔗</span>
+                <span>Hyperlink...</span>
+              </div>
+            )}
 
-            {/* Save as Picture */}
-            <div
-              className="ppt-context-item"
-              onClick={() => setContextMenu(null)}
-              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
-            >
-              <span style={{ width: 16 }}>💾</span>
-              <span>Save as Picture...</span>
-            </div>
+            {/* Save as Picture / Download */}
+            {(!contextSearchQuery || "save picture download image".includes(contextSearchQuery.toLowerCase())) && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  if (downloadUrl) {
+                    window.open(downloadUrl, "_blank");
+                  } else {
+                    generatePpt?.();
+                  }
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+              >
+                <span style={{ width: 16 }}>💾</span>
+                <span>Save Slide / Export...</span>
+              </div>
+            )}
 
-            {/* Translate */}
-            <div
-              className="ppt-context-item"
-              onClick={() => setContextMenu(null)}
-              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
-            >
-              <span style={{ width: 16, color: "#22c55e" }}>🌐</span>
-              <span>Translate</span>
-            </div>
+            {/* Translate / Polish */}
+            {(!contextSearchQuery || "translate polish ai".includes(contextSearchQuery.toLowerCase())) && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  if (typeof contextMenu.pIdx === "number") {
+                    const curText = activeSlide?.plugins?.[contextMenu.pIdx]?.data?.text;
+                    if (curText) {
+                      handlePluginTextChange?.(activeSlideIndex, contextMenu.pIdx, "text", `✨ ${curText}`);
+                    }
+                  }
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+              >
+                <span style={{ width: 16, color: "#22c55e" }}>🌐</span>
+                <span>AI Polish & Enhance</span>
+              </div>
+            )}
 
-            <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "3px 0" }} />
+            {/* Format Shape / Element */}
+            {(!contextSearchQuery || "format shape element".includes(contextSearchQuery.toLowerCase())) && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  setSelectedPluginIndex(contextMenu.pIdx);
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontWeight: 700, color: "#38bdf8" }}
+              >
+                <span style={{ width: 16 }}>🎨</span>
+                <span>Format Element...</span>
+              </div>
+            )}
 
-            {/* Format Shape */}
-            <div
-              className="ppt-context-item"
-              onClick={() => setContextMenu(null)}
-              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontWeight: 700, color: "#ea580c" }}
-            >
-              <span style={{ width: 16 }}>🎨</span>
-              <span>Format Shape...</span>
-            </div>
+            {/* Delete Option */}
+            {(!contextSearchQuery || "delete remove".includes(contextSearchQuery.toLowerCase())) && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  if (typeof contextMenu.pIdx === "number") {
+                    handleDeletePlugin?.(activeSlideIndex, contextMenu.pIdx);
+                  } else if (contextMenu.pIdx === "title") {
+                    handleSlideTitleChange?.(activeSlideIndex, "");
+                  } else if (contextMenu.pIdx === "subtitle") {
+                    handleSlideSubtitleChange?.(activeSlideIndex, "");
+                  }
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", color: "#f43f5e" }}
+              >
+                <span style={{ width: 16 }}>🗑️</span>
+                <span>Delete</span>
+              </div>
+            )}
 
-            {/* New Comment */}
-            <div
-              className="ppt-context-item"
-              onClick={() => {
-                setShowNotesPane(true);
-                setContextMenu(null);
-              }}
-              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
-            >
-              <span style={{ width: 16, color: "#22c55e" }}>💬</span>
-              <span>New Comment</span>
-            </div>
+            {/* New Comment / Notes */}
+            {(!contextSearchQuery || "comment notes".includes(contextSearchQuery.toLowerCase())) && (
+              <div
+                className="ppt-context-item"
+                onClick={() => {
+                  setShowNotesPane(true);
+                  setContextMenu(null);
+                }}
+                style={{ padding: "6px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+              >
+                <span style={{ width: 16, color: "#22c55e" }}>💬</span>
+                <span>Speaker Notes / Comment</span>
+              </div>
+            )}
           </div>
         </div>
       )}

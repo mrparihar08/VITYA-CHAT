@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { API_BASE_URL } from "../../services/api";
+import { API_BASE_URL, getAuthHeaders } from "../../services/api";
 
 const SLIDE_COUNT_OPTIONS = [
   { id: "auto", label: "Auto", desc: "Auto-generated", icon: "✨" },
@@ -293,12 +293,59 @@ export default function PresentationSetup({
   setBrandFooter,
   templateName = "base_template",
   setTemplateName,
+  onLoadSavedDeck,
 }) {
   const [isEnhanced, setIsEnhanced] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [showAiFeatures, setShowAiFeatures] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [availableTemplates, setAvailableTemplates] = useState(MASTER_TEMPLATE_OPTIONS);
+  const [showSavedModal, setShowSavedModal] = useState(false);
+  const [savedDecks, setSavedDecks] = useState([]);
+  const [loadingSavedDecks, setLoadingSavedDecks] = useState(false);
+  const [savedDecksError, setSavedDecksError] = useState("");
+
+  const fetchSavedDecks = async () => {
+    setLoadingSavedDecks(true);
+    setSavedDecksError("");
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/presentation/my-presentations`, {
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSavedDecks(Array.isArray(data?.presentations) ? data.presentations : []);
+      } else {
+        setSavedDecksError("Failed to load saved presentations.");
+      }
+    } catch (err) {
+      console.warn("Could not fetch saved presentations", err);
+      setSavedDecksError("Network error while loading saved presentations.");
+    } finally {
+      setLoadingSavedDecks(false);
+    }
+  };
+
+  const handleOpenSavedModal = () => {
+    setShowSavedModal(true);
+    fetchSavedDecks();
+  };
+
+  const handleDeleteSavedDeck = async (e, id) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to delete this saved presentation?")) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/presentation/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
+        setSavedDecks((prev) => prev.filter((d) => d.presentation_id !== id));
+      }
+    } catch (err) {
+      console.warn("Could not delete saved presentation", err);
+    }
+  };
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/presentation/templates`)
@@ -403,6 +450,34 @@ export default function PresentationSetup({
           <span style={{ fontSize: 13, fontWeight: 900, color: "#c084fc", letterSpacing: "1px" }}>
             Presentation Setup
           </span>
+          <button
+            type="button"
+            onClick={handleOpenSavedModal}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              background: "rgba(139, 92, 246, 0.15)",
+              border: "1px solid rgba(139, 92, 246, 0.35)",
+              color: "#c084fc",
+              fontSize: "11px",
+              fontWeight: 700,
+              padding: "4px 10px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = "rgba(139, 92, 246, 0.3)";
+              e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.6)";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = "rgba(139, 92, 246, 0.15)";
+              e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.35)";
+            }}
+          >
+            📂 My Saved Decks
+          </button>
         </div>
 
         {/* REALTIME DECK ESTIMATE COUNTER */}
@@ -879,6 +954,283 @@ export default function PresentationSetup({
           })}
         </div>
       </div>
+
+      {/* SAVED PRESENTATIONS MODAL */}
+      {showSavedModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(6px)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+          onClick={() => setShowSavedModal(false)}
+        >
+          <div
+            style={{
+              background: "#0f172a",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              borderRadius: "16px",
+              maxWidth: "680px",
+              width: "100%",
+              maxHeight: "80vh",
+              display: "flex",
+              flexDirection: "column",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
+              overflow: "hidden",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* MODAL HEADER */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "16px 20px",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                background: "rgba(30, 41, 59, 0.5)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontSize: "18px" }}>📂</span>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "#f8fafc" }}>
+                    My Saved Presentations
+                  </h3>
+                  <p style={{ margin: 0, fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
+                    Click any deck to load and edit
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSavedModal(false)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#94a3b8",
+                  fontSize: "20px",
+                  cursor: "pointer",
+                  padding: "4px 8px",
+                  borderRadius: "6px",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* MODAL BODY */}
+            <div style={{ padding: "20px", overflowY: "auto", flex: 1 }}>
+              {loadingSavedDecks ? (
+                <div style={{ textAlign: "center", padding: "40px", color: "#94a3b8" }}>
+                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>⏳</div>
+                  <p style={{ margin: 0, fontSize: "13px" }}>Loading saved decks...</p>
+                </div>
+              ) : savedDecksError ? (
+                <div style={{ textAlign: "center", padding: "30px", color: "#f87171" }}>
+                  <p style={{ margin: 0, fontSize: "13px" }}>{savedDecksError}</p>
+                  <button
+                    type="button"
+                    onClick={fetchSavedDecks}
+                    style={{
+                      marginTop: "12px",
+                      background: "rgba(248, 113, 113, 0.15)",
+                      border: "1px solid #f87171",
+                      color: "#f87171",
+                      padding: "6px 14px",
+                      borderRadius: "6px",
+                      fontSize: "12px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : savedDecks.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "40px", color: "#94a3b8" }}>
+                  <div style={{ fontSize: "36px", marginBottom: "12px" }}>📑</div>
+                  <p style={{ margin: 0, fontSize: "14px", fontWeight: 600, color: "#e2e8f0" }}>
+                    No Saved Presentations Yet
+                  </p>
+                  <p style={{ margin: "6px 0 0", fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                    Generate your first presentation deck to see it saved here!
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {savedDecks.map((deck) => {
+                    const dateStr = deck.updated_at
+                      ? new Date(deck.updated_at).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "Recently saved";
+
+                    return (
+                      <div
+                        key={deck.presentation_id}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "14px 16px",
+                          borderRadius: "12px",
+                          background: "rgba(30, 41, 59, 0.6)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          transition: "all 0.2s ease",
+                          cursor: "pointer",
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = "rgba(51, 65, 85, 0.7)";
+                          e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.4)";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = "rgba(30, 41, 59, 0.6)";
+                          e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
+                        }}
+                        onClick={() => {
+                          setShowSavedModal(false);
+                          if (onLoadSavedDeck) {
+                            onLoadSavedDeck(deck.presentation_id);
+                          }
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: 0, marginRight: "16px" }}>
+                          <h4
+                            style={{
+                              margin: 0,
+                              fontSize: "14px",
+                              fontWeight: 700,
+                              color: "#f8fafc",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {deck.title || "Untitled Presentation"}
+                          </h4>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px", fontSize: "11px", color: "#94a3b8" }}>
+                            <span
+                              style={{
+                                background: "rgba(139, 92, 246, 0.2)",
+                                color: "#c084fc",
+                                padding: "2px 8px",
+                                borderRadius: "4px",
+                                fontWeight: 600,
+                                fontSize: "10px",
+                              }}
+                            >
+                              {deck.slides_count || 0} Slides
+                            </span>
+                            {deck.template_name && deck.template_name !== "none" && (
+                              <span
+                                style={{
+                                  background: "rgba(56, 189, 248, 0.15)",
+                                  color: "#38bdf8",
+                                  padding: "2px 8px",
+                                  borderRadius: "4px",
+                                  fontSize: "10px",
+                                }}
+                              >
+                                {deck.template_name.replace(/_/g, " ")}
+                              </span>
+                            )}
+                            <span>🕒 {dateStr}</span>
+                          </div>
+                        </div>
+
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <button
+                            type="button"
+                            style={{
+                              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                              border: "none",
+                              color: "#ffffff",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              padding: "6px 14px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowSavedModal(false);
+                              if (onLoadSavedDeck) {
+                                onLoadSavedDeck(deck.presentation_id);
+                              }
+                            }}
+                          >
+                            Open Deck ➔
+                          </button>
+                          <button
+                            type="button"
+                            title="Delete presentation"
+                            style={{
+                              background: "rgba(239, 68, 68, 0.15)",
+                              border: "1px solid rgba(239, 68, 68, 0.3)",
+                              color: "#f87171",
+                              fontSize: "12px",
+                              padding: "6px 10px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                            }}
+                            onClick={(e) => handleDeleteSavedDeck(e, deck.presentation_id)}
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* MODAL FOOTER */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "12px 20px",
+                borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+                background: "rgba(15, 23, 42, 0.8)",
+              }}
+            >
+              <span style={{ fontSize: "11px", color: "#64748b" }}>
+                {savedDecks.length} deck{savedDecks.length === 1 ? "" : "s"} found
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowSavedModal(false)}
+                style={{
+                  background: "rgba(255, 255, 255, 0.08)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  color: "#e2e8f0",
+                  fontSize: "12px",
+                  padding: "6px 14px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

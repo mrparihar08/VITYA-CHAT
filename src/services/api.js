@@ -38,6 +38,26 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Automatic 401 Token Expiry Handler
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401 && typeof window !== "undefined") {
+      const isAuthRoute =
+        window.location.pathname.startsWith("/login") ||
+        window.location.pathname.startsWith("/register") ||
+        window.location.pathname.startsWith("/forgot-password") ||
+        window.location.pathname.startsWith("/reset-password");
+
+      if (!isAuthRoute) {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const getAuthHeaders = (token) => {
   const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
   return authToken ? { Authorization: `Bearer ${authToken}` } : {};

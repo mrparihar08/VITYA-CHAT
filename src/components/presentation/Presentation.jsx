@@ -672,27 +672,29 @@ export default function PresentationGenerator({ presentationId = null }) {
     }
   }, [plan, currentStep, activeSlideIndex, selectedBgPreset, customBgColor1, customBgColor2, customTextColor, templateName]);
 
-  useEffect(() => {
-    if (!presentationId) return;
-    const fetchSavedPresentation = async () => {
-      try {
-        const res = await fetch(joinUrl(DEFAULT_API_BASE, `/${presentationId}`), {
-          headers: getAuthHeaders(),
-        });
-        if (!res.ok) return;
+  const handleLoadSavedDeck = async (id) => {
+    try {
+      setLoadingPlan(true);
+      const res = await fetch(joinUrl(DEFAULT_API_BASE, `/${id}`), {
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
         const data = await readResponse(res);
         if (data && data.plan) {
           setPlan(data.plan);
-          if (data.theme_name) setSelectedBgPreset(data.theme_name);
+          if (data.template_name) setTemplateName(data.template_name);
+          if (data.content_theme) setSelectedBgPreset(data.content_theme);
           if (data.download_url) setDownloadUrl(resolveDownloadUrl(data.download_url));
+          setIsSaved(true);
           setCurrentStep(2);
         }
-      } catch (err) {
-        console.warn("Failed to load presentation by id", err);
       }
-    };
-    fetchSavedPresentation();
-  }, [presentationId]);
+    } catch (err) {
+      console.warn("Failed to load presentation deck", err);
+    } finally {
+      setLoadingPlan(false);
+    }
+  };
 
   const handleResetPlanToDefault = () => {
     if (window.confirm("Start a new presentation deck? (Current draft will be reset)")) {
@@ -1440,7 +1442,7 @@ export default function PresentationGenerator({ presentationId = null }) {
           .card-box { padding: 8px 6px !important; border-radius: 10px !important; }
           .ppt-header-bar { padding: 8px 10px !important; border-radius: 10px !important; }
           .feature-block-card { padding: 8px 6px !important; margin-bottom: 8px !important; }
-          .slide-canvas-box { aspect-ratio: 16 / 10 !important; width: 100% !important; min-height: 250px !important; padding: 12px 10px !important; border-radius: 12px !important; box-sizing: border-box !important; }
+          .slide-canvas-box { aspect-ratio: 16 / 10 !important; width: 100% !important; min-height: 250px !important; padding: 2px !important; border-radius: 0px !important; margin: 0 !important; box-sizing: border-box !important; }
           .slide-canvas-box h2 { font-size: clamp(14px, 3.8vw, 18px) !important; margin: 3px 0 2px !important; line-height: 1.25 !important; }
           .slide-canvas-box th, .slide-canvas-box td { padding: 4px 6px !important; font-size: 10px !important; line-height: 1.2 !important; }
           .slide-canvas-box p { font-size: 11px !important; line-height: 1.35 !important; }
@@ -1668,8 +1670,9 @@ export default function PresentationGenerator({ presentationId = null }) {
         .slide-canvas-box {
           aspect-ratio: 16 / 9;
           width: 100%;
-          border-radius: 16px;
-          padding: 36px;
+          border-radius: 0px !important;
+          margin: 0 !important;
+          padding: 2px !important;
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
           display: flex;
           flex-direction: column;
@@ -1850,6 +1853,7 @@ export default function PresentationGenerator({ presentationId = null }) {
             setBrandFooter={setBrandFooter}
             templateName={templateName}
             setTemplateName={handleTemplateChange}
+            onLoadSavedDeck={handleLoadSavedDeck}
           />
         )}
 

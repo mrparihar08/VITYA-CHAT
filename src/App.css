@@ -626,7 +626,7 @@ body {
 
 .slide-editor-main-layout {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 210px minmax(0, 1fr);
   gap: 12px;
   align-items: start;
   width: 100%;
@@ -641,9 +641,9 @@ body {
 }
 
 .slide-sidebar-rail {
-  background: #18191c;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  background: #0f172a;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 10px;
   padding: 8px 6px;
   display: flex;
   flex-direction: column;
@@ -655,6 +655,7 @@ body {
   position: sticky;
   top: 10px;
   overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
 }
 
 .slide-sidebar-rail::-webkit-scrollbar {
@@ -662,8 +663,12 @@ body {
 }
 
 .slide-sidebar-rail::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(139, 92, 246, 0.35);
   border-radius: 4px;
+}
+
+.slide-sidebar-rail::-webkit-scrollbar-thumb:hover {
+  background: #8b5cf6;
 }
 
 .slide-vertical-list {
@@ -686,7 +691,7 @@ body {
 .ppt-thumb-number {
   font-size: 11px;
   font-weight: 700;
-  color: #94a3b8;
+  color: #c084fc;
   min-width: 16px;
   text-align: right;
   padding-top: 4px;
@@ -696,25 +701,26 @@ body {
 .ppt-thumb-card {
   flex: 1;
   aspect-ratio: 16 / 9;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(139, 92, 246, 0.25);
   background: #0f172a;
-  transition: all 0.15s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .ppt-thumb-card:hover {
-  border-color: rgba(234, 88, 12, 0.6);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  border-color: rgba(56, 189, 248, 0.8);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
+  transform: translateY(-1px);
 }
 
 .ppt-thumb-card.active {
-  border: 2px solid #ea580c !important;
-  box-shadow: 0 0 0 1px #ea580c, 0 4px 14px rgba(234, 88, 12, 0.35) !important;
+  border: 2px solid #8b5cf6 !important;
+  box-shadow: 0 0 0 1px #38bdf8, 0 0 16px rgba(139, 92, 246, 0.5) !important;
 }
 
 .ppt-thumb-actions-overlay {
@@ -762,20 +768,23 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #1e1e1e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(90deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  border: 1px solid rgba(139, 92, 246, 0.25);
   border-radius: 8px;
-  padding: 4px 12px;
+  padding: 5px 14px;
   color: #94a3b8;
   font-size: 11.5px;
   font-weight: 500;
+  width: 100%;
+  box-sizing: border-box;
   margin-top: 8px;
   user-select: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .ppt-status-btn {
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   color: #cbd5e1;
   font-size: 11px;
   font-weight: 600;
@@ -785,18 +794,26 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
-.ppt-status-btn:hover, .ppt-status-btn.active {
-  background: rgba(255, 255, 255, 0.1);
+.ppt-status-btn:hover {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.35);
   color: #ffffff;
+}
+
+.ppt-status-btn.active {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.35), rgba(99, 102, 241, 0.35));
+  border: 1px solid #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
 }
 
 /* POWERPOINT 365 NOTES DRAWER */
 .ppt-notes-drawer {
-  background: #18191c;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0f172a;
+  border: 1px solid rgba(139, 92, 246, 0.25);
   border-radius: 8px;
   padding: 8px 12px;
   margin-top: 6px;
@@ -987,8 +1004,9 @@ body {
     aspect-ratio: 16 / 10 !important;
     width: 100% !important;
     min-height: 250px !important;
-    padding: 12px 10px !important;
-    border-radius: 12px !important;
+    padding: 2px !important;
+    border-radius: 0px !important;
+    margin: 0 !important;
     box-sizing: border-box !important;
   }
 

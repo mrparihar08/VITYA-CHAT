@@ -347,14 +347,14 @@ export default function SlideEditorRibbonToolbar({
           height: 4px;
         }
         .ribbon-scroll-container::-webkit-scrollbar-track {
-          background: #1e1e1e;
+          background: #0f172a;
         }
         .ribbon-scroll-container::-webkit-scrollbar-thumb {
-          background: #444;
+          background: rgba(139, 92, 246, 0.4);
           border-radius: 2px;
         }
         .ribbon-scroll-container::-webkit-scrollbar-thumb:hover {
-          background: #ea580c;
+          background: #38bdf8;
         }
       `}</style>
       {/* ========================================================================= */}
@@ -365,31 +365,32 @@ export default function SlideEditorRibbonToolbar({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          background: "#1f1f1f",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+          background: "linear-gradient(90deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)",
+          borderBottom: "1px solid rgba(139, 92, 246, 0.25)",
           padding: "4px 12px",
           gap: 10,
           flexWrap: "wrap",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {/* PowerPoint App Icon */}
+          {/* Vitya Studio App Icon */}
           <div
             style={{
-              width: 22,
-              height: 22,
-              background: "linear-gradient(135deg, #ea580c, #c2410c)",
-              borderRadius: 4,
+              width: 24,
+              height: 24,
+              background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #38bdf8 100%)",
+              borderRadius: 6,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               color: "#fff",
               fontWeight: 900,
-              fontSize: 13,
-              boxShadow: "0 2px 5px rgba(234, 88, 12, 0.4)",
+              fontSize: 12,
+              boxShadow: "0 2px 8px rgba(139, 92, 246, 0.5)",
+              letterSpacing: "-0.5px",
             }}
           >
-            P
+            V
           </div>
 
           {/* AutoSave Toggle */}
@@ -398,11 +399,11 @@ export default function SlideEditorRibbonToolbar({
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 5,
+              gap: 6,
               cursor: "pointer",
               fontSize: 11,
               fontWeight: 600,
-              color: "#d4d4d4",
+              color: "#e2e8f0",
               userSelect: "none",
             }}
           >
@@ -411,10 +412,11 @@ export default function SlideEditorRibbonToolbar({
               style={{
                 width: 28,
                 height: 15,
-                background: autoSaveEnabled ? "#ea580c" : "#404040",
+                background: autoSaveEnabled ? "linear-gradient(135deg, #8b5cf6, #38bdf8)" : "#334155",
                 borderRadius: 10,
                 position: "relative",
-                transition: "background 0.2s ease",
+                transition: "all 0.2s ease",
+                boxShadow: autoSaveEnabled ? "0 0 8px rgba(139, 92, 246, 0.4)" : "none",
               }}
             >
               <div
@@ -427,6 +429,7 @@ export default function SlideEditorRibbonToolbar({
                   borderRadius: "50%",
                   background: "#fff",
                   transition: "left 0.2s ease",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
                 }}
               />
             </div>
@@ -468,28 +471,29 @@ export default function SlideEditorRibbonToolbar({
               display: "flex",
               alignItems: "center",
               gap: 6,
-              background: "rgba(0,0,0,0.35)",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
+              background: "rgba(15, 23, 42, 0.7)",
+              border: "1px solid rgba(139, 92, 246, 0.3)",
               borderRadius: 6,
               padding: "3px 10px",
               width: "100%",
               maxWidth: 280,
+              boxShadow: "inset 0 1px 3px rgba(0,0,0,0.3)",
             }}
           >
-            <span style={{ fontSize: 11, opacity: 0.6 }}>🔍</span>
+            <span style={{ fontSize: 11, color: "#38bdf8", opacity: 0.8 }}>🔍</span>
             <input
               type="text"
               placeholder="Search the menus (Alt+Q)"
-              style={{ background: "none", border: "none", color: "#fff", fontSize: 11, outline: "none", width: "100%" }}
+              style={{ background: "none", border: "none", color: "#f8fafc", fontSize: 11, outline: "none", width: "100%" }}
             />
           </div>
         </div>
 
-        {/* Right Actions: Feedback & Solid Orange Share Button */}
+        {/* Right Actions: Feedback & Solid Purple/Cyan Share Button */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <button
             type="button"
-            style={{ background: "none", border: "none", color: "#d4d4d4", cursor: "pointer", fontSize: 14, padding: "2px 6px" }}
+            style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: 14, padding: "2px 6px" }}
             title="Send Feedback"
           >
             💬
@@ -499,18 +503,27 @@ export default function SlideEditorRibbonToolbar({
             type="button"
             onClick={() => setShowDownloadModal && setShowDownloadModal(true)}
             style={{
-              background: "linear-gradient(135deg, #ea580c 0%, #c2410c 100%)",
+              background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #38bdf8 100%)",
               border: "none",
-              borderRadius: 4,
+              borderRadius: 6,
               color: "#ffffff",
-              padding: "4px 14px",
+              padding: "5px 14px",
               fontSize: 12,
               fontWeight: 700,
               cursor: "pointer",
               display: "inline-flex",
               alignItems: "center",
               gap: 6,
-              boxShadow: "0 2px 8px rgba(234, 88, 12, 0.4)",
+              boxShadow: "0 2px 10px rgba(139, 92, 246, 0.45)",
+              transition: "all 0.2s ease",
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.boxShadow = "0 0 16px rgba(56, 189, 248, 0.6)";
+              e.currentTarget.style.transform = "translateY(-1px)";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.boxShadow = "0 2px 10px rgba(139, 92, 246, 0.45)";
+              e.currentTarget.style.transform = "translateY(0)";
             }}
             title="Share or Export Presentation"
           >
@@ -527,8 +540,8 @@ export default function SlideEditorRibbonToolbar({
         style={{
           display: "flex",
           alignItems: "center",
-          background: "#202020",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+          background: "#0f172a",
+          borderBottom: "1px solid rgba(139, 92, 246, 0.2)",
           padding: "0 10px",
           gap: 2,
           overflowX: "auto",
@@ -546,27 +559,43 @@ export default function SlideEditorRibbonToolbar({
                 display: "flex",
                 alignItems: "center",
                 gap: 4,
-                padding: "6px 12px",
+                padding: "6px 14px",
                 fontSize: 12,
                 fontWeight: isActive ? 700 : 500,
                 color: isContextual
-                  ? "#ea580c"
+                  ? "#38bdf8"
                   : isActive
                   ? "#ffffff"
-                  : "#a3a3a3",
-                background: isActive ? "#2b2b2b" : "transparent",
+                  : "#94a3b8",
+                background: isActive
+                  ? "linear-gradient(180deg, rgba(139, 92, 246, 0.25) 0%, rgba(30, 27, 75, 0.6) 100%)"
+                  : "transparent",
                 border: "none",
                 borderBottom: isActive
-                  ? `2px solid ${isContextual ? "#ea580c" : "#ea580c"}`
+                  ? `2px solid ${isContextual ? "#38bdf8" : "#38bdf8"}`
                   : "2px solid transparent",
-                borderRadius: "4px 4px 0 0",
+                borderRadius: "6px 6px 0 0",
                 cursor: "pointer",
-                transition: "all 0.15s ease",
+                transition: "all 0.2s ease",
                 whiteSpace: "nowrap",
+                boxShadow: isActive ? "inset 0 -2px 6px rgba(56, 189, 248, 0.2)" : "none",
               }}
             >
               <span>{tab.label}</span>
-              {isContextual && <span style={{ fontSize: 9, background: "rgba(234, 88, 12, 0.2)", padding: "1px 4px", borderRadius: 3 }}>Tool</span>}
+              {isContextual && (
+                <span
+                  style={{
+                    fontSize: 9,
+                    background: "rgba(56, 189, 248, 0.2)",
+                    color: "#38bdf8",
+                    padding: "1px 5px",
+                    borderRadius: 3,
+                    border: "1px solid rgba(56, 189, 248, 0.4)",
+                  }}
+                >
+                  Tool
+                </span>
+              )}
             </button>
           );
         })}
@@ -584,8 +613,8 @@ export default function SlideEditorRibbonToolbar({
           alignItems: "stretch",
           gap: "6px",
           overflowX: "auto",
-          background: "#2b2b2b",
-          borderBottom: "1px solid rgba(0,0,0,0.5)",
+          background: "linear-gradient(180deg, #0f172a 0%, #0b0f19 100%)",
+          borderBottom: "1px solid rgba(139, 92, 246, 0.2)",
         }}
       >
         {/* ----------------------------------------------------------------------- */}
@@ -625,11 +654,11 @@ export default function SlideEditorRibbonToolbar({
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  background: "rgba(234, 88, 12, 0.2)",
-                  border: "1px solid #ea580c",
+                  background: "rgba(56, 189, 248, 0.15)",
+                  border: "1px solid #38bdf8",
                   borderRadius: 4,
                   padding: "4px 10px",
-                  color: "#ea580c",
+                  color: "#38bdf8",
                   cursor: "pointer",
                   minWidth: 54,
                   height: "100%",
@@ -727,14 +756,14 @@ export default function SlideEditorRibbonToolbar({
                   border: "none",
                   borderRadius: 4,
                   padding: "4px 8px",
-                  color: "#ea580c",
+                  color: "#8b5cf6",
                   cursor: "pointer",
                   minWidth: 54,
                   height: "100%",
                 }}
                 title="Add New Slide"
               >
-                <span style={{ fontSize: 18, color: "#22c55e", fontWeight: 900 }}>⊞</span>
+                <span style={{ fontSize: 18, color: "#38bdf8", fontWeight: 900 }}>⊞</span>
                 <span style={{ fontSize: 10, fontWeight: 700, marginTop: 2, color: "#fff" }}>New Slide ⌄</span>
               </button>
               <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -766,9 +795,9 @@ export default function SlideEditorRibbonToolbar({
                     value={activeSlide?.font_family || "Calibri"}
                     onChange={(e) => handleSlidePropertyChange?.(activeSlideIndex, "font_family", e.target.value)}
                     style={{
-                      background: "#1e1e1e",
-                      border: "1px solid rgba(255,255,255,0.2)",
-                      borderRadius: 3,
+                      background: "rgba(15, 23, 42, 0.9)",
+                      border: "1px solid rgba(139, 92, 246, 0.3)",
+                      borderRadius: 4,
                       color: "#fff",
                       fontSize: 11,
                       padding: "2px 4px",
@@ -788,9 +817,9 @@ export default function SlideEditorRibbonToolbar({
                     value={activeSlide?.title_font_size || (activeSlideIndex === 0 ? 44 : 28)}
                     onChange={(e) => handleSlidePropertyChange?.(activeSlideIndex, "title_font_size", Number(e.target.value))}
                     style={{
-                      background: "#1e1e1e",
-                      border: "1px solid rgba(255,255,255,0.2)",
-                      borderRadius: 3,
+                      background: "rgba(15, 23, 42, 0.9)",
+                      border: "1px solid rgba(139, 92, 246, 0.3)",
+                      borderRadius: 4,
                       color: "#fff",
                       fontSize: 11,
                       padding: "2px 2px",
@@ -812,7 +841,7 @@ export default function SlideEditorRibbonToolbar({
                       const cur = Number(activeSlide?.title_font_size || 28);
                       handleSlidePropertyChange?.(activeSlideIndex, "title_font_size", Math.min(72, cur + 2));
                     }}
-                    style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, width: 22, height: 20, fontSize: 10, fontWeight: 800, cursor: "pointer" }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, width: 22, height: 20, fontSize: 10, fontWeight: 800, cursor: "pointer" }}
                     title="Increase Font Size (A^)"
                   >
                     A^
@@ -823,7 +852,7 @@ export default function SlideEditorRibbonToolbar({
                       const cur = Number(activeSlide?.title_font_size || 28);
                       handleSlidePropertyChange?.(activeSlideIndex, "title_font_size", Math.max(12, cur - 2));
                     }}
-                    style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, width: 22, height: 20, fontSize: 10, fontWeight: 800, cursor: "pointer" }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, width: 22, height: 20, fontSize: 10, fontWeight: 800, cursor: "pointer" }}
                     title="Decrease Font Size (Av)"
                   >
                     Av
@@ -835,7 +864,7 @@ export default function SlideEditorRibbonToolbar({
                       handleSlidePropertyChange?.(activeSlideIndex, "title_italic", false);
                       handleSlidePropertyChange?.(activeSlideIndex, "title_underline", false);
                     }}
-                    style={{ background: "#333", border: "1px solid #555", color: "#d4d4d4", borderRadius: 3, width: 22, height: 20, fontSize: 10, cursor: "pointer" }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#d4d4d4", borderRadius: 3, width: 22, height: 20, fontSize: 10, cursor: "pointer" }}
                     title="Clear All Formatting (A⌫)"
                   >
                     A⌫
@@ -850,8 +879,9 @@ export default function SlideEditorRibbonToolbar({
                     style={{
                       width: 20,
                       height: 20,
-                      background: activeSlide?.title_bold !== false ? "#ea580c" : "#333",
-                      border: "1px solid #555",
+                      background: activeSlide?.title_bold !== false ? "linear-gradient(135deg, #8b5cf6, #6366f1)" : "rgba(30, 41, 59, 0.7)",
+                      border: activeSlide?.title_bold !== false ? "1px solid #38bdf8" : "1px solid rgba(139, 92, 246, 0.25)",
+                      boxShadow: activeSlide?.title_bold !== false ? "0 0 8px rgba(139, 92, 246, 0.6)" : "none",
                       color: "#fff",
                       fontWeight: 900,
                       borderRadius: 3,
@@ -868,8 +898,9 @@ export default function SlideEditorRibbonToolbar({
                     style={{
                       width: 20,
                       height: 20,
-                      background: activeSlide?.title_italic ? "#ea580c" : "#333",
-                      border: "1px solid #555",
+                      background: activeSlide?.title_italic ? "linear-gradient(135deg, #8b5cf6, #6366f1)" : "rgba(30, 41, 59, 0.7)",
+                      border: activeSlide?.title_italic ? "1px solid #38bdf8" : "1px solid rgba(139, 92, 246, 0.25)",
+                      boxShadow: activeSlide?.title_italic ? "0 0 8px rgba(139, 92, 246, 0.6)" : "none",
                       color: "#fff",
                       fontStyle: "italic",
                       borderRadius: 3,
@@ -886,8 +917,9 @@ export default function SlideEditorRibbonToolbar({
                     style={{
                       width: 20,
                       height: 20,
-                      background: activeSlide?.title_underline ? "#ea580c" : "#333",
-                      border: "1px solid #555",
+                      background: activeSlide?.title_underline ? "linear-gradient(135deg, #8b5cf6, #6366f1)" : "rgba(30, 41, 59, 0.7)",
+                      border: activeSlide?.title_underline ? "1px solid #38bdf8" : "1px solid rgba(139, 92, 246, 0.25)",
+                      boxShadow: activeSlide?.title_underline ? "0 0 8px rgba(139, 92, 246, 0.6)" : "none",
                       color: "#fff",
                       textDecoration: "underline",
                       borderRadius: 3,
@@ -904,8 +936,9 @@ export default function SlideEditorRibbonToolbar({
                     style={{
                       width: 20,
                       height: 20,
-                      background: activeSlide?.title_shadow ? "#ea580c" : "#333",
-                      border: "1px solid #555",
+                      background: activeSlide?.title_shadow ? "linear-gradient(135deg, #8b5cf6, #6366f1)" : "rgba(30, 41, 59, 0.7)",
+                      border: activeSlide?.title_shadow ? "1px solid #38bdf8" : "1px solid rgba(139, 92, 246, 0.25)",
+                      boxShadow: activeSlide?.title_shadow ? "0 0 8px rgba(139, 92, 246, 0.6)" : "none",
                       color: "#fff",
                       borderRadius: 3,
                       cursor: "pointer",
@@ -917,21 +950,21 @@ export default function SlideEditorRibbonToolbar({
                   </button>
                   <button
                     type="button"
-                    style={{ width: 20, height: 20, background: "#333", border: "1px solid #555", color: "#bbb", borderRadius: 3, cursor: "pointer", fontSize: 10, textDecoration: "line-through" }}
+                    style={{ width: 20, height: 20, background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#cbd5e1", borderRadius: 3, cursor: "pointer", fontSize: 10, textDecoration: "line-through" }}
                     title="Strikethrough (ab)"
                   >
                     ab
                   </button>
                   <button
                     type="button"
-                    style={{ width: 22, height: 20, background: "#333", border: "1px solid #555", color: "#bbb", borderRadius: 3, cursor: "pointer", fontSize: 9 }}
+                    style={{ width: 22, height: 20, background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#cbd5e1", borderRadius: 3, cursor: "pointer", fontSize: 9 }}
                     title="Character Spacing (AV ↔)"
                   >
                     AV↔
                   </button>
                   <button
                     type="button"
-                    style={{ width: 22, height: 20, background: "#333", border: "1px solid #555", color: "#bbb", borderRadius: 3, cursor: "pointer", fontSize: 9 }}
+                    style={{ width: 22, height: 20, background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#cbd5e1", borderRadius: 3, cursor: "pointer", fontSize: 9 }}
                     title="Change Case (Aa ⌄)"
                   >
                     Aa⌄
@@ -946,8 +979,8 @@ export default function SlideEditorRibbonToolbar({
                       justifyContent: "center",
                       width: 22,
                       height: 20,
-                      background: "#333",
-                      border: "1px solid #555",
+                      background: "rgba(30, 41, 59, 0.7)",
+                      border: "1px solid rgba(139, 92, 246, 0.25)",
                       borderRadius: 3,
                       cursor: "pointer",
                     }}
@@ -968,8 +1001,8 @@ export default function SlideEditorRibbonToolbar({
                       justifyContent: "center",
                       width: 22,
                       height: 20,
-                      background: "#333",
-                      border: "1px solid #555",
+                      background: "rgba(30, 41, 59, 0.7)",
+                      border: "1px solid rgba(139, 92, 246, 0.25)",
                       borderRadius: 3,
                       cursor: "pointer",
                       padding: 0,
@@ -999,7 +1032,7 @@ export default function SlideEditorRibbonToolbar({
                   <button
                     type="button"
                     onClick={() => handleAddPlugin(activeSlideIndex, "bullets", { points: ["Key bullet point 1", "Key bullet point 2"] })}
-                    style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, padding: "2px 5px", fontSize: 10, cursor: "pointer" }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, padding: "2px 5px", fontSize: 10, cursor: "pointer" }}
                     title="Bullets (•≡ ⌄)"
                   >
                     •≡ ⌄
@@ -1007,35 +1040,35 @@ export default function SlideEditorRibbonToolbar({
                   <button
                     type="button"
                     onClick={() => handleAddPlugin(activeSlideIndex, "bullets", { bullet_style: "decimal", points: ["1. First step", "2. Second step"] })}
-                    style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, padding: "2px 5px", fontSize: 10, cursor: "pointer" }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, padding: "2px 5px", fontSize: 10, cursor: "pointer" }}
                     title="Numbering (1≡ ⌄)"
                   >
                     1≡ ⌄
                   </button>
                   <button
                     type="button"
-                    style={{ background: "#333", border: "1px solid #555", color: "#bbb", borderRadius: 3, width: 20, height: 20, fontSize: 10, cursor: "pointer" }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#cbd5e1", borderRadius: 3, width: 20, height: 20, fontSize: 10, cursor: "pointer" }}
                     title="Decrease Indent (⇤)"
                   >
                     ⇤
                   </button>
                   <button
                     type="button"
-                    style={{ background: "#333", border: "1px solid #555", color: "#bbb", borderRadius: 3, width: 20, height: 20, fontSize: 10, cursor: "pointer" }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#cbd5e1", borderRadius: 3, width: 20, height: 20, fontSize: 10, cursor: "pointer" }}
                     title="Increase Indent (⇥)"
                   >
                     ⇥
                   </button>
                   <button
                     type="button"
-                    style={{ background: "#333", border: "1px solid #555", color: "#bbb", borderRadius: 3, width: 22, height: 20, fontSize: 10, cursor: "pointer" }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#cbd5e1", borderRadius: 3, width: 22, height: 20, fontSize: 10, cursor: "pointer" }}
                     title="Line Spacing (↕ ⌄)"
                   >
                     ↕ ⌄
                   </button>
                   <button
                     type="button"
-                    style={{ background: "#333", border: "1px solid #555", color: "#bbb", borderRadius: 3, width: 22, height: 20, fontSize: 10, cursor: "pointer" }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#cbd5e1", borderRadius: 3, width: 22, height: 20, fontSize: 10, cursor: "pointer" }}
                     title="Text Direction (A↓ ⌄)"
                   >
                     A↓ ⌄
@@ -1062,8 +1095,9 @@ export default function SlideEditorRibbonToolbar({
                         style={{
                           width: 20,
                           height: 20,
-                          background: isCur ? "#ea580c" : "#333",
-                          border: "1px solid #555",
+                          background: isCur ? "linear-gradient(135deg, #8b5cf6, #6366f1)" : "rgba(30, 41, 59, 0.7)",
+                          border: isCur ? "1px solid #38bdf8" : "1px solid rgba(139, 92, 246, 0.25)",
+                          boxShadow: isCur ? "0 0 8px rgba(139, 92, 246, 0.6)" : "none",
                           color: "#fff",
                           borderRadius: 3,
                           fontSize: 10,
@@ -1078,14 +1112,14 @@ export default function SlideEditorRibbonToolbar({
                   <button
                     type="button"
                     onClick={() => handleAddPlugin(activeSlideIndex, "paragraph_2col")}
-                    style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, width: 22, height: 20, fontSize: 10, cursor: "pointer" }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, width: 22, height: 20, fontSize: 10, cursor: "pointer" }}
                     title="Add Columns (▦ ⌄)"
                   >
                     ▦ ⌄
                   </button>
                   <button
                     type="button"
-                    style={{ background: "#333", border: "1px solid #555", color: "#bbb", borderRadius: 3, width: 22, height: 20, fontSize: 10, cursor: "pointer" }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#cbd5e1", borderRadius: 3, width: 22, height: 20, fontSize: 10, cursor: "pointer" }}
                     title="Align Text Vertical (≡ ⌄)"
                   >
                     ≡ ⌄
@@ -1111,14 +1145,14 @@ export default function SlideEditorRibbonToolbar({
                     <button
                       type="button"
                       onClick={() => setActiveTab("shapes")}
-                      style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, fontSize: 9.5, padding: "1px 4px", cursor: "pointer" }}
+                      style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, fontSize: 9.5, padding: "1px 4px", cursor: "pointer" }}
                       title="More Shapes"
                     >
                       Shapes ⌄
                     </button>
                     <button
                       type="button"
-                      style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, fontSize: 9.5, padding: "1px 4px", cursor: "pointer" }}
+                      style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, fontSize: 9.5, padding: "1px 4px", cursor: "pointer" }}
                       title="Arrange Elements"
                     >
                       Arrange ⌄
@@ -1131,21 +1165,21 @@ export default function SlideEditorRibbonToolbar({
                   <button
                     type="button"
                     onClick={() => setActiveTab("shapes")}
-                    style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}
                     title="Shape Fill Color"
                   >
                     <span>🎨</span> <span>Shape Fill ⌄</span>
                   </button>
                   <button
                     type="button"
-                    style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}
                     title="Shape Outline Color"
                   >
                     <span style={{ color: "#38bdf8" }}>✏</span> <span>Shape Outline ⌄</span>
                   </button>
                   <button
                     type="button"
-                    style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}
+                    style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}
                     title="Shape Effects (3D)"
                   >
                     <span>🧊</span> <span>Shape Effects ⌄</span>
@@ -1414,10 +1448,10 @@ export default function SlideEditorRibbonToolbar({
                   style={{
                     width: 16,
                     height: 52,
-                    background: "#222",
-                    border: "1px solid rgba(255,255,255,0.15)",
+                    background: "rgba(15, 23, 42, 0.9)",
+                    border: "1px solid rgba(139, 92, 246, 0.3)",
                     borderRadius: "3px 0 0 3px",
-                    color: "#bbb",
+                    color: "#c084fc",
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
@@ -1425,10 +1459,11 @@ export default function SlideEditorRibbonToolbar({
                     fontSize: 10,
                     padding: 0,
                     flexShrink: 0,
+                    transition: "all 0.15s ease",
                   }}
                   title="Scroll Previous 6 Templates (◀)"
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "#ea580c"; e.currentTarget.style.color = "#fff"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "#222"; e.currentTarget.style.color = "#bbb"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "#8b5cf6"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#8b5cf6"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(15, 23, 42, 0.9)"; e.currentTarget.style.color = "#c084fc"; e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.3)"; }}
                 >
                   ◀
                 </button>
@@ -1468,8 +1503,8 @@ export default function SlideEditorRibbonToolbar({
                           height: 52,
                           background: tmpl.bg,
                           color: "#ffffff",
-                          border: isSelected ? "2px solid #ea580c" : "1px solid rgba(255,255,255,0.2)",
-                          boxShadow: isSelected ? "0 0 10px rgba(234,88,12,0.45)" : "0 2px 5px rgba(0,0,0,0.3)",
+                          border: isSelected ? "2px solid #8b5cf6" : "1px solid rgba(139, 92, 246, 0.25)",
+                          boxShadow: isSelected ? "0 0 0 1px #38bdf8, 0 0 14px rgba(139, 92, 246, 0.6)" : "0 2px 5px rgba(0,0,0,0.3)",
                           borderRadius: 4,
                           padding: "4px 5px",
                           cursor: "pointer",
@@ -1480,6 +1515,7 @@ export default function SlideEditorRibbonToolbar({
                           scrollSnapAlign: "start",
                           position: "relative",
                           overflow: "hidden",
+                          transition: "all 0.15s ease",
                         }}
                         title={`${tmpl.name} (${tmpl.desc})`}
                       >
@@ -1507,20 +1543,21 @@ export default function SlideEditorRibbonToolbar({
                     style={{
                       width: 16,
                       height: 25,
-                      background: "#222",
-                      border: "1px solid rgba(255,255,255,0.15)",
+                      background: "rgba(15, 23, 42, 0.9)",
+                      border: "1px solid rgba(139, 92, 246, 0.3)",
                       borderRadius: "0 3px 0 0",
-                      color: "#bbb",
+                      color: "#c084fc",
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       fontSize: 9,
                       padding: 0,
+                      transition: "all 0.15s ease",
                     }}
                     title="Scroll Next 6 Templates (▶)"
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "#ea580c"; e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = "#222"; e.currentTarget.style.color = "#bbb"; }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "#8b5cf6"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#8b5cf6"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(15, 23, 42, 0.9)"; e.currentTarget.style.color = "#c084fc"; e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.3)"; }}
                   >
                     ▶
                   </button>
@@ -1531,20 +1568,21 @@ export default function SlideEditorRibbonToolbar({
                     style={{
                       width: 16,
                       height: 25,
-                      background: showTemplatesDropdown ? "#ea580c" : "#222",
-                      border: "1px solid rgba(255,255,255,0.15)",
+                      background: showTemplatesDropdown ? "#8b5cf6" : "rgba(15, 23, 42, 0.9)",
+                      border: "1px solid rgba(139, 92, 246, 0.3)",
                       borderRadius: "0 0 3px 0",
-                      color: showTemplatesDropdown ? "#fff" : "#bbb",
+                      color: showTemplatesDropdown ? "#fff" : "#c084fc",
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       fontSize: 9,
                       padding: 0,
+                      transition: "all 0.15s ease",
                     }}
                     title="Browse All Templates (Grid View)"
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "#ea580c"; e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={(e) => { if (!showTemplatesDropdown) { e.currentTarget.style.background = "#222"; e.currentTarget.style.color = "#bbb"; } }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "#8b5cf6"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#8b5cf6"; }}
+                    onMouseLeave={(e) => { if (!showTemplatesDropdown) { e.currentTarget.style.background = "rgba(15, 23, 42, 0.9)"; e.currentTarget.style.color = "#c084fc"; e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.3)"; } }}
                   >
                     ⌄
                   </button>
@@ -1562,7 +1600,8 @@ export default function SlideEditorRibbonToolbar({
                         width: "100vw",
                         height: "100vh",
                         zIndex: 99998,
-                        background: "rgba(0, 0, 0, 0.4)",
+                        background: "rgba(0, 0, 0, 0.6)",
+                        backdropFilter: "blur(4px)",
                       }}
                     />
                     <div
@@ -1572,10 +1611,10 @@ export default function SlideEditorRibbonToolbar({
                         left: "50%",
                         transform: "translateX(-50%)",
                         zIndex: 99999,
-                        background: "#1e1e1e",
-                        border: "1px solid rgba(255,255,255,0.2)",
+                        background: "#0f172a",
+                        border: "1px solid rgba(139, 92, 246, 0.35)",
                         borderRadius: 8,
-                        boxShadow: "0 16px 36px rgba(0,0,0,0.85)",
+                        boxShadow: "0 16px 36px rgba(0,0,0,0.85), 0 0 24px rgba(139, 92, 246, 0.2)",
                         padding: "10px 14px",
                         width: "90%",
                         maxWidth: 500,
@@ -1583,7 +1622,7 @@ export default function SlideEditorRibbonToolbar({
                         overflowY: "auto",
                       }}
                     >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, paddingBottom: 4, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, paddingBottom: 4, borderBottom: "1px solid rgba(139, 92, 246, 0.2)" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                           <span style={{ fontSize: 13 }}>📐</span>
                           <span style={{ fontSize: 11.5, fontWeight: 700, color: "#fff" }}>All Slide Master Templates ({MASTER_SLIDE_TEMPLATES.length})</span>
@@ -1591,7 +1630,7 @@ export default function SlideEditorRibbonToolbar({
                         <button
                           type="button"
                           onClick={() => setShowTemplatesDropdown(false)}
-                          style={{ background: "#2e2e2e", border: "1px solid #444", color: "#ccc", borderRadius: 3, padding: "2px 7px", cursor: "pointer", fontSize: 11 }}
+                          style={{ background: "#1e293b", border: "1px solid rgba(139, 92, 246, 0.3)", color: "#cbd5e1", borderRadius: 4, padding: "2px 8px", cursor: "pointer", fontSize: 11 }}
                         >
                           ✕ Close
                         </button>
@@ -1615,8 +1654,8 @@ export default function SlideEditorRibbonToolbar({
                                 height: 46,
                                 background: tmpl.bg,
                                 color: "#ffffff",
-                                border: isSelected ? "2px solid #ea580c" : "1px solid rgba(255,255,255,0.18)",
-                                boxShadow: isSelected ? "0 0 8px rgba(234,88,12,0.6)" : "0 1px 4px rgba(0,0,0,0.3)",
+                                border: isSelected ? "2px solid #8b5cf6" : "1px solid rgba(139, 92, 246, 0.25)",
+                                boxShadow: isSelected ? "0 0 0 1px #38bdf8, 0 0 10px rgba(139, 92, 246, 0.6)" : "0 1px 4px rgba(0,0,0,0.3)",
                                 borderRadius: 4,
                                 padding: "3px 4px",
                                 cursor: "pointer",
@@ -1667,10 +1706,10 @@ export default function SlideEditorRibbonToolbar({
                   style={{
                     width: 16,
                     height: 52,
-                    background: "#222",
-                    border: "1px solid rgba(255,255,255,0.15)",
+                    background: "rgba(15, 23, 42, 0.9)",
+                    border: "1px solid rgba(139, 92, 246, 0.3)",
                     borderRadius: "3px 0 0 3px",
-                    color: "#bbb",
+                    color: "#c084fc",
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
@@ -1678,10 +1717,11 @@ export default function SlideEditorRibbonToolbar({
                     fontSize: 10,
                     padding: 0,
                     flexShrink: 0,
+                    transition: "all 0.15s ease",
                   }}
                   title="Scroll Previous 5 Themes (◀)"
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "#ea580c"; e.currentTarget.style.color = "#fff"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "#222"; e.currentTarget.style.color = "#bbb"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "#8b5cf6"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#8b5cf6"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(15, 23, 42, 0.9)"; e.currentTarget.style.color = "#c084fc"; e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.3)"; }}
                 >
                   ◀
                 </button>
@@ -1720,8 +1760,8 @@ export default function SlideEditorRibbonToolbar({
                           height: 52,
                           background: tmpl.bg,
                           color: tmpl.textColor,
-                          border: isSelected ? "2px solid #ea580c" : "1px solid rgba(255,255,255,0.2)",
-                          boxShadow: isSelected ? "0 0 10px rgba(234,88,12,0.45)" : "0 2px 5px rgba(0,0,0,0.3)",
+                          border: isSelected ? "2px solid #8b5cf6" : "1px solid rgba(139, 92, 246, 0.25)",
+                          boxShadow: isSelected ? "0 0 0 1px #38bdf8, 0 0 14px rgba(139, 92, 246, 0.6)" : "0 2px 5px rgba(0,0,0,0.3)",
                           borderRadius: 4,
                           padding: "4px 5px",
                           cursor: "pointer",
@@ -1732,6 +1772,7 @@ export default function SlideEditorRibbonToolbar({
                           scrollSnapAlign: "start",
                           position: "relative",
                           overflow: "hidden",
+                          transition: "all 0.15s ease",
                         }}
                         title={tmpl.name}
                       >
@@ -1785,20 +1826,21 @@ export default function SlideEditorRibbonToolbar({
                     style={{
                       width: 16,
                       height: 25,
-                      background: "#222",
-                      border: "1px solid rgba(255,255,255,0.15)",
+                      background: "rgba(15, 23, 42, 0.9)",
+                      border: "1px solid rgba(139, 92, 246, 0.3)",
                       borderRadius: "0 3px 0 0",
-                      color: "#bbb",
+                      color: "#c084fc",
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       fontSize: 9,
                       padding: 0,
+                      transition: "all 0.15s ease",
                     }}
                     title="Scroll Next 5 Themes (▶)"
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "#ea580c"; e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = "#222"; e.currentTarget.style.color = "#bbb"; }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "#8b5cf6"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#8b5cf6"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(15, 23, 42, 0.9)"; e.currentTarget.style.color = "#c084fc"; e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.3)"; }}
                   >
                     ▶
                   </button>
@@ -1809,20 +1851,21 @@ export default function SlideEditorRibbonToolbar({
                     style={{
                       width: 16,
                       height: 25,
-                      background: showThemesDropdown ? "#ea580c" : "#222",
-                      border: "1px solid rgba(255,255,255,0.15)",
+                      background: showThemesDropdown ? "#8b5cf6" : "rgba(15, 23, 42, 0.9)",
+                      border: "1px solid rgba(139, 92, 246, 0.3)",
                       borderRadius: "0 0 3px 0",
-                      color: showThemesDropdown ? "#fff" : "#bbb",
+                      color: showThemesDropdown ? "#fff" : "#c084fc",
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       fontSize: 9,
                       padding: 0,
+                      transition: "all 0.15s ease",
                     }}
                     title="Browse All Themes (Grid View)"
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "#ea580c"; e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={(e) => { if (!showThemesDropdown) { e.currentTarget.style.background = "#222"; e.currentTarget.style.color = "#bbb"; } }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "#8b5cf6"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#8b5cf6"; }}
+                    onMouseLeave={(e) => { if (!showThemesDropdown) { e.currentTarget.style.background = "rgba(15, 23, 42, 0.9)"; e.currentTarget.style.color = "#c084fc"; e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.3)"; } }}
                   >
                     ⌄
                   </button>
@@ -1840,7 +1883,8 @@ export default function SlideEditorRibbonToolbar({
                         width: "100vw",
                         height: "100vh",
                         zIndex: 99998,
-                        background: "rgba(0, 0, 0, 0.4)",
+                        background: "rgba(0, 0, 0, 0.6)",
+                        backdropFilter: "blur(4px)",
                       }}
                     />
                     <div
@@ -1850,10 +1894,10 @@ export default function SlideEditorRibbonToolbar({
                         left: "50%",
                         transform: "translateX(-50%)",
                         zIndex: 99999,
-                        background: "#1e1e1e",
-                        border: "1px solid rgba(255,255,255,0.2)",
+                        background: "#0f172a",
+                        border: "1px solid rgba(139, 92, 246, 0.35)",
                         borderRadius: 8,
-                        boxShadow: "0 16px 36px rgba(0,0,0,0.85)",
+                        boxShadow: "0 16px 36px rgba(0,0,0,0.85), 0 0 24px rgba(139, 92, 246, 0.2)",
                         padding: "10px 14px",
                         width: "90%",
                         maxWidth: 480,
@@ -1861,7 +1905,7 @@ export default function SlideEditorRibbonToolbar({
                         overflowY: "auto",
                       }}
                     >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, paddingBottom: 4, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, paddingBottom: 4, borderBottom: "1px solid rgba(139, 92, 246, 0.2)" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                           <span style={{ fontSize: 13 }}>🎨</span>
                           <span style={{ fontSize: 11.5, fontWeight: 700, color: "#fff" }}>All Presentation Themes ({allTemplates.length})</span>
@@ -1869,7 +1913,7 @@ export default function SlideEditorRibbonToolbar({
                         <button
                           type="button"
                           onClick={() => setShowThemesDropdown(false)}
-                          style={{ background: "#2e2e2e", border: "1px solid #444", color: "#ccc", borderRadius: 3, padding: "2px 7px", cursor: "pointer", fontSize: 11 }}
+                          style={{ background: "#1e293b", border: "1px solid rgba(139, 92, 246, 0.3)", color: "#cbd5e1", borderRadius: 4, padding: "2px 8px", cursor: "pointer", fontSize: 11 }}
                         >
                           ✕ Close
                         </button>
@@ -1892,8 +1936,8 @@ export default function SlideEditorRibbonToolbar({
                                 height: 42,
                                 background: tmpl.bg,
                                 color: tmpl.textColor,
-                                border: isSelected ? "2px solid #ea580c" : "1px solid rgba(255,255,255,0.18)",
-                                boxShadow: isSelected ? "0 0 8px rgba(234,88,12,0.6)" : "0 1px 4px rgba(0,0,0,0.3)",
+                                border: isSelected ? "2px solid #8b5cf6" : "1px solid rgba(139, 92, 246, 0.25)",
+                                boxShadow: isSelected ? "0 0 0 1px #38bdf8, 0 0 10px rgba(139, 92, 246, 0.6)" : "0 1px 4px rgba(0,0,0,0.3)",
                                 borderRadius: 4,
                                 padding: "3px 4px",
                                 cursor: "pointer",
@@ -1930,7 +1974,7 @@ export default function SlideEditorRibbonToolbar({
             <RibbonGroup title="Background">
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <label style={{ fontSize: 9, color: "#aaa" }}>Solid / Gradient 1</label>
+                  <label style={{ fontSize: 9, color: "#cbd5e1" }}>Solid / Gradient 1</label>
                   <input
                     type="color"
                     value={customBgColor1 || "#0f172a"}
@@ -1938,11 +1982,11 @@ export default function SlideEditorRibbonToolbar({
                       setSelectedBgPreset?.("custom");
                       setCustomBgColor1?.(e.target.value);
                     }}
-                    style={{ width: 28, height: 20, border: "1px solid #555", borderRadius: 3, cursor: "pointer", background: "none", padding: 0 }}
+                    style={{ width: 28, height: 20, border: "1px solid rgba(139, 92, 246, 0.3)", borderRadius: 3, cursor: "pointer", background: "none", padding: 0 }}
                   />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <label style={{ fontSize: 9, color: "#aaa" }}>Gradient 2</label>
+                  <label style={{ fontSize: 9, color: "#cbd5e1" }}>Gradient 2</label>
                   <input
                     type="color"
                     value={customBgColor2 || "#1e1b4b"}
@@ -1950,11 +1994,11 @@ export default function SlideEditorRibbonToolbar({
                       setSelectedBgPreset?.("custom");
                       setCustomBgColor2?.(e.target.value);
                     }}
-                    style={{ width: 28, height: 20, border: "1px solid #555", borderRadius: 3, cursor: "pointer", background: "none", padding: 0 }}
+                    style={{ width: 28, height: 20, border: "1px solid rgba(139, 92, 246, 0.3)", borderRadius: 3, cursor: "pointer", background: "none", padding: 0 }}
                   />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <label style={{ fontSize: 9, color: "#aaa" }}>Text Color</label>
+                  <label style={{ fontSize: 9, color: "#cbd5e1" }}>Text Color</label>
                   <input
                     type="color"
                     value={customTextColor || "#ffffff"}
@@ -1962,7 +2006,7 @@ export default function SlideEditorRibbonToolbar({
                       setSelectedBgPreset?.("custom");
                       setCustomTextColor?.(e.target.value);
                     }}
-                    style={{ width: 28, height: 20, border: "1px solid #555", borderRadius: 3, cursor: "pointer", background: "none", padding: 0 }}
+                    style={{ width: 28, height: 20, border: "1px solid rgba(139, 92, 246, 0.3)", borderRadius: 3, cursor: "pointer", background: "none", padding: 0 }}
                   />
                 </div>
               </div>
@@ -1978,24 +2022,24 @@ export default function SlideEditorRibbonToolbar({
         {activeTab === "view" && (
           <div style={{ display: "flex", alignItems: "stretch", gap: 6 }}>
             <RibbonGroup title="Presentation Views">
-              <button type="button" style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 4, padding: "4px 8px", cursor: "pointer", fontSize: 11 }}>
+              <button type="button" style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 4, padding: "4px 8px", cursor: "pointer", fontSize: 11 }}>
                 <span>🔲 Normal</span>
               </button>
-              <button type="button" style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 4, padding: "4px 8px", cursor: "pointer", fontSize: 11 }}>
+              <button type="button" style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 4, padding: "4px 8px", cursor: "pointer", fontSize: 11 }}>
                 <span>▦ Slide Sorter</span>
               </button>
-              <button type="button" style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 4, padding: "4px 8px", cursor: "pointer", fontSize: 11 }}>
+              <button type="button" style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 4, padding: "4px 8px", cursor: "pointer", fontSize: 11 }}>
                 <span>📖 Reading View</span>
               </button>
             </RibbonGroup>
             <RibbonGroup title="Show">
-              <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#ccc", cursor: "pointer" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#cbd5e1", cursor: "pointer" }}>
                 <input type="checkbox" defaultChecked={true} /> Ruler
               </label>
-              <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#ccc", cursor: "pointer" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#cbd5e1", cursor: "pointer" }}>
                 <input type="checkbox" /> Gridlines
               </label>
-              <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#ccc", cursor: "pointer" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#cbd5e1", cursor: "pointer" }}>
                 <input type="checkbox" /> Guides
               </label>
             </RibbonGroup>
@@ -2009,12 +2053,12 @@ export default function SlideEditorRibbonToolbar({
           <div style={{ display: "flex", alignItems: "stretch", gap: 8 }}>
             <RibbonGroup title="Shape Styles">
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                {["#38bdf8", "#ea580c", "#10b981", "#c084fc", "#f43f5e", "#fbbf24"].map((col) => (
+                {["#38bdf8", "#8b5cf6", "#10b981", "#c084fc", "#f43f5e", "#fbbf24"].map((col) => (
                   <button
                     key={col}
                     type="button"
                     onClick={() => handleUpdatePluginData?.(selectedPluginIndex, { fill: col, color: col })}
-                    style={{ width: 22, height: 22, borderRadius: 4, background: col, border: "1px solid #fff", cursor: "pointer" }}
+                    style={{ width: 22, height: 22, borderRadius: 4, background: col, border: "1px solid rgba(255,255,255,0.6)", cursor: "pointer" }}
                     title={`Fill ${col}`}
                   />
                 ))}
@@ -2024,15 +2068,15 @@ export default function SlideEditorRibbonToolbar({
               <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <button
                   type="button"
-                  onClick={() => handleUpdatePluginData?.(selectedPluginIndex, { fill: "#ea580c" })}
-                  style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer" }}
+                  onClick={() => handleUpdatePluginData?.(selectedPluginIndex, { fill: "#8b5cf6" })}
+                  style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer" }}
                 >
                   <span>🎨</span> <span>Shape Fill ⌄</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleUpdatePluginData?.(selectedPluginIndex, { border_color: "#38bdf8", border_width: 2 })}
-                  style={{ background: "#333", border: "1px solid #555", color: "#38bdf8", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer" }}
+                  style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#38bdf8", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer" }}
                 >
                   <span>✏️</span> <span>Shape Outline ⌄</span>
                 </button>
@@ -2043,14 +2087,14 @@ export default function SlideEditorRibbonToolbar({
                 <button
                   type="button"
                   onClick={() => handleLayerOrder?.(selectedPluginIndex, "front")}
-                  style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer" }}
+                  style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer" }}
                 >
                   ⇧ Bring to Front
                 </button>
                 <button
                   type="button"
                   onClick={() => handleLayerOrder?.(selectedPluginIndex, "back")}
-                  style={{ background: "#333", border: "1px solid #555", color: "#fff", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer" }}
+                  style={{ background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(139, 92, 246, 0.25)", color: "#fff", borderRadius: 3, fontSize: 10, padding: "2px 6px", cursor: "pointer" }}
                 >
                   ⇩ Send to Back
                 </button>
@@ -2075,7 +2119,7 @@ function RibbonGroup({ title, children }) {
         justifyContent: "space-between",
         alignItems: "center",
         padding: "2px 8px 4px 8px",
-        borderRight: "1px solid rgba(255, 255, 255, 0.1)",
+        borderRight: "1px solid rgba(139, 92, 246, 0.2)",
         height: "100%",
         flexShrink: 0,
       }}
@@ -2087,7 +2131,7 @@ function RibbonGroup({ title, children }) {
         style={{
           fontSize: 9,
           fontWeight: 600,
-          color: "rgba(255, 255, 255, 0.45)",
+          color: "#c084fc",
           textTransform: "capitalize",
           marginTop: 2,
           letterSpacing: 0.3,
@@ -2111,22 +2155,25 @@ function ShapeIconButton({ icon, title, onClick }) {
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#333",
-        border: "1px solid #555",
+        background: "rgba(30, 41, 59, 0.7)",
+        border: "1px solid rgba(139, 92, 246, 0.25)",
         borderRadius: 3,
         color: "#fff",
         cursor: "pointer",
         fontSize: 11,
         padding: 0,
         flexShrink: 0,
+        transition: "all 0.15s ease",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = "#ea580c";
-        e.currentTarget.style.borderColor = "#ea580c";
+        e.currentTarget.style.background = "#8b5cf6";
+        e.currentTarget.style.borderColor = "#38bdf8";
+        e.currentTarget.style.boxShadow = "0 0 8px rgba(139, 92, 246, 0.6)";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = "#333";
-        e.currentTarget.style.borderColor = "#555";
+        e.currentTarget.style.background = "rgba(30, 41, 59, 0.7)";
+        e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.25)";
+        e.currentTarget.style.boxShadow = "none";
       }}
     >
       <span style={{ lineHeight: 1 }}>{icon}</span>
