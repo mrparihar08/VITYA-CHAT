@@ -80,7 +80,7 @@ async function readResponse(res) {
 function sanitizePlanForBackend(rawPlan, themeConfig = null) {
   if (!rawPlan) return undefined;
 
-  const title = (rawPlan.title || "Presentation Deck").trim();
+  const title = (rawPlan.title || rawPlan.presentation?.title || "Presentation Deck").trim();
   const theme = themeConfig
     ? {
         theme_name: themeConfig.theme_name || "custom",
@@ -106,37 +106,42 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
     : rawPlan.design_system;
 
   const slides = safeArray(rawPlan.slides).map((slide, idx) => {
-    const slideTitle = (slide.title || `Slide ${idx + 1}`).trim();
-    let slideSubtitle = (slide.subtitle || "").trim();
-    let layout = slide.layout || "title_content";
+    const cp = slide.content_plan || {};
+    const dp = slide.design_plan || {};
+
+    const slideTitle = (slide.title || cp.title || `Slide ${idx + 1}`).trim();
+    let slideSubtitle = (slide.subtitle || cp.subtitle || cp.key_message || "").trim();
+    let layout = slide.layout || dp.layout || "title_content";
 
     const plugins = [];
     let extractedSubtitle = slideSubtitle || "";
     let extractedParagraphs = [];
     let extractedBullets = [];
-    let extractedNotes = "";
+    let extractedNotes = cp.speaker_notes || "";
     let extractedImageUrl = "";
 
-    safeArray(slide.plugins).forEach((p) => {
-      if (!p || !p.type) return;
+    // If slide has explicit plugins array:
+    if (Array.isArray(slide.plugins) && slide.plugins.length > 0) {
+      safeArray(slide.plugins).forEach((p) => {
+        if (!p || !p.type) return;
 
-      const pluginData = { ...(p.data || {}) };
+        const pluginData = { ...(p.data || {}) };
 
-      if (p.type === "bullets") {
-        const points = safeArray(pluginData.points).map((pt) => String(pt).trim()).filter(Boolean);
-        extractedBullets.push(...points);
-        plugins.push({
-          type: "bullets",
-          data: { ...pluginData, points: points.length ? points : ["Key takeaway point"] },
-        });
-      } else if (p.type === "paragraph") {
-        const textVal = String(pluginData.text || "").trim();
-        if (textVal) extractedParagraphs.push(textVal);
-        plugins.push({
-          type: "paragraph",
-          data: { ...pluginData, text: textVal },
-        });
-      } else if (p.type === "paragraph_2col") {
+        if (p.type === "bullets") {
+          const points = safeArray(pluginData.points).map((pt) => String(pt).trim()).filter(Boolean);
+          extractedBullets.push(...points);
+          plugins.push({
+            type: "bullets",
+            data: { ...pluginData, points: points.length ? points : ["Key takeaway point"] },
+          });
+        } else if (p.type === "paragraph") {
+          const textVal = String(pluginData.text || "").trim();
+          if (textVal) extractedParagraphs.push(textVal);
+          plugins.push({
+            type: "paragraph",
+            data: { ...pluginData, text: textVal },
+          });
+        } else if (p.type === "paragraph_2col") {
         const rawItems = Array.isArray(pluginData.items) && pluginData.items.length > 0
           ? pluginData.items.map((it) => ({ title: String(it.title || "").trim(), text: String(it.text || "").trim() }))
           : [
@@ -314,6 +319,25 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
         });
       }
     });
+  }
+
+  if (plugins.length === 0 && Array.isArray(cp.content) && cp.content.length > 0) {
+      const bulletsList = [];
+      cp.content.forEach((item) => {
+        if (typeof item === "string" && item.trim()) {
+          if (item.length > 120) {
+            extractedParagraphs.push(item);
+            plugins.push({ type: "paragraph", data: { text: item } });
+          } else {
+            bulletsList.push(item);
+          }
+        }
+      });
+      if (bulletsList.length > 0) {
+        extractedBullets.push(...bulletsList);
+        plugins.push({ type: "bullets", data: { points: bulletsList } });
+      }
+    }
 
     return {
       layout,
@@ -427,7 +451,7 @@ export default function PresentationGenerator({ presentationId = null }) {
   const handleTemplateChange = (val) => {
     setTemplateName(val);
     if (val && val !== "none") {
-      setSelectedBgPreset("none");
+      setSelectedBgPreset(val);
     }
     setIsSaved(false);
     setDownloadUrl(null);
@@ -436,7 +460,7 @@ export default function PresentationGenerator({ presentationId = null }) {
   const handleBgPresetChange = (val) => {
     setSelectedBgPreset(val);
     if (val && val !== "none") {
-      setTemplateName("none");
+      setTemplateName(val);
     }
     setIsSaved(false);
     setDownloadUrl(null);
@@ -934,7 +958,7 @@ export default function PresentationGenerator({ presentationId = null }) {
 
       setPlanPreview(data1);
 
-      const rawPlanFromStage1 = data1.structured_plan || data1.plan;
+      const rawPlanFromStage1 = data1.plan || data1.structured_plan;
       const activeThemeConfig = {
         theme_name: selectedBgPreset,
         solid_bg: selectedBgPreset === "custom" ? customBgColor1 : (selectedBgConfig?.solid_bg || "#0f172a"),
@@ -960,7 +984,7 @@ export default function PresentationGenerator({ presentationId = null }) {
       const data2 = await readResponse(res2);
       if (!res2.ok) throw new Error(data2?.detail || "Failed to generate presentation deck");
 
-      const rawGenPlan = data2.plan || sanitizedStage1Plan || data1.plan;
+      const rawGenPlan = data2.plan || data1.plan || sanitizedStage1Plan;
       const finalPlanWithTheme = sanitizePlanForBackend(rawGenPlan, activeThemeConfig);
       if (finalPlanWithTheme) {
         setPlan(finalPlanWithTheme);

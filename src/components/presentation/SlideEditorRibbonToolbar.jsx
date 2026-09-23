@@ -227,42 +227,20 @@ export default function SlideEditorRibbonToolbar({
         {/* ----------------------------------------------------------------------- */}
         {activeTab === "design" && (
           <div style={{ display: "flex", alignItems: "center", gap: 16, width: "100%", overflowX: "auto" }}>
-            {/* Theme BG Selector */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: 0.5 }}>
-                Theme BG
-              </span>
-              <select
-                value={selectedBgPreset}
-                onChange={(e) => setSelectedBgPreset(e.target.value)}
-                style={{
-                  background: "rgba(15, 23, 42, 0.8)",
-                  border: "1px solid rgba(56, 189, 248, 0.3)",
-                  color: "#fff",
-                  borderRadius: 6,
-                  padding: "4px 8px",
-                  fontSize: 11,
-                  fontWeight: 600,
-                  outline: "none",
-                  cursor: "pointer",
-                }}
-              >
-                {BACKGROUND_PRESETS.map((bg) => (
-                  <option key={bg.id} value={bg.id}>
-                    {bg.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <RibbonSeparator />
-
-            {/* Quick Color Presets */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
+            {/* Quick Color Presets (2 Rows) */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, flexShrink: 0 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: 0.5 }}>
                 Theme Palettes
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateRows: "repeat(2, 18px)",
+                  gridAutoFlow: "column",
+                  gap: "4px 6px",
+                  alignItems: "center",
+                }}
+              >
                 {BACKGROUND_PRESETS.filter((p) => p.id !== "none" && p.id !== "custom").map((presetObj) => {
                   const isSelected = selectedBgPreset === presetObj.id;
                   return (
@@ -271,8 +249,8 @@ export default function SlideEditorRibbonToolbar({
                       type="button"
                       onClick={() => setSelectedBgPreset(presetObj.id)}
                       style={{
-                        width: 20,
-                        height: 20,
+                        width: 18,
+                        height: 18,
                         borderRadius: "50%",
                         background: presetObj.bg,
                         border: isSelected ? "2px solid #38bdf8" : "1px solid rgba(255,255,255,0.25)",
@@ -280,6 +258,7 @@ export default function SlideEditorRibbonToolbar({
                         cursor: "pointer",
                         transform: isSelected ? "scale(1.15)" : "scale(1)",
                         transition: "all 0.15s ease",
+                        flexShrink: 0,
                       }}
                       title={presetObj.name}
                     />

@@ -4,13 +4,33 @@ import { downloadFileAsBlob } from "./Presentation";
 import SlideEditorRibbonToolbar from "./SlideEditorRibbonToolbar";
 
 export const BACKGROUND_PRESETS = [
-  { id: "none", name: "🚫 None (Use Template BG)", bg: "none", text: "#ffffff", accent: "#c084fc", solid_bg: "transparent", bg_start: "transparent", bg_end: "transparent" },
+  { id: "none", name: "🚫 None", bg: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#1e1b4b" },
+  { id: "base_template", name: "Default Slate Teal", bg: "linear-gradient(135deg, #0f172a 0%, #115e59 100%)", text: "#ffffff", accent: "#2dd4bf", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#115e59" },
+  { id: "sidebar_executive", name: "Executive Sidebar Rail", bg: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", text: "#ffffff", accent: "#38bdf8", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#1e293b" },
+  { id: "corporate_light", name: "Corporate Light", bg: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)", text: "#0f172a", accent: "#0284c7", solid_bg: "#f8fafc", bg_start: "#f8fafc", bg_end: "#e2e8f0" },
+  { id: "executive_gold", name: "Executive Gold", bg: "linear-gradient(135deg, #1c1917 0%, #78350f 100%)", text: "#ffffff", accent: "#fbbf24", solid_bg: "#1c1917", bg_start: "#1c1917", bg_end: "#78350f" },
+  { id: "ion_boardroom", name: "Ion Boardroom", bg: "linear-gradient(135deg, #090d16 0%, #31104b 100%)", text: "#ffffff", accent: "#ec4899", solid_bg: "#090d16", bg_start: "#090d16", bg_end: "#31104b" },
+  { id: "berlin_executive", name: "Berlin Executive", bg: "linear-gradient(135deg, #18181b 0%, #27272a 100%)", text: "#ffffff", accent: "#f97316", solid_bg: "#18181b", bg_start: "#18181b", bg_end: "#27272a" },
+  { id: "quotable_teal", name: "Quotable Teal", bg: "linear-gradient(135deg, #042f2e 0%, #0f766e 100%)", text: "#ffffff", accent: "#06b6d4", solid_bg: "#042f2e", bg_start: "#042f2e", bg_end: "#0f766e" },
+  { id: "geometric_block", name: "Geometric Color Block", bg: "linear-gradient(135deg, #3b0764 0%, #1e1b4b 100%)", text: "#ffffff", accent: "#3b82f6", solid_bg: "#3b0764", bg_start: "#3b0764", bg_end: "#1e1b4b" },
+  { id: "urban_monochrome", name: "Urban Monochrome", bg: "linear-gradient(135deg, #0f172a 0%, #334155 100%)", text: "#ffffff", accent: "#38bdf8", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#334155" },
+  { id: "crop_frame", name: "Crop Bracket Minimal", bg: "linear-gradient(135deg, #1c1917 0%, #292524 100%)", text: "#ffffff", accent: "#e7e5e4", solid_bg: "#1c1917", bg_start: "#1c1917", bg_end: "#292524" },
+  { id: "circuit_tech", name: "Circuit Tech Cyber", bg: "linear-gradient(135deg, #09090b 0%, #581c87 100%)", text: "#ffffff", accent: "#22d3ee", solid_bg: "#09090b", bg_start: "#09090b", bg_end: "#581c87" },
+  { id: "cyber_neon", name: "Cyberpunk Neon", bg: "linear-gradient(135deg, #050505 0%, #2e0854 100%)", text: "#ffffff", accent: "#00ffcc", solid_bg: "#050505", bg_start: "#050505", bg_end: "#2e0854" },
+  { id: "celestial_night", name: "Celestial Night", bg: "linear-gradient(135deg, #090d18 0%, #1e1b4b 100%)", text: "#ffffff", accent: "#818cf8", solid_bg: "#090d18", bg_start: "#090d18", bg_end: "#1e1b4b" },
+  { id: "modern_glassmorphism", name: "Modern Dark Glassmorphism", bg: "linear-gradient(135deg, #18181b 0%, #27272a 100%)", text: "#ffffff", accent: "#c084fc", solid_bg: "#18181b", bg_start: "#18181b", bg_end: "#27272a" },
+  { id: "artistic_neon", name: "Artistic Neon", bg: "linear-gradient(135deg, #09090b 0%, #2e1065 100%)", text: "#ffffff", accent: "#ff5e00", solid_bg: "#09090b", bg_start: "#09090b", bg_end: "#2e1065" },
+  { id: "atlas_bold", name: "Atlas Crimson Banner", bg: "linear-gradient(135deg, #450a0a 0%, #1c1917 100%)", text: "#ffffff", accent: "#ef4444", solid_bg: "#450a0a", bg_start: "#450a0a", bg_end: "#1c1917" },
+  { id: "organic_pastel", name: "Organic Earthy Pastel", bg: "linear-gradient(135deg, #14532d 0%, #1c1917 100%)", text: "#ffffff", accent: "#86efac", solid_bg: "#14532d", bg_start: "#14532d", bg_end: "#1c1917" },
+  { id: "emerald_nature", name: "Emerald Forest Nature", bg: "linear-gradient(135deg, #064e3b 0%, #022c22 100%)", text: "#ffffff", accent: "#10b981", solid_bg: "#064e3b", bg_start: "#064e3b", bg_end: "#022c22" },
+  { id: "dividend_burgundy", name: "Dividend Burgundy Block", bg: "linear-gradient(135deg, #4a044e 0%, #1e1b4b 100%)", text: "#ffffff", accent: "#f43f5e", solid_bg: "#4a044e", bg_start: "#4a044e", bg_end: "#1e1b4b" },
+  { id: "savon_classic", name: "Savon Classic Card", bg: "linear-gradient(135deg, #3f3f46 0%, #18181b 100%)", text: "#ffffff", accent: "#a1a1aa", solid_bg: "#18181b", bg_start: "#3f3f46", bg_end: "#18181b" },
+  { id: "wood_type", name: "Wood Type Vintage", bg: "linear-gradient(135deg, #451a03 0%, #1c1917 100%)", text: "#ffffff", accent: "#f59e0b", solid_bg: "#451a03", bg_start: "#451a03", bg_end: "#1c1917" },
   { id: "dark_gradient", name: "Midnight Purple", bg: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #31104b 100%)", text: "#ffffff", accent: "#c084fc", solid_bg: "#0f172a", bg_start: "#0f172a", bg_end: "#31104b" },
   { id: "ocean_blue", name: "Ocean Breeze", bg: "linear-gradient(135deg, #06101e 0%, #0b2545 50%, #134074 100%)", text: "#ffffff", accent: "#38bdf8", solid_bg: "#06101e", bg_start: "#06101e", bg_end: "#134074" },
   { id: "emerald_dark", name: "Emerald Forest", bg: "linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%)", text: "#ffffff", accent: "#34d399", solid_bg: "#022c22", bg_start: "#022c22", bg_end: "#047857" },
   { id: "cyberpunk_neon", name: "Cyberpunk Neon", bg: "linear-gradient(135deg, #09090b 0%, #2e1065 50%, #581c87 100%)", text: "#ffffff", accent: "#f43f5e", solid_bg: "#09090b", bg_start: "#09090b", bg_end: "#581c87" },
   { id: "wall_street", name: "Wall Street Finance", bg: "linear-gradient(135deg, #022c22 0%, #0f172a 50%, #1e293b 100%)", text: "#ffffff", accent: "#10b981", solid_bg: "#022c22", bg_start: "#022c22", bg_end: "#1e293b" },
-  { id: "executive_gold", name: "Executive Gold", bg: "linear-gradient(135deg, #1c1917 0%, #451a03 50%, #78350f 100%)", text: "#ffffff", accent: "#f59e0b", solid_bg: "#1c1917", bg_start: "#1c1917", bg_end: "#78350f" },
   { id: "velvet_rose", name: "Velvet Rose", bg: "linear-gradient(135deg, #2a0813 0%, #4c0519 50%, #881337 100%)", text: "#ffffff", accent: "#fb7185", solid_bg: "#2a0813", bg_start: "#2a0813", bg_end: "#881337" },
   { id: "executive_slate", name: "Executive Slate", bg: "linear-gradient(135deg, #18181b 0%, #27272a 50%, #3f3f46 100%)", text: "#ffffff", accent: "#a1a1aa", solid_bg: "#18181b", bg_start: "#18181b", bg_end: "#3f3f46" },
   { id: "clean_light", name: "Minimal Light", bg: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)", text: "#0f172a", accent: "#2563eb", solid_bg: "#f8fafc", bg_start: "#f8fafc", bg_end: "#e2e8f0" },
@@ -446,6 +466,364 @@ export function InteractiveShapeItem({
           ))}
         </>
       )}
+    </div>
+  );
+}
+
+export function SelectablePluginWrapper({
+  plugin,
+  pIdx,
+  isSelected,
+  onSelect,
+  onUpdateData,
+  onDelete,
+  onDuplicate,
+  selectedBgConfig,
+  children,
+}) {
+  const data = plugin?.data || {};
+  const currentFontSize = data.font_size || 13.5;
+  const currentFontColor = data.font_color || data.color || data.text_color || "inherit";
+  const currentBgColor = data.bg_color || data.background || data.fill || "transparent";
+  const currentPadding = data.padding !== undefined ? data.padding : 8;
+  const currentWidth = data.width;
+
+  const handleResizeStart = (handle, e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialWidth = e.currentTarget.parentElement?.offsetWidth || 400;
+    const initialPadding = typeof currentPadding === "number" ? currentPadding : 8;
+
+    const handleMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+
+      if (handle.includes("e") || handle.includes("w")) {
+        const factor = handle.includes("w") ? -1 : 1;
+        const newW = Math.max(140, initialWidth + dx * factor * 2);
+        onUpdateData(pIdx, { width: Math.round(newW) });
+      }
+      if (handle.includes("s") || handle.includes("n")) {
+        const factor = handle.includes("n") ? -1 : 1;
+        const newPad = Math.max(2, Math.min(32, initialPadding + Math.round(dy * factor / 4)));
+        onUpdateData(pIdx, { padding: newPad });
+      }
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  return (
+    <div
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect(pIdx);
+      }}
+      style={{
+        position: "relative",
+        borderRadius: 8,
+        outline: isSelected ? "2px solid #38bdf8" : "1.5px dashed transparent",
+        boxShadow: isSelected ? "0 0 14px rgba(56, 189, 248, 0.4)" : "none",
+        background: currentBgColor !== "transparent" ? currentBgColor : undefined,
+        color: currentFontColor !== "inherit" ? currentFontColor : undefined,
+        fontSize: currentFontSize ? `${currentFontSize}px` : undefined,
+        padding: isSelected ? Math.max(4, currentPadding) : currentPadding,
+        width: currentWidth ? `${currentWidth}px` : "100%",
+        maxWidth: "100%",
+        boxSizing: "border-box",
+        transition: "outline 0.15s ease, box-shadow 0.15s ease",
+        cursor: isSelected ? "default" : "pointer",
+        margin: "3px 0",
+      }}
+      onMouseEnter={(e) => {
+        if (!isSelected) e.currentTarget.style.outline = "1.5px dashed rgba(56, 189, 248, 0.4)";
+      }}
+      onMouseLeave={(e) => {
+        if (!isSelected) e.currentTarget.style.outline = "1.5px dashed transparent";
+      }}
+    >
+      {/* POWERPOINT 365 QUICK FORMATTING MINI TOOLBAR */}
+      {isSelected && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: "absolute",
+            top: -38,
+            left: 0,
+            zIndex: 45,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            background: "linear-gradient(180deg, #090d16 0%, #1e293b 100%)",
+            border: "1px solid rgba(56, 189, 248, 0.6)",
+            borderRadius: 7,
+            padding: "2px 8px",
+            boxShadow: "0 6px 20px rgba(0, 0, 0, 0.7), 0 0 10px rgba(56, 189, 248, 0.3)",
+            whiteSpace: "nowrap",
+            backdropFilter: "blur(12px)",
+          }}
+        >
+          {/* FONT SIZE CONTROLS */}
+          <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.6)", marginRight: 2 }}>A</span>
+            <button
+              type="button"
+              onClick={() => onUpdateData(pIdx, { font_size: Math.max(9, Math.round(currentFontSize) - 1) })}
+              style={{
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "#fff",
+                borderRadius: 4,
+                width: 18,
+                height: 18,
+                fontSize: 10,
+                fontWeight: 800,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              title="Decrease Font Size (A−)"
+            >
+              −
+            </button>
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: "#38bdf8", minWidth: 24, textAlign: "center" }}>
+              {Math.round(currentFontSize)}pt
+            </span>
+            <button
+              type="button"
+              onClick={() => onUpdateData(pIdx, { font_size: Math.min(64, Math.round(currentFontSize) + 1) })}
+              style={{
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "#fff",
+                borderRadius: 4,
+                width: 18,
+                height: 18,
+                fontSize: 10,
+                fontWeight: 800,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              title="Increase Font Size (A+)"
+            >
+              +
+            </button>
+          </div>
+
+          <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+
+          {/* FONT COLOR PICKER */}
+          <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.6)" }}>COLOR</span>
+            <label
+              title="Text Font Color"
+              style={{
+                position: "relative",
+                width: 16,
+                height: 16,
+                borderRadius: "50%",
+                background: currentFontColor && currentFontColor !== "inherit" ? currentFontColor : "#ffffff",
+                border: "1.5px solid #ffffff",
+                cursor: "pointer",
+                display: "inline-block",
+                boxShadow: "0 0 4px rgba(0,0,0,0.5)",
+              }}
+            >
+              <input
+                type="color"
+                value={currentFontColor && currentFontColor.startsWith("#") ? currentFontColor : "#ffffff"}
+                onChange={(e) => {
+                  onUpdateData(pIdx, { font_color: e.target.value, color: e.target.value, text_color: e.target.value });
+                }}
+                style={{ position: "absolute", top: -10, left: -10, width: 36, height: 36, opacity: 0, cursor: "pointer" }}
+              />
+            </label>
+          </div>
+
+          <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+
+          {/* BACKGROUND FILL PICKER */}
+          <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.6)" }}>BG</span>
+            <label
+              title="Box Background Color"
+              style={{
+                position: "relative",
+                width: 16,
+                height: 16,
+                borderRadius: 4,
+                background: currentBgColor && currentBgColor !== "transparent" ? currentBgColor : "rgba(255,255,255,0.15)",
+                border: "1.5px solid rgba(255,255,255,0.4)",
+                cursor: "pointer",
+                display: "inline-block",
+              }}
+            >
+              <input
+                type="color"
+                value={currentBgColor && currentBgColor.startsWith("#") ? currentBgColor : "#1e293b"}
+                onChange={(e) => {
+                  onUpdateData(pIdx, { bg_color: e.target.value, background: e.target.value, fill: e.target.value });
+                }}
+                style={{ position: "absolute", top: -10, left: -10, width: 36, height: 36, opacity: 0, cursor: "pointer" }}
+              />
+            </label>
+            {currentBgColor !== "transparent" && (
+              <button
+                type="button"
+                onClick={() => onUpdateData(pIdx, { bg_color: "transparent", background: "transparent", fill: "transparent" })}
+                style={{ background: "none", border: "none", color: "#f43f5e", fontSize: 9, cursor: "pointer", padding: 0 }}
+                title="Clear Background"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+
+          {/* BOX SIZE (PADDING / WIDTH / SCALE) */}
+          <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.6)" }}>BOX</span>
+            <button
+              type="button"
+              onClick={() => {
+                const newPad = Math.max(2, (typeof currentPadding === "number" ? currentPadding : 8) - 2);
+                onUpdateData(pIdx, { padding: newPad });
+              }}
+              style={{
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "#fff",
+                borderRadius: 4,
+                padding: "1px 4px",
+                fontSize: 9.5,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+              title="Decrease Box Size (Padding)"
+            >
+              Size −
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const newPad = Math.min(32, (typeof currentPadding === "number" ? currentPadding : 8) + 2);
+                onUpdateData(pIdx, { padding: newPad });
+              }}
+              style={{
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "#fff",
+                borderRadius: 4,
+                padding: "1px 4px",
+                fontSize: 9.5,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+              title="Increase Box Size (Padding)"
+            >
+              Size +
+            </button>
+          </div>
+
+          <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.2)" }} />
+
+          {/* QUICK ACTIONS */}
+          <button
+            type="button"
+            onClick={() => onDuplicate?.(pIdx)}
+            style={{
+              background: "rgba(56, 189, 248, 0.15)",
+              border: "1px solid rgba(56, 189, 248, 0.4)",
+              color: "#38bdf8",
+              borderRadius: 4,
+              padding: "1px 4px",
+              fontSize: 9.5,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+            title="Duplicate Element"
+          >
+            📋
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete?.(pIdx)}
+            style={{
+              background: "rgba(244, 63, 94, 0.15)",
+              border: "1px solid rgba(244, 63, 94, 0.4)",
+              color: "#f43f5e",
+              borderRadius: 4,
+              padding: "1px 4px",
+              fontSize: 9.5,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+            title="Delete Element"
+          >
+            🗑️
+          </button>
+        </div>
+      )}
+
+      {/* 8 RESIZE HANDLES (POWERPOINT / CANVA STYLE) */}
+      {isSelected && (
+        <>
+          <div
+            onMouseDown={(e) => handleResizeStart("nw", e)}
+            style={{ position: "absolute", top: -4, left: -4, width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "nwse-resize", zIndex: 30 }}
+            title="Resize Top-Left"
+          />
+          <div
+            onMouseDown={(e) => handleResizeStart("n", e)}
+            style={{ position: "absolute", top: -4, left: "50%", transform: "translateX(-50%)", width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "ns-resize", zIndex: 30 }}
+            title="Resize Top"
+          />
+          <div
+            onMouseDown={(e) => handleResizeStart("ne", e)}
+            style={{ position: "absolute", top: -4, right: -4, width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "nesw-resize", zIndex: 30 }}
+            title="Resize Top-Right"
+          />
+          <div
+            onMouseDown={(e) => handleResizeStart("e", e)}
+            style={{ position: "absolute", top: "50%", right: -4, transform: "translateY(-50%)", width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "ew-resize", zIndex: 30 }}
+            title="Resize Right"
+          />
+          <div
+            onMouseDown={(e) => handleResizeStart("se", e)}
+            style={{ position: "absolute", bottom: -4, right: -4, width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "nwse-resize", zIndex: 30 }}
+            title="Resize Bottom-Right"
+          />
+          <div
+            onMouseDown={(e) => handleResizeStart("s", e)}
+            style={{ position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)", width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "ns-resize", zIndex: 30 }}
+            title="Resize Bottom"
+          />
+          <div
+            onMouseDown={(e) => handleResizeStart("sw", e)}
+            style={{ position: "absolute", bottom: -4, left: -4, width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "nesw-resize", zIndex: 30 }}
+            title="Resize Bottom-Left"
+          />
+          <div
+            onMouseDown={(e) => handleResizeStart("w", e)}
+            style={{ position: "absolute", top: "50%", left: -4, transform: "translateY(-50%)", width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "ew-resize", zIndex: 30 }}
+            title="Resize Left"
+          />
+        </>
+      )}
+
+      {children}
     </div>
   );
 }
@@ -1182,6 +1560,7 @@ export default function PresentationEditor({
   const [showLayoutModal, setShowLayoutModal] = useState(false);
   const [layoutModalMode] = useState("add"); // "add" | "change"
   const [selectedPluginIndex, setSelectedPluginIndex] = useState(null);
+  const [zoomLevel, setZoomLevel] = useState(100);
 
   const handleUpdatePluginData = (pIdx, updates) => {
     if (!setPlan || pIdx === undefined || pIdx === null) return;
@@ -1962,6 +2341,124 @@ export default function PresentationEditor({
 
                 return (
                   <div style={{ position: "relative", width: "100%" }}>
+                    {/* CANVAS TOP STATUS & POWERPOINT 365 ZOOM IN / ZOOM OUT TOOLBAR */}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: 8,
+                        padding: "2px 4px",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: "#38bdf8", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                          Slide {activeSlideIndex + 1} of {plan?.slides?.length || 1}
+                        </span>
+                        {selectedPluginIndex !== null && selectedPluginIndex !== undefined && (
+                          <span
+                            style={{
+                              fontSize: 9.5,
+                              background: "rgba(56, 189, 248, 0.15)",
+                              color: "#38bdf8",
+                              border: "1px solid rgba(56, 189, 248, 0.4)",
+                              borderRadius: 4,
+                              padding: "1px 6px",
+                              fontWeight: 700,
+                            }}
+                          >
+                            Selected: #{selectedPluginIndex + 1} ({activeSlide?.plugins?.[selectedPluginIndex]?.type || "element"})
+                          </span>
+                        )}
+                      </div>
+
+                      {/* ZOOM IN / ZOOM OUT CONTROLS */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          background: "rgba(15, 23, 42, 0.85)",
+                          border: "1px solid rgba(255, 255, 255, 0.12)",
+                          borderRadius: 20,
+                          padding: "3px 10px",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.4)",
+                          backdropFilter: "blur(8px)",
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setZoomLevel((prev) => Math.max(50, prev - 10))}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#38bdf8",
+                            cursor: "pointer",
+                            fontWeight: 900,
+                            fontSize: 14,
+                            padding: "0 4px",
+                            lineHeight: 1,
+                          }}
+                          title="Zoom Out (−)"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="range"
+                          min={50}
+                          max={150}
+                          step={5}
+                          value={zoomLevel}
+                          onChange={(e) => setZoomLevel(Number(e.target.value))}
+                          style={{ width: 70, accentColor: "#38bdf8", cursor: "pointer", height: 4 }}
+                          title={`Zoom Level: ${zoomLevel}%`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setZoomLevel((prev) => Math.min(150, prev + 10))}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#38bdf8",
+                            cursor: "pointer",
+                            fontWeight: 900,
+                            fontSize: 14,
+                            padding: "0 4px",
+                            lineHeight: 1,
+                          }}
+                          title="Zoom In (+)"
+                        >
+                          +
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setZoomLevel(100)}
+                          style={{
+                            background: zoomLevel === 100 ? "rgba(56, 189, 248, 0.2)" : "rgba(255, 255, 255, 0.08)",
+                            border: "1px solid rgba(56, 189, 248, 0.4)",
+                            borderRadius: 12,
+                            color: "#38bdf8",
+                            fontSize: 10,
+                            fontWeight: 700,
+                            padding: "1px 6px",
+                            cursor: "pointer",
+                          }}
+                          title="Reset Zoom to 100% (Fit)"
+                        >
+                          {zoomLevel}% ⊡ Fit
+                        </button>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        transform: zoomLevel !== 100 ? `scale(${zoomLevel / 100})` : "none",
+                        transformOrigin: "top center",
+                        transition: "transform 0.15s ease",
+                      }}
+                    >
                     {/* PREVIOUS SLIDE BUTTON (LEFT ◄) */}
                     <button
                       type="button"
@@ -2350,14 +2847,43 @@ export default function PresentationEditor({
 
                 {/* LIVE PLUGINS CONTENT */}
                 {hasPlugins ? (
-                  <div style={{ flex: isVMiddle || isVBottom ? "0 1 auto" : 1, maxHeight: "100%", overflowY: "auto", margin: "12px 0", display: "flex", flexDirection: "column", gap: 10, paddingRight: 4 }}>
+                  <div style={{ flex: isVMiddle || isVBottom ? "0 1 auto" : 1, maxHeight: "100%", overflow: "hidden", margin: "6px 0", display: "flex", flexDirection: "column", gap: safeArray(activeSlide.plugins).length > 2 ? 6 : 10, paddingRight: 0 }}>
                   {(() => {
                     const plugins = safeArray(activeSlide.plugins);
                     const hasImage = plugins.some((p) => p.type === "image" && (p.data?.url || p.data?.path));
                     const hasText = plugins.some((p) => p.type === "bullets" || p.type === "paragraph");
 
-                    const renderPluginItem = (p, pIdx) => (
-                      <div key={pIdx}>
+                    const renderPluginItem = (p, pIdx) => {
+                      if (p.type === "shape") {
+                        return (
+                          <InteractiveShapeItem
+                            key={pIdx}
+                            plugin={p}
+                            pIdx={pIdx}
+                            isSelected={selectedPluginIndex === pIdx}
+                            onSelect={(idx) => setSelectedPluginIndex(idx)}
+                            onUpdateData={handleUpdatePluginData}
+                          />
+                        );
+                      }
+
+                      return (
+                        <SelectablePluginWrapper
+                          key={pIdx}
+                          plugin={p}
+                          pIdx={pIdx}
+                          isSelected={selectedPluginIndex === pIdx}
+                          onSelect={(idx) => setSelectedPluginIndex(idx)}
+                          onUpdateData={handleUpdatePluginData}
+                          onDelete={(idx) => handleDeletePlugin?.(activeSlideIndex, idx)}
+                          onDuplicate={(idx) => {
+                            const cur = activeSlide?.plugins?.[idx];
+                            if (cur) {
+                              handleAddPlugin?.(activeSlideIndex, cur.type, { ...cur.data });
+                            }
+                          }}
+                          selectedBgConfig={selectedBgConfig}
+                        >
                         {p.type === "subtitle" || p.type === "text" ? (
                           <h3
                             contentEditable={true}
@@ -2400,7 +2926,16 @@ export default function PresentationEditor({
                               suppressContentEditableWarning={true}
                               onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "text", e.target.innerText)}
                               title="Click to edit inline"
-                              style={{ fontSize: p.data?.font_size || 14, textAlign: p.data?.alignment || "left", color: p.data?.font_color || p.data?.color || "inherit", lineHeight: 1.5, opacity: (p.data?.font_color || p.data?.color) ? 1 : 0.9, outline: "none", cursor: "text" }}
+                              style={{
+                                fontSize: p.data?.font_size || (String(p.data?.text || "").length > 500 ? 11.5 : (String(p.data?.text || "").length > 300 ? 12.5 : 14)),
+                                textAlign: p.data?.alignment || "left",
+                                color: p.data?.font_color || p.data?.color || "inherit",
+                                lineHeight: 1.55,
+                                opacity: (p.data?.font_color || p.data?.color) ? 1 : 0.9,
+                                outline: "none",
+                                cursor: "text",
+                                margin: 0,
+                              }}
                             >
                               {p.data?.text}
                             </p>
@@ -2553,16 +3088,19 @@ export default function PresentationEditor({
                         ) : null}
 
                         {p.type === "image" ? (
-                          <div style={{ textAlign: p.data?.align || p.data?.alignment || "center", margin: "8px 0" }}>
+                          <div style={{ textAlign: p.data?.align || p.data?.alignment || "center", margin: "4px 0", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                             {p.data?.url || p.data?.path ? (
                               <img
                                 src={p.data.url || p.data.path}
                                 alt="Slide media"
                                 style={{
-                                  maxHeight: Number(p.data?.img_height || p.data?.height || 180),
+                                  maxHeight: Number(p.data?.img_height || p.data?.height || 220),
+                                  maxWidth: "100%",
+                                  objectFit: "cover",
                                   borderRadius: 10,
                                   border: "1px solid rgba(255,255,255,0.2)",
-                                  transition: "max-height 0.2s ease"
+                                  boxShadow: "0 6px 16px rgba(0,0,0,0.3)",
+                                  transition: "all 0.2s ease"
                                 }}
                               />
                             ) : null}
@@ -2571,9 +3109,9 @@ export default function PresentationEditor({
                               suppressContentEditableWarning={true}
                               onBlur={(e) => handlePluginTextChange(activeSlideIndex, pIdx, "caption", e.target.innerText)}
                               title="Click to edit image caption inline"
-                              style={{ fontSize: 11, opacity: 0.8, marginTop: 4, outline: "none", cursor: "text", minHeight: "16px" }}
+                              style={{ fontSize: 10.5, fontWeight: 700, color: selectedBgConfig?.accent || "#c084fc", opacity: 0.9, marginTop: 6, outline: "none", cursor: "text", minHeight: "16px", textAlign: "center" }}
                             >
-                              {p.data?.caption || (p.data?.url || p.data?.path ? "Click to add image caption..." : "")}
+                              {p.data?.caption ? `fig:- ${p.data.caption.replace(/^fig:-\s*/i, "")}` : (p.data?.url || p.data?.path ? "Click to add image caption..." : "")}
                             </div>
                           </div>
                         ) : null}
@@ -3113,8 +3651,18 @@ export default function PresentationEditor({
                         ) : null}
 
                         {p.type === "callout" ? (
-                          <div style={{ background: "rgba(255,255,255,0.04)", borderLeft: `4px solid ${selectedBgConfig?.accent || "#c084fc"}`, border: "1px solid rgba(255,255,255,0.1)", borderRadius: "0 10px 10px 0", padding: "12px 16px", margin: "8px 0" }}>
-                            <div style={{ fontSize: 11, fontWeight: 800, color: selectedBgConfig?.accent || "#c084fc", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
+                          <div
+                            style={{
+                              background: p.data?.bg_color || p.data?.background || "rgba(255,255,255,0.04)",
+                              borderLeft: `4px solid ${p.data?.accent_color || p.data?.border_color || selectedBgConfig?.accent || "#c084fc"}`,
+                              border: `1px solid ${p.data?.border_color || "rgba(255,255,255,0.1)"}`,
+                              borderRadius: "0 10px 10px 0",
+                              padding: p.data?.padding !== undefined ? `${p.data.padding}px` : "10px 14px",
+                              margin: "4px 0",
+                              color: p.data?.font_color || p.data?.color || "inherit",
+                            }}
+                          >
+                            <div style={{ fontSize: Math.max(10, (p.data?.font_size || 13) - 2), fontWeight: 800, color: p.data?.accent_color || selectedBgConfig?.accent || "#c084fc", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
                               <span>{p.data?.icon || "💡"}</span>
                               <span
                                 contentEditable={true}
@@ -3140,7 +3688,13 @@ export default function PresentationEditor({
                                 handlePluginTextChange(activeSlideIndex, pIdx, "quote", newText);
                               }}
                               title="Click to edit callout text inline"
-                              style={{ fontSize: 13, lineHeight: 1.5, opacity: 0.9, outline: "none", cursor: "text" }}
+                              style={{
+                                fontSize: p.data?.font_size || 13,
+                                lineHeight: 1.5,
+                                opacity: (p.data?.font_color || p.data?.color) ? 1 : 0.9,
+                                outline: "none",
+                                cursor: "text",
+                              }}
                             >
                               {p.data?.text || p.data?.takeaway || p.data?.quote || "Key takeaway summary..."}
                             </div>
@@ -3450,18 +4004,9 @@ export default function PresentationEditor({
                             );
                           })()
                         ) : null}
-                        {p.type === "shape" ? (
-                          <InteractiveShapeItem
-                            key={pIdx}
-                            plugin={p}
-                            pIdx={pIdx}
-                            isSelected={selectedPluginIndex === pIdx}
-                            onSelect={(idx) => setSelectedPluginIndex(idx)}
-                            onUpdateData={handleUpdatePluginData}
-                          />
-                        ) : null}
-                      </div>
-                    );
+                        </SelectablePluginWrapper>
+                      );
+                    };
 
                     const nonShapePlugins = plugins.filter((p) => p.type !== "shape");
                     const shapePlugins = plugins.filter((p) => p.type === "shape");
@@ -3583,113 +4128,166 @@ export default function PresentationEditor({
                   })()}
                 </div>
                 ) : (
-                  /* POWERPOINT-STYLE CONTENT PLACEHOLDER BOX */
+                  /* POWERPOINT 365 AUTHENTIC CONTENT PLACEHOLDER */
                   <div
+                    className="ppt-content-placeholder-box"
                     style={{
                       flex: 1,
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
                       justifyContent: "center",
-                      border: "2px dashed rgba(255, 255, 255, 0.18)",
-                      borderRadius: 12,
+                      border: "1px dashed rgba(148, 163, 184, 0.25)",
+                      borderRadius: 4,
                       padding: "20px 16px",
-                      margin: "12px 0 4px",
-                      background: "rgba(15, 23, 42, 0.25)",
-                      transition: "all 0.2s ease",
-                      minHeight: 160,
+                      margin: "6px 0",
+                      background: "transparent",
+                      transition: "all 0.15s ease",
+                      position: "relative",
+                      minHeight: 150,
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.5)";
-                      e.currentTarget.style.background = "rgba(56, 189, 248, 0.03)";
+                      e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.4)";
+                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.015)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.18)";
-                      e.currentTarget.style.background = "rgba(15, 23, 42, 0.25)";
+                      e.currentTarget.style.borderColor = "rgba(148, 163, 184, 0.25)";
+                      e.currentTarget.style.background = "transparent";
                     }}
                   >
+                    {/* "Click to add text" Placeholder (PowerPoint Style) */}
                     <div
                       contentEditable={true}
                       suppressContentEditableWarning={true}
                       onBlur={(e) => {
                         const val = e.target.innerText.trim();
-                        if (val && val !== "Click to add text / bullet points...") {
+                        if (val && val !== "Click to add text") {
                           handleAddPlugin(activeSlideIndex, "paragraph", { text: val });
                         }
                       }}
-                      title="Click to type text directly on slide"
+                      title="Click to add text"
                       style={{
-                        fontSize: 15,
-                        color: "rgba(255, 255, 255, 0.5)",
+                        fontSize: 16,
+                        color: "rgba(148, 163, 184, 0.65)",
                         textAlign: "center",
-                        marginBottom: 14,
+                        marginBottom: 16,
                         outline: "none",
                         cursor: "text",
-                        fontStyle: "italic",
+                        fontWeight: 400,
+                        letterSpacing: "0.2px",
                       }}
                     >
-                      Click to add text / bullet points...
+                      Click to add text
                     </div>
 
-                    {/* PowerPoint-style Quick Insert Object Tiles */}
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
+                    {/* PowerPoint 365 Quick Insert 6-Icon Grid (Clean & Minimalist) */}
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(6, 44px)",
+                        gap: 12,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
                       {[
                         {
-                          icon: "📝",
-                          label: "Bullets",
-                          color: "#38bdf8",
-                          action: () =>
-                            handleAddPlugin(activeSlideIndex, "paragraph", {
-                              points: ["First strategic takeaway", "Second key point", "Third core takeaway"],
-                            }),
-                        },
-                        {
-                          icon: "📊",
-                          label: "Chart",
-                          color: "#34d399",
-                          action: () =>
-                            handleAddPlugin(activeSlideIndex, "chart", {
-                              chart_type: "bar",
-                              title: "Key Metrics",
-                              labels: ["Q1", "Q2", "Q3", "Q4"],
-                              series: [{ name: "Growth", data: [65, 80, 75, 90] }],
-                            }),
-                        },
-                        {
-                          icon: "▨",
+                          icon: (
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="3" width="18" height="18" rx="2" />
+                              <path d="M3 9h18" />
+                              <path d="M3 15h18" />
+                              <path d="M9 3v18" />
+                              <path d="M15 3v18" />
+                            </svg>
+                          ),
                           label: "Table",
-                          color: "#fbbf24",
+                          tooltip: "Insert Table",
                           action: () =>
                             handleAddPlugin(activeSlideIndex, "table", {
                               headers: ["Category", "Current", "Projected"],
                               rows: [
-                                ["Users", "10k", "50k"],
-                                ["Revenue", "$120k", "$450k"],
+                                ["Metric 1", "10k", "50k"],
+                                ["Metric 2", "$120k", "$450k"],
                               ],
                             }),
                         },
                         {
-                          icon: "🖼️",
-                          label: "Picture",
-                          color: "#f43f5e",
-                          action: () => handleAddPlugin(activeSlideIndex, "image", { caption: "Slide Image" }),
+                          icon: (
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                              <line x1="18" y1="20" x2="18" y2="10" />
+                              <line x1="12" y1="20" x2="12" y2="4" />
+                              <line x1="6" y1="20" x2="6" y2="14" />
+                              <line x1="2" y1="20" x2="22" y2="20" />
+                            </svg>
+                          ),
+                          label: "Chart",
+                          tooltip: "Insert Chart",
+                          action: () =>
+                            handleAddPlugin(activeSlideIndex, "chart", {
+                              chart_type: "column",
+                              title: "Performance Trends",
+                              labels: ["Q1", "Q2", "Q3", "Q4"],
+                              values: [45, 65, 80, 95],
+                            }),
                         },
                         {
-                          icon: "▭",
+                          icon: (
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="3" width="18" height="18" rx="2" />
+                              <circle cx="8.5" cy="8.5" r="1.5" />
+                              <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                          ),
+                          label: "Picture",
+                          tooltip: "Insert Picture",
+                          action: () => handleAddPlugin(activeSlideIndex, "image", { caption: "Slide Visual Image" }),
+                        },
+                        {
+                          icon: (
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                              <line x1="8" y1="6" x2="21" y2="6" />
+                              <line x1="8" y1="12" x2="21" y2="12" />
+                              <line x1="8" y1="18" x2="21" y2="18" />
+                              <line x1="3" y1="6" x2="3.01" y2="6" />
+                              <line x1="3" y1="12" x2="3.01" y2="12" />
+                              <line x1="3" y1="18" x2="3.01" y2="18" />
+                            </svg>
+                          ),
+                          label: "Bullets",
+                          tooltip: "Insert Bullet Points",
+                          action: () =>
+                            handleAddPlugin(activeSlideIndex, "paragraph", {
+                              points: ["Key strategic objective", "Core implementation milestone", "High-impact expected outcome"],
+                            }),
+                        },
+                        {
+                          icon: (
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="3" width="18" height="18" rx="2" />
+                            </svg>
+                          ),
                           label: "Shape",
-                          color: "#c084fc",
+                          tooltip: "Insert Shape",
                           action: () => handleAddPlugin(activeSlideIndex, "shape", { shape_type: "rectangle", fill: "#38bdf8", border_color: "#ffffff" }),
                         },
                         {
-                          icon: "🔢",
-                          label: "KPI Grid",
-                          color: "#a78bfa",
+                          icon: (
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M4 4h6v6H4z" />
+                              <path d="M14 4h6v6h-6z" />
+                              <path d="M4 14h6v6H4z" />
+                              <path d="M14 14h6v6h-6z" />
+                            </svg>
+                          ),
+                          label: "Metrics",
+                          tooltip: "Insert KPI Metrics",
                           action: () =>
                             handleAddPlugin(activeSlideIndex, "kpi_grid", {
                               items: [
-                                { label: "Revenue", value: "$1.2M" },
-                                { label: "Users", value: "45k" },
-                                { label: "Growth", value: "+85%" },
+                                { label: "Revenue", value: "$1.2M", trend: "+34% ↗" },
+                                { label: "Users", value: "45k", trend: "+18% ↗" },
+                                { label: "Growth", value: "+85%", trend: "+25% ↗" },
                               ],
                             }),
                         },
@@ -3698,33 +4296,38 @@ export default function PresentationEditor({
                           key={tIdx}
                           type="button"
                           onClick={tile.action}
+                          title={tile.tooltip}
                           style={{
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
-                            gap: 4,
-                            padding: "8px 12px",
-                            background: "rgba(15, 23, 42, 0.75)",
-                            border: `1px solid ${tile.color}55`,
-                            borderRadius: 8,
-                            color: "#fff",
+                            justifyContent: "center",
+                            gap: 3,
+                            width: 44,
+                            height: 48,
+                            background: "transparent",
+                            border: "1px solid transparent",
+                            borderRadius: 6,
+                            color: "rgba(148, 163, 184, 0.75)",
                             cursor: "pointer",
                             transition: "all 0.15s ease",
-                            minWidth: 72,
+                            padding: 0,
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = `${tile.color}22`;
-                            e.currentTarget.style.borderColor = tile.color;
-                            e.currentTarget.style.transform = "translateY(-2px)";
+                            e.currentTarget.style.background = "rgba(56, 189, 248, 0.12)";
+                            e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.35)";
+                            e.currentTarget.style.color = "#38bdf8";
+                            e.currentTarget.style.transform = "scale(1.08)";
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "rgba(15, 23, 42, 0.75)";
-                            e.currentTarget.style.borderColor = `${tile.color}55`;
+                            e.currentTarget.style.background = "transparent";
+                            e.currentTarget.style.borderColor = "transparent";
+                            e.currentTarget.style.color = "rgba(148, 163, 184, 0.75)";
                             e.currentTarget.style.transform = "none";
                           }}
                         >
-                          <span style={{ fontSize: 18 }}>{tile.icon}</span>
-                          <span style={{ fontSize: 10, fontWeight: 700, color: tile.color }}>{tile.label}</span>
+                          {tile.icon}
+                          <span style={{ fontSize: 9, fontWeight: 600 }}>{tile.label}</span>
                         </button>
                       ))}
                     </div>
@@ -3737,10 +4340,11 @@ export default function PresentationEditor({
                     🗣️ Notes: {activeSlide.plugins.find((p) => p.type === "notes")?.data?.notes}
                   </div>
                 ) : null}
-              </div>
-            </div>
-          );
-          })()}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
                
               {/* EDITABLE FEATURE BLOCKS LIST */}

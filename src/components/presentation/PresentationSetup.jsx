@@ -21,34 +21,29 @@ const LANGUAGE_OPTIONS = [
   { id: "German", label: "German", flag: "🇩🇪" },
 ];
 
-const STYLE_OPTIONS = [
-  { id: "professional", label: "Executive Professional" },
-  { id: "corporate", label: "Corporate Enterprise"},
-  { id: "modern", label: "Modern Minimal"},
-  { id: "academic", label: "Academic Research" },
-  { id: "creative", label: "Creative Showcase"},
-  { id: "minimal", label: "Minimalist Clean" },
-];
-
 export const MASTER_TEMPLATE_OPTIONS = [
-  { id: "none", label: "None (Use Theme BG)", icon: "🚫", desc: "No Template - Pure Theme Background", category: "Standard" },
-  { id: "base_template", label: "Default Slate Teal",  desc: "Dark Slate & Teal Widescreen", category: "Corporate" },
-  { id: "ion_boardroom", label: "Ion Boardroom", desc: "Magenta Tag & Midnight Violet", category: "Corporate" },
-  { id: "berlin_executive", label: "Berlin Executive",  desc: "Burnt Orange & Charcoal Bar", category: "Corporate" },
-  { id: "quotable_teal", label: "Quotable Teal", icon: "💬", desc: "Cyan & Charcoal Dual Block", category: "Corporate" },
-  { id: "geometric_block", label: "Geometric Color Block", icon: "🟣", desc: "Pastel Lavender & Royal Blue Arches", category: "Modern & Geometric" },
-  { id: "urban_monochrome", label: "Urban Monochrome", icon: "🏛️", desc: "Architectural Slate Grid", category: "Modern & Geometric" },
-  { id: "crop_frame", label: "Crop Bracket Minimal", icon: "📐", desc: "Warm Sand & Corner Brackets", category: "Minimal & Clean" },
-  { id: "circuit_tech", label: "Circuit Tech Cyber", icon: "⚡", desc: "Electric Cyan & Blue Mesh", category: "Tech & Cyber" },
-  { id: "celestial_night", label: "Celestial Night", icon: "🌌", desc: "Deep Space Indigo & Radar Rings", category: "Tech & Cyber" },
-  { id: "artistic_neon", label: "Artistic Neon", icon: "🎨", desc: "Asymmetric Orange & Dark Canvas", category: "Creative & Editorial" },
-  { id: "atlas_bold", label: "Atlas Crimson Banner", icon: "🚩", desc: "Crimson Red Callout Badge", category: "Corporate" },
-  { id: "organic_pastel", label: "Organic Earthy Pastel", icon: "🌿", desc: "Soft Taupe & Fluid Blobs", category: "Minimal & Clean" },
-  { id: "dividend_burgundy", label: "Dividend Burgundy Block", icon: "🍷", desc: "Burgundy Footer & Clean Slate", category: "Corporate" },
-  { id: "savon_classic", label: "Savon Classic Card", icon: "📜", desc: "Mint Pattern & Framed Card", category: "Creative & Editorial" },
-  { id: "wood_type", label: "Wood Type Vintage", icon: "🪵", desc: "Timber Brown & Parchment Stamp", category: "Creative & Editorial" },
-  { id: "sidebar_executive", label: "Executive Sidebar Rail", icon: "💼", desc: "Navy Sidebar & Off-White Card", category: "Corporate" },
-  { id: "modern_glassmorphism", label: "Modern Dark Glassmorphism", icon: "✨", desc: "Glowing Purple Neon on Dark Zinc", category: "Tech & Cyber" },
+  { id: "none", label: "None (Pure Theme BG)", icon: "🚫", desc: "No Template - Pure Theme Background", category: "Standard", bg: "linear-gradient(135deg, #18181b 0%, #09090b 100%)", accent: "#94a3b8", badge: "NONE" },
+  { id: "base_template", label: "Default Slate Teal", desc: "Dark Slate & Teal Widescreen", category: "Corporate", bg: "linear-gradient(135deg, #0f172a 0%, #115e59 100%)", accent: "#2dd4bf", badge: "TEAL" },
+  { id: "sidebar_executive", label: "Executive Sidebar Rail", desc: "Navy Sidebar & Off-White Card", category: "Corporate", bg: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", accent: "#38bdf8", badge: "RAIL" },
+  { id: "corporate_light", label: "Corporate Light", desc: "Clean Crisp White & Slate Blue", category: "Corporate", bg: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)", accent: "#0284c7", badge: "LIGHT" },
+  { id: "executive_gold", label: "Executive Gold", desc: "Charcoal & Rich Amber Gold", category: "Corporate", bg: "linear-gradient(135deg, #1c1917 0%, #78350f 100%)", accent: "#fbbf24", badge: "GOLD" },
+  { id: "ion_boardroom", label: "Ion Boardroom", desc: "Magenta Tag & Midnight Violet", category: "Corporate", bg: "linear-gradient(135deg, #090d16 0%, #31104b 100%)", accent: "#ec4899", badge: "ION" },
+  { id: "berlin_executive", label: "Berlin Executive", desc: "Burnt Orange & Charcoal Bar", category: "Corporate", bg: "linear-gradient(135deg, #18181b 0%, #27272a 100%)", accent: "#f97316", badge: "EXEC" },
+  { id: "quotable_teal", label: "Quotable Teal", icon: "💬", desc: "Cyan & Charcoal Dual Block", category: "Corporate", bg: "linear-gradient(135deg, #042f2e 0%, #0f766e 100%)", accent: "#06b6d4", badge: "QUOTE" },
+  { id: "geometric_block", label: "Geometric Color Block", icon: "🟣", desc: "Pastel Lavender & Royal Blue Arches", category: "Modern & Geometric", bg: "linear-gradient(135deg, #3b0764 0%, #1e1b4b 100%)", accent: "#3b82f6", badge: "GEO" },
+  { id: "urban_monochrome", label: "Urban Monochrome", icon: "🏛️", desc: "Architectural Slate Grid", category: "Modern & Geometric", bg: "linear-gradient(135deg, #0f172a 0%, #334155 100%)", accent: "#38bdf8", badge: "URBAN" },
+  { id: "crop_frame", label: "Crop Bracket Minimal", icon: "📐", desc: "Warm Sand & Corner Brackets", category: "Minimal & Clean", bg: "linear-gradient(135deg, #1c1917 0%, #292524 100%)", accent: "#e7e5e4", badge: "MINIMAL" },
+  { id: "circuit_tech", label: "Circuit Tech Cyber", icon: "⚡", desc: "Electric Cyan & Blue Mesh", category: "Tech & Cyber", bg: "linear-gradient(135deg, #09090b 0%, #581c87 100%)", accent: "#22d3ee", badge: "CYBER" },
+  { id: "cyber_neon", label: "Cyberpunk Neon", icon: "⚡", desc: "Glowing Cyan & Electric Magenta", category: "Tech & Cyber", bg: "linear-gradient(135deg, #050505 0%, #2e0854 100%)", accent: "#00ffcc", badge: "NEON" },
+  { id: "celestial_night", label: "Celestial Night", icon: "🌌", desc: "Deep Space Indigo & Radar Rings", category: "Tech & Cyber", bg: "linear-gradient(135deg, #090d18 0%, #1e1b4b 100%)", accent: "#818cf8", badge: "SPACE" },
+  { id: "modern_glassmorphism", label: "Modern Dark Glassmorphism", icon: "✨", desc: "Glowing Purple Neon on Dark Zinc", category: "Tech & Cyber", bg: "linear-gradient(135deg, #18181b 0%, #27272a 100%)", accent: "#c084fc", badge: "GLASS" },
+  { id: "artistic_neon", label: "Artistic Neon", icon: "🎨", desc: "Asymmetric Orange & Dark Canvas", category: "Creative & Editorial", bg: "linear-gradient(135deg, #09090b 0%, #2e1065 100%)", accent: "#ff5e00", badge: "ART" },
+  { id: "atlas_bold", label: "Atlas Crimson Banner", icon: "🚩", desc: "Crimson Red Callout Badge", category: "Corporate", bg: "linear-gradient(135deg, #450a0a 0%, #1c1917 100%)", accent: "#ef4444", badge: "ATLAS" },
+  { id: "organic_pastel", label: "Organic Earthy Pastel", icon: "🌿", desc: "Soft Taupe & Fluid Blobs", category: "Minimal & Clean", bg: "linear-gradient(135deg, #14532d 0%, #1c1917 100%)", accent: "#86efac", badge: "NATURE" },
+  { id: "emerald_nature", label: "Emerald Forest Nature", icon: "🌲", desc: "Deep Forest Pine & Emerald Mint", category: "Minimal & Clean", bg: "linear-gradient(135deg, #064e3b 0%, #022c22 100%)", accent: "#10b981", badge: "EMERALD" },
+  { id: "dividend_burgundy", label: "Dividend Burgundy Block", icon: "🍷", desc: "Burgundy Footer & Clean Slate", category: "Corporate", bg: "linear-gradient(135deg, #4a044e 0%, #1e1b4b 100%)", accent: "#f43f5e", badge: "DIVIDEND" },
+  { id: "savon_classic", label: "Savon Classic Card", icon: "📜", desc: "Mint Pattern & Framed Card", category: "Creative & Editorial", bg: "linear-gradient(135deg, #3f3f46 0%, #18181b 100%)", accent: "#a1a1aa", badge: "SAVON" },
+  { id: "wood_type", label: "Wood Type Vintage", icon: "🪵", desc: "Timber Brown & Parchment Stamp", category: "Creative & Editorial", bg: "linear-gradient(135deg, #451a03 0%, #1c1917 100%)", accent: "#f59e0b", badge: "WOOD" },
 ];
 
 function CustomDropdown({ label, icon, options, value, onChange, placeholder = "Select option", headerBadge }) {
@@ -302,6 +297,7 @@ export default function PresentationSetup({
   const [isEnhanced, setIsEnhanced] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [showAiFeatures, setShowAiFeatures] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [availableTemplates, setAvailableTemplates] = useState(MASTER_TEMPLATE_OPTIONS);
 
   useEffect(() => {
@@ -321,6 +317,9 @@ export default function PresentationSetup({
                 desc: "Server Template Preset",
                 category: "Server Presets",
                 icon: "📐",
+                bg: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+                accent: "#38bdf8",
+                badge: "SERVER",
               });
               existingIds.add(id);
             }
@@ -379,6 +378,11 @@ export default function PresentationSetup({
 
   const calculatedSlideCount = slideCount === "auto" ? 8 : (Number(slideCount) || 8);
 
+  const categories = ["All", "Corporate", "Tech & Cyber", "Modern & Geometric", "Minimal & Clean", "Creative & Editorial"];
+  const filteredTemplates = availableTemplates.filter(
+    (t) => selectedCategory === "All" || t.category === selectedCategory || (selectedCategory === "Corporate" && t.category === "Standard")
+  );
+
   return (
     <div className="card-box ppt-setup-card" style={{ marginBottom: "20px" }}>
       {/* HEADER LABEL & REAL-TIME DECK STATS BAR */}
@@ -399,7 +403,6 @@ export default function PresentationSetup({
           <span style={{ fontSize: 13, fontWeight: 900, color: "#c084fc", letterSpacing: "1px" }}>
             Presentation Setup
           </span>
-         
         </div>
 
         {/* REALTIME DECK ESTIMATE COUNTER */}
@@ -476,10 +479,8 @@ export default function PresentationSetup({
         />
       </div>
 
-
-
-      {/* DECK CONFIGURATION DROPDOWNS (UNIFIED CONTROL GRID) */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 12, marginBottom: 18 }}>
+      {/* DECK CONFIGURATION DROPDOWNS (SLIDE COUNT & LANGUAGE ONLY) */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, marginBottom: 18 }}>
         <div>
           <CustomDropdown
             label="Slide Count Selection"
@@ -487,7 +488,6 @@ export default function PresentationSetup({
             options={SLIDE_COUNT_OPTIONS}
             value={slideCount}
             onChange={setSlideCount}
-            
           />
           {slideCount !== "auto" && (
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, justifyContent: "flex-end" }}>
@@ -555,22 +555,6 @@ export default function PresentationSetup({
         </div>
 
         <CustomDropdown
-          label="Master Slide Template"
-          icon="✽"
-          options={availableTemplates}
-          value={templateName || "base_template"}
-          onChange={setTemplateName}
-        />
-
-        <CustomDropdown
-          label="Design Theme Style"
-          icon="🎨"
-          options={STYLE_OPTIONS}
-          value={style || "professional"}
-          onChange={setStyle}
-        />
-
-        <CustomDropdown
           label="Output Language"
           icon="🌐"
           options={LANGUAGE_OPTIONS}
@@ -579,9 +563,7 @@ export default function PresentationSetup({
         />
       </div>
 
-
-
-      {/* AI & LAYOUT TOGGLES HEADER (CLEAN INLINE TEXT + ARROW TOGGLE) */}
+      {/* AI & LAYOUT TOGGLES HEADER */}
       <div style={{ marginBottom: showAiFeatures ? 8 : 16 }}>
         <div
           onClick={() => setShowAiFeatures((v) => !v)}
@@ -626,6 +608,7 @@ export default function PresentationSetup({
         </div>
       ) : null}
 
+      {/* GENERATE AI SLIDE DECK BUTTON */}
       <button
         className="btn-ui primary"
         style={{
@@ -638,6 +621,7 @@ export default function PresentationSetup({
           background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
           boxShadow: "0 8px 24px rgba(139, 92, 246, 0.4)",
           letterSpacing: "0.2px",
+          cursor: (loadingPlan || loadingGenerate) ? "not-allowed" : "pointer",
         }}
         onClick={fetchPlan}
         disabled={loadingPlan || loadingGenerate}
@@ -650,6 +634,251 @@ export default function PresentationSetup({
           "⚡ Generate AI Slide Deck"
         )}
       </button>
+
+      {/* TEMPLATES VISUAL SELECTOR SECTION BELOW BUTTON */}
+      <div
+        style={{
+          marginTop: "24px",
+          paddingTop: "20px",
+          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 10,
+            marginBottom: "14px",
+          }}
+        >
+          <div>
+            <h3
+              style={{
+                margin: 0,
+                fontSize: "14px",
+                fontWeight: 800,
+                color: "#e2e8f0",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <span>📐</span> Choose Slide Master Template
+            </h3>
+            <p style={{ margin: "3px 0 0 0", fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
+              Pick a designer theme preset for slide layouts, backgrounds, and accents
+            </p>
+          </div>
+
+          {/* ACTIVE TEMPLATE BADGE */}
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              background: "rgba(139, 92, 246, 0.15)",
+              border: "1px solid rgba(192, 132, 252, 0.35)",
+              borderRadius: "20px",
+              padding: "4px 12px",
+              fontSize: "11px",
+              fontWeight: 700,
+              color: "#c084fc",
+            }}
+          >
+            <span>Selected:</span>
+            <span style={{ color: "#ffffff" }}>
+              {availableTemplates.find((t) => t.id === templateName)?.label || templateName || "Default Slate Teal"}
+            </span>
+          </div>
+        </div>
+
+        {/* CATEGORY FILTER PILLS */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            overflowX: "auto",
+            paddingBottom: "8px",
+            marginBottom: "14px",
+          }}
+        >
+          {categories.map((cat) => {
+            const isActive = selectedCategory === cat;
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setSelectedCategory(cat)}
+                style={{
+                  padding: "5px 12px",
+                  borderRadius: "20px",
+                  fontSize: "11px",
+                  fontWeight: isActive ? 700 : 500,
+                  background: isActive ? "rgba(139, 92, 246, 0.25)" : "rgba(255, 255, 255, 0.04)",
+                  border: isActive ? "1px solid #c084fc" : "1px solid rgba(255, 255, 255, 0.1)",
+                  color: isActive ? "#ffffff" : "rgba(255, 255, 255, 0.7)",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* TEMPLATE CARDS GRID */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+            gap: "12px",
+            maxHeight: "360px",
+            overflowY: "auto",
+            padding: "4px 2px 10px 2px",
+          }}
+        >
+          {filteredTemplates.map((tmpl) => {
+            const isSelected = (templateName || "base_template") === tmpl.id;
+            return (
+              <div
+                key={tmpl.id}
+                onClick={() => setTemplateName?.(tmpl.id)}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  background: isSelected ? "rgba(139, 92, 246, 0.15)" : "rgba(255, 255, 255, 0.03)",
+                  border: isSelected ? "2px solid #a855f7" : "1px solid rgba(255, 255, 255, 0.08)",
+                  borderRadius: "12px",
+                  padding: "8px",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  boxShadow: isSelected ? "0 0 16px rgba(168, 85, 247, 0.35)" : "none",
+                  transform: isSelected ? "translateY(-2px)" : "none",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = "rgba(192, 132, 252, 0.4)";
+                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.06)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
+                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                  }
+                }}
+              >
+                {/* 16:9 MINI VISUAL SLIDE PREVIEW */}
+                <div
+                  style={{
+                    aspectRatio: "16 / 9",
+                    width: "100%",
+                    borderRadius: "8px",
+                    background: tmpl.bg || "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+                    border: `1px solid ${isSelected ? "#c084fc" : "rgba(255,255,255,0.12)"}`,
+                    padding: "6px 8px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    boxSizing: "border-box",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                >
+                  {/* TOP ACCENT BAR & BADGE */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ width: "30%", height: 3, borderRadius: 2, background: tmpl.accent || "#c084fc" }} />
+                    <span
+                      style={{
+                        fontSize: 7.5,
+                        fontWeight: 900,
+                        color: tmpl.accent || "#c084fc",
+                        background: "rgba(0,0,0,0.4)",
+                        padding: "1px 4px",
+                        borderRadius: 4,
+                      }}
+                    >
+                      {tmpl.badge || (tmpl.category ? tmpl.category.slice(0, 5).toUpperCase() : "THEME")}
+                    </span>
+                  </div>
+
+                  {/* SKELETON TITLE & SUBTITLE */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 4 }}>
+                    <div style={{ width: "70%", height: 4, borderRadius: 2, background: "rgba(255,255,255,0.9)" }} />
+                    <div style={{ width: "45%", height: 3, borderRadius: 2, background: tmpl.accent || "#c084fc", opacity: 0.7 }} />
+                  </div>
+
+                  {/* BOTTOM GRAPHIC ACCENT BLOCKS */}
+                  <div style={{ display: "flex", gap: 3, marginTop: "auto" }}>
+                    <div style={{ flex: 1, height: 10, borderRadius: 2, background: "rgba(255,255,255,0.08)", border: `1px solid ${(tmpl.accent || "#c084fc")}44` }} />
+                    <div style={{ flex: 1, height: 10, borderRadius: 2, background: "rgba(255,255,255,0.08)", border: `1px solid ${(tmpl.accent || "#c084fc")}44` }} />
+                  </div>
+
+                  {/* SELECTED CHECKMARK OVERLAY */}
+                  {isSelected && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 4,
+                        right: 4,
+                        background: "#a855f7",
+                        color: "#ffffff",
+                        width: 16,
+                        height: 16,
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 10,
+                        fontWeight: 900,
+                        boxShadow: "0 0 8px rgba(168, 85, 247, 0.8)",
+                      }}
+                    >
+                      ✓
+                    </div>
+                  )}
+                </div>
+
+                {/* TEMPLATE LABELS */}
+                <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "2px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: isSelected ? 800 : 600,
+                        color: isSelected ? "#ffffff" : "#e2e8f0",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {tmpl.icon ? `${tmpl.icon} ` : ""}{tmpl.label || tmpl.name}
+                    </span>
+                  </div>
+                  {tmpl.desc && (
+                    <span
+                      style={{
+                        fontSize: "9.5px",
+                        color: "rgba(255,255,255,0.45)",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {tmpl.desc}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
