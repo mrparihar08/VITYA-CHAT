@@ -59,6 +59,757 @@ export const TABLE_THEME_PRESETS = [
   { id: "custom", name: "Custom Palette", icon: "🎨", header_bg: "#8b5cf6", header_color: "#ffffff", cell_bg: "#1e293b", cell_color: "#ffffff" },
 ];
 
+export const THEME_DESIGN_SYSTEMS = {
+  executive_gold: {
+    name: "Executive Gold Luxury",
+    archetype: "luxury_boardroom",
+    fontFamily: "'Playfair Display', 'Cinzel', 'Georgia', serif",
+    titleFontFamily: "'Playfair Display', 'Georgia', serif",
+    titleLetterSpacing: "1.2px",
+    titleTransform: "none",
+    badgeText: "✦ EXECUTIVE BRIEFING ✦",
+    badgeStyle: {
+      background: "rgba(245, 158, 11, 0.12)",
+      border: "1.5px solid #fbbf24",
+      color: "#fbbf24",
+      borderRadius: "4px",
+      letterSpacing: "2px",
+      fontWeight: 800,
+      padding: "5px 16px",
+      textTransform: "uppercase",
+      boxShadow: "0 0 12px rgba(251, 191, 36, 0.2)",
+    },
+    cardStyle: {
+      background: "rgba(28, 25, 23, 0.8)",
+      border: "1px solid rgba(251, 191, 36, 0.35)",
+      borderRadius: "4px",
+      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.55), inset 0 0 12px rgba(251, 191, 36, 0.04)",
+    },
+    divider: "linear-gradient(90deg, #fbbf24, #d97706, transparent)",
+    bulletChar: "◆",
+    kpiCardStyle: {
+      background: "rgba(28, 25, 23, 0.85)",
+      border: "1px solid rgba(251, 191, 36, 0.4)",
+      borderRadius: "4px",
+      boxShadow: "0 6px 18px rgba(0,0,0,0.5)",
+    },
+  },
+  cyberpunk_neon: {
+    name: "Cyberpunk Neon Matrix",
+    archetype: "cyber_grid",
+    fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
+    titleFontFamily: "'JetBrains Mono', 'Courier New', monospace",
+    titleLetterSpacing: "2px",
+    titleTransform: "uppercase",
+    badgeText: "[ SYS://AI_TECH_INTEL ]",
+    badgeStyle: {
+      background: "rgba(6, 182, 212, 0.15)",
+      border: "1.5px solid #00ffcc",
+      color: "#00ffcc",
+      borderRadius: "2px",
+      letterSpacing: "2.5px",
+      fontWeight: 900,
+      padding: "5px 16px",
+      boxShadow: "0 0 14px rgba(0, 255, 204, 0.45)",
+    },
+    cardStyle: {
+      background: "rgba(9, 9, 20, 0.88)",
+      border: "1px solid rgba(0, 255, 204, 0.5)",
+      borderRadius: "2px",
+      boxShadow: "0 0 16px rgba(0, 255, 204, 0.15), inset 0 0 18px rgba(244, 63, 94, 0.1)",
+    },
+    divider: "linear-gradient(90deg, #00ffcc, #f43f5e)",
+    bulletChar: "▸",
+    kpiCardStyle: {
+      background: "rgba(9, 9, 20, 0.9)",
+      border: "1px solid #00ffcc",
+      borderRadius: "2px",
+      boxShadow: "0 0 12px rgba(0, 255, 204, 0.3)",
+    },
+  },
+  sidebar_executive: {
+    name: "Sidebar Executive Blueprint",
+    archetype: "sidebar_rail",
+    fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
+    titleFontFamily: "'Inter', 'Segoe UI', sans-serif",
+    titleLetterSpacing: "0.4px",
+    titleTransform: "none",
+    badgeText: "🏢 CORPORATE BLUEPRINT",
+    badgeStyle: {
+      background: "rgba(56, 189, 248, 0.15)",
+      border: "1.5px solid #38bdf8",
+      color: "#38bdf8",
+      borderRadius: "6px",
+      letterSpacing: "1px",
+      fontWeight: 800,
+      padding: "5px 14px",
+    },
+    cardStyle: {
+      background: "rgba(30, 41, 59, 0.75)",
+      borderLeft: "4px solid #38bdf8",
+      borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+      borderRight: "1px solid rgba(255, 255, 255, 0.08)",
+      borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+      borderRadius: "6px",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.35)",
+    },
+    divider: "linear-gradient(90deg, #38bdf8, #0284c7, transparent)",
+    bulletChar: "■",
+    kpiCardStyle: {
+      background: "rgba(30, 41, 59, 0.8)",
+      borderLeft: "3px solid #38bdf8",
+      border: "1px solid rgba(255,255,255,0.1)",
+      borderRadius: "6px",
+    },
+  },
+  modern_glassmorphism: {
+    name: "Modern Frosted Glassmorphism",
+    archetype: "frosted_glass",
+    fontFamily: "'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif",
+    titleFontFamily: "'Plus Jakarta Sans', 'Segoe UI', sans-serif",
+    titleLetterSpacing: "-0.2px",
+    titleTransform: "none",
+    badgeText: "💎 PRODUCT KEYNOTE",
+    badgeStyle: {
+      background: "rgba(192, 132, 252, 0.22)",
+      backdropFilter: "blur(12px)",
+      WebkitBackdropFilter: "blur(12px)",
+      border: "1.5px solid rgba(192, 132, 252, 0.6)",
+      color: "#c084fc",
+      borderRadius: "30px",
+      letterSpacing: "1px",
+      fontWeight: 800,
+      padding: "5px 18px",
+      boxShadow: "0 4px 18px rgba(192, 132, 252, 0.3)",
+    },
+    cardStyle: {
+      background: "rgba(255, 255, 255, 0.06)",
+      backdropFilter: "blur(16px)",
+      WebkitBackdropFilter: "blur(16px)",
+      border: "1px solid rgba(255, 255, 255, 0.18)",
+      borderRadius: "16px",
+      boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255,255,255,0.03)",
+    },
+    divider: "linear-gradient(90deg, #c084fc, #ec4899)",
+    bulletChar: "●",
+    kpiCardStyle: {
+      background: "rgba(255, 255, 255, 0.08)",
+      backdropFilter: "blur(14px)",
+      WebkitBackdropFilter: "blur(14px)",
+      border: "1px solid rgba(192, 132, 252, 0.35)",
+      borderRadius: "14px",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.3)",
+    },
+  },
+  wall_street: {
+    name: "Wall Street Financial Ledger",
+    archetype: "financial_ledger",
+    fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+    titleFontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+    titleLetterSpacing: "0.8px",
+    titleTransform: "uppercase",
+    badgeText: "📊 STRATEGIC FINANCIAL REPORT",
+    badgeStyle: {
+      background: "rgba(16, 185, 129, 0.15)",
+      border: "1.5px solid #10b981",
+      color: "#10b981",
+      borderRadius: "3px",
+      letterSpacing: "1.5px",
+      fontWeight: 900,
+      padding: "5px 14px",
+      textTransform: "uppercase",
+    },
+    cardStyle: {
+      background: "rgba(15, 23, 42, 0.88)",
+      borderTop: "3.5px solid #10b981",
+      borderLeft: "1px solid rgba(255, 255, 255, 0.08)",
+      borderRight: "1px solid rgba(255, 255, 255, 0.08)",
+      borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+      borderRadius: "3px",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.45)",
+    },
+    divider: "linear-gradient(90deg, #10b981, #065f46)",
+    bulletChar: "▲",
+    kpiCardStyle: {
+      background: "rgba(15, 23, 42, 0.9)",
+      borderTop: "3px solid #10b981",
+      border: "1px solid rgba(255,255,255,0.08)",
+      borderRadius: "3px",
+    },
+  },
+  atlas_bold: {
+    name: "Atlas Crimson Impact",
+    archetype: "crimson_banner",
+    fontFamily: "'Trebuchet MS', 'Impact', sans-serif",
+    titleFontFamily: "'Trebuchet MS', 'Impact', sans-serif",
+    titleLetterSpacing: "1.5px",
+    titleTransform: "uppercase",
+    badgeText: "⚡ HIGH-IMPACT KEYNOTE",
+    badgeStyle: {
+      background: "#ef4444",
+      border: "none",
+      color: "#ffffff",
+      borderRadius: "2px",
+      letterSpacing: "1.5px",
+      fontWeight: 900,
+      padding: "5px 16px",
+      textTransform: "uppercase",
+      boxShadow: "0 0 14px rgba(239, 68, 68, 0.5)",
+    },
+    cardStyle: {
+      background: "rgba(28, 25, 23, 0.9)",
+      borderLeft: "5px solid #ef4444",
+      borderTop: "1px solid rgba(239, 68, 68, 0.25)",
+      borderRight: "1px solid rgba(255, 255, 255, 0.06)",
+      borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
+      borderRadius: "2px",
+      boxShadow: "0 6px 22px rgba(0,0,0,0.5)",
+    },
+    divider: "linear-gradient(90deg, #ef4444, #991b1b)",
+    bulletChar: "▶",
+    kpiCardStyle: {
+      background: "rgba(28, 25, 23, 0.92)",
+      borderLeft: "4px solid #ef4444",
+      borderRadius: "2px",
+    },
+  },
+  corporate_light: {
+    name: "Corporate Light Minimal",
+    archetype: "scandinavian_light",
+    fontFamily: "'Segoe UI', -apple-system, system-ui, sans-serif",
+    titleFontFamily: "'Segoe UI', system-ui, sans-serif",
+    titleLetterSpacing: "-0.2px",
+    titleTransform: "none",
+    badgeText: "🏢 EXECUTIVE REPORT",
+    badgeStyle: {
+      background: "rgba(37, 99, 235, 0.1)",
+      border: "1.5px solid #2563eb",
+      color: "#2563eb",
+      borderRadius: "20px",
+      fontWeight: 800,
+      padding: "5px 16px",
+      letterSpacing: "0.5px",
+    },
+    cardStyle: {
+      background: "rgba(255, 255, 255, 0.9)",
+      border: "1px solid #cbd5e1",
+      borderRadius: "10px",
+      boxShadow: "0 6px 20px rgba(0, 0, 0, 0.06)",
+      color: "#0f172a",
+    },
+    divider: "linear-gradient(90deg, #2563eb, #60a5fa)",
+    bulletChar: "●",
+    kpiCardStyle: {
+      background: "#ffffff",
+      border: "1px solid #e2e8f0",
+      borderRadius: "8px",
+      boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
+    },
+  },
+  clean_light: {
+    name: "Minimal Light Clean",
+    archetype: "scandinavian_light",
+    fontFamily: "'Segoe UI', -apple-system, system-ui, sans-serif",
+    titleFontFamily: "'Segoe UI', system-ui, sans-serif",
+    titleLetterSpacing: "-0.2px",
+    titleTransform: "none",
+    badgeText: "🏢 EXECUTIVE REPORT",
+    badgeStyle: {
+      background: "rgba(37, 99, 235, 0.1)",
+      border: "1.5px solid #2563eb",
+      color: "#2563eb",
+      borderRadius: "20px",
+      fontWeight: 800,
+      padding: "5px 16px",
+      letterSpacing: "0.5px",
+    },
+    cardStyle: {
+      background: "rgba(255, 255, 255, 0.9)",
+      border: "1px solid #cbd5e1",
+      borderRadius: "10px",
+      boxShadow: "0 6px 20px rgba(0, 0, 0, 0.06)",
+      color: "#0f172a",
+    },
+    divider: "linear-gradient(90deg, #2563eb, #60a5fa)",
+    bulletChar: "●",
+    kpiCardStyle: {
+      background: "#ffffff",
+      border: "1px solid #e2e8f0",
+      borderRadius: "8px",
+      boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
+    },
+  },
+  titanium_white: {
+    name: "Titanium Pure White",
+    archetype: "scandinavian_light",
+    fontFamily: "'Segoe UI', -apple-system, system-ui, sans-serif",
+    titleFontFamily: "'Segoe UI', system-ui, sans-serif",
+    titleLetterSpacing: "-0.2px",
+    titleTransform: "none",
+    badgeText: "🏛️ TITANIUM WHITE SUITE",
+    badgeStyle: {
+      background: "rgba(79, 70, 229, 0.1)",
+      border: "1.5px solid #4f46e5",
+      color: "#4f46e5",
+      borderRadius: "20px",
+      fontWeight: 800,
+      padding: "5px 16px",
+      letterSpacing: "0.5px",
+    },
+    cardStyle: {
+      background: "rgba(255, 255, 255, 0.95)",
+      border: "1px solid #e4e4e7",
+      borderRadius: "10px",
+      boxShadow: "0 6px 24px rgba(0, 0, 0, 0.06)",
+      color: "#18181b",
+    },
+    divider: "linear-gradient(90deg, #4f46e5, #818cf8)",
+    bulletChar: "●",
+    kpiCardStyle: {
+      background: "#ffffff",
+      border: "1px solid #e4e4e7",
+      borderRadius: "8px",
+      boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
+    },
+  },
+  quotable_teal: {
+    name: "Quotable Editorial Teal",
+    archetype: "editorial_asymmetric",
+    fontFamily: "'Georgia', 'Times New Roman', serif",
+    titleFontFamily: "'Georgia', serif",
+    titleLetterSpacing: "0.5px",
+    titleTransform: "none",
+    badgeText: "❝ EDITORIAL INSIGHTS",
+    badgeStyle: {
+      background: "rgba(6, 182, 212, 0.15)",
+      border: "1.5px solid #06b6d4",
+      color: "#06b6d4",
+      borderRadius: "4px",
+      letterSpacing: "1px",
+      fontWeight: 800,
+      padding: "5px 14px",
+    },
+    cardStyle: {
+      background: "rgba(4, 47, 46, 0.8)",
+      border: "1px solid rgba(6, 182, 212, 0.35)",
+      borderRadius: "6px",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.4)",
+    },
+    divider: "linear-gradient(90deg, #06b6d4, #0f766e)",
+    bulletChar: "—",
+    kpiCardStyle: {
+      background: "rgba(4, 47, 46, 0.85)",
+      border: "1px solid rgba(6, 182, 212, 0.4)",
+      borderRadius: "6px",
+    },
+  },
+  organic_pastel: {
+    name: "Organic Earthy Pastel",
+    archetype: "organic_nature",
+    fontFamily: "'Nunito', 'Segoe UI', system-ui, sans-serif",
+    titleFontFamily: "'Nunito', 'Segoe UI', sans-serif",
+    titleLetterSpacing: "0px",
+    titleTransform: "none",
+    badgeText: "🌿 SUSTAINABLE STRATEGY",
+    badgeStyle: {
+      background: "rgba(134, 239, 172, 0.18)",
+      border: "1.5px solid #86efac",
+      color: "#86efac",
+      borderRadius: "24px",
+      letterSpacing: "0.5px",
+      fontWeight: 800,
+      padding: "5px 18px",
+    },
+    cardStyle: {
+      background: "rgba(20, 83, 45, 0.68)",
+      border: "1px solid rgba(134, 239, 172, 0.3)",
+      borderRadius: "20px",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.35)",
+    },
+    divider: "linear-gradient(90deg, #86efac, #22c55e)",
+    bulletChar: "✿",
+    kpiCardStyle: {
+      background: "rgba(20, 83, 45, 0.75)",
+      border: "1px solid rgba(134, 239, 172, 0.35)",
+      borderRadius: "16px",
+    },
+  },
+  sunset_glow: {
+    name: "Sunset Glow Keynote",
+    archetype: "radiant_glow",
+    fontFamily: "'Poppins', 'Segoe UI', system-ui, sans-serif",
+    titleFontFamily: "'Poppins', 'Segoe UI', sans-serif",
+    titleLetterSpacing: "0.5px",
+    titleTransform: "none",
+    badgeText: "🔥 KEYNOTE HIGHLIGHTS",
+    badgeStyle: {
+      background: "rgba(251, 113, 133, 0.2)",
+      border: "1.5px solid #fb7185",
+      color: "#fb7185",
+      borderRadius: "16px",
+      letterSpacing: "1px",
+      fontWeight: 800,
+      padding: "5px 18px",
+      boxShadow: "0 0 14px rgba(251, 113, 133, 0.3)",
+    },
+    cardStyle: {
+      background: "rgba(46, 16, 101, 0.7)",
+      border: "1px solid rgba(251, 113, 133, 0.35)",
+      borderRadius: "12px",
+      boxShadow: "0 8px 24px rgba(251, 113, 133, 0.15)",
+    },
+    divider: "linear-gradient(90deg, #fb7185, #f59e0b)",
+    bulletChar: "✦",
+    kpiCardStyle: {
+      background: "rgba(46, 16, 101, 0.75)",
+      border: "1px solid rgba(251, 113, 133, 0.4)",
+      borderRadius: "12px",
+    },
+  },
+  ocean_blue: {
+    name: "Ocean Breeze Enterprise",
+    archetype: "ocean_gradient",
+    fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
+    titleFontFamily: "'Inter', 'Segoe UI', sans-serif",
+    titleLetterSpacing: "0.5px",
+    titleTransform: "none",
+    badgeText: "🌊 ENTERPRISE ARCHITECTURE",
+    badgeStyle: {
+      background: "rgba(56, 189, 248, 0.18)",
+      border: "1.5px solid #38bdf8",
+      color: "#38bdf8",
+      borderRadius: "8px",
+      letterSpacing: "1px",
+      fontWeight: 800,
+      padding: "5px 16px",
+    },
+    cardStyle: {
+      background: "rgba(11, 37, 69, 0.75)",
+      border: "1px solid rgba(56, 189, 248, 0.3)",
+      borderRadius: "8px",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.4)",
+    },
+    divider: "linear-gradient(90deg, #38bdf8, #134074)",
+    bulletChar: "◈",
+    kpiCardStyle: {
+      background: "rgba(11, 37, 69, 0.8)",
+      border: "1px solid rgba(56, 189, 248, 0.35)",
+      borderRadius: "8px",
+    },
+  },
+  emerald_dark: {
+    name: "Emerald Forest Executive",
+    archetype: "emerald_pine",
+    fontFamily: "'Segoe UI', system-ui, sans-serif",
+    titleFontFamily: "'Segoe UI', sans-serif",
+    titleLetterSpacing: "0.5px",
+    titleTransform: "none",
+    badgeText: "🌲 STRATEGIC OVERVIEW",
+    badgeStyle: {
+      background: "rgba(52, 211, 153, 0.15)",
+      border: "1.5px solid #34d399",
+      color: "#34d399",
+      borderRadius: "6px",
+      letterSpacing: "1px",
+      fontWeight: 800,
+      padding: "5px 16px",
+    },
+    cardStyle: {
+      background: "rgba(6, 78, 59, 0.75)",
+      border: "1px solid rgba(52, 211, 153, 0.3)",
+      borderRadius: "6px",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.4)",
+    },
+    divider: "linear-gradient(90deg, #34d399, #047857)",
+    bulletChar: "◆",
+    kpiCardStyle: {
+      background: "rgba(6, 78, 59, 0.8)",
+      border: "1px solid rgba(52, 211, 153, 0.35)",
+      borderRadius: "6px",
+    },
+  },
+  velvet_rose: {
+    name: "Velvet Rose Luxe",
+    archetype: "radiant_glow",
+    fontFamily: "'Playfair Display', 'Georgia', serif",
+    titleFontFamily: "'Playfair Display', 'Georgia', serif",
+    titleLetterSpacing: "0.8px",
+    titleTransform: "none",
+    badgeText: "🌹 KEYNOTE INSIGHTS",
+    badgeStyle: {
+      background: "rgba(251, 113, 133, 0.18)",
+      border: "1.5px solid #fb7185",
+      color: "#fb7185",
+      borderRadius: "14px",
+      letterSpacing: "1px",
+      fontWeight: 800,
+      padding: "5px 16px",
+    },
+    cardStyle: {
+      background: "rgba(76, 5, 25, 0.75)",
+      border: "1px solid rgba(251, 113, 133, 0.35)",
+      borderRadius: "8px",
+      boxShadow: "0 6px 22px rgba(0,0,0,0.45)",
+    },
+    divider: "linear-gradient(90deg, #fb7185, #881337)",
+    bulletChar: "✦",
+    kpiCardStyle: {
+      background: "rgba(76, 5, 25, 0.8)",
+      border: "1px solid rgba(251, 113, 133, 0.4)",
+      borderRadius: "8px",
+    },
+  },
+};
+
+export function getThemeDesignSystem(presetId, selectedBgConfig) {
+  const defaultSystem = {
+    name: selectedBgConfig?.name || "Modern Standard",
+    archetype: "standard_modern",
+    fontFamily: "'Segoe UI', -apple-system, system-ui, sans-serif",
+    titleFontFamily: "'Segoe UI', sans-serif",
+    titleLetterSpacing: "0px",
+    titleTransform: "none",
+    badgeText: "✨ EXECUTIVE PRESENTATION",
+    badgeStyle: {
+      background: `${selectedBgConfig?.accent || "#c084fc"}24`,
+      border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`,
+      color: selectedBgConfig?.accent || "#c084fc",
+      borderRadius: "20px",
+      letterSpacing: "1px",
+      fontWeight: 800,
+      padding: "4px 14px",
+      textTransform: "uppercase",
+    },
+    cardStyle: {
+      background: "rgba(255, 255, 255, 0.04)",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      borderRadius: "8px",
+      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
+    },
+    divider: `linear-gradient(90deg, ${selectedBgConfig?.accent || "#c084fc"}, transparent 80%)`,
+    bulletChar: "●",
+    kpiCardStyle: {
+      background: "rgba(15, 23, 42, 0.6)",
+      border: "1px solid rgba(255, 255, 255, 0.12)",
+      borderRadius: "8px",
+    },
+  };
+
+  const matched = THEME_DESIGN_SYSTEMS[presetId];
+  if (matched) return { ...defaultSystem, ...matched };
+  return defaultSystem;
+}
+
+export const MASTER_TEMPLATE_LAYOUT_SYSTEMS = {
+  base_template: {
+    id: "base_template",
+    name: "Slate Teal Master",
+    badge: "TEAL",
+    frameType: "standard_clean",
+    desc: "Dark Slate & Teal Clean Widescreen Layout",
+    accent: "#2dd4bf",
+    canvasPadding: { top: 0, left: 0, bottom: 0, right: 0 },
+  },
+  sidebar_executive: {
+    id: "sidebar_executive",
+    name: "Executive Sidebar Rail",
+    badge: "RAIL",
+    frameType: "sidebar_rail",
+    desc: "Vertical Progress Tracker Rail & Structured Card Canvas",
+    accent: "#38bdf8",
+    canvasPadding: { top: 0, left: 48, bottom: 0, right: 0 },
+  },
+  corporate_light: {
+    id: "corporate_light",
+    name: "Corporate Clean Light",
+    badge: "LIGHT",
+    frameType: "corporate_clean",
+    desc: "Crisp Clean Header Rule, Left Indicator & Crisp Margins",
+    accent: "#0284c7",
+    canvasPadding: { top: 6, left: 10, bottom: 6, right: 10 },
+  },
+  executive_gold: {
+    id: "executive_gold",
+    name: "Executive Gold Luxury",
+    badge: "GOLD",
+    frameType: "crop_brackets",
+    desc: "Luxury 4-Corner Gold Ornaments & Center Aura",
+    accent: "#fbbf24",
+    canvasPadding: { top: 8, left: 12, bottom: 8, right: 12 },
+  },
+  ion_boardroom: {
+    id: "ion_boardroom",
+    name: "Ion Boardroom",
+    badge: "ION",
+    frameType: "top_header_bar",
+    desc: "Magenta Header Bar & Midnight Violet Canvas",
+    accent: "#ec4899",
+    canvasPadding: { top: 42, left: 12, bottom: 0, right: 12 },
+  },
+  berlin_executive: {
+    id: "berlin_executive",
+    name: "Berlin Executive Top Bar",
+    badge: "EXEC",
+    frameType: "top_header_bar",
+    desc: "Solid Charcoal Top Header Bar with Embedded Badge Pill",
+    accent: "#f97316",
+    canvasPadding: { top: 44, left: 14, bottom: 0, right: 14 },
+  },
+  quotable_teal: {
+    id: "quotable_teal",
+    name: "Quotable Editorial Column",
+    badge: "QUOTE",
+    frameType: "editorial_column",
+    desc: "38% Asymmetric Editorial Column with Giant Pull-Quote",
+    accent: "#06b6d4",
+    canvasPadding: { top: 0, left: 32, bottom: 0, right: 12 },
+  },
+  geometric_block: {
+    id: "geometric_block",
+    name: "Geometric 2-Tone Block",
+    badge: "GEO",
+    frameType: "split_geometric",
+    desc: "Asymmetric 35/65 Split Geometric Hero Block & Content Canvas",
+    accent: "#3b82f6",
+    canvasPadding: { top: 0, left: "28%", bottom: 0, right: 12 },
+  },
+  urban_monochrome: {
+    id: "urban_monochrome",
+    name: "Urban Architectural Grid",
+    badge: "URBAN",
+    frameType: "crop_brackets",
+    desc: "Architectural Slate Grid Lines & Precision Viewfinder Corner Marks",
+    accent: "#38bdf8",
+    canvasPadding: { top: 8, left: 14, bottom: 8, right: 14 },
+  },
+  crop_frame: {
+    id: "crop_frame",
+    name: "Crop Minimal Viewfinder",
+    badge: "MINIMAL",
+    frameType: "crop_brackets",
+    desc: "4-Corner Camera Viewfinder Brackets & Registration Hairlines",
+    accent: "#e7e5e4",
+    canvasPadding: { top: 12, left: 16, bottom: 12, right: 16 },
+  },
+  circuit_tech: {
+    id: "circuit_tech",
+    name: "Circuit Tech HUD",
+    badge: "CYBER",
+    frameType: "cyber_hud",
+    desc: "Electric Cyan Telemetry Bar, Corner Tech Nodes & Cyber Rail",
+    accent: "#22d3ee",
+    canvasPadding: { top: 28, left: 12, bottom: 16, right: 12 },
+  },
+  cyber_neon: {
+    id: "cyber_neon",
+    name: "Cyberpunk Neon Matrix",
+    badge: "NEON",
+    frameType: "cyber_hud",
+    desc: "Glowing Cyan HUD Brackets, Scanline Top Strip & Matrix Dots",
+    accent: "#00ffcc",
+    canvasPadding: { top: 26, left: 14, bottom: 14, right: 14 },
+  },
+  celestial_night: {
+    id: "celestial_night",
+    name: "Celestial Space Rail",
+    badge: "SPACE",
+    frameType: "sidebar_rail",
+    desc: "Deep Space Indigo Orbit Track & Node Progress Bar",
+    accent: "#818cf8",
+    canvasPadding: { top: 0, left: 44, bottom: 0, right: 12 },
+  },
+  modern_glassmorphism: {
+    id: "modern_glassmorphism",
+    name: "Dark Glassmorphism Card",
+    badge: "GLASS",
+    frameType: "floating_glass",
+    desc: "Floating Translucent Acrylic Card with Glowing Soft Border",
+    accent: "#c084fc",
+    canvasPadding: { top: 14, left: 18, bottom: 14, right: 18 },
+  },
+  artistic_neon: {
+    id: "artistic_neon",
+    name: "Artistic Neon Split",
+    badge: "ART",
+    frameType: "split_geometric",
+    desc: "Asymmetric Vibrant Accent Block & High-Contrast Canvas",
+    accent: "#ff5e00",
+    canvasPadding: { top: 0, left: "26%", bottom: 0, right: 12 },
+  },
+  atlas_bold: {
+    id: "atlas_bold",
+    name: "Atlas Crimson Ribbon",
+    badge: "ATLAS",
+    frameType: "crimson_banner",
+    desc: "Full-Width Solid Crimson Header Ribbon & Angular Badge",
+    accent: "#ef4444",
+    canvasPadding: { top: 42, left: 12, bottom: 0, right: 12 },
+  },
+  organic_pastel: {
+    id: "organic_pastel",
+    name: "Organic Earthy Curve",
+    badge: "NATURE",
+    frameType: "crop_brackets",
+    desc: "Soft Rounded Botanical Corner Arcs & Earth Tones",
+    accent: "#86efac",
+    canvasPadding: { top: 10, left: 14, bottom: 10, right: 14 },
+  },
+  emerald_nature: {
+    id: "emerald_nature",
+    name: "Emerald Forest Executive",
+    badge: "EMERALD",
+    frameType: "top_header_bar",
+    desc: "Deep Forest Pine Top Header Bar & Clean Financial Layout",
+    accent: "#10b981",
+    canvasPadding: { top: 38, left: 12, bottom: 0, right: 12 },
+  },
+  dividend_burgundy: {
+    id: "dividend_burgundy",
+    name: "Dividend Burgundy Footer",
+    badge: "DIVIDEND",
+    frameType: "bottom_footer_bar",
+    desc: "Solid Burgundy Status Footer Bar & Spacious Clean Upper Canvas",
+    accent: "#f43f5e",
+    canvasPadding: { top: 0, left: 14, bottom: 42, right: 14 },
+  },
+  savon_classic: {
+    id: "savon_classic",
+    name: "Savon Classic Passe-Partout",
+    badge: "SAVON",
+    frameType: "passe_partout_frame",
+    desc: "Inset Double Hairline Frame Card with Filigree Centerpiece",
+    accent: "#a1a1aa",
+    canvasPadding: { top: 16, left: 20, bottom: 16, right: 20 },
+  },
+  wood_type: {
+    id: "wood_type",
+    name: "Wood Type Vintage Frame",
+    badge: "WOOD",
+    frameType: "passe_partout_frame",
+    desc: "Warm Parchment Double Border with Archival Stamp",
+    accent: "#f59e0b",
+    canvasPadding: { top: 16, left: 20, bottom: 16, right: 20 },
+  },
+  none: {
+    id: "none",
+    name: "Pure Theme Canvas",
+    badge: "NONE",
+    frameType: "none",
+    desc: "No Template Structural Framing - Pure Custom Theme Background",
+    accent: "#94a3b8",
+    canvasPadding: { top: 0, left: 0, bottom: 0, right: 0 },
+  },
+};
+
+export function getMasterTemplateLayout(templateId, selectedBgConfig) {
+  const matched = MASTER_TEMPLATE_LAYOUT_SYSTEMS[templateId] || MASTER_TEMPLATE_LAYOUT_SYSTEMS["base_template"];
+  const accent = selectedBgConfig?.accent || matched.accent || "#38bdf8";
+  return {
+    ...matched,
+    accent,
+  };
+}
+
 export const OFFICE_LAYOUT_PRESETS = [
   { id: "title_subtitle", label: "Title Slide", desc: "Main title & subtitle" },
   { id: "title_content", label: "Title and Content", desc: "Header with content list" },
@@ -479,6 +1230,7 @@ export function SelectablePluginWrapper({
   onDelete,
   onDuplicate,
   selectedBgConfig,
+  themeDesign,
   children,
 }) {
   const data = plugin?.data || {};
@@ -777,47 +1529,80 @@ export function SelectablePluginWrapper({
         </div>
       )}
 
-      {/* 8 RESIZE HANDLES (POWERPOINT / CANVA STYLE) */}
+      {/* 8 RESIZE HANDLES & TOP ROTATION STEM (AUTHENTIC POWERPOINT 365 STYLE) */}
       {isSelected && (
         <>
+          {/* TOP ROTATION STEM & CIRCLE */}
+          <div
+            style={{
+              position: "absolute",
+              top: -18,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 1,
+              height: 14,
+              background: "#38bdf8",
+              zIndex: 30,
+              pointerEvents: "none",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: -24,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              background: "#ffffff",
+              border: "1.5px solid #0284c7",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.4)",
+              cursor: "grab",
+              zIndex: 31,
+            }}
+            title="Rotate"
+          />
+
+          {/* 8 CIRCULAR WHITE GRAB HANDLES */}
           <div
             onMouseDown={(e) => handleResizeStart("nw", e)}
-            style={{ position: "absolute", top: -4, left: -4, width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "nwse-resize", zIndex: 30 }}
+            style={{ position: "absolute", top: -4, left: -4, width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "nwse-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
             title="Resize Top-Left"
           />
           <div
             onMouseDown={(e) => handleResizeStart("n", e)}
-            style={{ position: "absolute", top: -4, left: "50%", transform: "translateX(-50%)", width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "ns-resize", zIndex: 30 }}
+            style={{ position: "absolute", top: -4, left: "50%", transform: "translateX(-50%)", width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "ns-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
             title="Resize Top"
           />
           <div
             onMouseDown={(e) => handleResizeStart("ne", e)}
-            style={{ position: "absolute", top: -4, right: -4, width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "nesw-resize", zIndex: 30 }}
+            style={{ position: "absolute", top: -4, right: -4, width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "nesw-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
             title="Resize Top-Right"
           />
           <div
             onMouseDown={(e) => handleResizeStart("e", e)}
-            style={{ position: "absolute", top: "50%", right: -4, transform: "translateY(-50%)", width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "ew-resize", zIndex: 30 }}
+            style={{ position: "absolute", top: "50%", right: -4, transform: "translateY(-50%)", width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "ew-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
             title="Resize Right"
           />
           <div
             onMouseDown={(e) => handleResizeStart("se", e)}
-            style={{ position: "absolute", bottom: -4, right: -4, width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "nwse-resize", zIndex: 30 }}
+            style={{ position: "absolute", bottom: -4, right: -4, width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "nwse-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
             title="Resize Bottom-Right"
           />
           <div
             onMouseDown={(e) => handleResizeStart("s", e)}
-            style={{ position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)", width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "ns-resize", zIndex: 30 }}
+            style={{ position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)", width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "ns-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
             title="Resize Bottom"
           />
           <div
             onMouseDown={(e) => handleResizeStart("sw", e)}
-            style={{ position: "absolute", bottom: -4, left: -4, width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "nesw-resize", zIndex: 30 }}
+            style={{ position: "absolute", bottom: -4, left: -4, width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "nesw-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
             title="Resize Bottom-Left"
           />
           <div
             onMouseDown={(e) => handleResizeStart("w", e)}
-            style={{ position: "absolute", top: "50%", left: -4, transform: "translateY(-50%)", width: 7, height: 7, background: "#38bdf8", border: "1.5px solid #fff", borderRadius: 2, cursor: "ew-resize", zIndex: 30 }}
+            style={{ position: "absolute", top: "50%", left: -4, transform: "translateY(-50%)", width: 8, height: 8, background: "#ffffff", border: "1.5px solid #0284c7", borderRadius: "50%", cursor: "ew-resize", zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
             title="Resize Left"
           />
         </>
@@ -1561,6 +2346,15 @@ export default function PresentationEditor({
   const [layoutModalMode] = useState("add"); // "add" | "change"
   const [selectedPluginIndex, setSelectedPluginIndex] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [showNotesPane, setShowNotesPane] = useState(false);
+  const [viewMode, setViewMode] = useState("normal"); // "normal" | "sorter" | "reading" | "slideshow"
+  const [contextMenu, setContextMenu] = useState(null);
+
+  useEffect(() => {
+    const handleCloseMenu = () => setContextMenu(null);
+    window.addEventListener("click", handleCloseMenu);
+    return () => window.removeEventListener("click", handleCloseMenu);
+  }, []);
 
   const handleUpdatePluginData = (pIdx, updates) => {
     if (!setPlan || pIdx === undefined || pIdx === null) return;
@@ -2210,30 +3004,54 @@ export default function PresentationEditor({
           {/* 2-COLUMN WORKSPACE: LEFT = VERTICAL SLIDE LIST RAIL, RIGHT = CANVAS & FEATURES */}
           <div className="slide-editor-main-layout">
             {/* LEFT COLUMN: VERTICAL SLIDE LIST RAIL (Beside slide canvas on Laptop & Tablet) */}
+            {/* LEFT COLUMN: VERTICAL SLIDE LIST RAIL (POWERPOINT 365 16:9 THUMBNAIL RAIL) */}
             <div className="slide-sidebar-rail">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2, paddingBottom: 6, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                <span style={{ fontSize: 12, fontWeight: 800, color: "#c084fc", letterSpacing: 0.5 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4, paddingBottom: 6, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", letterSpacing: 0.5, textTransform: "uppercase" }}>
                   Slides ({plan?.slides?.length || 0})
                 </span>
                 <button
                   type="button"
-                  className="btn-ui primary sm"
                   onClick={handleAddBlankSlide}
-                  style={{ padding: "3px 8px", fontSize: 11, display: "inline-flex", alignItems: "center", gap: 4 }}
+                  style={{
+                    background: "rgba(234, 88, 12, 0.15)",
+                    border: "1px solid rgba(234, 88, 12, 0.5)",
+                    color: "#ea580c",
+                    borderRadius: 4,
+                    padding: "2px 6px",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 3,
+                    cursor: "pointer",
+                  }}
                   title="Add New Blank Slide"
                 >
-                  <span>+ Add Slide</span>
+                  <span>+ New</span>
                 </button>
               </div>
 
               <div className="slide-vertical-list" ref={carouselRef}>
                 {safeArray(plan?.slides).map((slideItem, idx) => {
                   const isCurrentActive = activeSlideIndex === idx;
+                  const itemBgConfig = slideItem.background_preset && slideItem.background_preset !== "custom" && slideItem.background_preset !== "none"
+                    ? (BACKGROUND_PRESETS.find((bg) => bg.id === slideItem.background_preset) || selectedBgConfig)
+                    : selectedBgConfig;
+                  const slideBg = slideItem.customBgColor1
+                    ? (slideItem.customBgColor2 ? `linear-gradient(135deg, ${slideItem.customBgColor1} 0%, ${slideItem.customBgColor2} 100%)` : slideItem.customBgColor1)
+                    : (itemBgConfig?.bg || selectedBgConfig.bg);
+                  const slideTxt = slideItem.customTextColor || itemBgConfig?.text || selectedBgConfig.text;
+                  const slideAcc = itemBgConfig?.accent || selectedBgConfig?.accent || "#38bdf8";
+                  const totalS = plan?.slides?.length || 1;
+                  const isLast = idx === totalS - 1 && totalS > 1;
+                  const step = idx === 0 ? 0 : (isLast ? 5 : ((idx - 1) % 4 + 1));
+                  const tagLabels = ["🌟 Cover", "📌 Agenda", "🏛️ Deep-Dive", "📊 Data", "⚖️ Compare", "🎯 Summary"];
+
                   return (
                     <div
                       key={idx}
-                      className={`slide-vertical-item ${isCurrentActive ? "active" : ""}`}
-                      onClick={() => setActiveSlideIndex(idx)}
+                      className="ppt-thumb-row"
                       draggable={true}
                       onDragStart={(e) => {
                         e.dataTransfer.setData("text/plain", idx.toString());
@@ -2250,73 +3068,125 @@ export default function PresentationEditor({
                           handleMoveSlideToPosition(fromIdx, idx);
                         }
                       }}
-                      title="Drag & Drop to reorder slide"
                     >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: 10, fontWeight: 800, color: isCurrentActive ? "#38bdf8" : "#c084fc", textTransform: "uppercase" }}>
-                          Slide {idx + 1}
-                        </span>
-                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          {(() => {
-                            const totalS = plan?.slides?.length || 1;
-                            const isLast = idx === totalS - 1 && totalS > 1;
-                            const step = idx === 0 ? 0 : (isLast ? 5 : ((idx - 1) % 4 + 1));
-                            const tagLabels = ["🌟 Cover", "📌 Agenda", "🏛️ Deep-Dive", "📊 Data", "⚖️ Compare", "🎯 Summary"];
+                      {/* SLIDE NUMBER OUTSIDE ON LEFT */}
+                      <span className="ppt-thumb-number">{idx + 1}</span>
+
+                      {/* 16:9 THUMBNAIL PREVIEW CARD */}
+                      <div
+                        className={`ppt-thumb-card ${isCurrentActive ? "active" : ""}`}
+                        onClick={() => setActiveSlideIndex(idx)}
+                        title={`Slide ${idx + 1}: ${slideItem.title || "Untitled"}`}
+                        style={{
+                          background: slideBg,
+                          color: slideTxt,
+                          padding: "6px 8px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          position: "relative",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {/* THUMBNAIL STRUCTURAL TEMPLATE WIREFRAME OVERLAY */}
+                        {(() => {
+                          const itemTmpl = getMasterTemplateLayout(slideItem?.template || templateName, itemBgConfig);
+                          if (itemTmpl.frameType === "sidebar_rail") {
+                            return <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 6, background: slideAcc, opacity: 0.9 }} />;
+                          }
+                          if (itemTmpl.frameType === "top_header_bar" || itemTmpl.frameType === "crimson_banner") {
+                            return <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: slideAcc, opacity: 0.9 }} />;
+                          }
+                          if (itemTmpl.frameType === "bottom_footer_bar") {
+                            return <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, background: slideAcc, opacity: 0.9 }} />;
+                          }
+                          if (itemTmpl.frameType === "crop_brackets") {
                             return (
-                              <span style={{ fontSize: 8.5, fontWeight: 700, color: "rgba(255,255,255,0.6)", background: "rgba(255,255,255,0.06)", padding: "1px 4px", borderRadius: 3 }}>
-                                {tagLabels[step] || "Slide"}
-                              </span>
+                              <>
+                                <div style={{ position: "absolute", top: 2, left: 2, width: 4, height: 4, borderTop: `1px solid ${slideAcc}`, borderLeft: `1px solid ${slideAcc}` }} />
+                                <div style={{ position: "absolute", top: 2, right: 2, width: 4, height: 4, borderTop: `1px solid ${slideAcc}`, borderRight: `1px solid ${slideAcc}` }} />
+                                <div style={{ position: "absolute", bottom: 2, left: 2, width: 4, height: 4, borderBottom: `1px solid ${slideAcc}`, borderLeft: `1px solid ${slideAcc}` }} />
+                                <div style={{ position: "absolute", bottom: 2, right: 2, width: 4, height: 4, borderBottom: `1px solid ${slideAcc}`, borderRight: `1px solid ${slideAcc}` }} />
+                              </>
                             );
-                          })()}
-                          {isCurrentActive && (
-                            <span style={{ fontSize: 8.5, fontWeight: 800, color: "#38bdf8", background: "rgba(56,189,248,0.18)", padding: "1px 5px", borderRadius: 3, border: "1px solid rgba(56,189,248,0.4)" }}>
-                              ACTIVE
-                            </span>
-                          )}
+                          }
+                          if (itemTmpl.frameType === "passe_partout_frame") {
+                            return <div style={{ position: "absolute", inset: 2, border: `1px solid ${slideAcc}66`, pointerEvents: "none" }} />;
+                          }
+                          if (itemTmpl.frameType === "split_geometric") {
+                            return <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "22%", background: `${slideAcc}33`, borderRight: `1px solid ${slideAcc}55` }} />;
+                          }
+                          return null;
+                        })()}
+
+                        {/* MINI HEADER & BADGE */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2, zIndex: 1, paddingLeft: (getMasterTemplateLayout(slideItem?.template || templateName, itemBgConfig).frameType === "sidebar_rail" ? 6 : 0) }}>
+                          <span style={{ fontSize: 7, fontWeight: 700, color: slideAcc, opacity: 0.9 }}>
+                            {tagLabels[step] || "Slide"}
+                          </span>
                         </div>
-                      </div>
 
-                      <div style={{ fontSize: 12, fontWeight: 700, color: "#ffffff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {slideItem.title || "Untitled Slide"}
-                      </div>
-
-                      {slideItem.subtitle ? (
-                        <div style={{ fontSize: 9.5, color: "var(--text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                          {slideItem.subtitle}
+                        {/* MINI TITLE */}
+                        <div
+                          style={{
+                            fontSize: 8.5,
+                            fontWeight: 800,
+                            lineHeight: 1.15,
+                            overflow: "hidden",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            wordBreak: "break-word",
+                            zIndex: 1,
+                            paddingLeft: (getMasterTemplateLayout(slideItem?.template || templateName, itemBgConfig).frameType === "sidebar_rail" ? 6 : 0),
+                          }}
+                        >
+                          {slideItem.title || "Click to add title"}
                         </div>
-                      ) : null}
 
-                      {/* REORDER / DELETE CONTROLS */}
-                      <div style={{ display: "flex", gap: 4, marginTop: 4, width: "100%" }} onClick={(e) => e.stopPropagation()}>
-                        <button
-                          type="button"
-                          className="btn-ui secondary sm"
-                          onClick={() => handleMoveSlide(idx, -1)}
-                          disabled={idx === 0}
-                          title="Move Up"
-                          style={{ flex: 1, padding: "2px 4px", fontSize: 9.5, whiteSpace: "nowrap" }}
-                        >
-                          ↑ Up
-                        </button>
-                        <button
-                          type="button"
-                          className="btn-ui secondary sm"
-                          onClick={() => handleMoveSlide(idx, 1)}
-                          disabled={idx === (plan?.slides?.length || 0) - 1}
-                          title="Move Down"
-                          style={{ flex: 1, padding: "2px 4px", fontSize: 9.5, whiteSpace: "nowrap" }}
-                        >
-                          Down ↓
-                        </button>
-                        <button
-                          type="button"
-                          className="btn-ui danger sm"
-                          onClick={() => handleDeleteSlide(idx)}
-                          title="Delete Slide"
-                          style={{ padding: "2px 6px", fontSize: 10 }}
-                        >
-                          🗑️
-                        </button>
+                        {/* MINI WIREFRAME LINES */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: "auto", paddingTop: 3, zIndex: 1, paddingLeft: (getMasterTemplateLayout(slideItem?.template || templateName, itemBgConfig).frameType === "sidebar_rail" ? 6 : 0) }}>
+                          <div style={{ height: 2, width: "75%", background: slideAcc, borderRadius: 1, opacity: 0.7 }} />
+                          <div style={{ height: 2, width: "50%", background: "rgba(255,255,255,0.3)", borderRadius: 1 }} />
+                        </div>
+
+                        {/* HOVER ACTIONS OVERLAY */}
+                        <div className="ppt-thumb-actions-overlay" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            className="ppt-thumb-btn"
+                            onClick={() => handleDuplicateSlide(idx)}
+                            title="Duplicate Slide"
+                          >
+                            ⧉
+                          </button>
+                          <button
+                            type="button"
+                            className="ppt-thumb-btn"
+                            onClick={() => handleMoveSlide(idx, -1)}
+                            disabled={idx === 0}
+                            title="Move Up"
+                          >
+                            ▲
+                          </button>
+                          <button
+                            type="button"
+                            className="ppt-thumb-btn"
+                            onClick={() => handleMoveSlide(idx, 1)}
+                            disabled={idx === (plan?.slides?.length || 0) - 1}
+                            title="Move Down"
+                          >
+                            ▼
+                          </button>
+                          <button
+                            type="button"
+                            className="ppt-thumb-btn delete"
+                            onClick={() => handleDeleteSlide(idx)}
+                            title="Delete Slide"
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
                     </div>
                   );
@@ -2533,10 +3403,21 @@ export default function PresentationEditor({
 
                     <div
                       className="slide-canvas-box"
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setContextMenu({
+                          x: Math.min(window.innerWidth - 260, e.clientX),
+                          y: Math.min(window.innerHeight - 440, e.clientY),
+                          pIdx: selectedPluginIndex,
+                        });
+                      }}
                       style={{
-                        background: selectedBgConfig.bg,
-                        color: selectedBgConfig.text,
-                        fontFamily: activeSlide.font_family ? `"${activeSlide.font_family}", sans-serif` : "inherit",
+                        background: activeSlide?.customBgColor1
+                          ? (activeSlide.customBgColor2 ? `linear-gradient(135deg, ${activeSlide.customBgColor1} 0%, ${activeSlide.customBgColor2} 100%)` : activeSlide.customBgColor1)
+                          : (selectedBgConfig.bg),
+                        color: activeSlide?.customTextColor || selectedBgConfig.text,
+                        fontFamily: activeSlide.font_family ? `"${activeSlide.font_family}", sans-serif` : (getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).fontFamily),
                         display: "flex",
                         flexDirection: "column",
                         justifyContent: isVMiddle ? "center" : isVBottom ? "flex-end" : "flex-start",
@@ -2545,147 +3426,274 @@ export default function PresentationEditor({
                         overflow: "hidden",
                       }}
                     >
-                    {/* DYNAMIC MULTI-SLIDE BACKGROUND ARCHETYPE DECORATIONS */}
+                    {/* DYNAMIC MULTI-SLIDE BACKGROUND ARCHETYPE DECORATIONS & THEME DESIGN LAYERS */}
                     {(() => {
                       const totalS = plan?.slides?.length || 1;
                       const isLast = activeSlideIndex === totalS - 1 && totalS > 1;
                       const step = activeSlideIndex === 0 ? 0 : (isLast ? 5 : ((activeSlideIndex - 1) % 4 + 1));
+                      const activePreset = activeSlide?.background_preset || selectedBgPreset;
+                      const curTheme = getThemeDesignSystem(activePreset, selectedBgConfig);
                       const acc = selectedBgConfig?.accent || "#c084fc";
 
                       return (
                         <>
-                          {/* Slide 2 Archetype: Top Header Accent Strip */}
-                          {step === 1 && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                height: 4,
-                                background: `linear-gradient(90deg, ${acc}, transparent 80%)`,
-                                borderRadius: "12px 12px 0 0",
-                                zIndex: 1,
-                              }}
-                            />
-                          )}
-
-                          {/* Slide 3 Archetype: Left Vertical Accent Rail */}
-                          {step === 2 && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                left: 0,
-                                top: 24,
-                                bottom: 24,
-                                width: 4,
-                                background: `linear-gradient(180deg, ${acc}dd, transparent)`,
-                                borderRadius: "0 4px 4px 0",
-                                zIndex: 1,
-                              }}
-                            />
-                          )}
-
-                          {/* Slide 4 Archetype: Bottom Data Floor Accent Bar */}
-                          {step === 3 && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                bottom: 0,
-                                left: 24,
-                                right: 24,
-                                height: 3.5,
-                                background: `linear-gradient(90deg, transparent, ${acc}, transparent)`,
-                                borderRadius: "3px 3px 0 0",
-                                zIndex: 1,
-                              }}
-                            />
-                          )}
-
-                          {/* Slide 5 Archetype: Dual Corner Accent Brackets */}
-                          {step === 4 && (
+                          {/* 1. EXECUTIVE GOLD LUXURY ARCHETYPE */}
+                          {curTheme.archetype === "luxury_boardroom" && (
                             <>
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: 10,
-                                  right: 10,
-                                  width: 22,
-                                  height: 22,
-                                  borderTop: `2.5px solid ${acc}99`,
-                                  borderRight: `2.5px solid ${acc}99`,
-                                  borderRadius: "0 6px 0 0",
-                                  pointerEvents: "none",
-                                  zIndex: 1,
-                                }}
-                              />
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  bottom: 10,
-                                  left: 10,
-                                  width: 22,
-                                  height: 22,
-                                  borderBottom: `2.5px solid ${acc}99`,
-                                  borderLeft: `2.5px solid ${acc}99`,
-                                  borderRadius: "0 0 0 6px",
-                                  pointerEvents: "none",
-                                  zIndex: 1,
-                                }}
-                              />
+                              {/* 4 Luxury Gold Corner Ornaments */}
+                              <div style={{ position: "absolute", top: 12, left: 12, width: 24, height: 24, borderTop: "2px solid #fbbf24", borderLeft: "2px solid #fbbf24", pointerEvents: "none", zIndex: 1 }} />
+                              <div style={{ position: "absolute", top: 12, right: 12, width: 24, height: 24, borderTop: "2px solid #fbbf24", borderRight: "2px solid #fbbf24", pointerEvents: "none", zIndex: 1 }} />
+                              <div style={{ position: "absolute", bottom: 12, left: 12, width: 24, height: 24, borderBottom: "2px solid #fbbf24", borderLeft: "2px solid #fbbf24", pointerEvents: "none", zIndex: 1 }} />
+                              <div style={{ position: "absolute", bottom: 12, right: 12, width: 24, height: 24, borderBottom: "2px solid #fbbf24", borderRight: "2px solid #fbbf24", pointerEvents: "none", zIndex: 1 }} />
+                              {/* Subtle Center Luxury Gold Glow Aura */}
+                              <div style={{ position: "absolute", top: "40%", left: "50%", transform: "translate(-50%, -50%)", width: "450px", height: "250px", background: "radial-gradient(ellipse at center, rgba(251, 191, 36, 0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
+                              {/* Bottom Gold Hairline Strip */}
+                              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, #fbbf24, #d97706, transparent)", zIndex: 1 }} />
                             </>
                           )}
 
-                          {/* Slide 6+ / Final Archetype: Inset Glow Card Frame */}
-                          {step === 5 && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                inset: 0,
-                                borderRadius: 12,
-                                pointerEvents: "none",
-                                border: `1px solid ${acc}2b`,
-                                boxShadow: `inset 0 0 24px ${acc}15`,
-                                zIndex: 1,
-                              }}
-                            />
+                          {/* 2. CYBERPUNK NEON MATRIX ARCHETYPE */}
+                          {curTheme.archetype === "cyber_grid" && (
+                            <>
+                              {/* Glowing HUD Brackets in 4 corners */}
+                              <div style={{ position: "absolute", top: 8, left: 8, color: "#00ffcc", fontSize: 13, fontWeight: 900, textShadow: "0 0 8px #00ffcc", pointerEvents: "none", zIndex: 1 }}>┌ [01]</div>
+                              <div style={{ position: "absolute", top: 8, right: 8, color: "#f43f5e", fontSize: 13, fontWeight: 900, textShadow: "0 0 8px #f43f5e", pointerEvents: "none", zIndex: 1 }}>[SYS_GRID] ┐</div>
+                              <div style={{ position: "absolute", bottom: 8, left: 8, color: "#00ffcc", fontSize: 13, fontWeight: 900, textShadow: "0 0 8px #00ffcc", pointerEvents: "none", zIndex: 1 }}>└ [LIVE]</div>
+                              <div style={{ position: "absolute", bottom: 8, right: 8, color: "#f43f5e", fontSize: 13, fontWeight: 900, textShadow: "0 0 8px #f43f5e", pointerEvents: "none", zIndex: 1 }}>[SEC://ENC] ┘</div>
+                              {/* Top Cyan Neon Scanline */}
+                              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, #00ffcc, #f43f5e, #a855f7)", boxShadow: "0 0 10px #00ffcc", zIndex: 1 }} />
+                            </>
+                          )}
+
+                          {/* 3. SIDEBAR EXECUTIVE RAIL ARCHETYPE */}
+                          {curTheme.archetype === "sidebar_rail" && (
+                            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 38, background: "rgba(15, 23, 42, 0.9)", borderRight: "2px solid #38bdf8", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", padding: "12px 0", zIndex: 2, pointerEvents: "none" }}>
+                              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#38bdf8", boxShadow: "0 0 8px #38bdf8" }} />
+                              <div style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: 9, fontWeight: 800, color: "#38bdf8", letterSpacing: 1.5, opacity: 0.9 }}>
+                                SLIDE {activeSlideIndex + 1}
+                              </div>
+                              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.3)" }} />
+                            </div>
+                          )}
+
+                          {/* 4. FROSTED GLASSMORPHISM MODERN ARCHETYPE */}
+                          {curTheme.archetype === "frosted_glass" && (
+                            <>
+                              {/* Floating Ambient Glowing Gradient Orbs */}
+                              <div style={{ position: "absolute", top: "-10%", left: "-5%", width: "220px", height: "220px", borderRadius: "50%", background: "radial-gradient(circle, rgba(192, 132, 252, 0.28) 0%, transparent 70%)", filter: "blur(20px)", pointerEvents: "none", zIndex: 0 }} />
+                              <div style={{ position: "absolute", bottom: "-10%", right: "-5%", width: "240px", height: "240px", borderRadius: "50%", background: "radial-gradient(circle, rgba(236, 72, 153, 0.22) 0%, transparent 70%)", filter: "blur(24px)", pointerEvents: "none", zIndex: 0 }} />
+                              <div style={{ position: "absolute", inset: 6, borderRadius: 16, border: "1px solid rgba(255, 255, 255, 0.12)", pointerEvents: "none", zIndex: 1 }} />
+                            </>
+                          )}
+
+                          {/* 5. WALL STREET FINANCIAL LEDGER ARCHETYPE */}
+                          {curTheme.archetype === "financial_ledger" && (
+                            <>
+                              {/* Top Dark Emerald Header Banner */}
+                              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 5, background: "linear-gradient(90deg, #10b981, #059669)", zIndex: 1 }} />
+                              <div style={{ position: "absolute", top: 8, right: 14, fontSize: 8.5, fontWeight: 800, color: "#10b981", letterSpacing: 1, opacity: 0.85, zIndex: 1 }}>
+                                [ FINANCIAL METRIC REPORT ]
+                              </div>
+                            </>
+                          )}
+
+                          {/* 6. ATLAS CRIMSON BANNER ARCHETYPE */}
+                          {curTheme.archetype === "crimson_banner" && (
+                            <>
+                              {/* Full Top Crimson Red Header Ribbon */}
+                              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 6, background: "linear-gradient(90deg, #ef4444, #b91c1c)", zIndex: 1 }} />
+                              <div style={{ position: "absolute", top: 10, right: 12, background: "#ef4444", color: "#fff", fontSize: 8, fontWeight: 900, padding: "2px 8px", borderRadius: 2, letterSpacing: 1, zIndex: 1 }}>
+                                KEYNOTE
+                              </div>
+                            </>
+                          )}
+
+                          {/* 7. SCANDINAVIAN CLEAN LIGHT ARCHETYPE */}
+                          {curTheme.archetype === "scandinavian_light" && (
+                            <>
+                              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, #2563eb, #60a5fa)", zIndex: 1 }} />
+                              <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px)", backgroundSize: "20px 20px", pointerEvents: "none", zIndex: 0 }} />
+                            </>
+                          )}
+
+                          {/* 8. EDITORIAL ASYMMETRIC / QUOTABLE TEAL */}
+                          {curTheme.archetype === "editorial_asymmetric" && (
+                            <>
+                              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 6, background: "linear-gradient(180deg, #06b6d4, #0f766e)", zIndex: 1 }} />
+                              <div style={{ position: "absolute", right: 20, top: 10, fontSize: 44, color: "rgba(6, 182, 212, 0.12)", fontFamily: "Georgia, serif", pointerEvents: "none", zIndex: 0, userSelect: "none" }}>
+                                ❝
+                              </div>
+                            </>
+                          )}
+
+                          {/* 9. ORGANIC NATURE ARCHETYPE */}
+                          {curTheme.archetype === "organic_nature" && (
+                            <>
+                              <div style={{ position: "absolute", top: 8, left: 8, width: 28, height: 28, borderTop: "2px solid #86efac", borderLeft: "2px solid #86efac", borderRadius: "14px 0 0 0", pointerEvents: "none", zIndex: 1 }} />
+                              <div style={{ position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderBottom: "2px solid #86efac", borderRight: "2px solid #86efac", borderRadius: "0 0 14px 0", pointerEvents: "none", zIndex: 1 }} />
+                            </>
+                          )}
+
+                          {/* 10. RADIANT SUNSET GLOW ARCHETYPE */}
+                          {curTheme.archetype === "radiant_glow" && (
+                            <>
+                              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, #fb7185, #f59e0b, #c026d3)", zIndex: 1 }} />
+                              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, #c026d3, #fb7185, transparent)", zIndex: 1 }} />
+                            </>
+                          )}
+
+                          {/* STANDARD MULTI-SLIDE ARCHETYPE ACCENTS */}
+                          {step === 1 && curTheme.archetype === "standard_modern" && (
+                            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${acc}, transparent 80%)`, zIndex: 1 }} />
+                          )}
+                          {step === 2 && curTheme.archetype === "standard_modern" && (
+                            <div style={{ position: "absolute", left: 0, top: 24, bottom: 24, width: 4, background: `linear-gradient(180deg, ${acc}dd, transparent)`, borderRadius: "0 4px 4px 0", zIndex: 1 }} />
                           )}
                         </>
                       );
                     })()}
 
+                    {/* DYNAMIC MASTER TEMPLATE STRUCTURAL FRAME LAYER */}
+                    {(() => {
+                      const curTmplId = activeSlide?.template || templateName || "base_template";
+                      const tmplLayout = getMasterTemplateLayout(curTmplId, selectedBgConfig);
+                      const totalS = plan?.slides?.length || 1;
+                      const slideNum = activeSlideIndex + 1;
+                      const acc = selectedBgConfig?.accent || tmplLayout.accent || "#38bdf8";
+
+                      return (
+                        <div className="master-template-frame-layer" style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 1 }}>
+                          {/* 1. SIDEBAR EXECUTIVE RAIL */}
+                          {tmplLayout.frameType === "sidebar_rail" && (
+                            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 44, background: "rgba(10, 15, 29, 0.88)", borderRight: `2px solid ${acc}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", padding: "14px 0", backdropFilter: "blur(4px)" }}>
+                              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+                                <div style={{ width: 10, height: 10, borderRadius: "50%", background: acc, boxShadow: `0 0 10px ${acc}` }} />
+                                <div style={{ width: 2, height: 24, background: `linear-gradient(180deg, ${acc}, transparent)` }} />
+                              </div>
+                              <div style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: 9.5, fontWeight: 900, color: acc, letterSpacing: 2 }}>
+                                SLIDE {String(slideNum).padStart(2, "0")} / {String(totalS).padStart(2, "0")}
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                                {Array.from({ length: Math.min(5, totalS) }).map((_, i) => (
+                                  <div key={i} style={{ width: i === activeSlideIndex % 5 ? 6 : 4, height: i === activeSlideIndex % 5 ? 6 : 4, borderRadius: "50%", background: i === activeSlideIndex % 5 ? acc : "rgba(255,255,255,0.25)" }} />
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 2. CROP MINIMAL VIEWFINDER BRACKETS */}
+                          {tmplLayout.frameType === "crop_brackets" && (
+                            <>
+                              <div style={{ position: "absolute", top: 12, left: 12, width: 28, height: 28, borderTop: `2.5px solid ${acc}`, borderLeft: `2.5px solid ${acc}` }} />
+                              <div style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderTop: `2.5px solid ${acc}`, borderRight: `2.5px solid ${acc}` }} />
+                              <div style={{ position: "absolute", bottom: 12, left: 12, width: 28, height: 28, borderBottom: `2.5px solid ${acc}`, borderLeft: `2.5px solid ${acc}` }} />
+                              <div style={{ position: "absolute", bottom: 12, right: 12, width: 28, height: 28, borderBottom: `2.5px solid ${acc}`, borderRight: `2.5px solid ${acc}` }} />
+                              <div style={{ position: "absolute", top: 6, left: "50%", transform: "translateX(-50%)", width: 20, height: 1.5, background: acc, opacity: 0.6 }} />
+                              <div style={{ position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)", width: 20, height: 1.5, background: acc, opacity: 0.6 }} />
+                            </>
+                          )}
+
+                          {/* 3. BERLIN EXECUTIVE TOP HEADER BAR */}
+                          {tmplLayout.frameType === "top_header_bar" && (
+                            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 40, background: "rgba(15, 23, 42, 0.95)", borderBottom: `2px solid ${acc}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 18px", boxShadow: "0 4px 14px rgba(0,0,0,0.5)" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                <span style={{ background: acc, color: "#000", fontSize: 9, fontWeight: 900, padding: "2px 8px", borderRadius: 3, letterSpacing: 0.8 }}>
+                                  {tmplLayout.badge || "EXEC"}
+                                </span>
+                                <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: 0.5 }}>
+                                  MASTER EXECUTIVE BRIEFING
+                                </span>
+                              </div>
+                              <span style={{ fontSize: 9.5, fontWeight: 800, color: acc, opacity: 0.9, letterSpacing: 1 }}>
+                                SECTION {slideNum} • 16:9 HD
+                              </span>
+                            </div>
+                          )}
+
+                          {/* 4. SPLIT GEOMETRIC 2-TONE HERO BLOCK */}
+                          {tmplLayout.frameType === "split_geometric" && (
+                            <>
+                              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "26%", background: `linear-gradient(135deg, ${acc}22, ${acc}08)`, borderRight: `1.5px solid ${acc}44`, clipPath: "polygon(0 0, 100% 0, 88% 100%, 0 100%)" }} />
+                              <div style={{ position: "absolute", top: 12, left: 14, width: 8, height: 8, background: acc, borderRadius: 2 }} />
+                            </>
+                          )}
+
+                          {/* 5. EDITORIAL ASYMMETRIC COLUMN */}
+                          {tmplLayout.frameType === "editorial_column" && (
+                            <>
+                              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 6, background: `linear-gradient(180deg, ${acc}, transparent)` }} />
+                              <div style={{ position: "absolute", top: 14, left: 18, fontSize: 34, lineHeight: 1, color: acc, opacity: 0.25, fontFamily: "Georgia, serif" }}>❝</div>
+                              <div style={{ position: "absolute", bottom: 12, right: 18, fontSize: 8.5, fontWeight: 800, color: acc, opacity: 0.75, letterSpacing: 1.2 }}>{"// PERSPECTIVE REPORT"}</div>
+                            </>
+                          )}
+
+                          {/* 6. CYBER TELEMETRY HUD */}
+                          {tmplLayout.frameType === "cyber_hud" && (
+                            <>
+                              <div style={{ position: "absolute", top: 6, right: 12, display: "flex", alignItems: "center", gap: 6, fontSize: 8.5, fontFamily: "monospace", color: acc, background: "rgba(0,0,0,0.65)", padding: "2px 8px", borderRadius: 3, border: `1px solid ${acc}66` }}>
+                                <span>[COORD://16:9]</span>
+                                <span style={{ color: "#fff", opacity: 0.5 }}>|</span>
+                                <span>SEC_LVL_0{slideNum}</span>
+                              </div>
+                              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${acc}, #f43f5e, ${acc})` }} />
+                              <div style={{ position: "absolute", bottom: 4, left: 12, fontSize: 7.5, fontFamily: "monospace", color: acc, opacity: 0.7 }}>{"SYS.FRAME.VER_3.2 // LIVE"}</div>
+                            </>
+                          )}
+
+                          {/* 7. ATLAS CRIMSON BANNER */}
+                          {tmplLayout.frameType === "crimson_banner" && (
+                            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 38, background: `linear-gradient(90deg, ${acc}, #991b1b)`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>
+                              <span style={{ fontSize: 9.5, fontWeight: 900, color: "#ffffff", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                                ★ {tmplLayout.name || "ATLAS KEYNOTE"}
+                              </span>
+                              <span style={{ fontSize: 8.5, fontWeight: 800, background: "rgba(0,0,0,0.4)", color: "#fff", padding: "2px 8px", borderRadius: 2 }}>
+                                SLIDE {slideNum}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* 8. PASSE-PARTOUT CLASSICAL FRAMED CARD */}
+                          {tmplLayout.frameType === "passe_partout_frame" && (
+                            <div style={{ position: "absolute", inset: 12, border: `1.5px solid ${acc}66`, borderRadius: 4, pointerEvents: "none" }}>
+                              <div style={{ position: "absolute", inset: 4, border: "1px solid rgba(255,255,255,0.12)", borderRadius: 2 }} />
+                              <div style={{ position: "absolute", top: -6, left: "50%", transform: "translateX(-50%)", background: "rgba(15,23,42,0.95)", padding: "0 10px", fontSize: 9, color: acc, fontWeight: 700 }}>❖ SAVON CLASSIC ❖</div>
+                            </div>
+                          )}
+
+                          {/* 9. DIVIDEND BURGUNDY BOTTOM FOOTER BAR */}
+                          {tmplLayout.frameType === "bottom_footer_bar" && (
+                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 36, background: "rgba(30, 10, 35, 0.95)", borderTop: `2px solid ${acc}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <div style={{ width: 6, height: 6, borderRadius: "50%", background: acc }} />
+                                <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: 0.5 }}>CONFIDENTIAL & PROPRIETARY</span>
+                              </div>
+                              <span style={{ fontSize: 9, fontWeight: 800, color: acc }}>SLIDE {slideNum} OF {totalS}</span>
+                            </div>
+                          )}
+
+                          {/* 10. FLOATING GLASS DECK */}
+                          {tmplLayout.frameType === "floating_glass" && (
+                            <div style={{ position: "absolute", inset: 8, border: "1px solid rgba(255,255,255,0.16)", borderRadius: 12, boxShadow: `0 0 20px ${acc}22, inset 0 0 15px rgba(255,255,255,0.03)`, pointerEvents: "none" }}>
+                              <div style={{ position: "absolute", top: 8, right: 10, fontSize: 8, fontWeight: 800, color: acc, background: "rgba(255,255,255,0.08)", padding: "2px 7px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)" }}>
+                                GLASS DECK
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+
                     {/* THEME-SPECIFIC COVER BADGE (SLIDE 1) */}
                     {activeSlideIndex === 0 && (
-                      <div style={{ display: "flex", justifyContent: activeSlide.title_align === "left" ? "flex-start" : "center", marginBottom: 6 }}>
-                        <div
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 6,
-                            padding: "4px 14px",
-                            borderRadius: selectedBgPreset === "executive_gold" ? "4px" : "20px",
-                            background: selectedBgPreset === "executive_gold"
-                              ? "rgba(245, 158, 11, 0.18)"
-                              : selectedBgPreset === "cyberpunk_neon"
-                              ? "rgba(244, 63, 94, 0.22)"
-                              : "rgba(139, 92, 246, 0.2)",
-                            border: `1.5px solid ${selectedBgConfig?.accent || "#c084fc"}`,
-                            fontSize: "11px",
-                            fontWeight: "800",
-                            color: selectedBgConfig?.accent || "#c084fc",
-                            letterSpacing: "1px",
-                            textTransform: "uppercase",
-                            boxShadow: selectedBgPreset === "cyberpunk_neon" ? "0 0 12px rgba(244, 63, 94, 0.35)" : "none",
-                          }}
-                        >
-                          {selectedBgPreset === "executive_gold" ? "✦ EXECUTIVE BRIEFING ✦" :
-                           selectedBgPreset === "cyberpunk_neon" ? "⚡ AI & TECH INTELLIGENCE" :
-                           selectedBgPreset === "emerald_dark" || selectedBgPreset === "wall_street" ? "📊 STRATEGIC OVERVIEW" :
-                           selectedBgPreset === "ocean_blue" ? "🌊 ENTERPRISE ARCHITECTURE" :
-                           selectedBgPreset === "velvet_rose" || selectedBgPreset === "sunset_glow" ? "🔥 KEYNOTE INSIGHTS" :
-                           selectedBgPreset === "clean_light" || selectedBgPreset === "titanium_white" ? "🏢 EXECUTIVE REPORT" :
-                           "✨ EXECUTIVE PRESENTATION"}
-                        </div>
+                      <div style={{ display: "flex", justifyContent: activeSlide.title_align === "left" ? "flex-start" : "center", marginBottom: 6, paddingLeft: (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "sidebar_rail" || getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).archetype === "sidebar_rail" ? 48 : 0) }}>
+                        {(() => {
+                          const curTheme = getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig);
+                          return (
+                            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, ...curTheme.badgeStyle }}>
+                              {curTheme.badgeText}
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
 
@@ -2695,9 +3703,12 @@ export default function PresentationEditor({
                       style={{
                         width: "100%",
                         textAlign: activeSlide.title_align || (activeSlideIndex === 0 ? "center" : "left"),
+                        paddingLeft: (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "sidebar_rail" || getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).archetype === "sidebar_rail" ? 48 : (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "split_geometric" ? 42 : 8)),
+                        paddingRight: 8,
+                        paddingTop: (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "top_header_bar" || getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "crimson_banner" ? 34 : 4),
                         border: "1.5px dashed transparent",
                         borderRadius: 8,
-                        padding: "4px 8px",
+                        paddingBottom: 4,
                         transition: "all 0.15s ease",
                         position: "relative",
                       }}
@@ -2731,6 +3742,9 @@ export default function PresentationEditor({
                         title="Click to edit slide title inline"
                         style={{
                           fontSize: `clamp(20px, 4.2vw, ${activeSlide.title_font_size || (activeSlideIndex === 0 ? 44 : 28)}px)`,
+                          fontFamily: getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).titleFontFamily,
+                          letterSpacing: getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).titleLetterSpacing,
+                          textTransform: getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).titleTransform,
                           color: activeSlide.title_color || "inherit",
                           textAlign: activeSlide.title_align || (activeSlideIndex === 0 ? "center" : "left"),
                           fontWeight: activeSlide.title_bold === false ? 400 : 800,
@@ -2754,19 +3768,16 @@ export default function PresentationEditor({
                           justifyContent: activeSlide.title_align === "left" ? "flex-start" : "center",
                           margin: "8px 0 10px 0",
                           width: "100%",
+                          paddingLeft: (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "sidebar_rail" || getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).archetype === "sidebar_rail" ? 48 : (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "split_geometric" ? 42 : 0)),
                         }}
                       >
                         <div
                           style={{
-                            width: selectedBgPreset === "executive_gold" ? "130px" : "96px",
-                            height: selectedBgPreset === "executive_gold" ? "2px" : "3.5px",
+                            width: "120px",
+                            height: "3.5px",
                             borderRadius: "4px",
-                            background: selectedBgPreset === "cyberpunk_neon"
-                              ? "linear-gradient(90deg, #f43f5e, #06b6d4)"
-                              : selectedBgPreset === "executive_gold"
-                              ? "linear-gradient(90deg, #f59e0b, #d97706)"
-                              : `linear-gradient(90deg, ${selectedBgConfig?.accent || "#c084fc"}, rgba(255,255,255,0.2))`,
-                            boxShadow: selectedBgPreset === "cyberpunk_neon" ? "0 0 10px #f43f5e" : "none",
+                            background: getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).divider,
+                            boxShadow: (activeSlide?.background_preset || selectedBgPreset) === "cyberpunk_neon" ? "0 0 12px #00ffcc" : "none",
                           }}
                         />
                       </div>
@@ -2778,9 +3789,12 @@ export default function PresentationEditor({
                       style={{
                         width: "100%",
                         textAlign: activeSlide.subtitle_align || (activeSlideIndex === 0 ? "center" : "left"),
+                        paddingLeft: (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "sidebar_rail" || getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).archetype === "sidebar_rail" ? 48 : (getMasterTemplateLayout(activeSlide?.template || templateName, selectedBgConfig).frameType === "split_geometric" ? 42 : 8)),
+                        paddingRight: 8,
                         border: "1.5px dashed transparent",
                         borderRadius: 8,
-                        padding: "4px 8px",
+                        paddingTop: 4,
+                        paddingBottom: 4,
                         marginTop: 2,
                         transition: "all 0.15s ease",
                         position: "relative",
@@ -2954,7 +3968,13 @@ export default function PresentationEditor({
                             return (
                               <div style={{ display: "grid", gridTemplateColumns: gridCols, gap: p.data?.column_gap || 14, margin: "8px 0" }}>
                                 {items.map((item, colIdx) => (
-                                  <div key={colIdx} style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+                                  <div
+                                    key={colIdx}
+                                    style={{
+                                      padding: 12,
+                                      ...getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).cardStyle,
+                                    }}
+                                  >
                                     {(item.title || items.length > 1) && (
                                       <div
                                         contentEditable={true}
@@ -3723,7 +4743,14 @@ export default function PresentationEditor({
                             return (
                               <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(kpiList.length || 3, 4)}, 1fr)`, gap: 12, margin: "10px 0" }}>
                                 {kpiList.map((kpi, kIdx) => (
-                                  <div key={kIdx} style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: 12, textAlign: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
+                                  <div
+                                    key={kIdx}
+                                    style={{
+                                      padding: 12,
+                                      textAlign: "center",
+                                      ...getThemeDesignSystem(activeSlide?.background_preset || selectedBgPreset, selectedBgConfig).kpiCardStyle,
+                                    }}
+                                  >
                                     <div
                                       contentEditable={true}
                                       suppressContentEditableWarning={true}
@@ -6157,10 +7184,381 @@ export default function PresentationEditor({
               </div>
             </div>
           ) : null}
+
+          {/* POWERPOINT 365 SPEAKER NOTES DRAWER */}
+          {showNotesPane && (
+            <div className="ppt-notes-drawer">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: 4 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#cbd5e1", display: "flex", alignItems: "center", gap: 5 }}>
+                  📝 Speaker Notes (Slide {activeSlideIndex + 1})
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowNotesPane(false)}
+                  style={{ background: "none", border: "none", color: "#94a3b8", fontSize: 14, cursor: "pointer", padding: 0 }}
+                  title="Hide Notes"
+                >
+                  ✕
+                </button>
+              </div>
+              <textarea
+                value={activeSlide?.speaker_notes || activeSlide?.notes || ""}
+                onChange={(e) => handleSlidePropertyChange(activeSlideIndex, "speaker_notes", e.target.value)}
+                placeholder="Click to add notes"
+                rows={3}
+                style={{
+                  width: "100%",
+                  background: "transparent",
+                  border: "none",
+                  color: "#e2e8f0",
+                  fontSize: 12,
+                  outline: "none",
+                  resize: "vertical",
+                  fontFamily: "inherit",
+                  padding: "4px 0",
+                }}
+              />
+            </div>
+          )}
+
+          {/* POWERPOINT 365 BOTTOM STATUS BAR */}
+          <div className="ppt-bottom-status-bar">
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <span>Slide {activeSlideIndex + 1} of {plan?.slides?.length || 1}</span>
+              <span style={{ opacity: 0.5 }}>|</span>
+              <span>English (United States)</span>
+              <span style={{ opacity: 0.5 }}>|</span>
+              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ color: "#22c55e", fontSize: 10 }}>●</span> Accessibility: Good
+              </span>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <button
+                type="button"
+                className={`ppt-status-btn ${showNotesPane ? "active" : ""}`}
+                onClick={() => setShowNotesPane((prev) => !prev)}
+                title="Toggle Speaker Notes Pane"
+              >
+                📝 Notes
+              </button>
+              <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.15)" }} />
+              <button
+                type="button"
+                className={`ppt-status-btn ${viewMode === "normal" ? "active" : ""}`}
+                onClick={() => setViewMode("normal")}
+                title="Normal View"
+              >
+                🔲 Normal
+              </button>
+              <button
+                type="button"
+                className={`ppt-status-btn ${viewMode === "sorter" ? "active" : ""}`}
+                onClick={() => setViewMode("sorter")}
+                title="Slide Sorter"
+              >
+                ▦ Sorter
+              </button>
+              <button
+                type="button"
+                className={`ppt-status-btn ${viewMode === "reading" ? "active" : ""}`}
+                onClick={() => setViewMode("reading")}
+                title="Reading View"
+              >
+                📖 Reading
+              </button>
+              <button
+                type="button"
+                className="ppt-status-btn"
+                onClick={() => setViewMode("slideshow")}
+                style={{ color: "#ea580c", fontWeight: 700 }}
+                title="Start Slide Show (Fullscreen)"
+              >
+                ▶ Slide Show
+              </button>
+              <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.15)" }} />
+              {/* POWERPOINT ZOOM CONTROLS */}
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((prev) => Math.max(50, prev - 10))}
+                  style={{ background: "none", border: "none", color: "#cbd5e1", cursor: "pointer", fontWeight: 700, padding: "0 2px" }}
+                  title="Zoom Out (−)"
+                >
+                  −
+                </button>
+                <input
+                  type="range"
+                  min={50}
+                  max={150}
+                  step={5}
+                  value={zoomLevel}
+                  onChange={(e) => setZoomLevel(Number(e.target.value))}
+                  style={{ width: 65, height: 3, accentColor: "#ea580c", cursor: "pointer" }}
+                  title={`Zoom: ${zoomLevel}%`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((prev) => Math.min(150, prev + 10))}
+                  style={{ background: "none", border: "none", color: "#cbd5e1", cursor: "pointer", fontWeight: 700, padding: "0 2px" }}
+                  title="Zoom In (+)"
+                >
+                  +
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel(100)}
+                  style={{
+                    background: "rgba(255,255,255,0.08)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: 4,
+                    color: "#cbd5e1",
+                    fontSize: 10,
+                    padding: "1px 5px",
+                    cursor: "pointer",
+                  }}
+                  title="Reset Zoom to 100% (Fit to Window)"
+                >
+                  {zoomLevel}% ⊡
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+  {/* POWERPOINT 365 SLIDE SORTER MODAL VIEW */}
+  {viewMode === "sorter" && (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(9, 13, 24, 0.95)",
+        zIndex: 99999,
+        padding: "24px 32px",
+        overflowY: "auto",
+        backdropFilter: "blur(10px)",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid rgba(255,255,255,0.12)", paddingBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 20 }}>▦</span>
+          <div>
+            <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#fff" }}>PowerPoint Slide Sorter</h2>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>Click any slide to jump to it, or drag to reorder.</div>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setViewMode("normal")}
+          className="btn-ui secondary sm"
+          style={{ padding: "6px 14px", fontSize: 12 }}
+        >
+          ✕ Close Sorter
+        </button>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 18 }}>
+        {safeArray(plan?.slides).map((slideItem, idx) => {
+          const isCurrentActive = activeSlideIndex === idx;
+          const slideBg = slideItem.customBgColor1
+            ? (slideItem.customBgColor2 ? `linear-gradient(135deg, ${slideItem.customBgColor1} 0%, ${slideItem.customBgColor2} 100%)` : slideItem.customBgColor1)
+            : selectedBgConfig.bg;
+          const slideTxt = slideItem.customTextColor || selectedBgConfig.text;
+
+          return (
+            <div
+              key={idx}
+              onClick={() => {
+                setActiveSlideIndex(idx);
+                setViewMode("normal");
+              }}
+              style={{
+                cursor: "pointer",
+                borderRadius: 8,
+                padding: 6,
+                background: isCurrentActive ? "rgba(234, 88, 12, 0.15)" : "rgba(255,255,255,0.03)",
+                border: isCurrentActive ? "2px solid #ea580c" : "1px solid rgba(255,255,255,0.1)",
+                transition: "all 0.15s ease",
+              }}
+            >
+              <div
+                style={{
+                  aspectRatio: "16 / 9",
+                  background: slideBg,
+                  color: slideTxt,
+                  borderRadius: 6,
+                  padding: 12,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 9, fontWeight: 800, color: "#ea580c", background: "rgba(234,88,12,0.15)", padding: "2px 6px", borderRadius: 4 }}>
+                    Slide {idx + 1}
+                  </span>
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 800, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                  {slideItem.title || "Untitled Slide"}
+                </div>
+                <div style={{ fontSize: 10, opacity: 0.6 }}>
+                  {safeArray(slideItem.plugins).length} Element(s)
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  )}
+
+  {/* POWERPOINT 365 FULLSCREEN SLIDE SHOW MODE */}
+  {viewMode === "slideshow" && (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "#000000",
+        zIndex: 999999,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+      }}
+    >
+      {/* FULLSCREEN ESCAPE & CONTROLS BAR */}
+      <div
+        style={{
+          position: "absolute",
+          top: 16,
+          left: 20,
+          right: 20,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          zIndex: 10,
+        }}
+      >
+        <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontWeight: 700 }}>
+          ▶ Slide Show — Slide {activeSlideIndex + 1} of {plan?.slides?.length || 1} (Press [Esc] to exit)
+        </span>
+        <button
+          type="button"
+          onClick={() => setViewMode("normal")}
+          style={{
+            background: "rgba(255,255,255,0.15)",
+            border: "1px solid rgba(255,255,255,0.3)",
+            color: "#fff",
+            borderRadius: 6,
+            padding: "4px 12px",
+            fontSize: 12,
+            cursor: "pointer",
+          }}
+        >
+          ✕ End Show (Esc)
+        </button>
+      </div>
+
+      {/* 16:9 FULLSCREEN SLIDE FRAME */}
+      <div
+        style={{
+          width: "min(92vw, 160vh)",
+          aspectRatio: "16 / 9",
+          background: activeSlide?.customBgColor1
+            ? (activeSlide?.customBgColor2 ? `linear-gradient(135deg, ${activeSlide.customBgColor1} 0%, ${activeSlide.customBgColor2} 100%)` : activeSlide.customBgColor1)
+            : selectedBgConfig.bg,
+          color: activeSlide?.customTextColor || selectedBgConfig.text,
+          borderRadius: 8,
+          boxShadow: "0 0 40px rgba(0, 0, 0, 0.9)",
+          padding: "36px 48px",
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+          boxSizing: "border-box",
+        }}
+      >
+        <h1 style={{ fontSize: `clamp(24px, 4.5vw, ${activeSlide?.title_font_size || 40}px)`, margin: "0 0 12px 0", color: activeSlide?.title_color || "inherit" }}>
+          {activeSlide?.title}
+        </h1>
+        {activeSlide?.subtitle && (
+          <h3 style={{ fontSize: "18px", margin: "0 0 20px 0", opacity: 0.85, fontWeight: 500 }}>
+            {activeSlide?.subtitle}
+          </h3>
+        )}
+
+        <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column", gap: 14 }}>
+          {safeArray(activeSlide?.plugins).map((p, pIdx) => {
+            if (p.type === "bullets" && Array.isArray(p.data?.points)) {
+              return (
+                <div key={pIdx} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {p.data.points.map((pt, bIdx) => (
+                    <div key={bIdx} style={{ fontSize: 18, display: "flex", gap: 10, alignItems: "baseline" }}>
+                      <span style={{ color: selectedBgConfig?.accent || "#38bdf8", fontWeight: 800 }}>•</span>
+                      <span>{pt}</span>
+                    </div>
+                  ))}
+                </div>
+              );
+            }
+            if (p.type === "paragraph") {
+              return (
+                <p key={pIdx} style={{ fontSize: 17, lineHeight: 1.6, opacity: 0.9 }}>
+                  {p.data?.text}
+                </p>
+              );
+            }
+            return null;
+          })}
+        </div>
+      </div>
+
+      {/* BOTTOM SLIDE NAVIGATOR */}
+      <div style={{ position: "absolute", bottom: 20, display: "flex", gap: 16, alignItems: "center" }}>
+        <button
+          type="button"
+          onClick={() => setActiveSlideIndex((prev) => Math.max(0, prev - 1))}
+          disabled={activeSlideIndex === 0}
+          style={{
+            background: "rgba(255,255,255,0.15)",
+            border: "none",
+            color: "#fff",
+            borderRadius: 6,
+            padding: "8px 16px",
+            fontSize: 14,
+            cursor: activeSlideIndex === 0 ? "not-allowed" : "pointer",
+            opacity: activeSlideIndex === 0 ? 0.3 : 1,
+          }}
+        >
+          ◀ Previous
+        </button>
+        <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: 700 }}>
+          {activeSlideIndex + 1} / {plan?.slides?.length || 1}
+        </span>
+        <button
+          type="button"
+          onClick={() => setActiveSlideIndex((prev) => Math.min((plan?.slides?.length || 1) - 1, prev + 1))}
+          disabled={activeSlideIndex >= (plan?.slides?.length || 1) - 1}
+          style={{
+            background: "rgba(255,255,255,0.15)",
+            border: "none",
+            color: "#fff",
+            borderRadius: 6,
+            padding: "8px 16px",
+            fontSize: 14,
+            cursor: activeSlideIndex >= (plan?.slides?.length || 1) - 1 ? "not-allowed" : "pointer",
+            opacity: activeSlideIndex >= (plan?.slides?.length || 1) - 1 ? 0.3 : 1,
+          }}
+        >
+          Next ▶
+        </button>
+      </div>
+    </div>
+  )}
 
       {/* DOWNLOAD SUCCESS POPUP MODAL 🎁 */}
       {showDownloadModal && (
@@ -6506,6 +7904,299 @@ export default function PresentationEditor({
                   </div>
                 );
               })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* POWERPOINT 365 RIGHT-CLICK CONTEXT MENU & MINI FORMATTING BAR */}
+      {contextMenu && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: "fixed",
+            left: contextMenu.x,
+            top: contextMenu.y,
+            zIndex: 999999,
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+            animation: "fadeIn 0.12s ease-out",
+          }}
+        >
+          {/* TOP MINI FORMATTING BAR */}
+          <div
+            style={{
+              background: "#222222",
+              border: "1px solid rgba(255, 255, 255, 0.18)",
+              borderRadius: 6,
+              padding: "4px 8px",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.75)",
+            }}
+          >
+            {/* Style */}
+            <button
+              type="button"
+              onClick={() => {
+                handleUpdatePluginData?.(contextMenu.pIdx, { fill: "#38bdf8" });
+                setContextMenu(null);
+              }}
+              style={{ background: "transparent", border: "none", color: "#fff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", fontSize: 9.5, padding: "2px 4px" }}
+              title="Style"
+            >
+              <span style={{ fontSize: 13, color: "#38bdf8" }}>🖌️</span>
+              <span>Style ⌄</span>
+            </button>
+
+            {/* Fill with Red Bar */}
+            <label
+              style={{
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                cursor: "pointer",
+                padding: "2px 4px",
+              }}
+              title="Fill Color"
+            >
+              <span style={{ fontSize: 13 }}>🪣</span>
+              <div style={{ width: 14, height: 2.5, background: "#ef4444", marginTop: 1, borderRadius: 1 }} />
+              <span style={{ fontSize: 9.5, color: "#fff" }}>Fill ⌄</span>
+              <input
+                type="color"
+                onChange={(e) => {
+                  handleUpdatePluginData?.(contextMenu.pIdx, { fill: e.target.value, bg_color: e.target.value });
+                  setContextMenu(null);
+                }}
+                style={{ position: "absolute", opacity: 0, width: 24, height: 24, cursor: "pointer" }}
+              />
+            </label>
+
+            {/* Outline with Blue Bar */}
+            <label
+              style={{
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                cursor: "pointer",
+                padding: "2px 4px",
+              }}
+              title="Outline Color"
+            >
+              <span style={{ fontSize: 13, color: "#38bdf8" }}>✏️</span>
+              <div style={{ width: 14, height: 2.5, background: "#0284c7", marginTop: 1, borderRadius: 1 }} />
+              <span style={{ fontSize: 9.5, color: "#fff" }}>Outline ⌄</span>
+              <input
+                type="color"
+                onChange={(e) => {
+                  handleUpdatePluginData?.(contextMenu.pIdx, { border_color: e.target.value });
+                  setContextMenu(null);
+                }}
+                style={{ position: "absolute", opacity: 0, width: 24, height: 24, cursor: "pointer" }}
+              />
+            </label>
+
+            {/* New Comment */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowNotesPane(true);
+                setContextMenu(null);
+              }}
+              style={{ background: "transparent", border: "none", color: "#fff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", fontSize: 9.5, padding: "2px 4px" }}
+              title="New Comment"
+            >
+              <span style={{ fontSize: 13, color: "#22c55e" }}>💬</span>
+              <span>New Comment</span>
+            </button>
+          </div>
+
+          {/* MAIN CONTEXT MENU */}
+          <div
+            style={{
+              background: "#1f1f1f",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              borderRadius: 6,
+              padding: "4px 0",
+              width: 230,
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.85)",
+              fontSize: 12,
+              color: "#e2e8f0",
+              userSelect: "none",
+            }}
+          >
+            {/* Search The Menus */}
+            <div style={{ padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: 2 }}>
+              <input
+                type="text"
+                placeholder="Search the menus"
+                style={{
+                  width: "100%",
+                  background: "#141414",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: 4,
+                  padding: "3px 6px",
+                  color: "#fff",
+                  fontSize: 11,
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+
+            {/* Cut */}
+            <div
+              className="ppt-context-item"
+              onClick={() => {
+                alert("Cut (Ctrl+X)");
+                setContextMenu(null);
+              }}
+              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+            >
+              <span style={{ width: 16, color: "#38bdf8" }}>✂</span>
+              <span>Cut</span>
+            </div>
+
+            {/* Copy */}
+            <div
+              className="ppt-context-item"
+              onClick={() => {
+                alert("Copied (Ctrl+C)");
+                setContextMenu(null);
+              }}
+              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+            >
+              <span style={{ width: 16 }}>📄</span>
+              <span>Copy</span>
+            </div>
+
+            {/* Paste Options */}
+            <div style={{ padding: "5px 12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600 }}>Paste Options:</span>
+              <div style={{ display: "flex", gap: 4 }}>
+                <span style={{ padding: "2px 4px", background: "#333", borderRadius: 3, cursor: "pointer" }}>📋</span>
+                <span style={{ padding: "2px 4px", background: "#333", borderRadius: 3, cursor: "pointer" }}>🖼️</span>
+              </div>
+            </div>
+
+            <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "3px 0" }} />
+
+            {/* Edit Text */}
+            <div
+              className="ppt-context-item"
+              onClick={() => {
+                setContextMenu(null);
+              }}
+              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+            >
+              <span style={{ width: 16, color: "#38bdf8" }}>🅰️</span>
+              <span>Edit Text</span>
+            </div>
+
+            {/* Edit Points */}
+            <div
+              className="ppt-context-item"
+              onClick={() => setContextMenu(null)}
+              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+            >
+              <span style={{ width: 16, color: "#38bdf8" }}>⛶</span>
+              <span>Edit Points</span>
+            </div>
+
+            <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "3px 0" }} />
+
+            {/* Bring to Front */}
+            <div
+              className="ppt-context-item"
+              onClick={() => {
+                handleLayerOrder?.(contextMenu.pIdx ?? selectedPluginIndex, "front");
+                setContextMenu(null);
+              }}
+              style={{ padding: "5px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 16, color: "#ea580c" }}>🗂</span>
+                <span>Bring to Front</span>
+              </div>
+              <span style={{ fontSize: 10, opacity: 0.5 }}>›</span>
+            </div>
+
+            {/* Send to Back */}
+            <div
+              className="ppt-context-item"
+              onClick={() => {
+                handleLayerOrder?.(contextMenu.pIdx ?? selectedPluginIndex, "back");
+                setContextMenu(null);
+              }}
+              style={{ padding: "5px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 16, color: "#ea580c" }}>🗂</span>
+                <span>Send to Back</span>
+              </div>
+              <span style={{ fontSize: 10, opacity: 0.5 }}>›</span>
+            </div>
+
+            <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "3px 0" }} />
+
+            {/* Hyperlink */}
+            <div
+              className="ppt-context-item"
+              onClick={() => setContextMenu(null)}
+              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+            >
+              <span style={{ width: 16 }}>🔗</span>
+              <span>Hyperlink...</span>
+            </div>
+
+            {/* Save as Picture */}
+            <div
+              className="ppt-context-item"
+              onClick={() => setContextMenu(null)}
+              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+            >
+              <span style={{ width: 16 }}>💾</span>
+              <span>Save as Picture...</span>
+            </div>
+
+            {/* Translate */}
+            <div
+              className="ppt-context-item"
+              onClick={() => setContextMenu(null)}
+              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+            >
+              <span style={{ width: 16, color: "#22c55e" }}>🌐</span>
+              <span>Translate</span>
+            </div>
+
+            <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "3px 0" }} />
+
+            {/* Format Shape */}
+            <div
+              className="ppt-context-item"
+              onClick={() => setContextMenu(null)}
+              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontWeight: 700, color: "#ea580c" }}
+            >
+              <span style={{ width: 16 }}>🎨</span>
+              <span>Format Shape...</span>
+            </div>
+
+            {/* New Comment */}
+            <div
+              className="ppt-context-item"
+              onClick={() => {
+                setShowNotesPane(true);
+                setContextMenu(null);
+              }}
+              style={{ padding: "5px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+            >
+              <span style={{ width: 16, color: "#22c55e" }}>💬</span>
+              <span>New Comment</span>
             </div>
           </div>
         </div>

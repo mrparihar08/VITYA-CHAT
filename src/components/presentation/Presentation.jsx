@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { API_BASE_URL, getAuthHeaders } from "../../services/api";
 import PresentationSetup from "./PresentationSetup";
-import PresentationEditor, { BACKGROUND_PRESETS } from "./PresentationEditor";
+import PresentationEditor, { BACKGROUND_PRESETS, getThemeDesignSystem, getMasterTemplateLayout } from "./PresentationEditor";
 
 const DEFAULT_API_BASE = `${API_BASE_URL}/api/presentation`;
 
@@ -453,6 +453,18 @@ export default function PresentationGenerator({ presentationId = null }) {
     if (val && val !== "none") {
       setSelectedBgPreset(val);
     }
+    setPlan((prev) => {
+      if (!prev || !prev.slides) return prev;
+      const slides = prev.slides.map((s) => ({
+        ...s,
+        template: val,
+        background_preset: val,
+        customBgColor1: undefined,
+        customBgColor2: undefined,
+        customTextColor: undefined,
+      }));
+      return { ...prev, slides };
+    });
     setIsSaved(false);
     setDownloadUrl(null);
   };
@@ -462,6 +474,18 @@ export default function PresentationGenerator({ presentationId = null }) {
     if (val && val !== "none") {
       setTemplateName(val);
     }
+    setPlan((prev) => {
+      if (!prev || !prev.slides) return prev;
+      const slides = prev.slides.map((s) => ({
+        ...s,
+        template: val,
+        background_preset: val,
+        customBgColor1: undefined,
+        customBgColor2: undefined,
+        customTextColor: undefined,
+      }));
+      return { ...prev, slides };
+    });
     setIsSaved(false);
     setDownloadUrl(null);
   };
@@ -752,15 +776,27 @@ export default function PresentationGenerator({ presentationId = null }) {
 
     const sanitizedPlan = includePlan && plan ? sanitizePlanForBackend(plan, activeThemeConfig) : undefined;
 
+    const themeDesign = getThemeDesignSystem(selectedBgPreset, selectedBgConfig);
+    const templateLayout = getMasterTemplateLayout(templateName, selectedBgConfig);
+
     return {
       prompt: buildPrompt(),
       topic: prompt.trim(),
       export_format: exportFormat || "pptx",
       template_name: (templateName && templateName !== "none") ? templateName : "none",
+      template_layout: {
+        id: templateLayout.id,
+        name: templateLayout.name,
+        badge: templateLayout.badge,
+        frame_type: templateLayout.frameType,
+        desc: templateLayout.desc,
+        accent: templateLayout.accent,
+        canvas_padding: templateLayout.canvasPadding,
+      },
       background_theme: (selectedBgPreset && selectedBgPreset !== "none") ? selectedBgPreset : "none",
       content_theme: (selectedBgPreset && selectedBgPreset !== "none") ? (contentTheme || selectedBgPreset) : "none",
       theme_name: selectedBgPreset,
-      theme_config: activeThemeConfig,
+      theme_config: { ...activeThemeConfig, ...themeDesign },
       bg_color: activeThemeConfig.solid_bg,
       bg_gradient_start: activeThemeConfig.bg_start,
       bg_gradient_end: activeThemeConfig.bg_end,
@@ -768,12 +804,16 @@ export default function PresentationGenerator({ presentationId = null }) {
       accent_color: activeThemeConfig.accent,
       design_system: {
         theme_name: selectedBgPreset,
+        archetype: themeDesign.archetype,
         bg_color: activeThemeConfig.solid_bg,
         bg_gradient_start: activeThemeConfig.bg_start,
         bg_gradient_end: activeThemeConfig.bg_end,
         text_color: activeThemeConfig.text,
         accent_color: activeThemeConfig.accent,
-        font_family: "Inter",
+        font_family: themeDesign.fontFamily,
+        title_font_family: themeDesign.titleFontFamily,
+        card_style: themeDesign.cardStyle,
+        badge_text: themeDesign.badgeText,
       },
       visual_style: style || visualStyle || "minimal",
       slide_count: slideCount,
