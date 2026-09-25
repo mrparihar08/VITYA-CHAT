@@ -749,11 +749,12 @@ export default function PresentationGenerator({ presentationId = null }) {
 
 
   const buildPrompt = () => {
+    const rawTopic = (prompt || "").trim() || plan?.title || "Presentation Deck";
     const requirements = [
       `Create approximately ${slideCount === "auto" ? 8 : slideCount} slides with high executive quality and domain depth.`,
       `Must include an explicit 'Introduction & Executive Context' slide (or 'Introduction to [Topic]') right after the Title Cover.`,
       `Include structured, audience-ready section titles (Presentation Overview, Introduction, System Architecture, Feature Comparison, Data Metrics, Conclusion).`,
-      `Target audience: ${audience}.`,
+      `Target audience: ${audience || "Executive"}.`,
       `Tone: ${tone || "Professional"}.`,
       `Language: ${language || "English"}.`,
       userRequirements && `Specific requirements: ${userRequirements}`,
@@ -761,12 +762,13 @@ export default function PresentationGenerator({ presentationId = null }) {
       includeAgendaSlide && "Include an Auto Agenda / Table of Contents slide at the beginning of the presentation right after the title cover.",
     ].filter(Boolean);
 
-    return `${prompt.trim()}\n\nPresentation quality requirements:\n${requirements
+    return `${rawTopic}\n\nPresentation quality requirements:\n${requirements
       .map((item) => `- ${item}`)
       .join("\n")}`;
   };
 
   const buildPayload = ({ includePlan = false } = {}) => {
+    const rawTopic = (prompt || "").trim() || plan?.title || "Presentation Deck";
     const activeThemeConfig = {
       theme_name: selectedBgPreset,
       solid_bg: selectedBgPreset === "custom" ? customBgColor1 : (selectedBgConfig?.solid_bg || "#0f172a"),
@@ -783,7 +785,7 @@ export default function PresentationGenerator({ presentationId = null }) {
 
     return {
       prompt: buildPrompt(),
-      topic: prompt.trim(),
+      topic: rawTopic,
       export_format: exportFormat || "pptx",
       template_name: (templateName && templateName !== "none") ? templateName : "none",
       template_layout: {
@@ -870,11 +872,6 @@ export default function PresentationGenerator({ presentationId = null }) {
   const savePresentation = async () => {
     const payload = buildPayload({ includePlan: true });
 
-    if (!payload.prompt || !payload.prompt.trim()) {
-      setError("Please describe the presentation you want to create.");
-      return { success: false, error: "Prompt required" };
-    }
-
     setError("");
     setSaveError("");
     setIsSaving(true);
@@ -936,21 +933,22 @@ export default function PresentationGenerator({ presentationId = null }) {
     }
   };
 
-  const downloadSavedPresentation = async () => {
+  const downloadSavedPresentation = async (overrideFormat = null) => {
+    const targetFormat = overrideFormat || exportFormat || "pptx";
     let currentDownloadUrl = downloadUrl;
-    let currentFilename = savedMeta?.file_name || `presentation.${exportFormat || "pptx"}`;
+    let currentFilename = savedMeta?.file_name || `${(plan?.title || "presentation").replace(/[^a-z0-9_-]/gi, "_")}.${targetFormat}`;
     let pId = savedMeta?.presentation_id || presentationId || plan?.presentation_id;
 
-    // 🚀 If there are unsaved edits or no download URL yet, save and re-render first!
-    if (!isSaved || !currentDownloadUrl) {
-      const saveRes = await savePresentation();
-      if (saveRes && saveRes.success) {
-        currentDownloadUrl = saveRes.downloadUrl;
-        currentFilename = saveRes.fileName || currentFilename;
-        pId = saveRes.presentationId || pId;
-      } else {
-        return;
-      }
+    if (overrideFormat && overrideFormat !== exportFormat) {
+      setExportFormat(overrideFormat);
+    }
+
+    // Always ensure current plan edits are saved to backend before downloading!
+    const saveRes = await savePresentation();
+    if (saveRes && saveRes.success) {
+      currentDownloadUrl = saveRes.downloadUrl;
+      currentFilename = saveRes.fileName || currentFilename;
+      pId = saveRes.presentationId || pId;
     }
 
     if (currentDownloadUrl) {
@@ -964,7 +962,7 @@ export default function PresentationGenerator({ presentationId = null }) {
 
     if (pId) {
       const dynamicUrl = joinUrl(DEFAULT_API_BASE, `/download-presentation/${pId}`);
-      await downloadFileAsBlob(dynamicUrl, `presentation_${pId}.${exportFormat || "pptx"}`);
+      await downloadFileAsBlob(dynamicUrl, currentFilename);
       return;
     }
 

@@ -125,4 +125,18 @@ export const safeFetchJSON = async (res) => {
   }
 };
 
+export const refineSlideText = async ({ text, action = "polish", slide_title = "", presentation_title = "" }) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/presentation/refine-slide`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+      body: JSON.stringify({ text, action, slide_title, presentation_title }),
+    });
+    return await safeFetchJSON(res);
+  } catch (err) {
+    console.warn("refineSlideText error, using local fallback", err);
+    return { refined_text: text };
+  }
+};
+
 export default api;
