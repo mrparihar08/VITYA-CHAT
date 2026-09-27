@@ -24,6 +24,7 @@ export function ProfileEdit({ insideDashboard = false }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [filePreview, setFilePreview] = useState("");
+  const [imgError, setImgError] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
@@ -184,13 +185,11 @@ export function ProfileEdit({ insideDashboard = false }) {
             <div className="vitya-user-header">
               <div className="vitya-main-avatar-wrapper">
                 <div className="vitya-avatar-box">
-                  {previewSrc ? (
+                  {!imgError && previewSrc ? (
                     <img
                       src={previewSrc}
                       alt="Avatar Preview"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
+                      onError={() => setImgError(true)}
                     />
                   ) : (
                     <span>{userInitial}</span>

@@ -17,6 +17,7 @@ export function Profile({ insideDashboard = false }) {
   const [profile, setProfile] = useState(() => authUser || getUserFromStorage() || null);
   const [loading, setLoading] = useState(() => !profile);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -223,13 +224,11 @@ export function Profile({ insideDashboard = false }) {
         <div className="vitya-user-header">
           <div className="vitya-main-avatar-wrapper">
             <div className="vitya-avatar-box">
-              {profile?.profile_pic ? (
+              {!imgError && profile?.profile_pic ? (
                 <img
                   src={resolveAssetUrl(profile.profile_pic)}
                   alt={name}
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
+                  onError={() => setImgError(true)}
                 />
               ) : (
                 <span>{initial}</span>

@@ -22,14 +22,14 @@ export const AuthProvider = ({ children }) => {
     return safeParseJSON(localStorage.getItem("user"));
   });
 
-  // Keep state in sync across browser tabs
+  // Keep state in sync across browser tabs & windows
   useEffect(() => {
     const handleStorageChange = (event) => {
-      if (event.key === "token") {
-        setToken(event.newValue);
+      if (event.key === "token" || event.key === null) {
+        setToken(typeof window !== "undefined" ? localStorage.getItem("token") || null : null);
       }
-      if (event.key === "user") {
-        setUser(safeParseJSON(event.newValue));
+      if (event.key === "user" || event.key === null) {
+        setUser(typeof window !== "undefined" ? safeParseJSON(localStorage.getItem("user")) : null);
       }
     };
 

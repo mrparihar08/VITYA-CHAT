@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import CanvasElement from "./CanvasElement";
+import SlideBackdropDecorations from "./SlideBackdropDecorations";
 
 export default function PresentModal({ slides = [], initialSlideIndex = 0, isOpen, onClose }) {
   const [currentIndex, setCurrentIndex] = useState(initialSlideIndex);
@@ -69,11 +70,19 @@ export default function PresentModal({ slides = [], initialSlideIndex = 0, isOpe
       <div className="present-slide-viewport">
         <div 
           className="present-slide-canvas 16-9-aspect"
-          style={{ background: bgStyle }}
+          style={{ background: bgStyle, position: "relative" }}
         >
-          {currentSlide.elements && currentSlide.elements.map((el) => (
-            <CanvasElement key={el.id} element={el} isSelected={false} onSelect={() => {}} />
-          ))}
+          <SlideBackdropDecorations
+            slide={currentSlide}
+            slideIndex={currentIndex}
+            totalSlides={slides.length}
+            templateName={currentSlide.template || "base_template"}
+          />
+          <div className="present-elements-layer" style={{ position: "absolute", inset: 0, zIndex: 2 }}>
+            {currentSlide.elements && currentSlide.elements.map((el) => (
+              <CanvasElement key={el.id} element={el} isSelected={false} onSelect={() => {}} />
+            ))}
+          </div>
         </div>
       </div>
     </div>

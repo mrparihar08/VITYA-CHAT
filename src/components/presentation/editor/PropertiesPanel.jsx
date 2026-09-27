@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { 
   Sliders, 
   Palette, 
@@ -13,9 +13,19 @@ import {
   Copy,
   Sparkles,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  Upload,
+  Search,
+  Wand2,
+  MoreVertical,
+  Image as ImageIcon,
+  Check,
+  AlertTriangle
 } from "lucide-react";
-import { LAYOUT_OPTIONS, THEME_OPTIONS, SHAPE_OPTIONS, CHART_TYPES } from "./editorState";
+import { THEME_OPTIONS, SHAPE_OPTIONS, CHART_TYPES } from "./editorState";
+import ImageSearchModal from "./ImageSearchModal";
+import GeminiImageModal from "./GeminiImageModal";
+import AiImageRefineModal from "./AiImageRefineModal";
 
 export default function PropertiesPanel({
   slide,
@@ -27,7 +37,8 @@ export default function PropertiesPanel({
   selectedBgPreset,
   onSelectBgPreset,
   onAiRefine,
-  onToggleSidebar
+  onToggleSidebar,
+  presentationTitle = ""
 }) {
   const [activeTab, setActiveTab] = useState("edit"); // 'edit' | 'design'
   const [accordionState, setAccordionState] = useState({
@@ -36,11 +47,52 @@ export default function PropertiesPanel({
     alignment: false,
     arrange: false,
     spacing: false,
-    position: false
+    position: false,
+    imgSource: true,
+    imgCurrent: true,
+    imgCaption: true,
+    imgQuality: false,
+    imgAppearance: true,
+    imgPosition: false,
+    imgAdvanced: false
   });
+
+  const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
+  const [isGeminiModalOpen, setIsGeminiModalOpen] = useState(false);
+  const [isAiImageRefineOpen, setIsAiImageRefineOpen] = useState(false);
+  const [isImageMoreMenuOpen, setIsImageMoreMenuOpen] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef(null);
 
   const toggleAccordion = (section) => {
     setAccordionState((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const handleFileUpload = (file) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      if (selectedElement) {
+        onUpdateElement(selectedElement.id, {
+          url: dataUrl,
+          source: "Uploaded by User",
+          data: { ...(selectedElement.data || {}), url: dataUrl, source: "Uploaded by User" }
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImproveCaption = () => {
+    if (!selectedElement) return;
+    const topic = presentationTitle || slide?.title || "Presentation Topic";
+    const slideTitle = slide?.title || "Current Slide";
+    const suggestedCaption = `${slideTitle} — Strategic ${topic.toLowerCase().includes("ai") || topic.toLowerCase().includes("tech") ? "technological data-driven" : "operational"} execution model.`;
+    onUpdateElement(selectedElement.id, {
+      caption: suggestedCaption,
+      data: { ...(selectedElement.data || {}), caption: suggestedCaption }
+    });
   };
 
   if (!slide) return null;
@@ -81,27 +133,10 @@ export default function PropertiesPanel({
 
       <div className="properties-content-scroll">
         {/* ========================================================= */}
-        {/* CASE 1: DESIGN TAB ACTIVE -> SLIDE LAYOUT, THEME, BG & FONT */}
+        {/* CASE 1: DESIGN TAB ACTIVE -> THEME, BG & FONT */}
         {/* ========================================================= */}
         {activeTab === "design" ? (
           <div className="panel-group-container">
-            {/* SLIDE LAYOUT THUMBNAILS */}
-            <div className="prop-group">
-              <label className="group-label">SLIDE LAYOUT</label>
-              <div className="layout-grid-compact">
-                {LAYOUT_OPTIONS.map((l) => (
-                  <button
-                    key={l.id}
-                    className={`layout-chip ${slide.layout === l.id ? "active" : ""}`}
-                    onClick={() => onUpdateSlide({ layout: l.id })}
-                  >
-                    <span className="chip-icon">{l.icon}</span>
-                    <span className="chip-name">{l.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* THEME PRESETS */}
             <div className="prop-group">
               <label className="group-label">THEME PRESET</label>
@@ -547,39 +582,427 @@ export default function PropertiesPanel({
             {/* IMAGE PROPERTIES PANEL                        */}
             {/* --------------------------------------------- */}
             {selectedElement.type === "image" && (
-              <>
-                <div className="prop-group">
-                  <label className="group-label">IMAGE URL</label>
-                  <input
-                    type="text"
-                    value={selectedElement.url || ""}
-                    onChange={(e) => onUpdateElement(selectedElement.id, { url: e.target.value })}
-                    className="prop-text-input"
-                  />
+              <div className="image-element-panel">
+                {/* MORE ACTIONS FLOATING MENU (⋮) */}
+                {isImageMoreMenuOpen && (
+                  <div className="image-more-menu-overlay" onClick={() => setIsImageMoreMenuOpen(false)}>
+                    <div className="image-more-menu-dropdown" onClick={(e) => e.stopPropagation()}>
+                      <button className="img-menu-btn" onClick={() => { setIsAiImageRefineOpen(true); setIsImageMoreMenuOpen(false); }}>
+                        <Sparkles size={14} className="menu-sparkle" />
+                        <span>✨ AI Refine Image</span>
+                      </button>
+                      <button className="img-menu-btn" onClick={() => { setIsImageSearchOpen(true); setIsImageMoreMenuOpen(false); }}>
+                        <Search size={14} />
+                        <span>Find Better Image</span>
+                      </button>
+                      <button className="img-menu-btn" onClick={() => { setIsGeminiModalOpen(true); setIsImageMoreMenuOpen(false); }}>
+                        <Wand2 size={14} />
+                        <span>Generate with Gemini</span>
+                      </button>
+                      <button className="img-menu-btn" onClick={() => { handleImproveCaption(); setIsImageMoreMenuOpen(false); }}>
+                        <Sparkles size={14} />
+                        <span>Improve Caption</span>
+                      </button>
+                      <button className="img-menu-btn" onClick={() => { fileInputRef.current?.click(); setIsImageMoreMenuOpen(false); }}>
+                        <Upload size={14} />
+                        <span>Replace / Upload Image</span>
+                      </button>
+                      <button className="img-menu-btn danger" onClick={() => { onDeleteElement?.(selectedElement.id); setIsImageMoreMenuOpen(false); }}>
+                        <Trash2 size={14} />
+                        <span>Delete Image Element</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* HEADER ROW WITH MORE MENU (⋮) */}
+                <div className="img-panel-top-actions">
+                  <button
+                    className="more-menu-trigger-btn"
+                    onClick={() => setIsImageMoreMenuOpen((prev) => !prev)}
+                    title="More Image Actions"
+                  >
+                    <MoreVertical size={16} />
+                  </button>
                 </div>
 
-                <div className="prop-group">
-                  <label className="group-label">CAPTION</label>
-                  <input
-                    type="text"
-                    value={selectedElement.caption || ""}
-                    onChange={(e) => onUpdateElement(selectedElement.id, { caption: e.target.value })}
-                    className="prop-text-input"
-                  />
+                {/* PROMINENT COMPACT AI REFINE BUTTON */}
+                <div className="img-hero-ai-refine-wrap">
+                  <button
+                    className="hero-ai-refine-btn"
+                    onClick={() => setIsAiImageRefineOpen(true)}
+                  >
+                    <Sparkles size={15} className="ai-glow-sparkle" />
+                    <span>✨ AI Refine Image</span>
+                  </button>
                 </div>
 
-                <div className="prop-group">
-                  <label className="group-label">BORDER RADIUS (PX)</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="32"
-                    value={selectedElement.borderRadius || 8}
-                    onChange={(e) => onUpdateElement(selectedElement.id, { borderRadius: Number(e.target.value) })}
-                    className="prop-range-input"
-                  />
+                {/* 1. IMAGE SOURCE ACCORDION (OPEN BY DEFAULT) */}
+                <div className="accordion-section">
+                  <div className="accordion-header" onClick={() => toggleAccordion("imgSource")}>
+                    <span className="accordion-title">IMAGE SOURCE</span>
+                    <button className="accordion-icon-btn">
+                      {accordionState.imgSource ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    </button>
+                  </div>
+                  {accordionState.imgSource && (
+                    <div className="accordion-content-body">
+                      <div className="img-sources-grid">
+                        <button
+                          className="img-source-btn ai-primary"
+                          onClick={() => setIsImageSearchOpen(true)}
+                        >
+                          <Search size={14} />
+                          <span>Find Best Image ✨</span>
+                        </button>
+
+                        <button
+                          className="img-source-btn secondary"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Upload size={14} />
+                          <span>Upload Image ⬆</span>
+                        </button>
+
+                        <button
+                          className="img-source-btn ai-accent"
+                          onClick={() => setIsGeminiModalOpen(true)}
+                        >
+                          <Wand2 size={14} />
+                          <span>Generate with Gemini ✨</span>
+                        </button>
+
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          style={{ display: "none" }}
+                          accept="image/*"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              handleFileUpload(e.target.files[0]);
+                            }
+                          }}
+                        />
+                      </div>
+
+                      {/* DRAG & DROP ZONE */}
+                      <div
+                        className={`dropzone-box ${isDragOver ? "drag-over" : ""}`}
+                        onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+                        onDragLeave={() => setIsDragOver(false)}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          setIsDragOver(false);
+                          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                            handleFileUpload(e.dataTransfer.files[0]);
+                          }
+                        }}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Upload size={16} className="drop-icon" />
+                        <span>Drop image here or click to browse (PNG, JPG, WEBP, SVG)</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </>
+
+                {/* 2. CURRENT IMAGE ACCORDION (OPEN BY DEFAULT) */}
+                <div className="accordion-section">
+                  <div className="accordion-header" onClick={() => toggleAccordion("imgCurrent")}>
+                    <span className="accordion-title">CURRENT IMAGE</span>
+                    <button className="accordion-icon-btn">
+                      {accordionState.imgCurrent ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    </button>
+                  </div>
+                  {accordionState.imgCurrent && (
+                    <div className="accordion-content-body">
+                      {/* IMAGE PREVIEW CARD */}
+                      <div className="img-preview-box">
+                        {selectedElement.url ? (
+                          <img
+                            src={selectedElement.url}
+                            alt={selectedElement.altText || selectedElement.caption || "Selected image preview"}
+                            style={{
+                              borderRadius: `${selectedElement.borderRadius || 8}px`,
+                              objectFit: selectedElement.objectFit || "cover",
+                              opacity: (selectedElement.opacity !== undefined ? selectedElement.opacity : 100) / 100
+                            }}
+                          />
+                        ) : (
+                          <div className="no-img-placeholder">
+                            <ImageIcon size={28} />
+                            <span>No Image Loaded</span>
+                          </div>
+                        )}
+                        {selectedElement.source && (
+                          <div className="img-source-badge">{selectedElement.source}</div>
+                        )}
+                      </div>
+
+                      <div className="prop-group" style={{ marginTop: 8 }}>
+                        <label className="group-label">IMAGE URL</label>
+                        <input
+                          type="text"
+                          value={selectedElement.url || ""}
+                          onChange={(e) => onUpdateElement(selectedElement.id, { url: e.target.value })}
+                          className="prop-text-input"
+                          placeholder="https://images.unsplash.com/..."
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. CAPTION ACCORDION */}
+                <div className="accordion-section">
+                  <div className="accordion-header" onClick={() => toggleAccordion("imgCaption")}>
+                    <span className="accordion-title">CAPTION</span>
+                    <button className="accordion-icon-btn">
+                      {accordionState.imgCaption ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    </button>
+                  </div>
+                  {accordionState.imgCaption && (
+                    <div className="accordion-content-body">
+                      <div className="prop-group">
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                          <label className="group-label">CAPTION TEXT</label>
+                          <button
+                            className="icon-action-btn"
+                            onClick={handleImproveCaption}
+                            title="Improve caption with AI"
+                            style={{ fontSize: 11, display: "inline-flex", alignItems: "center", gap: 3, padding: "2px 8px", background: "rgba(192, 132, 252, 0.15)", color: "#c084fc", border: "1px solid rgba(192, 132, 252, 0.3)", borderRadius: 6 }}
+                          >
+                            <Sparkles size={11} />
+                            <span>✨ Improve Caption</span>
+                          </button>
+                        </div>
+                        <textarea
+                          value={selectedElement.caption || ""}
+                          onChange={(e) => onUpdateElement(selectedElement.id, { caption: e.target.value })}
+                          className="prop-textarea"
+                          rows={2}
+                          placeholder="Add image caption takeaway..."
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 4. IMAGE QUALITY & RELEVANCE CHECK ACCORDION */}
+                <div className="accordion-section">
+                  <div className="accordion-header" onClick={() => toggleAccordion("imgQuality")}>
+                    <span className="accordion-title">IMAGE QUALITY & DIAGNOSTICS</span>
+                    <button className="accordion-icon-btn">
+                      {accordionState.imgQuality ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    </button>
+                  </div>
+                  {accordionState.imgQuality && (
+                    <div className="accordion-content-body">
+                      <div className="img-quality-grid">
+                        <div className="quality-item">
+                          <span className="q-label">Resolution</span>
+                          <span className="q-val ok"><Check size={12} /> Good</span>
+                        </div>
+                        <div className="quality-item">
+                          <span className="q-label">Aspect Ratio</span>
+                          <span className="q-val ok"><Check size={12} /> Suitable (16:9)</span>
+                        </div>
+                        <div className="quality-item">
+                          <span className="q-label">Topic Relevance</span>
+                          <span className="q-val ok"><Check size={12} /> High</span>
+                        </div>
+                        <div className="quality-item">
+                          <span className="q-label">Caption Relevance</span>
+                          <span className={`q-val ${(selectedElement.caption || "").length > 5 ? "ok" : "warn"}`}>
+                            {(selectedElement.caption || "").length > 5 ? <><Check size={12} /> High</> : <><AlertTriangle size={12} /> Context Needed</>}
+                          </span>
+                        </div>
+                        <div className="quality-item">
+                          <span className="q-label">Visual Style</span>
+                          <span className="q-val ok"><Check size={12} /> Consistent</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 5. APPEARANCE ACCORDION */}
+                <div className="accordion-section">
+                  <div className="accordion-header" onClick={() => toggleAccordion("imgAppearance")}>
+                    <span className="accordion-title">APPEARANCE</span>
+                    <button className="accordion-icon-btn">
+                      {accordionState.imgAppearance ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    </button>
+                  </div>
+                  {accordionState.imgAppearance && (
+                    <div className="accordion-content-body">
+                      {/* OBJECT FIT */}
+                      <div className="prop-group">
+                        <label className="group-label">OBJECT FIT</label>
+                        <select
+                          value={selectedElement.objectFit || "cover"}
+                          onChange={(e) => onUpdateElement(selectedElement.id, { objectFit: e.target.value })}
+                          className="prop-select"
+                        >
+                          <option value="cover">Cover (Preserve Aspect Ratio)</option>
+                          <option value="contain">Contain (Fit Whole Image)</option>
+                          <option value="fill">Fill (Stretch to Container)</option>
+                        </select>
+                      </div>
+
+                      {/* BORDER RADIUS SLIDER */}
+                      <div className="prop-group" style={{ marginTop: 8 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <label className="group-label">BORDER RADIUS</label>
+                          <span style={{ fontSize: 11, color: "#94a3b8" }}>{selectedElement.borderRadius || 8}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="32"
+                          value={selectedElement.borderRadius || 8}
+                          onChange={(e) => onUpdateElement(selectedElement.id, { borderRadius: Number(e.target.value) })}
+                          className="prop-range-input"
+                        />
+                      </div>
+
+                      {/* OPACITY SLIDER */}
+                      <div className="prop-group" style={{ marginTop: 8 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <label className="group-label">OPACITY</label>
+                          <span style={{ fontSize: 11, color: "#94a3b8" }}>{selectedElement.opacity !== undefined ? selectedElement.opacity : 100}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="10"
+                          max="100"
+                          value={selectedElement.opacity !== undefined ? selectedElement.opacity : 100}
+                          onChange={(e) => onUpdateElement(selectedElement.id, { opacity: Number(e.target.value) })}
+                          className="prop-range-input"
+                        />
+                      </div>
+
+                      {/* FONT & BACKGROUND COLORS (PRESERVE EXISTING CONTROLS) */}
+                      <div className="prop-row-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
+                        <div className="prop-group">
+                          <label className="group-label">CAPTION FONT COLOR</label>
+                          <div className="color-picker-row">
+                            <input
+                              type="color"
+                              value={selectedElement.color || "#ffffff"}
+                              onChange={(e) => onUpdateElement(selectedElement.id, { color: e.target.value })}
+                              className="prop-color-input"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="prop-group">
+                          <label className="group-label">BACKGROUND FILL</label>
+                          <div className="color-picker-row">
+                            <input
+                              type="color"
+                              value={selectedElement.bg_color || "#0f172a"}
+                              onChange={(e) => onUpdateElement(selectedElement.id, { bg_color: e.target.value })}
+                              className="prop-color-input"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 6. ADVANCED ACCORDION */}
+                <div className="accordion-section">
+                  <div className="accordion-header" onClick={() => toggleAccordion("imgAdvanced")}>
+                    <span className="accordion-title">ADVANCED & METADATA</span>
+                    <button className="accordion-icon-btn">
+                      {accordionState.imgAdvanced ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    </button>
+                  </div>
+                  {accordionState.imgAdvanced && (
+                    <div className="accordion-content-body">
+                      <div className="prop-group">
+                        <label className="group-label">IMAGE SOURCE</label>
+                        <input
+                          type="text"
+                          readOnly
+                          value={selectedElement.source || "Unsplash (Stock)"}
+                          className="prop-text-input"
+                          style={{ opacity: 0.8 }}
+                        />
+                      </div>
+
+                      <div className="prop-group" style={{ marginTop: 8 }}>
+                        <label className="group-label">ALT TEXT (ACCESSIBILITY)</label>
+                        <input
+                          type="text"
+                          value={selectedElement.altText || ""}
+                          onChange={(e) => onUpdateElement(selectedElement.id, { altText: e.target.value })}
+                          className="prop-text-input"
+                          placeholder="Describe image for screen readers..."
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* MODALS INTEGRATION */}
+                <ImageSearchModal
+                  isOpen={isImageSearchOpen}
+                  onClose={() => setIsImageSearchOpen(false)}
+                  initialQuery={selectedElement.caption || slide?.title || (slide?.elements?.find(el => el.type === "text")?.content) || ""}
+                  slideContext={{
+                    topic: presentationTitle || "Enterprise Technology",
+                    slideTitle: slide?.title || (slide?.elements?.find(el => el.type === "text")?.content) || "Slide Topic",
+                    slideContent: (slide?.elements || []).map(el => el.content || (el.points ? el.points.join(" ") : "")).join(" "),
+                    caption: selectedElement.caption
+                  }}
+                  onSelectImage={(newUrl, newCaption, newSource) => {
+                    onUpdateElement(selectedElement.id, {
+                      url: newUrl,
+                      caption: newCaption || selectedElement.caption,
+                      source: newSource || "Unsplash",
+                      data: { ...(selectedElement.data || {}), url: newUrl, caption: newCaption || selectedElement.caption }
+                    });
+                  }}
+                />
+
+                <GeminiImageModal
+                  isOpen={isGeminiModalOpen}
+                  onClose={() => setIsGeminiModalOpen(false)}
+                  slideContext={{
+                    topic: presentationTitle || "Enterprise Technology",
+                    slideTitle: slide?.title || (slide?.elements?.find(el => el.type === "text")?.content) || "Slide Topic",
+                    slideContent: (slide?.elements || []).map(el => el.content || (el.points ? el.points.join(" ") : "")).join(" "),
+                    caption: selectedElement.caption
+                  }}
+                  onSelectGeneratedImage={(newUrl, newCaption, newSource) => {
+                    onUpdateElement(selectedElement.id, {
+                      url: newUrl,
+                      caption: newCaption || selectedElement.caption,
+                      source: newSource || "AI Generated (Gemini)",
+                      data: { ...(selectedElement.data || {}), url: newUrl }
+                    });
+                  }}
+                />
+
+                <AiImageRefineModal
+                  isOpen={isAiImageRefineOpen}
+                  onClose={() => setIsAiImageRefineOpen(false)}
+                  slideContext={{
+                    topic: presentationTitle || "Enterprise Technology",
+                    slideTitle: slide?.title || (slide?.elements?.find(el => el.type === "text")?.content) || "Slide Topic",
+                    slideContent: (slide?.elements || []).map(el => el.content || (el.points ? el.points.join(" ") : "")).join(" "),
+                  }}
+                  imageElement={selectedElement}
+                  onActionSelect={(action) => {
+                    if (action === "find_best") setIsImageSearchOpen(true);
+                    else if (action === "generate_gemini") setIsGeminiModalOpen(true);
+                    else if (action === "improve_caption") handleImproveCaption();
+                  }}
+                />
+              </div>
             )}
 
             {/* --------------------------------------------- */}

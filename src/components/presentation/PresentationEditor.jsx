@@ -9,8 +9,13 @@ import PresentModal from "./editor/PresentModal";
 import ExportModal from "./editor/ExportModal";
 import AiRefineModal from "./editor/AiRefineModal";
 import AIDesignCheckModal from "./editor/AIDesignCheckModal";
+import SavedPresentationsModal from "./editor/SavedPresentationsModal";
+import ShapeCatalogModal from "./editor/ShapeCatalogModal";
+import VoiceoverStudioModal from "./editor/VoiceoverStudioModal";
+import ToastNotification from "./editor/ToastNotification";
 import { SAMPLE_SLIDES } from "./editor/editorState";
 import "./editor/PresentationEditor.css";
+
 
 // EXPORT CONSTANTS FOR COMPATIBILITY WITH PRESENTATION.JSX & SETUP
 export const BACKGROUND_PRESETS = [
@@ -113,7 +118,6 @@ export function fixElementAntiOverlap(elements, isTitleSlide = false) {
   });
 
   const list = uniqueList;
-  const hasGraphicElement = list.some((el) => ["diagram", "roadmap", "chart", "table", "kpi_grid"].includes(el.type));
 
   // Find title & subtitle elements if present
   const titleIndex = list.findIndex(
@@ -167,52 +171,211 @@ export function fixElementAntiOverlap(elements, isTitleSlide = false) {
   }
 
   // General sequential Y anti-overlap check for remaining elements
-  let currentY = 6;
   list.forEach((el, idx) => {
     const elType = el.type || "text";
     const textStr = String(el.content || el.text || "").trim();
 
-    let estHeight = el.height ? Number(el.height) : 20;
+    let estHeight = Number(el.height) || 20;
 
-    if (elType === "text") {
-      if (hasGraphicElement && idx > 0) {
-        estHeight = Math.min(18, estHeight > 0 ? estHeight : 18);
-      } else {
-        const lineCount = textStr.length > 120 ? 4 : textStr.length > 70 ? 3 : textStr.length > 30 ? 2 : 1;
-        const calcHeight = lineCount * 6 + 4;
-        estHeight = Math.max(estHeight, calcHeight);
-      }
+    if (elType === "text" || elType === "paragraph") {
+      const lineCount = textStr.length > 200 ? 6 : textStr.length > 120 ? 4 : textStr.length > 70 ? 3 : textStr.length > 30 ? 2 : 1;
+      const calcHeight = lineCount * 6 + 10;
+      estHeight = Math.max(Number(el.height) || 66, calcHeight);
     } else if (elType === "bullets") {
       const ptsCount = (el.points || []).length || 3;
-      estHeight = hasGraphicElement ? Math.min(22, 10 + ptsCount * 4) : Math.max(estHeight, 12 + ptsCount * 6);
+      estHeight = Math.max(Number(el.height) || 66, 20 + ptsCount * 8);
     } else if (["diagram", "roadmap", "chart", "table", "kpi_grid"].includes(elType)) {
-      estHeight = Math.min(34, Number(el.height) || 32);
+      estHeight = Math.min(66, Number(el.height) || 32);
     }
+    el.height = el.height !== undefined && Number(el.height) >= estHeight ? Number(el.height) : estHeight;
 
     if (idx === 0) {
       if (el.y === undefined) el.y = isHeroSlide ? 10 : 6;
-      currentY = Number(el.y) + estHeight + 3;
     } else {
-      if (el.y === undefined || Number(el.y) < currentY) {
-        el.y = Math.round(currentY * 10) / 10;
+      const elX = Number(el.x !== undefined ? el.x : 6);
+      const elW = Number(el.width !== undefined ? el.width : 80);
+
+      let minYForEl = 6;
+      for (let prevIdx = 0; prevIdx < idx; prevIdx++) {
+        const prevEl = list[prevIdx];
+        const prevX = Number(prevEl.x !== undefined ? prevEl.x : 6);
+        const prevW = Number(prevEl.width !== undefined ? prevEl.width : 80);
+
+        // Only enforce vertical stack if elements overlap horizontally!
+        const hasHOverlap = (elX < prevX + prevW) && (prevX < elX + elW);
+        if (hasHOverlap) {
+          const prevY = Number(prevEl.y !== undefined ? prevEl.y : 6);
+          const prevH = Number(prevEl.height || 20);
+          const neededY = prevY + prevH + 3;
+          if (neededY > minYForEl) {
+            minYForEl = neededY;
+          }
+        }
       }
+
+      if (el.y === undefined || (minYForEl > 6 && Number(el.y) < minYForEl)) {
+        el.y = Math.round(minYForEl * 10) / 10;
+      }
+
       if (["diagram", "roadmap", "chart", "table"].includes(elType) && el.y > 54) {
         el.y = 44;
       }
-      currentY = Number(el.y) + estHeight + 3;
     }
   });
 
   return list;
 }
 
+// ---------------------------------------------------------------------
+// Mixed Layout Resolver (1:1 mathematical port of backend geometry.py)
+// ---------------------------------------------------------------------
+export function resolveLayoutBoxes(pluginTypes, layout = null) {
+  if (!pluginTypes || pluginTypes.length === 0) return [];
+  const count = pluginTypes.length;
+
+  if (count === 1) {
+    if (layout === "blank") {
+      return [{ x: 6, y: 10, width: 88, height: 80 }];
+    }
+    return [{ x: 6, y: 22, width: 88, height: 68 }];
+  }
+
+  // 2 items: Side-by-side or content caption
+  if (
+    layout === "two_content" ||
+    layout === "comparison" ||
+    layout === "two_column" ||
+    (count === 2 && layout !== "content_caption" && layout !== "picture_caption")
+  ) {
+    const hasVisual = pluginTypes.some((k) =>
+      ["image", "chart", "table", "code_block", "speaker_card", "stat"].includes(k)
+    );
+    if (hasVisual || layout === "two_content" || layout === "comparison" || layout === "two_column") {
+      return [
+        { x: 6, y: 22, width: 42, height: 66 },
+        { x: 52, y: 22, width: 42, height: 66 },
+      ];
+    } else {
+      // 2 text rows
+      return [
+        { x: 6, y: 20, width: 88, height: 32 },
+        { x: 6, y: 55, width: 88, height: 35 },
+      ];
+    }
+  }
+
+  if (layout === "content_caption" || layout === "picture_caption") {
+    if (count === 2) {
+      if (layout === "picture_caption" && pluginTypes[0] === "image") {
+        return [
+          { x: 6, y: 22, width: 44, height: 64 },
+          { x: 53, y: 22, width: 41, height: 64 },
+        ];
+      }
+      return [
+        { x: 6, y: 22, width: 48, height: 64 },
+        { x: 57, y: 22, width: 37, height: 64 },
+      ];
+    }
+  }
+
+  // 3 items: 3 horizontal columns
+  if (count === 3) {
+    const hasCardsOrVisuals = pluginTypes.some((k) =>
+      ["image", "chart", "stat", "speaker_card", "callout", "bullets", "paragraph"].includes(k)
+    );
+    if (hasCardsOrVisuals) {
+      const colW = 27.4;
+      const gap = 2.9;
+      return [
+        { x: 6.0, y: 22, width: colW, height: 66 },
+        { x: 6.0 + colW + gap, y: 22, width: colW, height: 66 },
+        { x: 6.0 + (colW + gap) * 2, y: 22, width: colW, height: 66 },
+      ];
+    } else {
+      return [
+        { x: 6, y: 20, width: 88, height: 21 },
+        { x: 6, y: 44, width: 88, height: 21 },
+        { x: 6, y: 68, width: 88, height: 23 },
+      ];
+    }
+  }
+
+  // 4 items: 2x2 grid
+  if (count === 4) {
+    return [
+      { x: 6, y: 20, width: 42, height: 33 },
+      { x: 52, y: 20, width: 42, height: 33 },
+      { x: 6, y: 56, width: 42, height: 34 },
+      { x: 52, y: 56, width: 42, height: 34 },
+    ];
+  }
+
+  // > 4 items: proportional dynamic heights based on MixedLayoutResolver weights
+  const weights = pluginTypes.map((k) => {
+    if (["diagram", "image", "code_block"].includes(k)) return 1.2;
+    if (["chart", "table"].includes(k)) return 1.4;
+    if (["paragraph", "stat", "callout"].includes(k)) return 0.8;
+    return 1.0;
+  });
+  const totalWeight = weights.reduce((a, b) => a + b, 0) || 1;
+  const usableHeight = Math.max(20, 66 - 2.5 * (count - 1));
+
+  const boxes = [];
+  let currY = 22;
+  for (let i = 0; i < count; i++) {
+    const h = (usableHeight * weights[i]) / totalWeight;
+    boxes.push({ x: 6, y: Math.round(currY * 10) / 10, width: 88, height: Math.round(h * 10) / 10 });
+    currY += h + 2.5;
+  }
+  return boxes;
+}
+
 export function normalizeSlideElements(slide, index = 0) {
   if (!slide) return slide;
 
-  const isTitleSlide = slide.layout === "title_slide" || index === 0;
+  const isTitleSlide = slide.layout === "title_slide" || slide.layout === "title_subtitle" || index === 0;
+  const isLight = slide.background_theme?.includes("light") || slide.bg_color === "#ffffff" || slide.bg_color === "#f8fafc";
+  const defaultCardBg = isLight ? "rgba(255, 255, 255, 0.9)" : "rgba(30, 41, 59, 0.65)";
+  const defaultTextColor = slide.text_color || (isLight ? "#0f172a" : "#ffffff");
+  const defaultAccentColor = slide.accent_color || "#c084fc";
+
   const existingElements = Array.isArray(slide.elements) && slide.elements.length > 0 ? slide.elements : null;
 
   if (existingElements) {
+    // Check if existing elements were naively stacked down a single vertical line
+    const visualPlugins = (slide.plugins || []).filter((p) => p && !["notes", "speaker_notes"].includes(p.type));
+    const nonTitleElements = existingElements.filter((el) => el.type !== "title" && !el.id?.includes("title") && !el.id?.includes("sub"));
+    const isNaiveVerticalStack = nonTitleElements.length >= 2 && nonTitleElements.every((el) => (el.width || 80) >= 75 && (el.x || 0) <= 12);
+
+    if (isNaiveVerticalStack && visualPlugins.length >= 2) {
+      const boxes = resolveLayoutBoxes(visualPlugins.map((p) => p.type), slide.layout);
+      let bIdx = 0;
+      const updatedElements = existingElements.map((el) => {
+        const isTitleOrSub = el.type === "title" || el.id?.includes("title") || el.id?.includes("sub");
+        if (!isTitleOrSub && bIdx < boxes.length) {
+          const box = boxes[bIdx++];
+          return {
+            ...el,
+            x: box.x,
+            y: box.y,
+            width: box.width,
+            height: box.height,
+            bg_color: el.bg_color || defaultCardBg,
+            borderRadius: el.borderRadius || 8,
+          };
+        }
+        return {
+          ...el,
+          x: el.x !== undefined ? Number(el.x) : (isTitleSlide ? 8 : 6),
+          y: el.y !== undefined ? Number(el.y) : (isTitleSlide ? 26 : 6),
+          width: el.width !== undefined ? Number(el.width) : (isTitleSlide ? 84 : 88),
+          height: el.height !== undefined ? Number(el.height) : (isTitleSlide ? 16 : 10),
+        };
+      });
+      return { ...slide, elements: fixElementAntiOverlap(updatedElements, isTitleSlide) };
+    }
+
     const updatedElements = existingElements.map((el, i) => {
       return {
         ...el,
@@ -226,87 +389,120 @@ export function normalizeSlideElements(slide, index = 0) {
   }
 
   const newElements = [];
-  let currentY = 8;
 
+  // 1. Slide Title (Cover vs Content positioning)
   if (slide.title) {
-    const titleText = String(slide.title).trim();
-    const titleLines = titleText.length > 60 ? 3 : titleText.length > 30 ? 2 : 1;
-    const titleH = titleLines === 3 ? 26 : titleLines === 2 ? 20 : 14;
-
     newElements.push({
       id: `el-title-${Date.now()}-${index}`,
       type: "text",
-      x: 6,
-      y: isTitleSlide ? 16 : 6,
-      width: 88,
-      height: titleH,
+      x: isTitleSlide ? 8 : 6,
+      y: isTitleSlide ? 26 : 6,
+      width: isTitleSlide ? 84 : 88,
+      height: isTitleSlide ? 16 : 10,
       content: slide.title,
-      fontSize: isTitleSlide ? 38 : 30,
-      fontWeight: "700",
-      color: slide.text_color || "#ffffff",
-      align: slide.title_align || "left"
+      fontSize: isTitleSlide ? 40 : 28,
+      fontWeight: isTitleSlide ? "800" : "700",
+      color: defaultTextColor,
+      align: isTitleSlide ? "center" : (slide.title_align || "left")
     });
-    currentY = (isTitleSlide ? 16 : 6) + titleH + 5;
   }
 
+  // 2. Slide Subtitle (Cover vs Content positioning)
   if (slide.subtitle) {
-    const subText = String(slide.subtitle).trim();
-    const subLines = subText.length > 80 ? 3 : subText.length > 40 ? 2 : 1;
-    const subH = subLines * 6 + 6;
-
     newElements.push({
       id: `el-sub-${Date.now()}-${index}`,
       type: "text",
-      x: isTitleSlide ? 8 : 6,
-      y: currentY,
-      width: isTitleSlide ? 84 : 88,
-      height: subH,
+      x: isTitleSlide ? 10 : 6,
+      y: isTitleSlide ? 47 : 15,
+      width: isTitleSlide ? 80 : 88,
+      height: isTitleSlide ? 10 : 5,
       content: slide.subtitle,
-      fontSize: isTitleSlide ? 18 : 16,
+      fontSize: isTitleSlide ? 18 : 15,
       fontWeight: "400",
-      color: slide.accent_color || "#c084fc",
-      align: slide.subtitle_align || "left"
+      color: defaultAccentColor,
+      align: isTitleSlide ? "center" : (slide.subtitle_align || "left")
     });
-    currentY += subH + 5;
   }
 
+  // 3. Slide Content & Visual Plugins (Multi-Column Layout via resolveLayoutBoxes)
   const plugins = Array.isArray(slide.plugins) && slide.plugins.length > 0 ? slide.plugins : [];
+  const visualPlugins = plugins.filter((p) => p && !["notes", "speaker_notes"].includes(p.type));
 
-  if (plugins.length > 0) {
-    plugins.forEach((p, pIdx) => {
-      if (!p) return;
+  if (visualPlugins.length > 0) {
+    const boxes = resolveLayoutBoxes(visualPlugins.map((p) => p.type), slide.layout);
+
+    visualPlugins.forEach((p, pIdx) => {
       const pType = p.type;
       const pData = p.data || {};
       const elId = `el-plugin-${Date.now()}-${index}-${pIdx}`;
+      const box = boxes[pIdx] || { x: 6, y: 22, width: 88, height: 66 };
+
+      // Allow explicit plugin box coordinates if specified in plan (handling both inch and % systems)
+      const boxCoord = pData.box || {};
+      const hasBox = boxCoord.width !== undefined || pData.width !== undefined;
+      const isInchCoord = hasBox && (
+        (boxCoord.width !== undefined && Number(boxCoord.width) <= 13.333 && Number(boxCoord.width) > 0) ||
+        (pData.width !== undefined && Number(pData.width) <= 13.333 && Number(pData.width) > 0)
+      );
+
+      const rawX = boxCoord.left !== undefined ? Number(boxCoord.left) : (pData.left !== undefined ? Number(pData.left) : box.x);
+      const rawY = boxCoord.top !== undefined ? Number(boxCoord.top) : (pData.top !== undefined ? Number(pData.top) : box.y);
+      const rawW = boxCoord.width !== undefined ? Number(boxCoord.width) : (pData.width !== undefined ? Number(pData.width) : box.width);
+      const rawH = boxCoord.height !== undefined ? Number(boxCoord.height) : (pData.height !== undefined ? Number(pData.height) : box.height);
+
+      const elX = isInchCoord ? Math.round((rawX / 13.333) * 1000) / 10 : rawX;
+      const elY = isInchCoord ? Math.round((rawY / 7.5) * 1000) / 10 : rawY;
+      const elW = isInchCoord ? Math.round((rawW / 13.333) * 1000) / 10 : rawW;
+      const elH = isInchCoord ? Math.round((rawH / 7.5) * 1000) / 10 : rawH;
 
       if (pType === "bullets") {
         newElements.push({
           id: elId,
+          pluginIndex: pIdx,
           type: "bullets",
-          x: 6,
-          y: currentY,
-          width: 88,
-          height: Math.min(50, 20 + (pData.points || slide.bullets || []).length * 8),
-          points: pData.points || slide.bullets || slide.points || ["Key takeaway point"],
-          fontSize: 15,
-          color: slide.text_color || "#ffffff"
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
+          points: pData.points || slide.bullets || slide.points || ["Key takeaway point 1", "Key takeaway point 2"],
+          title: pData.title || "",
+          fontSize: 14,
+          color: defaultTextColor,
+          bg_color: defaultCardBg,
+          borderRadius: 8,
+          data: pData
         });
-        currentY += 38;
+      } else if (pType === "image") {
+        newElements.push({
+          id: elId,
+          pluginIndex: pIdx,
+          type: "image",
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
+          url: pData.url || pData.path || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800",
+          caption: pData.caption || "",
+          borderRadius: 8,
+          data: pData
+        });
       } else if (pType === "chart") {
         newElements.push({
           id: elId,
+          pluginIndex: pIdx,
           type: "chart",
-          x: 6,
-          y: currentY,
-          width: 88,
-          height: 55,
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
           chart_type: pData.chart_type || pData.chartType || "bar",
           title: pData.title || "Chart Analytics",
-          labels: pData.labels || ["Q1", "Q2", "Q3", "Q4"],
+          labels: pData.labels || pData.categories || ["Q1", "Q2", "Q3", "Q4"],
           values: pData.values || [40, 65, 80, 95],
+          bg_color: "rgba(15, 23, 42, 0.7)",
+          borderRadius: 8,
           data: pData
         });
-        currentY += 58;
       } else if (["roadmap", "diagram", "process", "workflow", "timeline", "architecture", "cycle", "hierarchy"].includes(pType)) {
         const diagramStr = pData.diagram || pData.content || pData.text || pData.steps_str || "";
         let parsedPhases = (
@@ -329,12 +525,13 @@ export function normalizeSlideElements(slide, index = 0) {
 
         newElements.push({
           id: elId,
+          pluginIndex: pIdx,
           type: "diagram",
           diagram_type: pData.diagram_type || pData.diagramType || (pType === "roadmap" ? "timeline" : "flowchart"),
-          x: 6,
-          y: currentY,
-          width: 88,
-          height: 35,
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
           phases: parsedPhases && parsedPhases.length ? parsedPhases : [
             { phase: "Step 1", title: "Data Landscape", status: "COMPLETED" },
             { phase: "Step 2", title: "Business Value", status: "IN PROGRESS" },
@@ -342,201 +539,225 @@ export function normalizeSlideElements(slide, index = 0) {
             { phase: "Step 4", title: "Executive Impact", status: "PLANNED" }
           ],
           diagram: diagramStr,
+          bg_color: defaultCardBg,
+          borderRadius: 8,
           data: pData
         });
-        currentY += 38;
       } else if (pType === "table") {
         newElements.push({
           id: elId,
+          pluginIndex: pIdx,
           type: "table",
-          x: 6,
-          y: currentY,
-          width: 88,
-          height: 55,
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
           headers: pData.headers || ["Feature", "Standard", "Enterprise"],
-          rows: pData.rows || [["Uptime", "99.9%", "99.99%"]],
+          rows: pData.rows || [["Uptime", "99.9%", "99.99%"], ["Support", "Standard", "24/7 SLA"]],
+          bg_color: "rgba(15, 23, 42, 0.7)",
+          borderRadius: 8,
           data: pData
         });
-        currentY += 58;
       } else if (pType === "stat") {
         newElements.push({
           id: elId,
+          pluginIndex: pIdx,
           type: "stat",
-          x: 6,
-          y: currentY,
-          width: 42,
-          height: 30,
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
           number: pData.number || "95%",
           label: pData.label || "Performance Metric",
           sublabel: pData.sublabel || "",
+          bg_color: defaultCardBg,
+          borderRadius: 8,
           data: pData
         });
-        currentY += 34;
       } else if (pType === "callout") {
         newElements.push({
           id: elId,
+          pluginIndex: pIdx,
           type: "callout",
-          x: 6,
-          y: currentY,
-          width: 88,
-          height: 35,
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
           text: pData.text || pData.content || "Key Strategic Insight",
           title: pData.title || "KEY TAKEAWAY",
           icon: pData.icon || "💡",
+          bg_color: "rgba(139, 92, 246, 0.15)",
+          borderRadius: 8,
           data: pData
         });
-        currentY += 40;
       } else if (pType === "kpi_grid") {
         newElements.push({
           id: elId,
+          pluginIndex: pIdx,
           type: "kpi_grid",
-          x: 6,
-          y: currentY,
-          width: 88,
-          height: 55,
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
           kpis: pData.kpis || pData.items || [],
+          bg_color: defaultCardBg,
+          borderRadius: 8,
           data: pData
         });
-        currentY += 58;
       } else if (pType === "pros_cons") {
         newElements.push({
           id: elId,
+          pluginIndex: pIdx,
           type: "pros_cons",
-          x: 6,
-          y: currentY,
-          width: 88,
-          height: 55,
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
           pros: pData.pros || [],
           cons: pData.cons || [],
           data: pData
         });
-        currentY += 58;
       } else if (pType === "code_block") {
         newElements.push({
           id: elId,
+          pluginIndex: pIdx,
           type: "code_block",
-          x: 6,
-          y: currentY,
-          width: 88,
-          height: 55,
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
           code: pData.code || "",
           title: pData.title || "Snippet",
           language: pData.language || "python",
+          bg_color: "#090d16",
+          borderRadius: 8,
           data: pData
         });
-        currentY += 58;
       } else if (pType === "speaker_card") {
         newElements.push({
           id: elId,
+          pluginIndex: pIdx,
           type: "speaker_card",
-          x: 6,
-          y: currentY,
-          width: 88,
-          height: 45,
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
           name: pData.name || "Speaker",
           role: pData.role || "Keynote Presenter",
           bio: pData.bio || [],
+          bg_color: defaultCardBg,
+          borderRadius: 8,
           data: pData
         });
-        currentY += 50;
-      } else if (pType === "image") {
+      } else if (pType === "paragraph_2col") {
+        const rawItems = Array.isArray(pData.items) && pData.items.length > 0
+          ? pData.items
+          : [
+              { title: pData.left_title || "Overview", text: pData.left_text || pData.text || "" },
+              { title: pData.right_title || "Key Insight", text: pData.right_text || "" }
+            ];
         newElements.push({
           id: elId,
-          type: "image",
-          x: 6,
-          y: currentY,
-          width: 88,
-          height: 50,
-          url: pData.url || pData.path || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800",
-          caption: pData.caption || "",
+          pluginIndex: pIdx,
+          type: "paragraph_2col",
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
+          items: rawItems,
+          bg_color: defaultCardBg,
+          borderRadius: 8,
           data: pData
         });
-        currentY += 54;
       } else {
         const rawContent = pData.text || pData.content || slide.content || "Content text here...";
-        if (typeof rawContent === "string" && (rawContent.includes("➔") || rawContent.includes("->") || rawContent.includes("-->") || rawContent.includes("→")) && rawContent.includes("[")) {
-          const parsedSteps = rawContent
-            .split(/\s*(?:➔|➜|->|-->|→|⇒|\||\n|;)\s*/)
-            .map((s) => s.replace(/\[|\]/g, "").trim())
-            .filter(Boolean)
-            .map((step, i) => ({
-              phase: `Step ${i + 1}`,
-              title: step,
-              status: i === 0 ? "COMPLETED" : i === 1 ? "IN PROGRESS" : "PLANNED"
-            }));
-
-          newElements.push({
-            id: elId,
-            type: "diagram",
-            diagram_type: pData.diagram_type || pData.diagramType || "flowchart",
-            x: 6,
-            y: currentY,
-            width: 88,
-            height: 35,
-            phases: parsedSteps,
-            diagram: rawContent,
-            data: pData
-          });
-          currentY += 38;
-        } else {
-          newElements.push({
-            id: elId,
-            type: "text",
-            x: 6,
-            y: currentY,
-            width: 88,
-            height: 30,
-            content: rawContent,
-            fontSize: 16,
-            color: slide.text_color || "#cbd5e1"
-          });
-          currentY += 34;
-        }
+        newElements.push({
+          id: elId,
+          pluginIndex: pIdx,
+          type: "paragraph",
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
+          content: rawContent,
+          fontSize: 15,
+          color: defaultTextColor,
+          bg_color: defaultCardBg,
+          borderRadius: 8,
+          data: pData
+        });
       }
     });
   } else {
-    if (slide.bullets && slide.bullets.length > 0) {
+    // If slide has bullets and/or image without explicit plugins array:
+    if (slide.bullets && slide.bullets.length > 0 && (slide.image_url || slide.image)) {
       newElements.push({
         id: `el-bullets-${Date.now()}-${index}`,
         type: "bullets",
         x: 6,
-        y: currentY,
+        y: 22,
+        width: 42,
+        height: 66,
+        points: slide.bullets,
+        fontSize: 14,
+        color: defaultTextColor,
+        bg_color: defaultCardBg,
+        borderRadius: 8
+      });
+      newElements.push({
+        id: `el-img-${Date.now()}-${index}`,
+        type: "image",
+        x: 52,
+        y: 22,
+        width: 42,
+        height: 66,
+        url: slide.image_url || slide.image || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800",
+        borderRadius: 8
+      });
+    } else if (slide.bullets && slide.bullets.length > 0) {
+      newElements.push({
+        id: `el-bullets-${Date.now()}-${index}`,
+        type: "bullets",
+        x: 6,
+        y: 22,
         width: 88,
-        height: 40,
+        height: 66,
         points: slide.bullets,
         fontSize: 15,
-        color: slide.text_color || "#ffffff"
+        color: defaultTextColor,
+        bg_color: defaultCardBg,
+        borderRadius: 8
       });
-      currentY += 44;
-    }
-
-    if (slide.content || slide.paragraph) {
+    } else if (slide.content || slide.paragraph) {
       newElements.push({
         id: `el-content-${Date.now()}-${index}`,
-        type: "text",
+        type: "paragraph",
         x: 6,
-        y: currentY,
+        y: 22,
         width: 88,
-        height: 30,
+        height: 66,
         content: slide.content || slide.paragraph,
-        fontSize: 16,
-        color: slide.text_color || "#cbd5e1"
+        fontSize: 15,
+        color: defaultTextColor,
+        bg_color: defaultCardBg,
+        borderRadius: 8
       });
-      currentY += 34;
     }
   }
 
   if (newElements.length === 0) {
     newElements.push({
       id: `el-default-${Date.now()}-${index}`,
-      type: "text",
+      type: "paragraph",
       x: 6,
-      y: 30,
+      y: 26,
       width: 88,
-      height: 25,
+      height: 40,
       content: slide.title || "Click to add slide content",
-      fontSize: 20,
-      color: "#ffffff"
+      fontSize: 18,
+      color: defaultTextColor,
+      bg_color: defaultCardBg,
+      borderRadius: 8
     });
   }
 
@@ -559,7 +780,8 @@ export default function PresentationEditor({
   downloadSavedPresentation,
   isSaving = false,
   isSaved = true,
-  onBackToSetup
+  onBackToSetup,
+  onNewDeck
 }) {
   // INTERNAL STATE MANAGEMENT
   const [internalSlides, setInternalSlides] = useState(() => {
@@ -580,6 +802,43 @@ export default function PresentationEditor({
   const [showRightSidebar, setShowRightSidebar] = useState(true);
   const [isDesignCheckOpen, setIsDesignCheckOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
+
+  // NEW MODALS & TOAST SYSTEM STATES 🚀
+  const [isSavedDecksOpen, setIsSavedDecksOpen] = useState(false);
+  const [isShapesCatalogOpen, setIsShapesCatalogOpen] = useState(false);
+  const [isVoiceoverOpen, setIsVoiceoverOpen] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  // KEYBOARD SHORTCUTS LISTENER ⌨️
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const isInput = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
+      if (isInput) return;
+
+      if (e.key === "Delete" || e.key === "Backspace") {
+        if (selectedElementId) {
+          e.preventDefault();
+          handleDeleteElement(selectedElementId);
+          setToast({ type: "info", title: "Element Deleted", message: "Canvas element removed." });
+        }
+      } else if (e.key === "Escape") {
+        setSelectedElementId(null);
+      } else if (e.key === "F5") {
+        e.preventDefault();
+        setIsPresenting(true);
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") {
+        if (selectedElementId) {
+          e.preventDefault();
+          handleDuplicateElement(selectedElementId);
+          setToast({ type: "success", title: "Element Duplicated", message: "Created copy of element." });
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedElementId]);
+
 
   const handleOpenAiRefine = (overrideText = null) => {
     const currentSlideEl = (currentSlide?.elements || []).find((el) => el.id === selectedElementId);
@@ -716,6 +975,240 @@ export default function PresentationEditor({
     setSelectedElementId(null);
   };
 
+  const createElementsForLayout = (layoutId, count) => {
+    const titleText = `Slide ${count}: Topic Title`;
+    const timestamp = Date.now();
+
+    switch (layoutId) {
+      case "title_slide":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 10,
+            y: 28,
+            width: 80,
+            height: 22,
+            content: `Presentation Title ${count}`,
+            fontSize: 36,
+            fontWeight: "800",
+            color: "#ffffff",
+            align: "center"
+          },
+          {
+            id: `el-${timestamp}-sub`,
+            type: "text",
+            x: 15,
+            y: 54,
+            width: 70,
+            height: 16,
+            content: "Add subtitle or presenter information here...",
+            fontSize: 18,
+            color: "#c084fc",
+            align: "center"
+          }
+        ];
+
+      case "two_column":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: 14,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-col1`,
+            type: "text",
+            x: 6,
+            y: 26,
+            width: 42,
+            height: 60,
+            content: "• Column 1 Key takeaway point\n• Operational workflow step\n• Strategic target metrics",
+            fontSize: 15,
+            color: "#cbd5e1",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-col2`,
+            type: "text",
+            x: 52,
+            y: 26,
+            width: 42,
+            height: 60,
+            content: "• Column 2 Comparative analysis\n• Industry benchmark data\n• Future growth projection",
+            fontSize: 15,
+            color: "#cbd5e1",
+            align: "left"
+          }
+        ];
+
+      case "image":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: 14,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-text`,
+            type: "text",
+            x: 6,
+            y: 26,
+            width: 42,
+            height: 60,
+            content: "Highlight key visual concepts, product details, or media descriptions in this text block.",
+            fontSize: 15,
+            color: "#cbd5e1",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-img`,
+            type: "image",
+            x: 52,
+            y: 26,
+            width: 42,
+            height: 60,
+            url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
+            caption: "Visual Media Feature Showcase"
+          }
+        ];
+
+      case "chart":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: 14,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-chart`,
+            type: "chart",
+            x: 6,
+            y: 26,
+            width: 88,
+            height: 60,
+            data: {
+              title: "Performance & Conversion Metrics",
+              items: [
+                { label: "Q1", value: "45%" },
+                { label: "Q2", value: "68%" },
+                { label: "Q3", value: "82%" },
+                { label: "Q4", value: "95%" }
+              ]
+            }
+          }
+        ];
+
+      case "table":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: 14,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-table`,
+            type: "table",
+            x: 6,
+            y: 26,
+            width: 88,
+            height: 60,
+            headers: ["Phase", "Milestone Target", "Execution Status"],
+            rows: [
+              ["Phase 1", "Architecture Setup", "Completed"],
+              ["Phase 2", "AI Model Fine-tuning", "In Progress"],
+              ["Phase 3", "Enterprise Rollout", "Scheduled"]
+            ]
+          }
+        ];
+
+      case "section":
+        return [
+          {
+            id: `el-${timestamp}-section`,
+            type: "text",
+            x: 10,
+            y: 38,
+            width: 80,
+            height: 24,
+            content: `SECTION ${count}: STRATEGIC PILLARS`,
+            fontSize: 34,
+            fontWeight: "800",
+            color: "#c084fc",
+            align: "center"
+          }
+        ];
+
+      case "blank":
+        return [];
+
+      case "title_content":
+      default:
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: 14,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-bullets`,
+            type: "bullets",
+            x: 6,
+            y: 26,
+            width: 88,
+            height: 60,
+            points: [
+              "Key strategic objective and enterprise roadmap priority",
+              "High impact operational efficiency gains and scalability",
+              "Data-driven decisions and performance benchmarks"
+            ],
+            fontSize: 16,
+            color: "#cbd5e1"
+          }
+        ];
+    }
+  };
+
   const handleAddSlide = (layoutId = "title_content") => {
     const count = slides.length + 1;
     const newSlide = {
@@ -729,33 +1222,7 @@ export default function PresentationEditor({
       bg_gradient_end: "#1e1b4b",
       text_color: "#ffffff",
       accent_color: "#c084fc",
-      elements: [
-        {
-          id: `el-${Date.now()}-1`,
-          type: "text",
-          x: 8,
-          y: 10,
-          width: 84,
-          height: 15,
-          content: `Slide ${count}: Topic Title`,
-          fontSize: 32,
-          fontWeight: "700",
-          color: "#ffffff",
-          align: "left"
-        },
-        {
-          id: `el-${Date.now()}-2`,
-          type: "text",
-          x: 8,
-          y: 28,
-          width: 84,
-          height: 60,
-          content: "Enter detailed structured paragraph text and bullet points here...",
-          fontSize: 16,
-          color: "#cbd5e1",
-          align: "left"
-        }
-      ],
+      elements: createElementsForLayout(layoutId, count),
       notes: "Speaker notes for this new slide..."
     };
 
@@ -885,7 +1352,7 @@ export default function PresentationEditor({
         onDownload={() => downloadSavedPresentation?.()}
         onPresent={() => setIsPresenting(true)}
         onPreview={() => setIsPresenting(true)}
-        onNewDeck={onBackToSetup}
+        onNewDeck={onNewDeck || onBackToSetup}
         onAiRefine={() => handleOpenAiRefine()}
         onOpenDesignCheck={() => setIsDesignCheckOpen(true)}
         showLeftSidebar={showLeftSidebar}
@@ -906,7 +1373,14 @@ export default function PresentationEditor({
             onDuplicateSlide={handleDuplicateSlide}
             onDeleteSlide={handleDeleteSlide}
             onMoveSlide={handleMoveSlide}
-            onAiAction={(actionId) => handleOpenAiRefine()}
+            onAiAction={(actionId) => {
+              let prompt = "";
+              if (actionId === "create_diagram") prompt = "Create a 4-step process flow diagram: [Step 1: Plan] ➔ [Step 2: Build] ➔ [Step 3: Test] ➔ [Step 4: Launch]";
+              else if (actionId === "gen_section") prompt = "Generate a Section Header Slide for: Key Strategic Pillars";
+              else if (actionId === "improve_content") prompt = "Improve and optimize slide bullet points for higher impact presentation";
+              else prompt = "Generate a new slide with key points and visual content";
+              handleOpenAiRefine(prompt);
+            }}
           />
         )}
 
@@ -924,7 +1398,11 @@ export default function PresentationEditor({
           onChangeNotes={(newNotes) => handleUpdateSlide({ notes: newNotes })}
           isNotesOpen={isNotesOpen}
           onToggleNotes={() => setIsNotesOpen((prev) => !prev)}
+          onOpenVoiceover={() => setIsVoiceoverOpen(true)}
           zoom={zoom}
+          slideIndex={currentSlideIdx}
+          totalSlides={slides.length}
+          templateName={templateName || plan?.template_name || "base_template"}
         />
 
         {/* 4. CONTEXTUAL RIGHT PROPERTIES SIDEBAR */}
@@ -944,7 +1422,10 @@ export default function PresentationEditor({
       </div>
 
       {/* 5. BOTTOM COMPACT INSERT TOOLBAR */}
-      <BottomToolbar onAddElement={handleAddElement} />
+      <BottomToolbar
+        onAddElement={handleAddElement}
+        onOpenShapesCatalog={() => setIsShapesCatalogOpen(true)}
+      />
 
       {/* 6. BOTTOM RIGHT ZOOM CONTROLS */}
       <ZoomControls
@@ -990,6 +1471,40 @@ export default function PresentationEditor({
           handleUpdateSlide({ title: (currentSlide?.title || "").toUpperCase() });
         }}
       />
+
+      {/* SAVED PRESENTATIONS DRAWER MODAL */}
+      <SavedPresentationsModal
+        isOpen={isSavedDecksOpen}
+        onClose={() => setIsSavedDecksOpen(false)}
+        onLoadDeck={(id) => {
+          setIsSavedDecksOpen(false);
+          setToast({ type: "success", title: "Deck Loaded", message: `Loaded presentation ${id}.` });
+        }}
+        onToast={(t) => setToast(t)}
+      />
+
+      {/* SHAPE CATALOG & DIAGRAM LIBRARY MODAL */}
+      <ShapeCatalogModal
+        isOpen={isShapesCatalogOpen}
+        onClose={() => setIsShapesCatalogOpen(false)}
+        onAddShape={(shapeData) => {
+          handleAddElement("shape", shapeData);
+          setToast({ type: "success", title: "Shape Added", message: `Inserted ${shapeData.name || "shape"} into slide.` });
+        }}
+      />
+
+      {/* AI VOICEOVER NARRATION STUDIO MODAL */}
+      <VoiceoverStudioModal
+        isOpen={isVoiceoverOpen}
+        onClose={() => setIsVoiceoverOpen(false)}
+        slide={currentSlide}
+        slideIndex={currentSlideIdx}
+        onToast={(t) => setToast(t)}
+      />
+
+      {/* GLOBAL TOAST NOTIFICATION SYSTEM */}
+      <ToastNotification toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }
+

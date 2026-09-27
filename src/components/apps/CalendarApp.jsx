@@ -163,9 +163,9 @@ const CalendarApp = () => {
         ) : events.length === 0 ? (
           <p className="mutedText">No events scheduled yet. Add one above.</p>
         ) : (
-          events.map((item) => (
+          events.map((item, index) => (
             <div
-              key={item.id}
+              key={item.id || item._id || index}
               className="listItem"
               style={{
                 display: "flex",

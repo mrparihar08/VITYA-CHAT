@@ -88,7 +88,7 @@ export default function SlideSidebar({
                   </div>
                 )}
                 <div className="mini-elements-layout">
-                  {slide.elements && slide.elements.map((el, elIdx) => (
+                  {slide.elements && slide.elements.filter(el => (el.y || 0) > 15).map((el, elIdx) => (
                     <div 
                       key={el.id || elIdx}
                       className={`mini-el-box mini-type-${el.type}`}

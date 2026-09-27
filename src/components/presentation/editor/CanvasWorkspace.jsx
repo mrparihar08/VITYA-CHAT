@@ -14,12 +14,22 @@ export default function CanvasWorkspace({
   onChangeNotes,
   isNotesOpen,
   onToggleNotes,
-  zoom = 1
+  onOpenVoiceover,
+  zoom = 1,
+  slideIndex = 0,
+  totalSlides = 1,
+  templateName = "base_template"
 }) {
   // GLOBAL KEYBOARD SHORTCUTS FOR CANVAS WORKSPACE
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable || document.activeElement?.getAttribute("contenteditable") === "true") {
+      // Do not trigger canvas shortcuts while typing in inputs or contenteditable elements
+      if (
+        ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName) ||
+        document.activeElement?.isContentEditable ||
+        document.activeElement?.getAttribute("contenteditable") === "true" ||
+        document.activeElement?.closest?.('[contenteditable="true"]')
+      ) {
         return;
       }
 
@@ -45,9 +55,13 @@ export default function CanvasWorkspace({
 
         const currentEl = slide?.elements?.find((el) => el.id === selectedElementId);
         if (currentEl) {
-          onUpdateElement(selectedElementId, {
-            x: Math.max(0, Math.min(95, (currentEl.x || 0) + dx)),
-            y: Math.max(0, Math.min(95, (currentEl.y || 0) + dy))
+          const elW = currentEl.width !== undefined ? Number(currentEl.width) : 20;
+          const elH = currentEl.height !== undefined ? Number(currentEl.height) : 15;
+          const maxX = Math.max(0, 100 - elW);
+          const maxY = Math.max(0, 100 - elH);
+          onUpdateElement?.(selectedElementId, {
+            x: Math.max(0, Math.min(maxX, Math.round(((currentEl.x || 0) + dx) * 10) / 10)),
+            y: Math.max(0, Math.min(maxY, Math.round(((currentEl.y || 0) + dy) * 10) / 10))
           });
         }
       }
@@ -62,7 +76,7 @@ export default function CanvasWorkspace({
       className="ppt-canvas-workspace"
       onClick={(e) => {
         if (e.target.classList.contains("ppt-canvas-workspace")) {
-          onDeselectAll();
+          onDeselectAll?.();
         }
       }}
     >
@@ -76,6 +90,9 @@ export default function CanvasWorkspace({
         onDuplicateElement={onDuplicateElement}
         onAiRefine={onAiRefine}
         zoom={zoom}
+        slideIndex={slideIndex}
+        totalSlides={totalSlides}
+        templateName={templateName}
       />
 
       {/* COLLAPSIBLE SPEAKER NOTES DRAWER */}
@@ -84,8 +101,8 @@ export default function CanvasWorkspace({
         onChangeNotes={onChangeNotes}
         isOpen={isNotesOpen}
         onToggleOpen={onToggleNotes}
+        onOpenVoiceover={onOpenVoiceover}
       />
     </main>
   );
 }
-

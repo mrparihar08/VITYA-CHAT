@@ -12,6 +12,9 @@ import CalendarApp from "../components/apps/CalendarApp";
 import FilesApp from "../components/apps/FilesApp";
 import TasksApp from "../components/apps/TasksApp";
 import AnalyticsApp from "../components/apps/AnalyticsApp";
+import SavingsApp from "../components/apps/SavingsApp";
+import SubscriptionsApp from "../components/apps/SubscriptionsApp";
+import FinancialHealthApp from "../components/apps/FinancialHealthApp";
 import Profile from "../components/auth/Profile";
 import ProfileEdit from "../components/auth/ProfileEdit";
 import Sidebar from "../components/sidebar/Sidebar";
@@ -75,6 +78,36 @@ const APP_REGISTRY = [
     category: "workspace",
     iconBg: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
     component: AnalyticsApp,
+  },
+  {
+    id: "savings",
+    name: "Savings Goals",
+    desc: "Target savings & emergency funds",
+    icon: "🎯",
+    type: "internal",
+    category: "workspace",
+    iconBg: "linear-gradient(135deg, #10b981 0%, #047857 100%)",
+    component: SavingsApp,
+  },
+  {
+    id: "subscriptions",
+    name: "Subscriptions",
+    desc: "Recurring bills & sub tracker",
+    icon: "🔄",
+    type: "internal",
+    category: "workspace",
+    iconBg: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
+    component: SubscriptionsApp,
+  },
+  {
+    id: "financial-health",
+    name: "Financial Health",
+    desc: "AI Health Score & Briefings",
+    icon: "⚡",
+    type: "internal",
+    category: "workspace",
+    iconBg: "linear-gradient(135deg, #ec4899 0%, #be185d 100%)",
+    component: FinancialHealthApp,
   },
   {
     id: "settings",
@@ -325,9 +358,9 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
             : null)
         : null;
 
-    setActiveTabState(tab);
-    setActiveAppState(app);
-    setActiveConversationIdState(c);
+    setActiveTabState((prev) => (prev !== tab ? tab : prev));
+    setActiveAppState((prev) => (prev !== app ? app : prev));
+    setActiveConversationIdState((prev) => (prev !== c ? c : prev));
   }, [propTab, propApp, searchParams]);
 
   const analyticsData = useMemo(

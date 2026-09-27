@@ -201,7 +201,12 @@ export default function Sidebar({
             placeholder="Search apps, chats, prompts..."
             className="vitya-search-input"
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+              if (e.target.value.trim() && activeTab !== "apps") {
+                handleTabClick("apps");
+              }
+            }}
           />
           <kbd className="vitya-kbd-badge">Ctrl K</kbd>
         </div>

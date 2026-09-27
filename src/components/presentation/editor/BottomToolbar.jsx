@@ -17,7 +17,7 @@ import {
   Columns
 } from "lucide-react";
 
-export default function BottomToolbar({ onAddElement }) {
+export default function BottomToolbar({ onAddElement, onOpenShapesCatalog }) {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   return (
@@ -121,9 +121,9 @@ export default function BottomToolbar({ onAddElement }) {
                 <span>2-Column Narrative</span>
               </button>
 
-              <button onClick={() => { setShowMoreMenu(false); onAddElement("shape", { shape_type: "rounded_rectangle" }); }}>
-                <Square size={14} />
-                <span>Shape Element</span>
+              <button onClick={() => { setShowMoreMenu(false); if (onOpenShapesCatalog) onOpenShapesCatalog(); else onAddElement("shape", { shape_type: "rounded_rectangle" }); }}>
+                <Square size={14} style={{ color: "#38bdf8" }} />
+                <span>Shapes & Catalog</span>
               </button>
             </div>
           )}

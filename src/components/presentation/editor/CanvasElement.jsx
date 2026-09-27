@@ -1,75 +1,100 @@
 import React from "react";
 import SelectionOverlay from "./SelectionOverlay";
 
+function normalizeElement(el) {
+  if (!el) return {};
+  const data = el.data || {};
+
+  return {
+    ...el,
+    id: el.id,
+    type: el.type || "text",
+    x: el.x !== undefined ? Number(el.x) : 10,
+    y: el.y !== undefined ? Number(el.y) : 10,
+    width: el.width !== undefined ? Number(el.width) : 30,
+    height: el.height !== undefined ? Number(el.height) : 20,
+    content: el.content || el.text || data.text || data.content || "",
+    fontSize: el.fontSize !== undefined ? Number(el.fontSize) : 16,
+    fontWeight: el.fontWeight || "normal",
+    fontStyle: el.fontStyle || "normal",
+    textDecoration: el.textDecoration || "none",
+    color: el.color || el.text_color || data.color || data.text_color || "#ffffff",
+    align: el.align || "left",
+    valign: el.valign || "top",
+    fontFamily: el.fontFamily || "Inter, Arial, sans-serif",
+    lineHeight: el.lineHeight || 1.4,
+    letterSpacing: el.letterSpacing || "normal",
+    bg_color: el.bg_color || el.fill_color || data.bg_color || data.fill_color || "transparent",
+    borderRadius: el.borderRadius !== undefined ? Number(el.borderRadius) : 4,
+    url: el.url || data.url || "",
+    caption: el.caption || data.caption || "",
+    shape_type: el.shape_type || (el.type === "shape" ? "rectangle" : "rectangle"),
+    fill_color: el.fill_color || el.bg_color || data.fill_color || "rgba(139, 92, 246, 0.2)",
+    stroke_color: el.stroke_color || data.stroke_color || "#8b5cf6",
+    stroke_width: el.stroke_width !== undefined ? Number(el.stroke_width) : 1.5,
+    radius: el.radius !== undefined ? Number(el.radius) : 8,
+    points: Array.isArray(el.points) && el.points.length ? el.points : (Array.isArray(data.points) ? data.points : []),
+    chart_type: el.chart_type || el.chartType || data.chart_type || data.chartType || "bar",
+    labels: Array.isArray(el.labels) && el.labels.length ? el.labels : (Array.isArray(data.labels) ? data.labels : (Array.isArray(data.categories) ? data.categories : [])),
+    values: Array.isArray(el.values) && el.values.length ? el.values : (Array.isArray(data.values) ? data.values : []),
+    headers: Array.isArray(el.headers) && el.headers.length ? el.headers : (Array.isArray(data.headers) ? data.headers : []),
+    rows: Array.isArray(el.rows) && el.rows.length ? el.rows : (Array.isArray(data.rows) ? data.rows : []),
+    phases: Array.isArray(el.phases) && el.phases.length ? el.phases : (Array.isArray(data.phases) ? data.phases : (Array.isArray(el.steps) ? el.steps : (Array.isArray(data.steps) ? data.steps : []))),
+    number: el.number || data.number || "",
+    label: el.label || data.label || "",
+    sublabel: el.sublabel || data.sublabel || "",
+    title: el.title || data.title || "",
+    icon: el.icon || data.icon || "💡",
+    code: el.code || data.code || "",
+    language: el.language || data.language || "python",
+    name: el.name || data.name || "",
+    role: el.role || data.role || "",
+    bio: Array.isArray(el.bio) ? el.bio : (Array.isArray(data.bio) ? data.bio : []),
+    items: Array.isArray(el.items) ? el.items : (Array.isArray(data.items) ? data.items : []),
+    pros: Array.isArray(el.pros) ? el.pros : (Array.isArray(data.pros) ? data.pros : []),
+    cons: Array.isArray(el.cons) ? el.cons : (Array.isArray(data.cons) ? data.cons : []),
+    pros_title: el.pros_title || data.pros_title || "✅ STRENGTHS & ADVANTAGES",
+    cons_title: el.cons_title || data.cons_title || "❌ CHALLENGES & CONSIDERATIONS"
+  };
+}
+
 export default function CanvasElement({
   element,
   isSelected,
+  isDragging,
   onSelect,
   onUpdateElement,
-  onTextChange,
+  onPointerDownResize,
   onMouseDownResize,
+  onPointerDownDrag,
   onMouseDownDrag
 }) {
   if (!element) return null;
 
-  const {
-    id,
-    type,
-    x = 0,
-    y = 0,
-    width = 30,
-    height = 20,
-    content,
-    fontSize = 16,
-    fontWeight = "normal",
-    fontStyle = "normal",
-    textDecoration = "none",
-    color = "#ffffff",
-    align = "left",
-    valign = "top",
-    fontFamily = "Inter",
-    lineHeight = 1.4,
-    letterSpacing = "normal",
-    url,
-    caption,
-    borderRadius = 8,
-    shape_type = "rectangle",
-    fill_color = "rgba(139, 92, 246, 0.2)",
-    stroke_color = "#8b5cf6",
-    stroke_width = 1.5,
-    radius = 8,
-    points = [],
-    labels = [],
-    values = [],
-    headers = [],
-    rows = [],
-    phases = [],
-    number,
-    label
-  } = element;
-
-  const dataObj = element.data || {};
-  const pointsList = (points && points.length ? points : (dataObj.points && dataObj.points.length ? dataObj.points : []));
-  const labelsList = (labels && labels.length ? labels : (dataObj.labels && dataObj.labels.length ? dataObj.labels : (dataObj.categories && dataObj.categories.length ? dataObj.categories : [])));
-  const valuesList = (values && values.length ? values : (dataObj.values && dataObj.values.length ? dataObj.values : []));
-  const headersList = (headers && headers.length ? headers : (dataObj.headers && dataObj.headers.length ? dataObj.headers : []));
-  const rowsList = (rows && rows.length ? rows : (dataObj.rows && dataObj.rows.length ? dataObj.rows : []));
-  const phasesList = (phases && phases.length ? phases : (dataObj.phases && dataObj.phases.length ? dataObj.phases : []));
-
-  const isAutoHeightType = ["text", "bullets", "paragraph", "callout", "stat", "pros_cons"].includes(type);
+  const norm = normalizeElement(element);
+  const { id, type } = norm;
 
   const containerStyle = {
-    left: `${x}%`,
-    top: `${y}%`,
-    width: `${width}%`,
-    height: isAutoHeightType ? "auto" : `${height}%`
+    position: "absolute",
+    left: `${norm.x}%`,
+    top: `${norm.y}%`,
+    width: `${norm.width}%`,
+    height: `${norm.height}%`,
+    boxSizing: "border-box"
   };
 
   const renderContent = () => {
     switch (type) {
       case "text":
-        const currentText = content || element.text || dataObj.text || dataObj.content || "";
-        if (typeof currentText === "string" && (currentText.includes("➔") || currentText.includes("->") || currentText.includes("→") || currentText.includes("➜")) && currentText.includes("[")) {
+      case "title":
+      case "subtitle": {
+        const currentText = norm.content;
+        // Check for process flowchart step syntax: "[Step 1] ➔ [Step 2]"
+        if (
+          typeof currentText === "string" &&
+          (currentText.includes("➔") || currentText.includes("->") || currentText.includes("→") || currentText.includes("➜")) &&
+          currentText.includes("[")
+        ) {
           const parsedSteps = currentText
             .split(/\s*(?:➔|➜|->|-->|→|⇒|\||\n|;)\s*/)
             .map((s) => s.replace(/\[|\]/g, "").trim())
@@ -81,7 +106,7 @@ export default function CanvasElement({
             }));
 
           return (
-            <div className="element-diagram-flowchart" style={{ backgroundColor: element.bg_color || "transparent" }}>
+            <div className="element-diagram-flowchart" style={{ backgroundColor: norm.bg_color }}>
               {parsedSteps.map((pItem, pIdx) => (
                 <React.Fragment key={pIdx}>
                   <div className="flowchart-step-card">
@@ -106,26 +131,24 @@ export default function CanvasElement({
                 onUpdateElement?.(id, { content: newText, text: newText });
               }
             }}
-            onKeyDown={(e) => {
-              e.stopPropagation();
-            }}
+            onKeyDown={(e) => e.stopPropagation()}
             style={{
-              fontSize: `${fontSize}px`,
-              fontWeight,
-              fontStyle,
-              textDecoration,
-              color: element.color || element.text_color || dataObj.color || color || "#ffffff",
-              backgroundColor: element.bg_color || element.fill_color || dataObj.bg_color || "transparent",
-              padding: element.bg_color || element.fill_color ? "8px 12px" : undefined,
-              borderRadius: element.borderRadius ? `${element.borderRadius}px` : "4px",
-              textAlign: align,
-              fontFamily,
-              lineHeight,
-              letterSpacing,
+              fontSize: `${norm.fontSize}px`,
+              fontWeight: norm.fontWeight,
+              fontStyle: norm.fontStyle,
+              textDecoration: norm.textDecoration,
+              color: norm.color,
+              backgroundColor: norm.bg_color,
+              padding: norm.bg_color && norm.bg_color !== "transparent" ? "8px 12px" : undefined,
+              borderRadius: norm.borderRadius ? `${norm.borderRadius}px` : "4px",
+              textAlign: norm.align,
+              fontFamily: norm.fontFamily,
+              lineHeight: norm.lineHeight,
+              letterSpacing: norm.letterSpacing,
               display: "flex",
               flexDirection: "column",
-              justifyContent: valign === "middle" ? "center" : valign === "bottom" ? "flex-end" : "flex-start",
-              alignItems: align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start",
+              justifyContent: norm.valign === "middle" ? "center" : norm.valign === "bottom" ? "flex-end" : "flex-start",
+              alignItems: norm.align === "center" ? "center" : norm.align === "right" ? "flex-end" : "flex-start",
               width: "100%",
               height: "100%",
               wordBreak: "break-word",
@@ -137,69 +160,90 @@ export default function CanvasElement({
             {currentText || "Type text here..."}
           </div>
         );
+      }
 
       case "image":
         return (
-          <div className="element-image-container" style={{ borderRadius: `${borderRadius}px`, backgroundColor: element.bg_color || element.fill_color || "transparent" }}>
+          <div
+            className="element-image-container"
+            style={{
+              borderRadius: `${norm.borderRadius}px`,
+              backgroundColor: norm.bg_color
+            }}
+          >
             <img
-              src={url || dataObj.url || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800"}
-              alt={caption || dataObj.caption || "Presentation Visual"}
-              style={{ borderRadius: `${borderRadius}px` }}
+              src={norm.url || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800"}
+              alt={norm.caption || "Presentation Visual"}
+              draggable={false}
+              style={{
+                borderRadius: `${norm.borderRadius}px`,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                userSelect: "none",
+                WebkitUserDrag: "none"
+              }}
             />
-            {(caption || dataObj.caption) && <span className="image-caption">{caption || dataObj.caption}</span>}
+            {norm.caption && norm.caption.length <= 35 && !norm.caption.toLowerCase().includes("introduction") && (
+              <span className="image-caption" style={{ pointerEvents: "none" }}>
+                {norm.caption}
+              </span>
+            )}
           </div>
         );
 
       case "shape":
         return (
           <div
-            className={`element-shape-container shape-${shape_type}`}
+            className={`element-shape-container shape-${norm.shape_type}`}
             style={{
-              backgroundColor: element.fill_color || element.bg_color || fill_color,
-              borderColor: stroke_color,
-              borderWidth: `${stroke_width}px`,
-              borderStyle: stroke_width ? "solid" : "none",
-              borderRadius: shape_type === "circle" ? "50%" : shape_type === "rounded_rectangle" ? `${radius}px` : "2px"
+              backgroundColor: norm.fill_color,
+              borderColor: norm.stroke_color,
+              borderWidth: `${norm.stroke_width}px`,
+              borderStyle: norm.stroke_width ? "solid" : "none",
+              borderRadius:
+                norm.shape_type === "circle"
+                  ? "50%"
+                  : norm.shape_type === "rounded_rectangle"
+                  ? `${norm.radius}px`
+                  : "2px",
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxSizing: "border-box"
             }}
           >
-            {(element.text || dataObj.text) && (
-              <span 
+            {norm.content && (
+              <span
                 className="shape-inner-text"
                 style={{
-                  color: element.text_color || element.color || dataObj.text_color || "#ffffff",
-                  fontSize: `${fontSize}px`
+                  color: norm.color || "#ffffff",
+                  fontSize: `${norm.fontSize}px`,
+                  textAlign: "center",
+                  padding: "4px"
                 }}
               >
-                {element.text || dataObj.text}
+                {norm.content}
               </span>
             )}
           </div>
         );
 
-      case "chart":
-        const rawChartType = (
-          element.chart_type ||
-          element.chartType ||
-          element.chart_style ||
-          dataObj.chart_type ||
-          dataObj.chartType ||
-          dataObj.chart_style ||
-          "bar"
-        );
-
+      case "chart": {
+        const rawChartType = String(norm.chart_type).toLowerCase().trim();
         let chartType = "bar";
-        const lowerChartType = String(rawChartType).toLowerCase().trim();
-        if (lowerChartType.includes("line")) chartType = "line";
-        else if (lowerChartType.includes("area")) chartType = "area";
-        else if (lowerChartType.includes("donut") || lowerChartType.includes("doughnut")) chartType = "donut";
-        else if (lowerChartType.includes("pie")) chartType = "pie";
-        else if (lowerChartType.includes("radar") || lowerChartType.includes("spider")) chartType = "radar";
-        else if (lowerChartType.includes("bar") || lowerChartType.includes("column")) chartType = "bar";
+        if (rawChartType.includes("line")) chartType = "line";
+        else if (rawChartType.includes("area")) chartType = "area";
+        else if (rawChartType.includes("donut") || rawChartType.includes("doughnut")) chartType = "donut";
+        else if (rawChartType.includes("pie")) chartType = "pie";
+        else if (rawChartType.includes("radar") || rawChartType.includes("spider")) chartType = "radar";
 
-        const chartValues = valuesList && valuesList.length ? valuesList : [40, 65, 85, 95];
-        const chartLabels = labelsList && labelsList.length ? labelsList : ["Q1", "Q2", "Q3", "Q4"];
+        const chartValues = norm.values && norm.values.length ? norm.values : [40, 65, 85, 95];
+        const chartLabels = norm.labels && norm.labels.length ? norm.labels : ["Q1", "Q2", "Q3", "Q4"];
         const maxVal = Math.max(...chartValues, 10);
-        const primaryColor = element.color || element.text_color || dataObj.color || "#38bdf8";
+        const primaryColor = norm.color || "#38bdf8";
         const colors = [primaryColor, "#8b5cf6", "#f59e0b", "#10b981", "#ec4899", "#f43f5e"];
 
         const renderChartBody = () => {
@@ -217,7 +261,7 @@ export default function CanvasElement({
                         }}
                       />
                     </div>
-                    <span className="chart-bar-label">{chartLabels[i] || `P${i+1}`}</span>
+                    <span className="chart-bar-label">{chartLabels[i] || `P${i + 1}`}</span>
                     <span className="chart-bar-val">{val}</span>
                   </div>
                 ))}
@@ -230,14 +274,14 @@ export default function CanvasElement({
             const height = 110;
             const padding = 20;
             const stepX = (width - padding * 2) / Math.max(1, chartValues.length - 1);
-            
+
             const pointsCoord = chartValues.map((val, i) => {
               const xCoord = padding + i * stepX;
-              const yCoord = height - padding - ((val / maxVal) * (height - padding * 2));
+              const yCoord = height - padding - (val / maxVal) * (height - padding * 2);
               return { x: xCoord, y: yCoord, val, label: chartLabels[i] };
             });
 
-            const pointsString = pointsCoord.map(p => `${p.x},${p.y}`).join(" ");
+            const pointsString = pointsCoord.map((p) => `${p.x},${p.y}`).join(" ");
             const areaString = `${padding},${height - padding} ${pointsString} ${width - padding},${height - padding}`;
 
             return (
@@ -246,9 +290,7 @@ export default function CanvasElement({
                   <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
                   <line x1={padding} y1={padding} x2={width - padding} y2={padding} stroke="rgba(255,255,255,0.1)" strokeDasharray="3,3" strokeWidth="1" />
 
-                  {chartType === "area" && (
-                    <polygon points={areaString} fill="url(#areaGrad)" opacity="0.4" />
-                  )}
+                  {chartType === "area" && <polygon points={areaString} fill="url(#areaGrad)" opacity="0.4" />}
 
                   <defs>
                     <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
@@ -273,15 +315,12 @@ export default function CanvasElement({
 
           if (chartType === "pie" || chartType === "donut") {
             const total = chartValues.reduce((a, b) => a + b, 0) || 1;
-            const slices = chartValues.map((val, i) => {
-              const percentage = val / total;
-              return {
-                val,
-                label: chartLabels[i] || `P${i+1}`,
-                color: colors[i % colors.length],
-                percentage: Math.round(percentage * 100)
-              };
-            });
+            const slices = chartValues.map((val, i) => ({
+              val,
+              label: chartLabels[i] || `P${i + 1}`,
+              color: colors[i % colors.length],
+              percentage: Math.round((val / total) * 100)
+            }));
 
             return (
               <div className="pie-chart-wrap" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "space-around", width: "100%", gap: 10 }}>
@@ -320,7 +359,7 @@ export default function CanvasElement({
                       borderRadius: "50%",
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
+                      justifyContent: "center"
                     }}>
                       <span style={{ fontSize: 10, fontWeight: 800, color: "#ffffff" }}>{total}</span>
                     </div>
@@ -353,12 +392,12 @@ export default function CanvasElement({
               return {
                 x: center + r * Math.cos(angle),
                 y: center + r * Math.sin(angle),
-                label: chartLabels[i] || `A${i+1}`,
+                label: chartLabels[i] || `A${i + 1}`,
                 val
               };
             });
 
-            const polygonString = radarPoints.map(p => `${p.x},${p.y}`).join(" ");
+            const polygonString = radarPoints.map((p) => `${p.x},${p.y}`).join(" ");
 
             return (
               <div className="radar-chart-wrap" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
@@ -405,85 +444,130 @@ export default function CanvasElement({
         };
 
         return (
-          <div className="element-chart-container" style={{ backgroundColor: element.bg_color || element.fill_color || "rgba(15, 23, 42, 0.6)" }}>
-            {element.title && <div className="chart-title" style={{ color: element.color || element.text_color || "#ffffff" }}>{element.title}</div>}
+          <div className="element-chart-container" style={{ backgroundColor: norm.bg_color || "rgba(15, 23, 42, 0.6)" }}>
+            {norm.title && <div className="chart-title" style={{ color: norm.color || "#ffffff" }}>{norm.title}</div>}
             {renderChartBody()}
           </div>
         );
+      }
 
-      case "bullets":
-        const bulletList = pointsList && pointsList.length ? pointsList : ["Key takeaway point 1", "Key takeaway point 2"];
+      case "bullets": {
+        const bulletList = norm.points && norm.points.length ? norm.points : ["Key takeaway point 1", "Key takeaway point 2"];
         return (
-          <div 
+          <div
             id={`bullets-container-${id}`}
-            className="element-bullets-container" 
-            style={{ color: element.color || element.text_color || color || "#ffffff", backgroundColor: element.bg_color || element.fill_color || "transparent", padding: element.bg_color || element.fill_color ? "8px 12px" : undefined, borderRadius: "6px", fontSize: `${fontSize}px`, fontFamily }}
+            className="element-bullets-container"
+            style={{
+              color: norm.color || "#ffffff",
+              backgroundColor: norm.bg_color || "rgba(30, 41, 59, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              padding: norm.title ? "14px 18px" : "16px 18px",
+              borderRadius: `${norm.borderRadius || 8}px`,
+              fontSize: `${norm.fontSize || 14}px`,
+              fontFamily: norm.fontFamily,
+              width: "100%",
+              height: "100%",
+              boxSizing: "border-box",
+              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.25)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden"
+            }}
           >
-            <ul>
+            {norm.title && (
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  color: "#38bdf8",
+                  letterSpacing: "0.8px",
+                  textTransform: "uppercase",
+                  marginBottom: "10px",
+                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                  paddingBottom: "6px"
+                }}
+              >
+                {norm.title}
+              </div>
+            )}
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px", flex: 1 }}>
               {bulletList.map((pt, i) => (
                 <li
                   key={i}
                   data-bullet-idx={i}
-                  contentEditable={true}
-                  suppressContentEditableWarning={true}
-                  onBlur={(e) => {
-                    const updatedPoints = [...bulletList];
-                    updatedPoints[i] = e.target.innerText;
-                    onUpdateElement?.(id, { points: updatedPoints });
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "10px",
+                    lineHeight: "1.45"
                   }}
-                  onKeyDown={(e) => {
-                    e.stopPropagation();
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      const currentText = e.target.innerText;
-                      const updatedPoints = [...bulletList];
-                      updatedPoints[i] = currentText;
-                      updatedPoints.splice(i + 1, 0, "");
-                      onUpdateElement?.(id, { points: updatedPoints });
-
-                      setTimeout(() => {
-                        const container = document.getElementById(`bullets-container-${id}`);
-                        const nextLi = container?.querySelector(`[data-bullet-idx="${i + 1}"]`);
-                        if (nextLi) {
-                          nextLi.focus();
-                          const sel = window.getSelection();
-                          const range = document.createRange();
-                          range.selectNodeContents(nextLi);
-                          range.collapse(true);
-                          sel?.removeAllRanges();
-                          sel?.addRange(range);
-                        }
-                      }, 50);
-                    } else if (e.key === "Backspace" && (e.target.innerText === "" || e.target.innerText === "\n") && bulletList.length > 1) {
-                      e.preventDefault();
-                      const updatedPoints = bulletList.filter((_, idx) => idx !== i);
-                      onUpdateElement?.(id, { points: updatedPoints });
-
-                      setTimeout(() => {
-                        const container = document.getElementById(`bullets-container-${id}`);
-                        const prevIdx = Math.max(0, i - 1);
-                        const prevLi = container?.querySelector(`[data-bullet-idx="${prevIdx}"]`);
-                        if (prevLi) {
-                          prevLi.focus();
-                        }
-                      }, 50);
-                    }
-                  }}
-                  style={{ cursor: "text", outline: "none", minHeight: "1.4em" }}
                 >
-                  {pt}
+                  <span style={{ color: "#38bdf8", fontWeight: 800, fontSize: "16px", lineHeight: "1", flexShrink: 0, marginTop: "2px" }}>
+                    •
+                  </span>
+                  <div
+                    contentEditable={true}
+                    suppressContentEditableWarning={true}
+                    onBlur={(e) => {
+                      const updatedPoints = [...bulletList];
+                      updatedPoints[i] = e.target.innerText;
+                      onUpdateElement?.(id, { points: updatedPoints });
+                    }}
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        const currentText = e.target.innerText;
+                        const updatedPoints = [...bulletList];
+                        updatedPoints[i] = currentText;
+                        updatedPoints.splice(i + 1, 0, "");
+                        onUpdateElement?.(id, { points: updatedPoints });
+
+                        setTimeout(() => {
+                          const container = document.getElementById(`bullets-container-${id}`);
+                          const nextLi = container?.querySelector(`[data-bullet-idx="${i + 1}"] [contenteditable="true"]`);
+                          if (nextLi) {
+                            nextLi.focus();
+                            const sel = window.getSelection();
+                            const range = document.createRange();
+                            range.selectNodeContents(nextLi);
+                            range.collapse(true);
+                            sel?.removeAllRanges();
+                            sel?.addRange(range);
+                          }
+                        }, 50);
+                      } else if (e.key === "Backspace" && (e.target.innerText === "" || e.target.innerText === "\n") && bulletList.length > 1) {
+                        e.preventDefault();
+                        const updatedPoints = bulletList.filter((_, idx) => idx !== i);
+                        onUpdateElement?.(id, { points: updatedPoints });
+
+                        setTimeout(() => {
+                          const container = document.getElementById(`bullets-container-${id}`);
+                          const prevIdx = Math.max(0, i - 1);
+                          const prevLi = container?.querySelector(`[data-bullet-idx="${prevIdx}"] [contenteditable="true"]`);
+                          if (prevLi) {
+                            prevLi.focus();
+                          }
+                        }, 50);
+                      }
+                    }}
+                    style={{ flex: 1, cursor: "text", outline: "none", minHeight: "1.4em", color: norm.color || "#f1f5f9" }}
+                  >
+                    {pt}
+                  </div>
                 </li>
               ))}
             </ul>
           </div>
         );
+      }
 
-      case "table":
-        const tableHeaders = headersList && headersList.length ? headersList : ["Feature", "Standard", "Enterprise"];
-        const tableRows = rowsList && rowsList.length ? rowsList : [["Uptime", "99.9%", "99.99%"], ["Support", "24/7 Email", "Dedicated SLA"]];
+      case "table": {
+        const tableHeaders = norm.headers && norm.headers.length ? norm.headers : ["Feature", "Standard", "Enterprise"];
+        const tableRows = norm.rows && norm.rows.length ? norm.rows : [["Uptime", "99.9%", "99.99%"], ["Support", "24/7 Email", "Dedicated SLA"]];
         return (
-          <div className="element-table-container" style={{ backgroundColor: element.bg_color || element.fill_color || "transparent", borderRadius: "6px" }}>
-            <table className="mini-ppt-table">
+          <div className="element-table-container" style={{ backgroundColor: norm.bg_color, borderRadius: "6px", width: "100%", height: "100%", overflow: "hidden" }}>
+            <table className="mini-ppt-table" style={{ width: "100%", height: "100%" }}>
               <thead>
                 <tr>
                   {tableHeaders.map((h, i) => (
@@ -495,7 +579,7 @@ export default function CanvasElement({
                 {tableRows.map((row, rIdx) => (
                   <tr key={rIdx}>
                     {row.map((cell, cIdx) => (
-                      <td key={cIdx} style={{ color: element.color || element.text_color || "#e2e8f0" }}>{cell}</td>
+                      <td key={cIdx} style={{ color: norm.color || "#e2e8f0" }}>{cell}</td>
                     ))}
                   </tr>
                 ))}
@@ -503,10 +587,11 @@ export default function CanvasElement({
             </table>
           </div>
         );
+      }
 
       case "stat":
         return (
-          <div className="element-stat-card" style={{ backgroundColor: element.bg_color || element.fill_color || "rgba(15, 23, 42, 0.7)" }}>
+          <div className="element-stat-card" style={{ backgroundColor: norm.bg_color || "rgba(15, 23, 42, 0.7)", width: "100%", height: "100%", boxSizing: "border-box" }}>
             <div
               className="stat-number"
               contentEditable={true}
@@ -515,9 +600,9 @@ export default function CanvasElement({
                 onUpdateElement?.(id, { number: e.target.innerText });
               }}
               onKeyDown={(e) => e.stopPropagation()}
-              style={{ color: element.color || element.text_color || "#10b981", cursor: "text", outline: "none" }}
+              style={{ color: norm.color || "#10b981", cursor: "text", outline: "none" }}
             >
-              {number || dataObj.number || "95%"}
+              {norm.number || "95%"}
             </div>
             <div
               className="stat-label"
@@ -527,11 +612,11 @@ export default function CanvasElement({
                 onUpdateElement?.(id, { label: e.target.innerText });
               }}
               onKeyDown={(e) => e.stopPropagation()}
-              style={{ color: element.text_color || "#f1f5f9", cursor: "text", outline: "none" }}
+              style={{ color: norm.color || "#f1f5f9", cursor: "text", outline: "none" }}
             >
-              {label || dataObj.label || "Performance Metric"}
+              {norm.label || "Performance Metric"}
             </div>
-            {(element.sublabel || dataObj.sublabel) && (
+            {norm.sublabel && (
               <div
                 className="stat-sublabel"
                 contentEditable={true}
@@ -542,24 +627,17 @@ export default function CanvasElement({
                 onKeyDown={(e) => e.stopPropagation()}
                 style={{ cursor: "text", outline: "none" }}
               >
-                {element.sublabel || dataObj.sublabel}
+                {norm.sublabel}
               </div>
             )}
           </div>
         );
 
       case "roadmap":
-      case "diagram":
-        let rawPhases = (
-          phasesList && phasesList.length ? phasesList :
-          (element.steps && element.steps.length ? element.steps :
-          (dataObj.steps && dataObj.steps.length ? dataObj.steps :
-          (element.items && element.items.length ? element.items :
-          (dataObj.items && dataObj.items.length ? dataObj.items : []))))
-        );
-
+      case "diagram": {
+        let rawPhases = norm.phases;
         if (!rawPhases || !rawPhases.length) {
-          const diagramStr = element.diagram || dataObj.diagram;
+          const diagramStr = norm.content || norm.title;
           if (typeof diagramStr === "string" && diagramStr.trim()) {
             rawPhases = diagramStr
               .split(/➔|->|>|,/)
@@ -582,30 +660,24 @@ export default function CanvasElement({
           }
         }
 
-        const filteredPhases = rawPhases ? rawPhases.filter(p => typeof p === "string" ? p.trim().length > 0 : (p && (p.title || p.phase || p.name))) : [];
-        const roadmapPhases = (filteredPhases && filteredPhases.length) ? filteredPhases : [
+        const filteredPhases = rawPhases ? rawPhases.filter((p) => (typeof p === "string" ? p.trim().length > 0 : p && (p.title || p.phase || p.name))) : [];
+        const roadmapPhases = filteredPhases && filteredPhases.length ? filteredPhases : [
           { phase: "Phase 1", title: "Q1 Architecture", status: "COMPLETED" },
           { phase: "Phase 2", title: "Q2 Pilot Launch", status: "IN PROGRESS" },
           { phase: "Phase 3", title: "Q3 Scale & Deploy", status: "PLANNED" },
           { phase: "Phase 4", title: "Q4 Optimization", status: "PLANNED" }
         ];
 
-        const diagType = (
-          element.diagram_type ||
-          element.diagramType ||
-          dataObj.diagram_type ||
-          dataObj.diagramType ||
-          (element.type === "roadmap" ? "timeline" : "flowchart")
-        ).toLowerCase();
+        const diagType = String(norm.chart_type || norm.shape_type || (type === "roadmap" ? "timeline" : "flowchart")).toLowerCase();
 
-        // 1. ARCHITECTURE STACK DIAGRAM
+        // 1. ARCHITECTURE STACK
         if (diagType === "architecture" || diagType === "stack") {
           return (
-            <div className="element-diagram-stack" style={{ backgroundColor: element.bg_color || "transparent" }}>
+            <div className="element-diagram-stack" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
               <div className="diag-header-badge">🏛️ SYSTEM ARCHITECTURE STACK</div>
               <div className="architecture-layers-wrap">
                 {roadmapPhases.map((pItem, pIdx) => {
-                  const titleLabel = typeof pItem === "string" ? pItem : (pItem.title || pItem.name || pItem.label || `Layer ${pIdx + 1}`);
+                  const titleLabel = typeof pItem === "string" ? pItem : pItem.title || pItem.name || pItem.label || `Layer ${pIdx + 1}`;
                   return (
                     <div key={pIdx} className="architecture-layer-card">
                       <span className="layer-tag">LAYER {pIdx + 1}</span>
@@ -618,16 +690,16 @@ export default function CanvasElement({
           );
         }
 
-        // 2. PYRAMID HIERARCHY DIAGRAM
+        // 2. PYRAMID HIERARCHY
         if (diagType === "pyramid") {
           const reversedPhases = [...roadmapPhases].reverse();
           const numS = reversedPhases.length;
           return (
-            <div className="element-diagram-pyramid" style={{ backgroundColor: element.bg_color || "transparent" }}>
+            <div className="element-diagram-pyramid" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
               <div className="diag-header-badge">🔺 HIERARCHY PYRAMID</div>
               <div className="pyramid-levels-wrap">
                 {reversedPhases.map((pItem, pIdx) => {
-                  const titleLabel = typeof pItem === "string" ? pItem : (pItem.title || pItem.name || `Tier ${numS - pIdx}`);
+                  const titleLabel = typeof pItem === "string" ? pItem : pItem.title || pItem.name || `Tier ${numS - pIdx}`;
                   const widthPct = Math.max(35, 100 - pIdx * (60 / Math.max(1, numS - 1)));
                   return (
                     <div key={pIdx} className="pyramid-tier-card" style={{ width: `${widthPct}%` }}>
@@ -641,15 +713,15 @@ export default function CanvasElement({
           );
         }
 
-        // 3. FUNNEL STAGE DIAGRAM
+        // 3. FUNNEL STAGE
         if (diagType === "funnel") {
           const numS = roadmapPhases.length;
           return (
-            <div className="element-diagram-funnel" style={{ backgroundColor: element.bg_color || "transparent" }}>
+            <div className="element-diagram-funnel" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
               <div className="diag-header-badge">🔻 CONVERSION FUNNEL</div>
               <div className="funnel-stages-wrap">
                 {roadmapPhases.map((pItem, pIdx) => {
-                  const titleLabel = typeof pItem === "string" ? pItem : (pItem.title || pItem.name || `Stage ${pIdx + 1}`);
+                  const titleLabel = typeof pItem === "string" ? pItem : pItem.title || pItem.name || `Stage ${pIdx + 1}`;
                   const widthPct = Math.max(40, 100 - pIdx * (55 / Math.max(1, numS - 1)));
                   return (
                     <div key={pIdx} className="funnel-stage-card" style={{ width: `${widthPct}%` }}>
@@ -663,14 +735,14 @@ export default function CanvasElement({
           );
         }
 
-        // 4. CIRCULAR CYCLE LOOP DIAGRAM
+        // 4. CIRCULAR CYCLE
         if (diagType === "cycle" || diagType === "loop") {
           return (
-            <div className="element-diagram-cycle" style={{ backgroundColor: element.bg_color || "transparent" }}>
+            <div className="element-diagram-cycle" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
               <div className="cycle-hub-badge">🔁 CYCLED PROCESS</div>
               <div className="cycle-nodes-grid">
                 {roadmapPhases.map((pItem, pIdx) => {
-                  const titleLabel = typeof pItem === "string" ? pItem : (pItem.title || pItem.name || `Phase ${pIdx + 1}`);
+                  const titleLabel = typeof pItem === "string" ? pItem : pItem.title || pItem.name || `Phase ${pIdx + 1}`;
                   return (
                     <div key={pIdx} className="cycle-node-card">
                       <span className="node-number">{pIdx + 1}</span>
@@ -683,21 +755,21 @@ export default function CanvasElement({
           );
         }
 
-        // 5. TIMELINE / ROADMAP DIAGRAM
-        if (diagType === "timeline" || element.type === "roadmap") {
+        // 5. TIMELINE / ROADMAP
+        if (diagType === "timeline" || type === "roadmap") {
           return (
-            <div className="element-diagram-timeline" style={{ backgroundColor: element.bg_color || "transparent" }}>
+            <div className="element-diagram-timeline" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
               <div className="timeline-axis-line" />
               <div className="timeline-cards-row">
                 {roadmapPhases.map((pItem, pIdx) => {
-                  const phaseLabel = typeof pItem === "string" ? `M${pIdx + 1}` : (pItem.phase || `M${pIdx + 1}`);
-                  const titleLabel = typeof pItem === "string" ? pItem : (pItem.title || pItem.name || `Milestone ${pIdx + 1}`);
-                  const statusLabel = typeof pItem === "string" ? "PLANNED" : (pItem.status || "PLANNED");
+                  const phaseLabel = typeof pItem === "string" ? `M${pIdx + 1}` : pItem.phase || `M${pIdx + 1}`;
+                  const titleLabel = typeof pItem === "string" ? pItem : pItem.title || pItem.name || `Milestone ${pIdx + 1}`;
+                  const statusLabel = typeof pItem === "string" ? "PLANNED" : pItem.status || "PLANNED";
                   return (
                     <div key={pIdx} className="timeline-milestone-card">
                       <div className="milestone-dot">{phaseLabel}</div>
                       <div className="milestone-title">{titleLabel}</div>
-                      <div className={`phase-status status-${statusLabel.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <div className={`phase-status status-${statusLabel.toLowerCase().replace(/\s+/g, "-")}`}>
                         {statusLabel}
                       </div>
                     </div>
@@ -708,13 +780,13 @@ export default function CanvasElement({
           );
         }
 
-        // 6. QUADRANT 2X2 MATRIX DIAGRAM
+        // 6. QUADRANT 2X2
         if (diagType === "quadrant" || diagType === "matrix") {
           return (
-            <div className="element-diagram-quadrant" style={{ backgroundColor: element.bg_color || "transparent" }}>
+            <div className="element-diagram-quadrant" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
               <div className="quadrant-2x2-grid">
                 {roadmapPhases.slice(0, 4).map((pItem, pIdx) => {
-                  const titleLabel = typeof pItem === "string" ? pItem : (pItem.title || pItem.name || `Q${pIdx + 1}`);
+                  const titleLabel = typeof pItem === "string" ? pItem : pItem.title || pItem.name || `Q${pIdx + 1}`;
                   return (
                     <div key={pIdx} className="quadrant-card">
                       <span className="quadrant-badge">Q{pIdx + 1}</span>
@@ -727,13 +799,13 @@ export default function CanvasElement({
           );
         }
 
-        // 7. INPUT-OUTPUT DATA PIPELINE CARDS
+        // 7. INPUT-OUTPUT DATA PIPELINE
         if (diagType === "io_cards" || diagType === "io") {
           const ioLabels = ["INPUT DATA", "PROCESSING ENGINE", "OUTPUT RESULT"];
           return (
-            <div className="element-diagram-iocards" style={{ backgroundColor: element.bg_color || "transparent" }}>
+            <div className="element-diagram-iocards" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
               {roadmapPhases.map((pItem, pIdx) => {
-                const titleLabel = typeof pItem === "string" ? pItem : (pItem.title || pItem.name || `Step ${pIdx + 1}`);
+                const titleLabel = typeof pItem === "string" ? pItem : pItem.title || pItem.name || `Step ${pIdx + 1}`;
                 const tagLabel = ioLabels[pIdx] || `STAGE ${pIdx + 1}`;
                 return (
                   <React.Fragment key={pIdx}>
@@ -749,17 +821,17 @@ export default function CanvasElement({
           );
         }
 
-        // 8. MINDMAP CONCEPT NETWORK
+        // 8. MINDMAP CONCEPT
         if (diagType === "mindmap" || diagType === "tree") {
-          const rootTitle = typeof roadmapPhases[0] === "string" ? roadmapPhases[0] : (roadmapPhases[0]?.title || "Core Concept");
+          const rootTitle = typeof roadmapPhases[0] === "string" ? roadmapPhases[0] : roadmapPhases[0]?.title || "Core Concept";
           const branches = roadmapPhases.slice(1);
           return (
-            <div className="element-diagram-mindmap" style={{ backgroundColor: element.bg_color || "transparent" }}>
+            <div className="element-diagram-mindmap" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
               <div className="mindmap-root-node">🧠 {rootTitle}</div>
               {branches.length > 0 && (
                 <div className="mindmap-branches-row">
                   {branches.map((pItem, pIdx) => {
-                    const titleLabel = typeof pItem === "string" ? pItem : (pItem.title || pItem.name || `Branch ${pIdx + 1}`);
+                    const titleLabel = typeof pItem === "string" ? pItem : pItem.title || pItem.name || `Branch ${pIdx + 1}`;
                     return (
                       <div key={pIdx} className="mindmap-branch-card">
                         🔹 {titleLabel}
@@ -772,12 +844,12 @@ export default function CanvasElement({
           );
         }
 
-        // 9. DEFAULT FLOWCHART / PROCESS STEPS (DEFAULT)
+        // 9. DEFAULT FLOWCHART
         return (
-          <div className="element-diagram-flowchart" style={{ backgroundColor: element.bg_color || "transparent" }}>
+          <div className="element-diagram-flowchart" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
             {roadmapPhases.map((pItem, pIdx) => {
-              const phaseLabel = typeof pItem === "string" ? `Step ${pIdx + 1}` : (pItem.phase || `Step ${pIdx + 1}`);
-              const titleLabel = typeof pItem === "string" ? pItem : (pItem.title || pItem.name || `Step ${pIdx + 1}`);
+              const phaseLabel = typeof pItem === "string" ? `Step ${pIdx + 1}` : pItem.phase || `Step ${pIdx + 1}`;
+              const titleLabel = typeof pItem === "string" ? pItem : pItem.title || pItem.name || `Step ${pIdx + 1}`;
               return (
                 <React.Fragment key={pIdx}>
                   <div className="flowchart-step-card">
@@ -790,13 +862,14 @@ export default function CanvasElement({
             })}
           </div>
         );
+      }
 
-      case "callout":
-        const calloutText = content || element.text || dataObj.text || "AI automation accelerated operational throughput by 45%.";
-        const calloutTitle = element.title || dataObj.title || "KEY STRATEGIC TAKEAWAY";
-        const calloutIcon = element.icon || dataObj.icon || "💡";
+      case "callout": {
+        const calloutText = norm.content || "AI automation accelerated operational throughput by 45%.";
+        const calloutTitle = norm.title || "KEY STRATEGIC TAKEAWAY";
+        const calloutIcon = norm.icon || "💡";
         return (
-          <div className="element-callout-card" style={{ backgroundColor: element.bg_color || element.fill_color || "rgba(139, 92, 246, 0.12)" }}>
+          <div className="element-callout-card" style={{ backgroundColor: norm.bg_color || "rgba(139, 92, 246, 0.12)", width: "100%", height: "100%", boxSizing: "border-box" }}>
             <div className="callout-header">
               <span className="callout-icon">{calloutIcon}</span>
               <span
@@ -820,90 +893,95 @@ export default function CanvasElement({
                 onUpdateElement?.(id, { content: e.target.innerText, text: e.target.innerText });
               }}
               onKeyDown={(e) => e.stopPropagation()}
-              style={{ color: element.color || element.text_color || "#f8fafc", cursor: "text", outline: "none" }}
+              style={{ color: norm.color || "#f8fafc", cursor: "text", outline: "none" }}
             >
               {calloutText}
             </p>
           </div>
         );
+      }
 
-      case "kpi_grid":
-        const kpisList = element.kpis || dataObj.kpis || [
+      case "kpi_grid": {
+        const kpisList = norm.items && norm.items.length ? norm.items : [
           { number: "$12.5M", label: "ARR Revenue", trend: "+34% ↗" },
           { number: "99.99%", label: "SLA Uptime", trend: "+0.5% ↗" },
           { number: "450K", label: "Active Users", trend: "+18% ↗" },
           { number: "< 12ms", label: "API Latency", trend: "-25% ↘" }
         ];
         return (
-          <div className="element-kpi-grid">
+          <div className="element-kpi-grid" style={{ width: "100%", height: "100%", boxSizing: "border-box" }}>
             {kpisList.map((kpi, kIdx) => (
-              <div key={kIdx} className="kpi-card" style={{ backgroundColor: element.bg_color || element.fill_color || "rgba(15, 23, 42, 0.75)" }}>
-                <div className="kpi-number" style={{ color: element.color || "#38bdf8" }}>{kpi.number || kpi.val || "100"}</div>
-                <div className="kpi-label" style={{ color: element.text_color || "#cbd5e1" }}>{kpi.label || kpi.title || "Metric"}</div>
+              <div key={kIdx} className="kpi-card" style={{ backgroundColor: norm.bg_color || "rgba(15, 23, 42, 0.75)" }}>
+                <div className="kpi-number" style={{ color: norm.color || "#38bdf8" }}>{kpi.number || kpi.val || "100"}</div>
+                <div className="kpi-label" style={{ color: norm.color || "#cbd5e1" }}>{kpi.label || kpi.title || "Metric"}</div>
                 {kpi.trend && <div className="kpi-trend">{kpi.trend}</div>}
               </div>
             ))}
           </div>
         );
+      }
 
-      case "pros_cons":
-        const prosList = element.pros || dataObj.pros || ["High Horizontal Scalability", "Low Query Latency", "Zero Downtime"];
-        const consList = element.cons || dataObj.cons || ["Initial Setup Overhead", "Cloud Refactoring Effort"];
+      case "pros_cons": {
+        const prosList = norm.pros && norm.pros.length ? norm.pros : ["High Horizontal Scalability", "Low Query Latency", "Zero Downtime"];
+        const consList = norm.cons && norm.cons.length ? norm.cons : ["Initial Setup Overhead", "Cloud Refactoring Effort"];
         return (
-          <div className="element-pros-cons-grid">
-            <div className="pros-card" style={{ backgroundColor: element.bg_color || "rgba(34, 197, 94, 0.08)" }}>
-              <div className="pros-header">{element.pros_title || dataObj.pros_title || "✅ STRENGTHS & ADVANTAGES"}</div>
-              <ul style={{ color: element.color || element.text_color || "#cbd5e1" }}>
+          <div className="element-pros-cons-grid" style={{ width: "100%", height: "100%", boxSizing: "border-box" }}>
+            <div className="pros-card" style={{ backgroundColor: norm.bg_color || "rgba(34, 197, 94, 0.08)" }}>
+              <div className="pros-header">{norm.pros_title}</div>
+              <ul style={{ color: norm.color || "#cbd5e1" }}>
                 {prosList.map((p, i) => <li key={i}>{p}</li>)}
               </ul>
             </div>
-            <div className="cons-card" style={{ backgroundColor: element.cons_bg_color || "rgba(239, 68, 68, 0.08)" }}>
-              <div className="cons-header">{element.cons_title || dataObj.cons_title || "❌ CHALLENGES"}</div>
-              <ul style={{ color: element.color || element.text_color || "#cbd5e1" }}>
+            <div className="cons-card" style={{ backgroundColor: "rgba(239, 68, 68, 0.08)" }}>
+              <div className="cons-header">{norm.cons_title}</div>
+              <ul style={{ color: norm.color || "#cbd5e1" }}>
                 {consList.map((c, i) => <li key={i}>{c}</li>)}
               </ul>
             </div>
           </div>
         );
+      }
 
-      case "code_block":
-        const codeSnippet = element.code || dataObj.code || "async def process_telemetry(job_id: str):\n    res = await service.fetch(job_id)\n    return {'status': 'success', 'data': res}";
-        const codeTitle = element.title || dataObj.title || "api_router.py";
+      case "code_block": {
+        const codeSnippet = norm.code || "async def process_telemetry(job_id: str):\n    res = await service.fetch(job_id)\n    return {'status': 'success', 'data': res}";
+        const codeTitle = norm.title || "api_router.py";
         return (
-          <div className="element-code-block" style={{ backgroundColor: element.bg_color || element.fill_color || "#090d16" }}>
+          <div className="element-code-block" style={{ backgroundColor: norm.bg_color || "#090d16", width: "100%", height: "100%", boxSizing: "border-box" }}>
             <div className="code-header">
               <span className="code-title">{codeTitle}</span>
-              <span className="code-lang">{element.language || dataObj.language || "python"}</span>
+              <span className="code-lang">{norm.language}</span>
             </div>
-            <pre className="code-content" style={{ color: element.color || element.text_color || "#38bdf8" }}>{codeSnippet}</pre>
+            <pre className="code-content" style={{ color: norm.color || "#38bdf8" }}>{codeSnippet}</pre>
           </div>
         );
+      }
 
-      case "speaker_card":
-        const speakerName = element.name || dataObj.name || "Dr. Alex Vance";
-        const speakerRole = element.role || dataObj.role || "Chief AI Architect & Principal Engineer";
-        const speakerBio = element.bio || dataObj.bio || ["15+ Years Distributed Systems Architecture", "Lead Architect at Vitya AI"];
+      case "speaker_card": {
+        const speakerName = norm.name || "Dr. Alex Vance";
+        const speakerRole = norm.role || "Chief AI Architect & Principal Engineer";
+        const speakerBio = norm.bio && norm.bio.length ? norm.bio : ["15+ Years Distributed Systems Architecture", "Lead Architect at Vitya AI"];
         return (
-          <div className="element-speaker-card" style={{ backgroundColor: element.bg_color || element.fill_color || "rgba(15, 23, 42, 0.7)" }}>
+          <div className="element-speaker-card" style={{ backgroundColor: norm.bg_color || "rgba(15, 23, 42, 0.7)", width: "100%", height: "100%", boxSizing: "border-box" }}>
             <div className="speaker-avatar">👤</div>
             <div className="speaker-details">
-              <div className="speaker-name" style={{ color: element.color || element.text_color || "#ffffff" }}>{speakerName}</div>
+              <div className="speaker-name" style={{ color: norm.color || "#ffffff" }}>{speakerName}</div>
               <div className="speaker-role">{speakerRole}</div>
               {Array.isArray(speakerBio) && speakerBio.map((b, i) => <div key={i} className="speaker-bio-item">• {b}</div>)}
             </div>
           </div>
         );
+      }
 
       case "paragraph":
-      case "paragraph_2col":
-        const paraText = content || element.text || dataObj.text || "Enter descriptive paragraph narrative here...";
-        const colItems = element.items || dataObj.items;
+      case "paragraph_2col": {
+        const paraText = norm.content || "Enter descriptive paragraph narrative here...";
+        const colItems = norm.items;
         if (Array.isArray(colItems) && colItems.length > 0) {
           return (
-            <div className="element-paragraph-2col" style={{ color: element.color || element.text_color || "#cbd5e1", backgroundColor: element.bg_color || element.fill_color || "transparent", padding: element.bg_color ? "8px" : undefined, borderRadius: "6px" }}>
+            <div className="element-paragraph-2col" style={{ width: "100%", height: "100%", display: "grid", gridTemplateColumns: `repeat(${colItems.length}, 1fr)`, gap: "12px", boxSizing: "border-box" }}>
               {colItems.map((item, i) => (
-                <div key={i} className="para-col">
-                  {item.title && <div className="para-col-title">{item.title}</div>}
+                <div key={i} className="para-col" style={{ backgroundColor: norm.bg_color || "rgba(30, 41, 59, 0.65)", border: "1px solid rgba(255, 255, 255, 0.12)", borderRadius: "8px", padding: "14px 16px", display: "flex", flexDirection: "column", boxSizing: "border-box", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)", overflow: "hidden" }}>
+                  {item.title && <div className="para-col-title" style={{ fontSize: "11px", fontWeight: 800, color: "#38bdf8", letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: "8px", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "4px" }}>{item.title}</div>}
                   <p
                     contentEditable={true}
                     suppressContentEditableWarning={true}
@@ -913,7 +991,7 @@ export default function CanvasElement({
                       onUpdateElement?.(id, { items: updatedItems });
                     }}
                     onKeyDown={(e) => e.stopPropagation()}
-                    style={{ cursor: "text", outline: "none" }}
+                    style={{ margin: 0, fontSize: `${norm.fontSize || 13}px`, lineHeight: "1.45", color: norm.color || "#cbd5e1", cursor: "text", outline: "none", flex: 1 }}
                   >
                     {item.text || item.content}
                   </p>
@@ -923,7 +1001,41 @@ export default function CanvasElement({
           );
         }
         return (
-          <div className="element-paragraph-container" style={{ color: element.color || element.text_color || color || "#ffffff", backgroundColor: element.bg_color || element.fill_color || "transparent", padding: element.bg_color ? "8px" : undefined, borderRadius: "6px", fontSize: `${fontSize}px`, fontFamily }}>
+          <div
+            className="element-paragraph-container"
+            style={{
+              color: norm.color || "#f1f5f9",
+              backgroundColor: norm.bg_color || "rgba(30, 41, 59, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              padding: "16px 18px",
+              borderRadius: `${norm.borderRadius || 8}px`,
+              fontSize: `${norm.fontSize || 14}px`,
+              fontFamily: norm.fontFamily,
+              width: "100%",
+              height: "100%",
+              boxSizing: "border-box",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden"
+            }}
+          >
+            {norm.title && (
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  color: "#38bdf8",
+                  letterSpacing: "0.8px",
+                  textTransform: "uppercase",
+                  marginBottom: "8px",
+                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                  paddingBottom: "4px"
+                }}
+              >
+                {norm.title}
+              </div>
+            )}
             <p
               contentEditable={true}
               suppressContentEditableWarning={true}
@@ -932,34 +1044,57 @@ export default function CanvasElement({
                 onUpdateElement?.(id, { content: newText, text: newText });
               }}
               onKeyDown={(e) => e.stopPropagation()}
-              style={{ cursor: "text", outline: "none" }}
+              style={{ margin: 0, lineHeight: "1.5", cursor: "text", outline: "none", flex: 1 }}
             >
               {paraText}
             </p>
           </div>
         );
+      }
 
       default:
         return <div className="element-generic-box">{type} element</div>;
     }
   };
 
+  const handleDrag = onPointerDownDrag || onMouseDownDrag;
+  const handleResize = onPointerDownResize || onMouseDownResize;
+
   return (
     <div
       className={`canvas-element-item ${isSelected ? "selected" : ""}`}
-      style={containerStyle}
+      style={{
+        ...containerStyle,
+        cursor: isDragging && isSelected ? "grabbing" : "grab"
+      }}
       onClick={(e) => {
         e.stopPropagation();
-        onSelect(id);
+        onSelect?.(element.id);
+      }}
+      onPointerDown={(e) => {
+        if (e.target.closest && e.target.closest(".resize-handle, .rotation-handle-wrap")) {
+          return;
+        }
+        onSelect?.(element.id);
+        handleDrag?.(e, element);
+      }}
+      onMouseDown={(e) => {
+        if (e.target.closest && e.target.closest(".resize-handle, .rotation-handle-wrap")) {
+          return;
+        }
+        onSelect?.(element.id);
+        handleDrag?.(e, element);
       }}
     >
       {renderContent()}
 
       {isSelected && (
         <SelectionOverlay
-          element={element}
-          onMouseDownResize={onMouseDownResize}
-          onMouseDownDrag={(e) => onMouseDownDrag?.(e, element)}
+          element={norm}
+          onPointerDownResize={handleResize}
+          onMouseDownResize={handleResize}
+          onPointerDownDrag={(e) => handleDrag?.(e, element)}
+          onMouseDownDrag={(e) => handleDrag?.(e, element)}
         />
       )}
     </div>

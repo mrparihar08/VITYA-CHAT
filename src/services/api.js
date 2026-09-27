@@ -11,7 +11,10 @@ const getApiBaseUrl = () => {
     process.env &&
     (process.env.REACT_APP_API_URL || process.env.REACT_APP_VITYA_API_URL);
 
-  const fallback = "https://mother-8599.onrender.com";
+  const fallback =
+    typeof process !== "undefined" && process.env.NODE_ENV === "development"
+      ? "http://localhost:5000"
+      : "https://mother-8599.onrender.com";
   const url = viteUrl || craUrl || fallback;
 
   return url.endsWith("/") ? url.slice(0, -1) : url;
@@ -137,6 +140,145 @@ export const refineSlideText = async ({ text, action = "polish", slide_title = "
     console.warn("refineSlideText error, using local fallback", err);
     return { refined_text: text };
   }
+};
+
+export const synthesizeVoiceover = async ({ text, language = "en-US", voice = null, slide_index = 0 }) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/presentation/voiceover/synthesize`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+      body: JSON.stringify({ text, language, voice, slide_index }),
+    });
+    return await safeFetchJSON(res);
+  } catch (err) {
+    console.warn("synthesizeVoiceover error", err);
+    throw err;
+  }
+};
+
+export const getUserPresentations = async (limit = 50) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/presentation/my-presentations?limit=${limit}`, {
+      headers: getAuthHeaders(),
+    });
+    return await safeFetchJSON(res);
+  } catch (err) {
+    console.warn("getUserPresentations error", err);
+    return { status: "error", presentations: [] };
+  }
+};
+
+export const deleteUserPresentation = async (presentationId) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/presentation/${presentationId}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return await safeFetchJSON(res);
+  } catch (err) {
+    console.warn("deleteUserPresentation error", err);
+    throw err;
+  }
+};
+
+export const getShapesCatalog = async () => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/presentation/shapes/catalog`, {
+      headers: getAuthHeaders(),
+    });
+    return await safeFetchJSON(res);
+  } catch (err) {
+    console.warn("getShapesCatalog error", err);
+    return null;
+  }
+};
+
+export const getUnsplashPhotos = async (query, perPage = 9) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/presentation/unsplash/photos?query=${encodeURIComponent(query)}&per_page=${perPage}`, {
+      headers: getAuthHeaders(),
+    });
+    return await safeFetchJSON(res);
+  } catch (err) {
+    console.warn("getUnsplashPhotos error", err);
+    return { query, total: 0, photos: [] };
+  }
+};
+
+export const getTemplatesCatalog = async () => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/presentation/templates`, {
+      headers: getAuthHeaders(),
+    });
+    return await safeFetchJSON(res);
+  } catch (err) {
+    console.warn("getTemplatesCatalog error", err);
+    return { status: "error", templates: [] };
+  }
+};
+
+
+// ================= SAVINGS GOALS API =================
+export const getSavingsGoals = async () => {
+  const res = await api.get("/api/savings");
+  return res.data;
+};
+
+export const createSavingsGoal = async (data) => {
+  const res = await api.post("/api/savings", data);
+  return res.data;
+};
+
+export const updateSavingsGoal = async (id, data) => {
+  const res = await api.put(`/api/savings/${id}`, data);
+  return res.data;
+};
+
+export const deleteSavingsGoal = async (id) => {
+  const res = await api.delete(`/api/savings/${id}`);
+  return res.data;
+};
+
+export const depositToSavingsGoal = async (id, amount) => {
+  const res = await api.post(`/api/savings/${id}/deposit`, { amount });
+  return res.data;
+};
+
+// ================= RECURRING SUBSCRIPTIONS API =================
+export const getSubscriptions = async () => {
+  const res = await api.get("/api/subscriptions");
+  return res.data;
+};
+
+export const getSubscriptionSummary = async () => {
+  const res = await api.get("/api/subscriptions/summary");
+  return res.data;
+};
+
+export const createSubscription = async (data) => {
+  const res = await api.post("/api/subscriptions", data);
+  return res.data;
+};
+
+export const updateSubscription = async (id, data) => {
+  const res = await api.put(`/api/subscriptions/${id}`, data);
+  return res.data;
+};
+
+export const deleteSubscription = async (id) => {
+  const res = await api.delete(`/api/subscriptions/${id}`);
+  return res.data;
+};
+
+// ================= AI FINANCIAL HEALTH & SUMMARY API =================
+export const getFinancialHealthScore = async () => {
+  const res = await api.get("/api/ai/health-score");
+  return res.data;
+};
+
+export const getFinancialExecutiveSummary = async () => {
+  const res = await api.get("/api/ai/executive-summary");
+  return res.data;
 };
 
 export default api;

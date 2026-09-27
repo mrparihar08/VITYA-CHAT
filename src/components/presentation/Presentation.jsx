@@ -108,10 +108,25 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
   const slides = safeArray(rawPlan.slides).map((slide, idx) => {
     const cp = slide.content_plan || {};
     const dp = slide.design_plan || {};
+    const slideElements = Array.isArray(slide.elements) ? slide.elements : [];
 
-    const slideTitle = (slide.title || cp.title || `Slide ${idx + 1}`).trim();
+    let slideTitle = (slide.title || cp.title || `Slide ${idx + 1}`).trim();
     let slideSubtitle = (slide.subtitle || cp.subtitle || cp.key_message || "").trim();
     let layout = slide.layout || dp.layout || "title_content";
+
+    // 1. Sync title & subtitle from canvas elements if user edited them
+    if (slideElements.length > 0) {
+      const titleEl = slideElements.find((el) => el && (el.type === "title" || el.id?.includes("title")));
+      if (titleEl) {
+        const val = String(titleEl.content || titleEl.text || "").trim();
+        if (val) slideTitle = val;
+      }
+      const subEl = slideElements.find((el) => el && (el.type === "subtitle" || el.id?.includes("sub")));
+      if (subEl) {
+        const val = String(subEl.content || subEl.text || "").trim();
+        if (val) slideSubtitle = val;
+      }
+    }
 
     const plugins = [];
     let extractedSubtitle = slideSubtitle || "";
@@ -120,208 +135,250 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
     let extractedNotes = cp.speaker_notes || "";
     let extractedImageUrl = "";
 
+    const visualElements = slideElements.filter(
+      (el) => el && el.type !== "title" && !el.id?.includes("title") && !el.id?.includes("sub")
+    );
+
+    let vIdx = 0;
+
     // If slide has explicit plugins array:
     if (Array.isArray(slide.plugins) && slide.plugins.length > 0) {
       safeArray(slide.plugins).forEach((p) => {
         if (!p || !p.type) return;
 
         const pluginData = { ...(p.data || {}) };
+        const isVisual = !["notes", "speaker_notes"].includes(p.type);
+
+        // Find matching canvas element
+        let matchingEl = null;
+        if (isVisual && visualElements.length > 0) {
+          matchingEl = visualElements.find((el) => el.pluginIndex === vIdx) ||
+                       visualElements.find((el) => el.id?.includes(`-${vIdx}`)) ||
+                       visualElements.find((el) => el.type === p.type) ||
+                       visualElements[vIdx];
+          vIdx++;
+        }
+
+        // Convert canvas percentage coordinates to backend 16:9 inches (13.333" x 7.5")
+        if (matchingEl) {
+          const rawX = Number(matchingEl.x !== undefined ? matchingEl.x : matchingEl.left);
+          const rawY = Number(matchingEl.y !== undefined ? matchingEl.y : matchingEl.top);
+          const rawW = Number(matchingEl.width !== undefined ? matchingEl.width : matchingEl.w);
+          const rawH = Number(matchingEl.height !== undefined ? matchingEl.height : matchingEl.h);
+
+          if (!isNaN(rawX) && !isNaN(rawY) && !isNaN(rawW) && !isNaN(rawH) && rawW > 0 && rawH > 0) {
+            const inchBox = {
+              left: Math.round((rawX / 100) * 13.333 * 100) / 100,
+              top: Math.round((rawY / 100) * 7.5 * 100) / 100,
+              width: Math.round((rawW / 100) * 13.333 * 100) / 100,
+              height: Math.round((rawH / 100) * 7.5 * 100) / 100,
+            };
+            pluginData.box = inchBox;
+            pluginData.left = inchBox.left;
+            pluginData.top = inchBox.top;
+            pluginData.width = inchBox.width;
+            pluginData.height = inchBox.height;
+          }
+        }
 
         if (p.type === "bullets") {
-          const points = safeArray(pluginData.points).map((pt) => String(pt).trim()).filter(Boolean);
+          const points = safeArray(matchingEl?.points || matchingEl?.items || pluginData.points).map((pt) => String(pt).trim()).filter(Boolean);
           extractedBullets.push(...points);
           plugins.push({
             type: "bullets",
             data: { ...pluginData, points: points.length ? points : ["Key takeaway point"] },
           });
         } else if (p.type === "paragraph") {
-          const textVal = String(pluginData.text || "").trim();
+          const textVal = String(matchingEl?.content || matchingEl?.text || pluginData.text || "").trim();
           if (textVal) extractedParagraphs.push(textVal);
           plugins.push({
             type: "paragraph",
             data: { ...pluginData, text: textVal },
           });
         } else if (p.type === "paragraph_2col") {
-        const rawItems = Array.isArray(pluginData.items) && pluginData.items.length > 0
-          ? pluginData.items.map((it) => ({ title: String(it.title || "").trim(), text: String(it.text || "").trim() }))
-          : [
-              { title: String(pluginData.left_title || "").trim(), text: String(pluginData.left_text || pluginData.text || "").trim() },
-              { title: String(pluginData.right_title || "").trim(), text: String(pluginData.right_text || "").trim() }
-            ];
-        rawItems.forEach(it => { if (it.text) extractedParagraphs.push(it.text); });
-        plugins.push({
-          type: "paragraph_2col",
-          data: {
-            ...pluginData,
-            items: rawItems,
-            left_title: String(pluginData.left_title || rawItems[0]?.title || "").trim(),
-            left_text: String(pluginData.left_text || pluginData.text || rawItems[0]?.text || "").trim(),
-            right_title: String(pluginData.right_title || rawItems[1]?.title || "").trim(),
-            right_text: String(pluginData.right_text || rawItems[1]?.text || "").trim(),
-          },
-        });
-      } else if (p.type === "subtitle" || p.type === "text") {
-        const subVal = String(pluginData.text || "").trim();
-        if (subVal && !extractedSubtitle) extractedSubtitle = subVal;
-        plugins.push({
-          type: "text",
-          data: { ...pluginData, text: subVal },
-        });
-      } else if (p.type === "chart") {
-        plugins.push({
-          type: "chart",
-          data: {
-            ...pluginData,
-            chart_type: pluginData.chart_type || "bar",
-            title: String(pluginData.title || "Metrics").trim(),
-            labels: safeArray(pluginData.labels),
-            values: safeArray(pluginData.values).map(Number),
-          },
-        });
-      } else if (p.type === "diagram") {
-        plugins.push({
-          type: "diagram",
-          data: {
-            ...pluginData,
-            diagram: String(pluginData.diagram || pluginData.text || "").trim(),
-            diagram_type: pluginData.diagram_type || "flowchart",
-          },
-        });
-      } else if (p.type === "stat" || p.type === "metric") {
-        plugins.push({
-          type: "stat",
-          data: {
-            ...pluginData,
-            number: String(pluginData.number || "100%").trim(),
-            label: String(pluginData.label || "Metric Detail").trim(),
-          },
-        });
-      } else if (p.type === "table") {
-        plugins.push({
-          type: "table",
-          data: {
-            ...pluginData,
-            title: String(pluginData.title || "Table Overview").trim(),
-            headers: safeArray(pluginData.headers),
-            rows: safeArray(pluginData.rows),
-          },
-        });
-      } else if (p.type === "image") {
-        const url = String(pluginData.url || pluginData.path || "").trim();
-        if (url) extractedImageUrl = url;
-        plugins.push({
-          type: "image",
-          data: { ...pluginData, url, path: url, caption: String(pluginData.caption || "").trim() },
-        });
-      } else if (p.type === "notes") {
-        const notesVal = String(pluginData.notes || "").trim();
-        if (notesVal) extractedNotes = notesVal;
-        plugins.push({
-          type: "notes",
-          data: { ...pluginData, notes: notesVal },
-        });
-      } else if (p.type === "shape") {
-        plugins.push({
-          type: "shape",
-          data: {
-            ...pluginData,
-            shape_type: pluginData.shape_type || pluginData.type || "rectangle",
-            fill_color: pluginData.fill_color || pluginData.fill || "#38bdf8",
-            stroke_color: pluginData.stroke_color || pluginData.stroke || "#0284c7",
-            stroke_width: Number(pluginData.stroke_width || pluginData.line_width) || 1.5,
-            x: Number(pluginData.x !== undefined ? pluginData.x : pluginData.left) || 0.8,
-            y: Number(pluginData.y !== undefined ? pluginData.y : pluginData.top) || 1.8,
-            width: Number(pluginData.width || pluginData.w) || 3.0,
-            height: Number(pluginData.height || pluginData.h) || 1.8,
-            text: String(pluginData.text || "").trim(),
-          },
-        });
-      } else if (p.type === "callout") {
-        const calloutText = String(pluginData.text || "").trim();
-        if (calloutText) extractedParagraphs.push(calloutText);
-        plugins.push({
-          type: "callout",
-          data: {
-            ...pluginData,
-            title: String(pluginData.title || "KEY TAKEAWAY").trim(),
-            text: calloutText,
-            icon: String(pluginData.icon || "💡").trim(),
-            variant: pluginData.variant || "info",
-          },
-        });
-      } else if (p.type === "kpi_grid") {
-        const rawKpis = safeArray(pluginData.items || pluginData.kpis);
-        plugins.push({
-          type: "kpi_grid",
-          data: {
-            ...pluginData,
-            title: String(pluginData.title || "Key Performance Indicators").trim(),
-            kpis: rawKpis.map((k) => ({
-              number: String(k.number || "0").trim(),
-              label: String(k.label || "Metric").trim(),
-              trend: String(k.trend || k.change || "").trim(),
-            })),
-            items: rawKpis,
-          },
-        });
-      } else if (p.type === "pros_cons") {
-        plugins.push({
-          type: "pros_cons",
-          data: {
-            ...pluginData,
-            title: String(pluginData.title || "Pros & Cons Analysis").trim(),
-            pros_title: String(pluginData.pros_title || "✅ STRENGTHS & ADVANTAGES").trim(),
-            pros: safeArray(pluginData.pros).map((x) => String(x).trim()).filter(Boolean),
-            cons_title: String(pluginData.cons_title || "❌ CHALLENGES & CONSIDERATIONS").trim(),
-            cons: safeArray(pluginData.cons).map((x) => String(x).trim()).filter(Boolean),
-          },
-        });
-      } else if (p.type === "roadmap") {
-        const rawSteps = safeArray(pluginData.steps || pluginData.phases);
-        plugins.push({
-          type: "roadmap",
-          data: {
-            ...pluginData,
-            title: String(pluginData.title || "Roadmap Timeline").trim(),
-            phases: rawSteps.map((s) => ({
-              phase: String(s.phase || "Phase").trim(),
-              title: String(s.title || "Milestone").trim(),
-              status: String(s.status || "PLANNED").trim(),
-              description: String(s.description || "").trim(),
-            })),
-            steps: rawSteps,
-          },
-        });
-      } else if (p.type === "code_block") {
-        plugins.push({
-          type: "code_block",
-          data: {
-            ...pluginData,
-            title: String(pluginData.title || "Code Snippet").trim(),
-            code: String(pluginData.code || "").trim(),
-            language: String(pluginData.language || "python").trim(),
-          },
-        });
-      } else if (p.type === "speaker_card") {
-        plugins.push({
-          type: "speaker_card",
-          data: {
-            ...pluginData,
-            name: String(pluginData.name || "Speaker Name").trim(),
-            role: String(pluginData.role || "Keynote Presenter").trim(),
-            bio: safeArray(pluginData.bio).map((b) => String(b).trim()).filter(Boolean),
-          },
-        });
-      } else {
-        plugins.push({
-          type: p.type,
-          data: pluginData,
-        });
-      }
-    });
-  }
+          const rawItems = Array.isArray(matchingEl?.items) && matchingEl.items.length > 0
+            ? matchingEl.items.map((it) => ({ title: String(it.title || "").trim(), text: String(it.text || "").trim() }))
+            : (Array.isArray(pluginData.items) && pluginData.items.length > 0
+              ? pluginData.items.map((it) => ({ title: String(it.title || "").trim(), text: String(it.text || "").trim() }))
+              : [
+                  { title: String(pluginData.left_title || "").trim(), text: String(pluginData.left_text || pluginData.text || "").trim() },
+                  { title: String(pluginData.right_title || "").trim(), text: String(pluginData.right_text || "").trim() }
+                ]);
+          rawItems.forEach(it => { if (it.text) extractedParagraphs.push(it.text); });
+          plugins.push({
+            type: "paragraph_2col",
+            data: {
+              ...pluginData,
+              items: rawItems,
+              left_title: String(pluginData.left_title || rawItems[0]?.title || "").trim(),
+              left_text: String(pluginData.left_text || pluginData.text || rawItems[0]?.text || "").trim(),
+              right_title: String(pluginData.right_title || rawItems[1]?.title || "").trim(),
+              right_text: String(pluginData.right_text || rawItems[1]?.text || "").trim(),
+            },
+          });
+        } else if (p.type === "subtitle" || p.type === "text") {
+          const subVal = String(matchingEl?.content || matchingEl?.text || pluginData.text || "").trim();
+          if (subVal && !extractedSubtitle) extractedSubtitle = subVal;
+          plugins.push({
+            type: "text",
+            data: { ...pluginData, text: subVal },
+          });
+        } else if (p.type === "chart") {
+          plugins.push({
+            type: "chart",
+            data: {
+              ...pluginData,
+              chart_type: matchingEl?.chart_type || matchingEl?.chartType || pluginData.chart_type || "bar",
+              title: String(matchingEl?.title || pluginData.title || "Metrics").trim(),
+              labels: safeArray(matchingEl?.labels || pluginData.labels),
+              values: safeArray(matchingEl?.values || pluginData.values).map(Number),
+            },
+          });
+        } else if (p.type === "diagram") {
+          plugins.push({
+            type: "diagram",
+            data: {
+              ...pluginData,
+              diagram: String(matchingEl?.diagram || matchingEl?.content || pluginData.diagram || pluginData.text || "").trim(),
+              diagram_type: matchingEl?.diagram_type || matchingEl?.diagramType || pluginData.diagram_type || "flowchart",
+              phases: safeArray(matchingEl?.phases || pluginData.phases),
+            },
+          });
+        } else if (p.type === "stat" || p.type === "metric") {
+          plugins.push({
+            type: "stat",
+            data: {
+              ...pluginData,
+              number: String(matchingEl?.number || pluginData.number || "100%").trim(),
+              label: String(matchingEl?.label || matchingEl?.text || pluginData.label || "Metric Detail").trim(),
+            },
+          });
+        } else if (p.type === "table") {
+          plugins.push({
+            type: "table",
+            data: {
+              ...pluginData,
+              title: String(matchingEl?.title || pluginData.title || "Table Overview").trim(),
+              headers: safeArray(matchingEl?.headers || pluginData.headers),
+              rows: safeArray(matchingEl?.rows || pluginData.rows),
+            },
+          });
+        } else if (p.type === "image") {
+          const url = String(matchingEl?.url || matchingEl?.src || pluginData.url || pluginData.path || "").trim();
+          if (url) extractedImageUrl = url;
+          plugins.push({
+            type: "image",
+            data: { ...pluginData, url, path: url, caption: String(matchingEl?.caption !== undefined ? matchingEl.caption : (pluginData.caption || "")).trim() },
+          });
+        } else if (p.type === "notes") {
+          const notesVal = String(matchingEl?.notes || pluginData.notes || "").trim();
+          if (notesVal) extractedNotes = notesVal;
+          plugins.push({
+            type: "notes",
+            data: { ...pluginData, notes: notesVal },
+          });
+        } else if (p.type === "shape") {
+          plugins.push({
+            type: "shape",
+            data: {
+              ...pluginData,
+              shape_type: pluginData.shape_type || pluginData.type || "rectangle",
+              fill_color: pluginData.fill_color || pluginData.fill || "#38bdf8",
+              stroke_color: pluginData.stroke_color || pluginData.stroke || "#0284c7",
+              stroke_width: Number(pluginData.stroke_width || pluginData.line_width) || 1.5,
+              x: Number(pluginData.x !== undefined ? pluginData.x : pluginData.left) || 0.8,
+              y: Number(pluginData.y !== undefined ? pluginData.y : pluginData.top) || 1.8,
+              width: Number(pluginData.width || pluginData.w) || 3.0,
+              height: Number(pluginData.height || pluginData.h) || 1.8,
+              text: String(pluginData.text || "").trim(),
+            },
+          });
+        } else if (p.type === "callout") {
+          const calloutText = String(matchingEl?.content || matchingEl?.text || pluginData.text || "").trim();
+          if (calloutText) extractedParagraphs.push(calloutText);
+          plugins.push({
+            type: "callout",
+            data: {
+              ...pluginData,
+              title: String(matchingEl?.title || pluginData.title || "KEY TAKEAWAY").trim(),
+              text: calloutText,
+              icon: String(matchingEl?.icon || pluginData.icon || "💡").trim(),
+              variant: pluginData.variant || "info",
+            },
+          });
+        } else if (p.type === "kpi_grid") {
+          const rawKpis = safeArray(matchingEl?.kpis || pluginData.items || pluginData.kpis);
+          plugins.push({
+            type: "kpi_grid",
+            data: {
+              ...pluginData,
+              title: String(matchingEl?.title || pluginData.title || "Key Performance Indicators").trim(),
+              kpis: rawKpis.map((k) => ({
+                number: String(k.number || "0").trim(),
+                label: String(k.label || "Metric").trim(),
+                trend: String(k.trend || k.change || "").trim(),
+              })),
+              items: rawKpis,
+            },
+          });
+        } else if (p.type === "pros_cons") {
+          plugins.push({
+            type: "pros_cons",
+            data: {
+              ...pluginData,
+              title: String(matchingEl?.title || pluginData.title || "Pros & Cons Analysis").trim(),
+              pros_title: String(matchingEl?.pros_title || pluginData.pros_title || "✅ STRENGTHS & ADVANTAGES").trim(),
+              pros: safeArray(matchingEl?.pros || pluginData.pros).map((x) => String(x).trim()).filter(Boolean),
+              cons_title: String(matchingEl?.cons_title || pluginData.cons_title || "❌ CHALLENGES & CONSIDERATIONS").trim(),
+              cons: safeArray(matchingEl?.cons || pluginData.cons).map((x) => String(x).trim()).filter(Boolean),
+            },
+          });
+        } else if (p.type === "roadmap") {
+          const rawSteps = safeArray(matchingEl?.phases || matchingEl?.steps || pluginData.steps || pluginData.phases);
+          plugins.push({
+            type: "roadmap",
+            data: {
+              ...pluginData,
+              title: String(matchingEl?.title || pluginData.title || "Roadmap Timeline").trim(),
+              phases: rawSteps.map((s) => ({
+                phase: String(s.phase || "Phase").trim(),
+                title: String(s.title || "Milestone").trim(),
+                status: String(s.status || "PLANNED").trim(),
+                description: String(s.description || "").trim(),
+              })),
+              steps: rawSteps,
+            },
+          });
+        } else if (p.type === "code_block") {
+          plugins.push({
+            type: "code_block",
+            data: {
+              ...pluginData,
+              title: String(matchingEl?.title || pluginData.title || "Code Snippet").trim(),
+              code: String(matchingEl?.code || pluginData.code || "").trim(),
+              language: String(matchingEl?.language || pluginData.language || "python").trim(),
+            },
+          });
+        } else if (p.type === "speaker_card") {
+          plugins.push({
+            type: "speaker_card",
+            data: {
+              ...pluginData,
+              name: String(matchingEl?.name || pluginData.name || "Speaker Name").trim(),
+              role: String(matchingEl?.role || pluginData.role || "Keynote Presenter").trim(),
+              bio: safeArray(matchingEl?.bio || pluginData.bio).map((b) => String(b).trim()).filter(Boolean),
+            },
+          });
+        } else {
+          plugins.push({
+            type: p.type,
+            data: pluginData,
+          });
+        }
+      });
+    }
 
-  if (plugins.length === 0 && Array.isArray(cp.content) && cp.content.length > 0) {
+    if (plugins.length === 0 && Array.isArray(cp.content) && cp.content.length > 0) {
       const bulletsList = [];
       cp.content.forEach((item) => {
         if (typeof item === "string" && item.trim()) {
@@ -371,6 +428,7 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
       effect: slide.effect,
       card_effect: slide.card_effect,
       plugins,
+      elements: slide.elements,
     };
 
   });
@@ -708,6 +766,9 @@ export default function PresentationGenerator({ presentationId = null }) {
       setPlan(DEFAULT_PLAN);
       setPlanPreview(null);
       setActiveSlideIndex(0);
+      setDownloadUrl("");
+      setGeneratedMeta(null);
+      setIsSaved(false);
       setCurrentStep(1);
     }
   };
@@ -1725,14 +1786,6 @@ export default function PresentationGenerator({ presentationId = null }) {
         <div className="ppt-header-bar">
           <div className="ppt-header-title" style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <h1 style={{ margin: 0 }}>Presentation Studio</h1>
-            <button
-              className="btn-ui secondary sm"
-              onClick={handleResetPlanToDefault}
-              title="Start a fresh presentation deck"
-              style={{ fontSize: 12, padding: "4px 10px", fontWeight: 700 }}
-            >
-              + New
-            </button>
           </div>
 
           <div className="ppt-header-controls" style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -1899,6 +1952,7 @@ export default function PresentationGenerator({ presentationId = null }) {
             handleAddPlugin={handleAddPlugin}
             handleDeletePlugin={handleDeletePlugin}
             onBackToSetup={() => setCurrentStep(1)}
+            onNewDeck={handleResetPlanToDefault}
           />
         )}
       </div>

@@ -37,7 +37,6 @@ export default function ZoomControls({
         title="Fit Slide to Screen"
       >
         <Maximize2 size={13} />
-        <span>Fit</span>
       </button>
 
       <button 
@@ -46,7 +45,6 @@ export default function ZoomControls({
         title="Fit to Canvas Width"
       >
         <Minimize2 size={13} />
-        <span>Width</span>
       </button>
     </div>
   );

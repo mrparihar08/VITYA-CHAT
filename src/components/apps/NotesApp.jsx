@@ -225,9 +225,9 @@ const NotesApp = () => {
             No notes yet.
           </p>
         ) : (
-          notes.map((item) => (
+          notes.map((item, index) => (
             <div
-              key={item.id}
+              key={item.id || item._id || index}
               style={{
                 border: "1px solid #e5e7eb",
                 borderRadius: 10,

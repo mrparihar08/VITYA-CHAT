@@ -292,9 +292,10 @@ export default function PresentationStage1Preview({
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {slide_sequence.map((slide, idx) => {
             const isEditing = editingSlideIdx === idx;
+            const slideKey = slide.id || slide.slide_number || `slide-${idx}`;
             return (
               <div
-                key={idx}
+                key={slideKey}
                 style={{
                   background: "rgba(255, 255, 255, 0.03)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",

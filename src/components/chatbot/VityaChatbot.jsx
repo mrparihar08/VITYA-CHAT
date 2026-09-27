@@ -369,14 +369,17 @@ const readResponse = async (res) => {
     try {
       return JSON.parse(text);
     } catch {
-      throw new Error(`Invalid JSON from server:\n${text}`);
+      return { text: "Server returned an unexpected format. Please try again." };
     }
   }
 
   try {
     return JSON.parse(text);
   } catch {
-    return { raw: text };
+    if (text.trim().startsWith("<")) {
+      return { text: `Server error (${res.status || "500"}). Please try again later.` };
+    }
+    return { raw: text, text };
   }
 };
 
@@ -525,6 +528,14 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
 
+  const token = useMemo(() => {
+    try {
+      return localStorage.getItem("token") || "";
+    } catch {
+      return "";
+    }
+  }, []);
+
   const handleEditPresentation = (msg) => {
     try {
       const planToSave = msg?.plan || {
@@ -605,14 +616,6 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       console.error("Clear documents failed:", err);
     }
   };
-
-  const token = useMemo(() => {
-    try {
-      return localStorage.getItem("token") || "";
-    } catch {
-      return "";
-    }
-  }, []);
 
   const bottomRef = useRef(null);
   const recognitionRef = useRef(null);
