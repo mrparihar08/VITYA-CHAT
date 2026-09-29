@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Mic, Play, Pause, Sparkles, Download } from "lucide-react";
 import { synthesizeVoiceover } from "../../../services/api";
 
@@ -59,7 +60,7 @@ export default function VoiceoverStudioModal({ isOpen, onClose, slide, slideInde
     }
   };
 
-  return (
+  const modalJSX = (
     <div
       style={{
         position: "fixed",
@@ -67,7 +68,7 @@ export default function VoiceoverStudioModal({ isOpen, onClose, slide, slideInde
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 9990,
+        zIndex: 99999,
         background: "rgba(9, 13, 26, 0.85)",
         backdropFilter: "blur(12px)",
         display: "flex",
@@ -314,4 +315,6 @@ export default function VoiceoverStudioModal({ isOpen, onClose, slide, slideInde
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalJSX, document.body) : modalJSX;
 }

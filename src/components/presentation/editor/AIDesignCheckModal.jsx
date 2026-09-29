@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import { Sparkles, CheckCircle2, AlertTriangle, X } from "lucide-react";
 
 export default function AIDesignCheckModal({
@@ -17,7 +18,7 @@ export default function AIDesignCheckModal({
   const isTooMuchText = totalWords > 70;
   const isTooManyElements = elements.length > 8;
 
-  return (
+  const modalJSX = (
     <div className="layout-picker-overlay" onClick={onClose}>
       <div className="layout-picker-modal design-check-modal" onClick={(e) => e.stopPropagation()}>
         <div className="picker-header">
@@ -112,4 +113,6 @@ export default function AIDesignCheckModal({
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalJSX, document.body) : modalJSX;
 }

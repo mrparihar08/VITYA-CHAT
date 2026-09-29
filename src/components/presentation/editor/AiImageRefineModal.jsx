@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import { Sparkles, X, Check, AlertTriangle, Image as ImageIcon, Wand2, Search } from "lucide-react";
 
 export default function AiImageRefineModal({
@@ -18,7 +19,7 @@ export default function AiImageRefineModal({
   const isPlaceholderUrl = !url || url.includes("unsplash") || url.includes("placeholder");
   const isShortCaption = caption.length < 10;
 
-  return (
+  const modalJSX = (
     <div className="img-modal-overlay" onClick={onClose}>
       <div className="ai-image-refine-modal" onClick={(e) => e.stopPropagation()}>
         {/* HEADER */}
@@ -108,7 +109,7 @@ export default function AiImageRefineModal({
               >
                 <Wand2 size={16} className="act-icon" />
                 <div className="act-info">
-                  <span className="act-title">Improve Caption ✨</span>
+                  <span className="act-title">Improve Caption</span>
                   <span className="act-desc">Rewrite caption into a concise professional impact takeaway statement</span>
                 </div>
               </button>
@@ -118,4 +119,6 @@ export default function AiImageRefineModal({
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalJSX, document.body) : modalJSX;
 }

@@ -1,92 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { Search, Sparkles, X, Check, Image as ImageIcon, Loader2, ExternalLink } from "lucide-react";
-import { getUnsplashPhotos } from "../../../services/api";
+import { createPortal } from "react-dom";
+import { 
+  Search, 
+  Sparkles, 
+  X, 
+  Check, 
+  Image as ImageIcon, 
+  Loader2, 
+  ExternalLink, 
+  ShieldCheck, 
+  Copy, 
+  Upload, 
+  Filter, 
+  Globe, 
+  FileImage 
+} from "lucide-react";
+import { 
+  searchPresentationImages, 
+  suggestPresentationImages, 
+  getUnsplashPhotos 
+} from "../../../services/api";
 
-// Curated high quality Unsplash CDN photo collections for instant loading (< 50ms)
-const SAMPLE_IMAGE_COLLECTIONS = {
-  home: [
-    { id: "home-1", url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80", title: "Modern Luxury Home Exterior", source: "Unsplash" },
-    { id: "home-2", url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80", title: "Contemporary Living Room Interior", source: "Unsplash" },
-    { id: "home-3", url: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80", title: "Minimalist Home Interior Design", source: "Unsplash" },
-    { id: "home-4", url: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80", title: "Cozy Home Workplace & Study", source: "Unsplash" },
-    { id: "home-5", url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80", title: "Modern Open Plan Kitchen & Living", source: "Unsplash" },
-    { id: "home-6", url: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80", title: "Suburban Residence Architecture", source: "Unsplash" },
-    { id: "home-7", url: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80", title: "Warm Modern Living Space", source: "Unsplash" },
-    { id: "home-8", url: "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=800&q=80", title: "Luxury Residential Villa", source: "Unsplash" }
-  ],
-  real_estate: [
-    { id: "re-1", url: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80", title: "Modern Glass Skyscraper", source: "Unsplash" },
-    { id: "re-2", url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80", title: "Urban Corporate Buildings", source: "Unsplash" },
-    { id: "re-3", url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80", title: "Luxury Property Design", source: "Unsplash" }
-  ],
-  life: [
-    { id: "life-1", url: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800", title: "Lifelong Learning & Teamwork", source: "Unsplash" },
-    { id: "life-2", url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800", title: "Knowledge & Educational Development", source: "Unsplash" },
-    { id: "life-3", url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800", title: "Personal Growth & Skill Building", source: "Unsplash" },
-    { id: "life-4", url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800", title: "Focus & Continuous Learning", source: "Unsplash" },
-    { id: "life-5", url: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800", title: "Modern Workplace & Productivity", source: "Unsplash" },
-    { id: "life-6", url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800", title: "Strategic Personal Development", source: "Unsplash" }
-  ],
-  education: [
-    { id: "edu-1", url: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800", title: "Academic Excellence & University", source: "Unsplash" },
-    { id: "edu-2", url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800", title: "Library Research & Books", source: "Unsplash" },
-    { id: "edu-3", url: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800", title: "Digital Classroom & Workshop", source: "Unsplash" },
-    { id: "edu-4", url: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800", title: "Lectures & Professional Growth", source: "Unsplash" }
-  ],
-  technology: [
-    { id: "img-1", url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800", title: "Artificial Intelligence & Circuit Nodes", source: "Unsplash" },
-    { id: "img-2", url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800", title: "Global Network Data Connections", source: "Unsplash" },
-    { id: "img-3", url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800", title: "Cybersecurity Digital Matrix", source: "Unsplash" },
-    { id: "img-4", url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800", title: "Modern Abstract Technology Gradient", source: "Unsplash" },
-    { id: "img-5", url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800", title: "Cloud Infrastructure & Servers", source: "Unsplash" },
-    { id: "img-6", url: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800", title: "Robotics & Next-Gen Automation", source: "Unsplash" }
-  ],
-  business: [
-    { id: "img-7", url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800", title: "Financial Analytics Dashboard", source: "Unsplash" },
-    { id: "img-8", url: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800", title: "Executive Strategic Planning", source: "Unsplash" },
-    { id: "img-9", url: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800", title: "Team Collaboration & Workspace", source: "Unsplash" },
-    { id: "img-10", url: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800", title: "Market Growth Chart Metrics", source: "Unsplash" },
-    { id: "img-11", url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800", title: "Corporate Strategy Roadmap", source: "Unsplash" },
-    { id: "img-12", url: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800", title: "Digital Enterprise Workshop", source: "Unsplash" }
-  ],
-  science: [
-    { id: "img-13", url: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800", title: "Biotech Laboratory Research", source: "Unsplash" },
-    { id: "img-14", url: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800", title: "Molecular Structure & Chemistry", source: "Unsplash" },
-    { id: "img-15", url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800", title: "Healthcare Medical Innovations", source: "Unsplash" },
-    { id: "img-16", url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800", title: "Genomics & DNA Sequencing", source: "Unsplash" }
-  ],
-  nature: [
-    { id: "nat-1", url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800", title: "Lush Forest & Mountain Nature", source: "Unsplash" },
-    { id: "nat-2", url: "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=800", title: "Renewable Solar Panels", source: "Unsplash" },
-    { id: "nat-3", url: "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800", title: "Wind Turbines & Clean Energy", source: "Unsplash" }
-  ],
-  car: [
-    { id: "car-1", url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800", title: "Luxury Automobile Design", source: "Unsplash" },
-    { id: "car-2", url: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800", title: "Modern Sports Car", source: "Unsplash" },
-    { id: "car-3", url: "https://images.unsplash.com/photo-1563720223185-11003d516935?w=800", title: "Electric Vehicle Technology", source: "Unsplash" }
-  ],
-  food: [
-    { id: "food-1", url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800", title: "Gourmet Culinary Presentation", source: "Unsplash" },
-    { id: "food-2", url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800", title: "Modern Restaurant Atmosphere", source: "Unsplash" }
-  ]
-};
-
-// Topic visual domain mapping matching backend unsplash_service.py
-const TOPIC_VISUAL_MAP = [
-  { pattern: /(home|house|interior|living|kitchen|decor|residence|villa|apartment|furniture)/i, terms: "modern home house interior design living room cozy architecture real estate", fallbackKey: "home" },
-  { pattern: /(real_estate|property|building|skyscraper|architecture)/i, terms: "modern architecture skyscraper building property exterior real estate glass facade", fallbackKey: "real_estate" },
-  { pattern: /(data_science|data science|analytics|data_analytics|machine_learning|big_data|ai|artificial|neural|data)/i, terms: "data science analytics artificial intelligence machine learning technology chart screen", fallbackKey: "technology" },
-  { pattern: /(cyber|security|threat|hack|firewall|encryption|zero_trust)/i, terms: "cybersecurity network server technology data lock dark studio", fallbackKey: "technology" },
-  { pattern: /(cloud|server|datacenter|aws|azure|devops|infrastructure)/i, terms: "cloud computing server rack datacenter network technology", fallbackKey: "technology" },
-  { pattern: /(finance|stock|money|market|invest|banking|economy|trading|fintech)/i, terms: "finance stock market trading chart business analytics office", fallbackKey: "business" },
-  { pattern: /(business|strategy|executive|management|office|meeting|leader|corporate|startup)/i, terms: "business strategy executive presentation team modern office corporate leadership", fallbackKey: "business" },
-  { pattern: /(health|medical|doctor|hospital|biotech|pharma|patient|clinical|dna|gene)/i, terms: "healthcare medical technology hospital doctor laboratory research", fallbackKey: "science" },
-  { pattern: /(marketing|sales|growth|customer|brand|target|advertising|seo)/i, terms: "marketing strategy digital analytics growth graph team whiteboard", fallbackKey: "business" },
-  { pattern: /(code|software|developer|architecture|programming|frontend|backend|api)/i, terms: "software developer code screen data architecture modern office setup", fallbackKey: "technology" },
-  { pattern: /(education|learning|university|school|student|training|course|life)/i, terms: "education university campus learning student modern library classroom", fallbackKey: "life" },
-  { pattern: /(nature|forest|green|solar|wind|energy|environment)/i, terms: "nature forest green renewable energy environment landscape", fallbackKey: "nature" },
-  { pattern: /(car|automobile|vehicle|ev|transport)/i, terms: "electric vehicle automobile car transportation", fallbackKey: "car" },
-  { pattern: /(food|dining|restaurant|chef)/i, terms: "gourmet food restaurant dining chef presentation", fallbackKey: "food" }
+const VISUAL_TYPES = [
+  { id: "all", label: "All Visuals" },
+  { id: "photo", label: "Photos" },
+  { id: "diagram", label: "Diagrams" },
+  { id: "illustration", label: "Illustrations" },
+  { id: "icon", label: "Icons" },
+  { id: "process", label: "Processes" },
+  { id: "chart", label: "Charts" },
 ];
 
 export default function ImageSearchModal({
@@ -96,11 +38,16 @@ export default function ImageSearchModal({
   slideContext = {},
   onSelectImage
 }) {
+  const [activeTab, setActiveTab] = useState("web"); // "web" | "openverse" | "wikimedia" | "suggested" | "upload" | "generate"
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedVisualType, setSelectedVisualType] = useState("all");
   const [isLoading, setIsLoading] = useState(false);
-  const [previewImage, setPreviewImage] = useState(null);
   const [results, setResults] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+  const [customPrompt, setCustomPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiGeneratedUrl, setAiGeneratedUrl] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -112,190 +59,451 @@ export default function ImageSearchModal({
         contextQuery = title && title !== "Current Slide" ? `${title} ${topic}`.trim() : (topic || "technology");
       }
       setSearchQuery(contextQuery);
-      performSearch(contextQuery);
+      performSearch(contextQuery, "web", "all");
     }
   }, [isOpen, initialQuery, slideContext]);
 
-  const performSearch = async (query) => {
-    const cleanQuery = (query || "").trim();
-    if (!cleanQuery) return;
-
-    setIsLoading(true);
-
-    // 1. Attempt backend multi-photo Unsplash / AI endpoint via configured API service
-    try {
-      const apiData = await getUnsplashPhotos(cleanQuery, 9);
-      if (apiData && Array.isArray(apiData.photos) && apiData.photos.length > 0) {
-        setResults(apiData.photos);
-        setIsLoading(false);
-        return;
-      }
-    } catch (backendErr) {
-      console.warn("Backend Unsplash endpoint fallback to client catalog:", backendErr);
-    }
-
-    // 2. Check client-side topic visual domain collections
-    let matchedFallback = null;
-    for (const item of TOPIC_VISUAL_MAP) {
-      if (item.pattern.test(cleanQuery)) {
-        matchedFallback = item.fallbackKey;
-        break;
-      }
-    }
-
-    if (matchedFallback && SAMPLE_IMAGE_COLLECTIONS[matchedFallback]) {
-      setResults(SAMPLE_IMAGE_COLLECTIONS[matchedFallback]);
-      setIsLoading(false);
+  const performSearch = async (queryText, providerTab = activeTab, vType = selectedVisualType) => {
+    const cleanQuery = (queryText || "").trim();
+    if (!cleanQuery && providerTab !== "suggested" && providerTab !== "upload" && providerTab !== "generate") {
       return;
     }
 
-    // 3. Fallback for custom queries: generate Pollinations FLUX AI images if offline/unmatched
-    const aiPhotos = Array.from({ length: 6 }).map((_, idx) => {
-      const prompt = encodeURIComponent(`${cleanQuery} professional photo presentation visual ${idx + 1}`);
-      const seed = Math.floor(Math.random() * 10000);
-      return {
-        id: `client-ai-${idx}`,
-        url: `https://image.pollinations.ai/prompt/${prompt}?width=1200&height=675&model=flux&nologo=true&seed=${seed}`,
-        title: `${cleanQuery} Visual ${idx + 1}`,
-        source: "AI Generated"
+    setIsLoading(true);
+
+    try {
+      if (providerTab === "suggested") {
+        const topic = slideContext.topic || "Presentation";
+        const title = slideContext.slideTitle || cleanQuery || "Slide";
+        const content = slideContext.slideContent || "";
+        
+        const suggestData = await suggestPresentationImages({
+          presentation_topic: topic,
+          slide_title: title,
+          slide_content: content,
+          visual_type: vType === "all" ? null : vType,
+        });
+
+        if (suggestData && Array.isArray(suggestData.suggested_images) && suggestData.suggested_images.length > 0) {
+          setResults(suggestData.suggested_images);
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      const reqProvider = providerTab === "openverse" ? "openverse" : (providerTab === "wikimedia" ? "wikimedia" : null);
+      const searchData = await searchPresentationImages({
+        query: cleanQuery,
+        provider: reqProvider,
+        visualType: vType === "all" ? null : vType,
+        pageSize: 24,
+      });
+
+      if (searchData && Array.isArray(searchData.results) && searchData.results.length > 0) {
+        setResults(searchData.results);
+        setIsLoading(false);
+        return;
+      }
+
+      // Fallback: search Unsplash API endpoint
+      const unData = await getUnsplashPhotos(cleanQuery, 12);
+      if (unData && Array.isArray(unData.photos) && unData.photos.length > 0) {
+        const formatted = unData.photos.map((p, idx) => ({
+          id: `un_${p.id || idx}`,
+          image_url: p.url,
+          thumbnail_url: p.url,
+          title: p.title || cleanQuery,
+          creator: "Unsplash Contributor",
+          license: "Unsplash License",
+          source_url: p.url,
+          provider: "unsplash",
+          attribution: `Image: ${p.title || cleanQuery} — Unsplash`,
+          visual_type: "photo",
+          license_status: "commercial_safe",
+          commercial_use: true,
+          modification_allowed: true,
+        }));
+        setResults(formatted);
+        setIsLoading(false);
+        return;
+      }
+
+      setResults([]);
+    } catch (err) {
+      console.warn("Image search failed:", err);
+      setResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCopyAttribution = (imgObj, e) => {
+    e?.stopPropagation();
+    const attrStr = imgObj.attribution || `Image: ${imgObj.title || "Visual"} — ${imgObj.creator || "Creator"} (${imgObj.license || "CC BY"})`;
+    navigator.clipboard.writeText(attrStr);
+    setCopiedId(imgObj.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        onSelectImage?.(dataUrl, file.name, "Local Upload", {
+          provider: "upload",
+          license: "Custom Upload",
+          attribution: `Image: ${file.name} (Uploaded)`
+        });
+        onClose();
       };
-    });
-    setResults(aiPhotos);
-    setIsLoading(false);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleGenerateAiImage = async () => {
+    const promptText = (customPrompt || searchQuery || slideContext.slideTitle || "Presentation visual").trim();
+    if (!promptText) return;
+
+    setIsGenerating(true);
+    setAiGeneratedUrl(null);
+
+    try {
+      const promptEncoded = encodeURIComponent(`${promptText} realistic presentation visual high resolution 16:9`);
+      const seed = Math.floor(Math.random() * 100000);
+      const generatedUrl = `https://image.pollinations.ai/prompt/${promptEncoded}?width=1280&height=720&model=flux&nologo=true&seed=${seed}`;
+      
+      setAiGeneratedUrl(generatedUrl);
+    } catch (err) {
+      console.warn("AI generation failed:", err);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   if (!isOpen) return null;
 
-  return (
+  const modalJSX = (
     <div className="img-modal-overlay" onClick={onClose}>
-      <div className="img-search-modal" onClick={(e) => e.stopPropagation()}>
-        {/* MODAL HEADER */}
-        <div className="img-modal-header">
-          <div className="modal-title-wrap">
-            <Sparkles size={18} className="ai-sparkle-glow" />
-            <span>CONTEXT-AWARE IMAGE SEARCH</span>
+      <div className="img-search-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "1050px", width: "94vw", maxHeight: "90vh" }}>
+        
+        {/* HEADER */}
+        <div className="img-modal-header" style={{ padding: "14px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.1)" }}>
+          <div className="modal-title-wrap" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Sparkles size={18} className="ai-sparkle-glow" style={{ color: "#38bdf8" }} />
+            <span style={{ fontWeight: 800, fontSize: "14px", letterSpacing: "0.5px" }}>
+              SMART IMAGE DISCOVERY & CC LICENSING
+            </span>
           </div>
-          <button className="close-btn" onClick={onClose}>
-            <X size={16} />
+          <button className="close-btn" onClick={onClose} style={{ background: "transparent", border: "none", color: "#94a3b8", cursor: "pointer" }}>
+            <X size={18} />
           </button>
         </div>
 
-        {/* DETECTED SLIDE CONTEXT BANNER */}
-        <div className="context-banner-row">
-          <span className="ctx-badge">SLIDE CONTEXT:</span>
-          <span className="ctx-text">
+        {/* PROVIDER TABS */}
+        <div style={{ display: "flex", gap: 6, padding: "10px 20px", background: "rgba(15, 23, 42, 0.6)", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", flexWrap: "wrap" }}>
+          {[
+            { id: "web", label: "Openverse & Wikimedia", icon: Globe },
+            { id: "openverse", label: "Openverse", icon: Globe },
+            { id: "wikimedia", label: "Wikimedia Commons", icon: FileImage },
+            { id: "suggested", label: "AI Suggestions", icon: Sparkles },
+            { id: "upload", label: "Upload File", icon: Upload },
+            { id: "generate", label: "AI Generation", icon: Sparkles },
+          ].map((tab) => {
+            const IconComp = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  if (tab.id !== "upload" && tab.id !== "generate") {
+                    performSearch(searchQuery, tab.id, selectedVisualType);
+                  }
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  border: isActive ? "1px solid #38bdf8" : "1px solid rgba(255, 255, 255, 0.1)",
+                  backgroundColor: isActive ? "rgba(56, 189, 248, 0.15)" : "rgba(30, 41, 59, 0.4)",
+                  color: isActive ? "#38bdf8" : "#cbd5e1",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease"
+                }}
+              >
+                <IconComp size={14} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* DETECTED SLIDE CONTEXT */}
+        <div className="context-banner-row" style={{ padding: "8px 20px", background: "rgba(30, 41, 59, 0.3)", fontSize: "12px", color: "#94a3b8", display: "flex", alignItems: "center", gap: 8 }}>
+          <span className="ctx-badge" style={{ background: "rgba(56, 189, 248, 0.2)", color: "#38bdf8", padding: "2px 6px", borderRadius: "4px", fontWeight: 700, fontSize: "10px" }}>
+            SLIDE CONTEXT:
+          </span>
+          <span className="ctx-text" style={{ color: "#e2e8f0" }}>
             <strong>{slideContext.slideTitle || "Current Slide"}</strong>
-            {slideContext.topic ? ` (${slideContext.topic})` : ""}
+            {slideContext.topic ? ` — ${slideContext.topic}` : ""}
           </span>
         </div>
 
-        {/* SEARCH BAR & CATEGORY CHIPS */}
-        <div className="img-search-bar-wrap">
-          <div className="search-input-box">
-            <Search size={16} className="search-icon" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && performSearch(searchQuery)}
-              placeholder="Search contextual presentation images (e.g., home, interior, technology)..."
-              className="modal-search-input"
-            />
-            <button
-              className="search-btn"
-              onClick={() => performSearch(searchQuery)}
-            >
-              <span>Search</span>
-            </button>
+        {/* MAIN BODY AREA BASED ON TAB */}
+        {activeTab === "upload" ? (
+          <div style={{ padding: "40px 20px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "260px" }}>
+            <Upload size={42} style={{ color: "#38bdf8", marginBottom: 12 }} />
+            <h3 style={{ margin: "0 0 8px 0", color: "#f8fafc", fontSize: 16 }}>Upload Image File</h3>
+            <p style={{ color: "#94a3b8", fontSize: 13, marginBottom: 20 }}>PNG, JPG, WEBP, or GIF up to 15MB</p>
+            <label style={{ background: "#38bdf8", color: "#0f172a", fontWeight: 700, padding: "10px 20px", borderRadius: "6px", cursor: "pointer" }}>
+              Choose File
+              <input type="file" accept="image/*" onChange={handleFileUpload} style={{ display: "none" }} />
+            </label>
           </div>
-
-          <div className="category-chips-row">
-            {["all", "home", "technology", "business", "science", "life"].map((cat) => (
+        ) : activeTab === "generate" ? (
+          <div style={{ padding: "24px 20px", minHeight: "300px" }}>
+            <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+              <input
+                type="text"
+                value={customPrompt}
+                onChange={(e) => setCustomPrompt(e.target.value)}
+                placeholder="Describe image to generate (e.g. Modern executive conference room with high tech dashboard)..."
+                style={{ flex: 1, padding: "10px 14px", background: "#0f172a", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "6px", color: "#fff" }}
+              />
               <button
-                key={cat}
-                className={`category-chip ${selectedCategory === cat ? "active" : ""}`}
-                onClick={() => {
-                  setSelectedCategory(cat);
-                  performSearch(cat === "all" ? searchQuery : cat);
-                }}
+                onClick={handleGenerateAiImage}
+                disabled={isGenerating}
+                style={{ background: "#38bdf8", color: "#0f172a", fontWeight: 700, padding: "10px 20px", borderRadius: "6px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
               >
-                {cat.toUpperCase()}
+                {isGenerating ? <Loader2 size={16} className="spin-loader" /> : <Sparkles size={16} />}
+                <span>{isGenerating ? "Generating..." : "Generate AI Image"}</span>
               </button>
-            ))}
+            </div>
+
+            {aiGeneratedUrl && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, background: "rgba(15, 23, 42, 0.6)", padding: 16, borderRadius: 8 }}>
+                <img src={aiGeneratedUrl} alt="AI Generated" style={{ maxWidth: "480px", width: "100%", borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)" }} />
+                <button
+                  onClick={() => {
+                    onSelectImage?.(aiGeneratedUrl, customPrompt || "AI Generated Visual", "Pollinations AI", {
+                      provider: "ai",
+                      license: "Custom AI License",
+                      attribution: `Image: ${customPrompt || "AI Visual"} — AI Generated`
+                    });
+                    onClose();
+                  }}
+                  style={{ background: "#10b981", color: "#fff", fontWeight: 700, padding: "8px 18px", borderRadius: "6px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                >
+                  <Check size={16} />
+                  <span>Use AI Generated Image</span>
+                </button>
+              </div>
+            )}
           </div>
-        </div>
-
-        {/* RESULTS GRID */}
-        <div className="img-results-body">
-          {isLoading ? (
-            <div className="modal-loading-state">
-              <Loader2 size={28} className="spin-loader" />
-              <span>Analyzing presentation context & fetching high resolution photos...</span>
-            </div>
-          ) : results.length === 0 ? (
-            <div className="modal-empty-state">
-              <ImageIcon size={32} />
-              <span>No matching images found for this context query.</span>
-            </div>
-          ) : (
-            <div className="img-cards-grid">
-              {results.map((img) => (
-                <div key={img.id} className="img-card-item">
-                  <div className="img-card-preview">
-                    <img src={img.url} alt="" loading="lazy" />
-                    <div className="img-card-overlay">
-                      <button
-                        className="card-action-btn primary"
-                        onClick={() => {
-                          onSelectImage?.(img.url, img.title, img.source);
-                          onClose();
-                        }}
-                      >
-                        <Check size={13} />
-                        <span>Use Image</span>
-                      </button>
-                      <button
-                        className="card-action-btn secondary"
-                        onClick={() => setPreviewImage(img)}
-                      >
-                        <ExternalLink size={13} />
-                        <span>Preview</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div className="img-card-caption">
-                    <span className="card-title">{img.title}</span>
-                    <span className="card-source">{img.source}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* FULLSCREEN PREVIEW OVERLAY */}
-        {previewImage && (
-          <div className="img-full-preview-overlay" onClick={() => setPreviewImage(null)}>
-            <div className="img-full-preview-card" onClick={(e) => e.stopPropagation()}>
-              <button className="preview-close-btn" onClick={() => setPreviewImage(null)}>
-                <X size={16} />
-              </button>
-              <img src={previewImage.url} alt={previewImage.title} />
-              <div className="preview-footer-bar">
-                <div>
-                  <div className="preview-title">{previewImage.title}</div>
-                  <div className="preview-source">Source: {previewImage.source} (High Resolution 16:9)</div>
+        ) : (
+          <>
+            {/* SEARCH INPUT & VISUAL TYPE CHIPS */}
+            <div style={{ padding: "12px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.08)" }}>
+              <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+                <div style={{ flex: 1, position: "relative", display: "flex", alignItems: "center" }}>
+                  <Search size={16} style={{ position: "absolute", left: 12, color: "#64748b" }} />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && performSearch(searchQuery)}
+                    placeholder="Search CC images by keyword or topic..."
+                    style={{ width: "100%", padding: "10px 12px 10px 36px", background: "#0f172a", border: "1px solid rgba(255, 255, 255, 0.15)", borderRadius: "6px", color: "#ffffff", fontSize: "13px" }}
+                  />
                 </div>
                 <button
-                  className="top-btn primary-btn"
+                  onClick={() => performSearch(searchQuery)}
+                  style={{ background: "#38bdf8", color: "#0f172a", fontWeight: 700, padding: "0 20px", borderRadius: "6px", border: "none", cursor: "pointer" }}
+                >
+                  Search
+                </button>
+              </div>
+
+              {/* VISUAL TYPE FILTER CHIPS */}
+              <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4 }}>
+                {VISUAL_TYPES.map((vt) => (
+                  <button
+                    key={vt.id}
+                    onClick={() => {
+                      setSelectedVisualType(vt.id);
+                      performSearch(searchQuery, activeTab, vt.id);
+                    }}
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "12px",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      border: "none",
+                      backgroundColor: selectedVisualType === vt.id ? "#38bdf8" : "rgba(30, 41, 59, 0.7)",
+                      color: selectedVisualType === vt.id ? "#0f172a" : "#94a3b8",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {vt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* RESULTS GRID */}
+            <div style={{ padding: "16px 20px", overflowY: "auto", maxHeight: "460px" }}>
+              {isLoading ? (
+                <div style={{ padding: "60px 0", textAlign: "center", color: "#94a3b8" }}>
+                  <Loader2 size={32} className="spin-loader" style={{ marginBottom: 12, color: "#38bdf8" }} />
+                  <div>Searching Openverse & Wikimedia Commons for open licensed images...</div>
+                </div>
+              ) : results.length === 0 ? (
+                <div style={{ padding: "60px 0", textAlign: "center", color: "#64748b" }}>
+                  <ImageIcon size={40} style={{ marginBottom: 12, opacity: 0.5 }} />
+                  <div>No open-licensed images found for this query.</div>
+                </div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 14 }}>
+                  {results.map((img) => {
+                    const imgUrl = img.thumbnail_url || img.image_url;
+                    const providerName = (img.provider || "Openverse").toUpperCase();
+                    const licenseName = img.license || "CC BY";
+                    const isCopied = copiedId === img.id;
+
+                    return (
+                      <div
+                        key={img.id}
+                        style={{
+                          background: "rgba(30, 41, 59, 0.5)",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                          borderRadius: 8,
+                          overflow: "hidden",
+                          display: "flex",
+                          flexDirection: "column"
+                        }}
+                      >
+                        {/* THUMBNAIL PREVIEW */}
+                        <div style={{ height: "145px", position: "relative", overflow: "hidden", background: "#0f172a" }}>
+                          <img src={imgUrl} alt={img.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          
+                          {/* PROVIDER BADGE */}
+                          <div style={{ position: "absolute", top: 6, left: 6, background: "rgba(15, 23, 42, 0.85)", padding: "2px 6px", borderRadius: 4, fontSize: 10, fontWeight: 700, color: "#38bdf8" }}>
+                            {providerName}
+                          </div>
+
+                          {/* LICENSE BADGE */}
+                          <div style={{ position: "absolute", top: 6, right: 6, background: "rgba(15, 23, 42, 0.85)", padding: "2px 6px", borderRadius: 4, fontSize: 10, fontWeight: 600, color: "#10b981", display: "flex", alignItems: "center", gap: 3 }}>
+                            <ShieldCheck size={11} />
+                            <span>{licenseName}</span>
+                          </div>
+
+                          {/* ACTION BUTTONS OVERLAY */}
+                          <div style={{ position: "absolute", inset: 0, background: "rgba(15, 23, 42, 0.75)", opacity: 0, transition: "opacity 0.15s ease", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }} className="hover-actions-overlay">
+                            <button
+                              onClick={() => {
+                                onSelectImage?.(img.image_url, img.title, img.provider, {
+                                  attribution: img.attribution,
+                                  license: img.license,
+                                  provider: img.provider,
+                                  creator: img.creator,
+                                  source_url: img.source_url
+                                });
+                                onClose();
+                              }}
+                              style={{ background: "#38bdf8", color: "#0f172a", border: "none", padding: "6px 12px", borderRadius: 4, fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                            >
+                              <Check size={14} />
+                              <span>Insert</span>
+                            </button>
+                            <button
+                              onClick={() => setPreviewImage(img)}
+                              style={{ background: "rgba(255,255,255,0.15)", color: "#fff", border: "none", padding: "6px 10px", borderRadius: 4, fontWeight: 600, fontSize: 12, cursor: "pointer" }}
+                            >
+                              Preview
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* CARD METADATA FOOTER */}
+                        <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 4, flex: 1, justifyContent: "space-between" }}>
+                          <div>
+                            <div style={{ fontSize: "12px", fontWeight: 700, color: "#f8fafc", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={img.title}>
+                              {img.title || "Visual Asset"}
+                            </div>
+                            <div style={{ fontSize: "11px", color: "#94a3b8", display: "flex", justifyContent: "space-between" }}>
+                              <span>Creator: {img.creator || "Open Contributor"}</span>
+                            </div>
+                          </div>
+
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 4, borderTop: "1px solid rgba(255, 255, 255, 0.06)" }}>
+                            <button
+                              onClick={(e) => handleCopyAttribution(img, e)}
+                              style={{ background: "transparent", border: "none", color: isCopied ? "#10b981" : "#64748b", fontSize: "11px", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, padding: 0 }}
+                              title="Copy standard CC attribution string"
+                            >
+                              <Copy size={12} />
+                              <span>{isCopied ? "Attribution Copied!" : "Copy Attribution"}</span>
+                            </button>
+
+                            {img.source_url && (
+                              <a
+                                href={img.source_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                style={{ color: "#38bdf8", fontSize: "11px", textDecoration: "none", display: "flex", alignItems: "center", gap: 2 }}
+                              >
+                                <span>Source</span>
+                                <ExternalLink size={10} />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* FULL PREVIEW MODAL */}
+        {previewImage && (
+          <div className="img-full-preview-overlay" onClick={() => setPreviewImage(null)}>
+            <div className="img-full-preview-card" onClick={(e) => e.stopPropagation()} style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 16, maxWidth: "650px", width: "90vw" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                <span style={{ fontWeight: 700, color: "#f8fafc" }}>{previewImage.title}</span>
+                <button onClick={() => setPreviewImage(null)} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer" }}><X size={18} /></button>
+              </div>
+              <img src={previewImage.image_url || previewImage.thumbnail_url} alt="" style={{ width: "100%", maxHeight: "380px", objectFit: "contain", borderRadius: 6, background: "#000" }} />
+              
+              <div style={{ marginTop: 12, padding: 12, background: "rgba(30, 41, 59, 0.6)", borderRadius: 6, fontSize: "12px", color: "#cbd5e1" }}>
+                <div><strong>Attribution:</strong> {previewImage.attribution || `Image: ${previewImage.title} — ${previewImage.creator}`}</div>
+                <div><strong>License:</strong> {previewImage.license || "CC BY"} | <strong>Provider:</strong> {previewImage.provider}</div>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 14 }}>
+                <button
                   onClick={() => {
-                    onSelectImage?.(previewImage.url, previewImage.title, previewImage.source);
+                    onSelectImage?.(previewImage.image_url, previewImage.title, previewImage.provider, {
+                      attribution: previewImage.attribution,
+                      license: previewImage.license,
+                      provider: previewImage.provider,
+                      creator: previewImage.creator,
+                      source_url: previewImage.source_url
+                    });
                     setPreviewImage(null);
                     onClose();
                   }}
+                  style={{ background: "#38bdf8", color: "#0f172a", fontWeight: 700, padding: "8px 16px", borderRadius: 6, border: "none", cursor: "pointer" }}
                 >
-                  <Check size={14} />
-                  <span>Insert Into Slide</span>
+                  Insert Into Slide
                 </button>
               </div>
             </div>
@@ -304,4 +512,6 @@ export default function ImageSearchModal({
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalJSX, document.body) : modalJSX;
 }

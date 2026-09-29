@@ -1,8 +1,9 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import CanvasElement from "./CanvasElement";
 import FloatingToolbar from "./FloatingToolbar";
 import SlideBackdropDecorations from "./SlideBackdropDecorations";
 import { BACKGROUND_PRESETS } from "../PresentationEditor";
+import { calculateTextAutoHeight } from "./textHeightUtils";
 
 export default function SlideCanvas({
   slide,
@@ -39,7 +40,7 @@ export default function SlideCanvas({
     return () => observer.disconnect();
   }, []);
 
-  const elements = slide?.elements || [];
+  const elements = useMemo(() => slide?.elements || [], [slide?.elements]);
   const selectedElement = elements.find((el) => el.id === selectedElementId);
 
   const fitScaleX = Math.max(0.2, (viewportDimensions.width - 40) / 960);
@@ -156,8 +157,15 @@ export default function SlideCanvas({
     const startY = e.clientY;
     const initialX = selectedElement.x !== undefined ? Number(selectedElement.x) : 0;
     const initialY = selectedElement.y !== undefined ? Number(selectedElement.y) : 0;
-    const initialWidth = selectedElement.width !== undefined ? Number(selectedElement.width) : 20;
-    const initialHeight = selectedElement.height !== undefined ? Number(selectedElement.height) : 15;
+
+    const domEl = canvasRef.current?.querySelector(`[data-element-id="${selectedElement.id}"]`);
+    const domRect = domEl ? domEl.getBoundingClientRect() : null;
+    const initialWidth = domRect && rect.width > 0
+      ? (domRect.width / rect.width) * 100
+      : (selectedElement.width !== undefined ? Number(selectedElement.width) : 20);
+    const initialHeight = domRect && rect.height > 0
+      ? (domRect.height / rect.height) * 100
+      : (selectedElement.height !== undefined ? Number(selectedElement.height) : 15);
 
     let pointerCaptured = false;
     const targetEl = e.currentTarget;
@@ -210,11 +218,15 @@ export default function SlideCanvas({
         newHeight = initialHeight - clampedShiftY;
       }
 
+      const isVerticalResize = handle.includes("s") || handle.includes("n");
+      const isHorizontalResize = handle.includes("e") || handle.includes("w");
       onUpdateElement?.(selectedElement.id, {
         x: Math.round(newX * 10) / 10,
         y: Math.round(newY * 10) / 10,
         width: Math.round(newWidth * 10) / 10,
-        height: Math.round(newHeight * 10) / 10
+        height: Math.round(newHeight * 10) / 10,
+        ...(isVerticalResize ? { customHeight: true } : {}),
+        ...(isHorizontalResize ? { customWidth: true } : {})
       });
     };
 
@@ -239,6 +251,73 @@ export default function SlideCanvas({
     window.addEventListener("mouseup", handlePointerUp);
   }, [getCanvasRect, selectedElement, onUpdateElement]);
 
+  // AUTO-FIT HEIGHT TO EXACT CONTENT (Industry standard Figma/PPT behavior)
+  const handleAutoFitHeight = useCallback((elementId) => {
+    const targetId = elementId || selectedElementId;
+    const el = elements.find((item) => item.id === targetId);
+    if (!el) return;
+    const isTextEl = ["text", "title", "subtitle", "paragraph"].includes(el.type || "text");
+    if (isTextEl) {
+      const textStr = String(el.content || el.text || el.data?.text || "");
+      const fSize = Number(el.fontSize) || (el.type === "title" ? 32 : 16);
+      const wPct = Number(el.width) || 80;
+      const lHeight = Number(el.lineHeight) || 1.3;
+      const autoH = calculateTextAutoHeight(textStr, fSize, wPct, lHeight);
+      onUpdateElement?.(targetId, { height: autoH, customHeight: false, autoHeight: true });
+    } else if (el.type === "diagram" || el.type === "roadmap") {
+      onUpdateElement?.(targetId, { height: 13, customHeight: false, autoHeight: true });
+    } else if (el.type === "image") {
+      const curW = Number(el.width) || 40;
+      onUpdateElement?.(targetId, { height: curW, customHeight: true });
+    } else {
+      onUpdateElement?.(targetId, { customHeight: false, autoHeight: true });
+    }
+  }, [elements, selectedElementId, onUpdateElement]);
+
+  // AUTO-FIT BOTH WIDTH & HEIGHT TO CONTENT
+  const handleAutoFitBoth = useCallback((elementId) => {
+    const targetId = elementId || selectedElementId;
+    const el = elements.find((item) => item.id === targetId);
+    if (!el) return;
+    const isTextEl = ["text", "title", "subtitle", "paragraph"].includes(el.type || "text");
+    if (isTextEl) {
+      const textStr = String(el.content || el.text || el.data?.text || "");
+      const fSize = Number(el.fontSize) || (el.type === "title" ? 32 : 16);
+      const wPct = Number(el.width) || 80;
+      const lHeight = Number(el.lineHeight) || 1.3;
+      const autoH = calculateTextAutoHeight(textStr, fSize, wPct, lHeight);
+      onUpdateElement?.(targetId, {
+        height: autoH,
+        customWidth: false,
+        customHeight: false,
+        autoWidth: true,
+        autoHeight: true
+      });
+    } else if (el.type === "diagram" || el.type === "roadmap") {
+      onUpdateElement?.(targetId, {
+        height: 13,
+        customWidth: false,
+        customHeight: false,
+        autoWidth: false,
+        autoHeight: true
+      });
+    } else if (el.type === "image") {
+      const curW = Number(el.width) || 40;
+      onUpdateElement?.(targetId, {
+        height: curW,
+        customWidth: true,
+        customHeight: true
+      });
+    } else {
+      onUpdateElement?.(targetId, {
+        customWidth: false,
+        customHeight: false,
+        autoWidth: true,
+        autoHeight: true
+      });
+    }
+  }, [elements, selectedElementId, onUpdateElement]);
+
   if (!slide) {
     return (
       <div className="empty-canvas-notice">
@@ -248,13 +327,15 @@ export default function SlideCanvas({
   }
 
   const matchedPreset = (BACKGROUND_PRESETS || []).find(
-    (p) => p.id === slide.background_theme || p.id === slide.bg_color
+    (p) => p.id === slide.background_theme || p.id === slide.background_preset || p.id === slide.template || p.id === slide.bg_color
   );
 
-  const bgStyle = slide.bg_gradient_start && slide.bg_gradient_end
-    ? `linear-gradient(135deg, ${slide.bg_gradient_start} 0%, ${slide.bg_gradient_end} 100%)`
+  const bgStyle = slide.background_theme === "solid"
+    ? slide.bg_color || "#0f172a"
     : matchedPreset
     ? matchedPreset.bg
+    : slide.bg_gradient_start && slide.bg_gradient_end
+    ? `linear-gradient(135deg, ${slide.bg_gradient_start} 0%, ${slide.bg_gradient_end} 100%)`
     : slide.bg_color || "#0f172a";
 
   return (
@@ -284,6 +365,20 @@ export default function SlideCanvas({
           templateName={templateName}
         />
 
+        {/* SAFE CONTENT BOUNDARY GUIDE (89.3% = 6.70 inches = 482.4px) */}
+        <div
+          className="safe-content-boundary-guide"
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: "89.33%",
+            borderTop: "1px dashed rgba(255, 255, 255, 0.15)",
+            pointerEvents: "none",
+            zIndex: 1
+          }}
+        />
+
         {/* RENDER ELEMENTS LAYER */}
         <div
           className="slide-elements-layer"
@@ -306,6 +401,8 @@ export default function SlideCanvas({
               onMouseDownResize={handlePointerDownResize}
               onPointerDownDrag={handlePointerDownDrag}
               onMouseDownDrag={handlePointerDownDrag}
+              onAutoFitHeight={handleAutoFitHeight}
+              onAutoFitBoth={handleAutoFitBoth}
             />
           ))}
         </div>
@@ -318,6 +415,8 @@ export default function SlideCanvas({
             onDuplicateElement={onDuplicateElement}
             onDeleteElement={onDeleteElement}
             onAiRefine={onAiRefine}
+            onAutoFitHeight={handleAutoFitHeight}
+            onAutoFitBoth={handleAutoFitBoth}
           />
         )}
       </div>

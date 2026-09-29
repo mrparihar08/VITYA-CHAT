@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Shapes } from "lucide-react";
 import { getShapesCatalog } from "../../../services/api";
 
@@ -89,7 +90,7 @@ export default function ShapeCatalogModal({ isOpen, onClose, onAddShape }) {
     onClose();
   };
 
-  return (
+  const modalJSX = (
     <div
       style={{
         position: "fixed",
@@ -97,7 +98,7 @@ export default function ShapeCatalogModal({ isOpen, onClose, onAddShape }) {
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 9990,
+        zIndex: 99999,
         background: "rgba(9, 13, 26, 0.85)",
         backdropFilter: "blur(12px)",
         display: "flex",
@@ -259,4 +260,6 @@ export default function ShapeCatalogModal({ isOpen, onClose, onAddShape }) {
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalJSX, document.body) : modalJSX;
 }

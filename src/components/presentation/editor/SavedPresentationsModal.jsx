@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Search, Clock, FileText, Trash2, ArrowRight, RefreshCw } from "lucide-react";
 import { getUserPresentations, deleteUserPresentation } from "../../../services/api";
 
@@ -57,7 +58,7 @@ export default function SavedPresentationsModal({ isOpen, onClose, onLoadDeck, o
     );
   });
 
-  return (
+  const modalJSX = (
     <div
       style={{
         position: "fixed",
@@ -65,7 +66,7 @@ export default function SavedPresentationsModal({ isOpen, onClose, onLoadDeck, o
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 9990,
+        zIndex: 99999,
         background: "rgba(9, 13, 26, 0.85)",
         backdropFilter: "blur(12px)",
         display: "flex",
@@ -279,4 +280,6 @@ export default function SavedPresentationsModal({ isOpen, onClose, onLoadDeck, o
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalJSX, document.body) : modalJSX;
 }

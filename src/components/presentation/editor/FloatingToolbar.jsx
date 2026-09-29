@@ -11,7 +11,8 @@ import {
   Trash2, 
   Maximize2, 
   BarChart2, 
-  Palette 
+  Palette,
+  FoldVertical
 } from "lucide-react";
 
 export default function FloatingToolbar({
@@ -19,7 +20,9 @@ export default function FloatingToolbar({
   onUpdateElement,
   onDuplicateElement,
   onDeleteElement,
-  onAiRefine
+  onAiRefine,
+  onAutoFitHeight,
+  onAutoFitBoth
 }) {
   if (!element) return null;
 
@@ -54,7 +57,7 @@ export default function FloatingToolbar({
       <span className="float-type-badge">{element.type.toUpperCase()}</span>
 
       {/* TEXT SPECIFIC CONTROLS */}
-      {element.type === "text" && (
+      {["text", "title", "subtitle", "paragraph"].includes(element.type) && (
         <>
           <button
             className={`float-btn ${element.fontWeight === "bold" || element.fontWeight === "700" ? "active" : ""}`}
@@ -101,12 +104,41 @@ export default function FloatingToolbar({
           </button>
           <div className="float-divider" />
           <button
+            className="float-btn"
+            onClick={() => {
+              if (onAutoFitBoth) onAutoFitBoth(element.id);
+              else onAutoFitHeight?.(element.id);
+            }}
+            title="Auto-Fit Box (Width & Height) to Content"
+          >
+            <FoldVertical size={13} />
+            <span>Auto Size</span>
+          </button>
+          <div className="float-divider" />
+          <button
             className="float-btn ai-action-pill"
-            onClick={() => onAiRefine?.(element.content || "")}
+            onClick={() => onAiRefine?.(element.content || element.text || "")}
             title="AI Refine text"
           >
             <Sparkles size={12} />
             <span>AI Refine</span>
+          </button>
+        </>
+      )}
+
+      {/* DIAGRAM / FLOWCHART CONTROLS */}
+      {["diagram", "roadmap"].includes(element.type) && (
+        <>
+          <button
+            className="float-btn"
+            onClick={() => {
+              if (onAutoFitBoth) onAutoFitBoth(element.id);
+              else onAutoFitHeight?.(element.id);
+            }}
+            title="Auto-Fit Box to Diagram Content"
+          >
+            <FoldVertical size={13} />
+            <span>Auto Size</span>
           </button>
         </>
       )}

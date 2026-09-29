@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 
 export default function ToastNotification({ toast, onClose }) {
@@ -15,13 +16,13 @@ export default function ToastNotification({ toast, onClose }) {
   const isSuccess = toast.type === "success";
   const isError = toast.type === "error";
 
-  return (
+  const toastJSX = (
     <div
       style={{
         position: "fixed",
         bottom: 24,
         right: 24,
-        zIndex: 9999,
+        zIndex: 100001,
         display: "flex",
         alignItems: "center",
         gap: 12,
@@ -83,4 +84,6 @@ export default function ToastNotification({ toast, onClose }) {
       </button>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(toastJSX, document.body) : toastJSX;
 }

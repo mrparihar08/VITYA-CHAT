@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Sparkles, X, Check, RefreshCw, Wand2, Loader2 } from "lucide-react";
 
 const STYLES = [
@@ -75,7 +76,7 @@ export default function GeminiImageModal({
 
   if (!isOpen) return null;
 
-  return (
+  const modalJSX = (
     <div className="img-modal-overlay" onClick={onClose}>
       <div className="gemini-gen-modal" onClick={(e) => e.stopPropagation()}>
         {/* MODAL HEADER */}
@@ -230,4 +231,6 @@ export default function GeminiImageModal({
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalJSX, document.body) : modalJSX;
 }

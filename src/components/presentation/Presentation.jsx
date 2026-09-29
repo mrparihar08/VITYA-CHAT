@@ -532,12 +532,26 @@ export default function PresentationGenerator({ presentationId = null }) {
     if (val && val !== "none") {
       setTemplateName(val);
     }
+    const preset = (BACKGROUND_PRESETS || []).find((p) => p.id === val);
+    const hexMatches = preset?.bg ? preset.bg.match(/#[0-9a-fA-F]{3,6}/g) : null;
+    const bgStart = preset?.bg_start || hexMatches?.[0] || "#0f172a";
+    const bgEnd = preset?.bg_end || hexMatches?.[1] || bgStart;
+    const solidBg = preset?.solid_bg || bgStart;
+    const accentColor = preset?.accent || "#c084fc";
+    const textColor = preset?.text || "#ffffff";
+
     setPlan((prev) => {
       if (!prev || !prev.slides) return prev;
       const slides = prev.slides.map((s) => ({
         ...s,
         template: val,
         background_preset: val,
+        background_theme: val,
+        bg_color: solidBg,
+        bg_gradient_start: bgStart,
+        bg_gradient_end: bgEnd,
+        accent_color: accentColor,
+        text_color: textColor,
         customBgColor1: undefined,
         customBgColor2: undefined,
         customTextColor: undefined,

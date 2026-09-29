@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import CanvasElement from "./CanvasElement";
 import SlideBackdropDecorations from "./SlideBackdropDecorations";
@@ -37,7 +38,7 @@ export default function PresentModal({ slides = [], initialSlideIndex = 0, isOpe
     ? `linear-gradient(135deg, ${currentSlide.bg_gradient_start || "#0f172a"} 0%, ${currentSlide.bg_gradient_end || "#1e1b4b"} 100%)`
     : currentSlide.bg_color || "#0f172a";
 
-  return (
+  const modalJSX = (
     <div className="present-fullscreen-overlay">
       {/* FLOATING CONTROLS BAR */}
       <div className="present-controls-bar">
@@ -87,4 +88,6 @@ export default function PresentModal({ slides = [], initialSlideIndex = 0, isOpe
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalJSX, document.body) : modalJSX;
 }

@@ -1,5 +1,6 @@
 import React from "react";
 import SelectionOverlay from "./SelectionOverlay";
+import { calculateTextAutoHeight } from "./textHeightUtils";
 
 function normalizeElement(el) {
   if (!el) return {};
@@ -28,6 +29,8 @@ function normalizeElement(el) {
     borderRadius: el.borderRadius !== undefined ? Number(el.borderRadius) : 4,
     url: el.url || data.url || "",
     caption: el.caption || data.caption || "",
+    objectFit: el.objectFit || data.objectFit || "cover",
+    opacity: el.opacity !== undefined ? Number(el.opacity) : (data.opacity !== undefined ? Number(data.opacity) : 100),
     shape_type: el.shape_type || (el.type === "shape" ? "rectangle" : "rectangle"),
     fill_color: el.fill_color || el.bg_color || data.fill_color || "rgba(139, 92, 246, 0.2)",
     stroke_color: el.stroke_color || data.stroke_color || "#8b5cf6",
@@ -40,13 +43,25 @@ function normalizeElement(el) {
     headers: Array.isArray(el.headers) && el.headers.length ? el.headers : (Array.isArray(data.headers) ? data.headers : []),
     rows: Array.isArray(el.rows) && el.rows.length ? el.rows : (Array.isArray(data.rows) ? data.rows : []),
     phases: Array.isArray(el.phases) && el.phases.length ? el.phases : (Array.isArray(data.phases) ? data.phases : (Array.isArray(el.steps) ? el.steps : (Array.isArray(data.steps) ? data.steps : []))),
+    diagram_type: el.diagram_type || el.diagramType || data.diagram_type || data.diagramType || (el.type === "roadmap" ? "timeline" : "flowchart"),
+    customHeight: el.customHeight || false,
+    customWidth: el.customWidth || false,
+    autoHeight: el.autoHeight,
+    autoWidth: el.autoWidth,
     number: el.number || data.number || "",
     label: el.label || data.label || "",
     sublabel: el.sublabel || data.sublabel || "",
     title: el.title || data.title || "",
     icon: el.icon || data.icon || "💡",
-    code: el.code || data.code || "",
+    code: el.code || data.code || el.content || "",
     language: el.language || data.language || "python",
+    borderColor: el.borderColor || el.stroke_color || data.borderColor || data.stroke_color || "rgba(255, 255, 255, 0.15)",
+    borderWidth: el.borderWidth !== undefined ? Number(el.borderWidth) : (el.stroke_width !== undefined ? Number(el.stroke_width) : 1),
+    showLineNumbers: el.showLineNumbers !== undefined ? el.showLineNumbers : (data.showLineNumbers !== undefined ? data.showLineNumbers : true),
+    wordWrap: el.wordWrap !== undefined ? el.wordWrap : (data.wordWrap !== undefined ? data.wordWrap : false),
+    codePadding: el.codePadding !== undefined ? Number(el.codePadding) : (el.padding !== undefined ? Number(el.padding) : 10),
+    boxShadow: el.boxShadow || data.boxShadow || "",
+    isLocked: el.isLocked || data.isLocked || false,
     name: el.name || data.name || "",
     role: el.role || data.role || "",
     bio: Array.isArray(el.bio) ? el.bio : (Array.isArray(data.bio) ? data.bio : []),
@@ -67,19 +82,50 @@ export default function CanvasElement({
   onPointerDownResize,
   onMouseDownResize,
   onPointerDownDrag,
-  onMouseDownDrag
+  onMouseDownDrag,
+  onAutoFitHeight,
+  onAutoFitBoth
 }) {
   if (!element) return null;
 
   const norm = normalizeElement(element);
   const { id, type } = norm;
 
+  const isTextElement = ["text", "title", "subtitle", "paragraph"].includes(type);
+  const diagTypeLower = String(norm.diagram_type || "").toLowerCase();
+  const isHorizontalDiagram = (type === "diagram" || type === "roadmap") && (
+    ["flowchart", "timeline", "process", "roadmap", "io_cards", "io", "steps", "workflow"].some(k => diagTypeLower.includes(k)) ||
+    !norm.diagram_type ||
+    !["architecture", "stack", "pyramid", "funnel", "cycle", "quadrant", "matrix"].includes(diagTypeLower)
+  );
+  const isFlowchartElement = isHorizontalDiagram || (
+    typeof norm.content === "string" &&
+    (norm.content.includes("➔") || norm.content.includes("->")) &&
+    norm.content.includes("[")
+  );
+
+  // AUTO WIDTH: For left/right text elements without manual resize, hug content up to maxWidth
+  const shouldAutoWidth = !norm.customWidth && (
+    (isTextElement && norm.align !== "center") ||
+    norm.autoWidth === true
+  );
+
+  // AUTO HEIGHT: Hug content for text, flowchart, horizontal diagrams, bullets, stat, callout
+  const shouldAutoHeight = !norm.customHeight && (
+    isTextElement ||
+    isFlowchartElement ||
+    ["bullets", "callout", "stat"].includes(type) ||
+    norm.autoHeight === true
+  );
+
   const containerStyle = {
     position: "absolute",
     left: `${norm.x}%`,
     top: `${norm.y}%`,
-    width: `${norm.width}%`,
-    height: `${norm.height}%`,
+    width: shouldAutoWidth ? "fit-content" : `${norm.width}%`,
+    maxWidth: `${norm.width || 88}%`,
+    height: shouldAutoHeight ? "fit-content" : `${norm.height}%`,
+    minHeight: shouldAutoHeight ? "fit-content" : undefined,
     boxSizing: "border-box"
   };
 
@@ -106,7 +152,7 @@ export default function CanvasElement({
             }));
 
           return (
-            <div className="element-diagram-flowchart" style={{ backgroundColor: norm.bg_color }}>
+            <div className="element-diagram-flowchart" style={{ backgroundColor: norm.bg_color, width: "100%", height: "fit-content" }}>
               {parsedSteps.map((pItem, pIdx) => (
                 <React.Fragment key={pIdx}>
                   <div className="flowchart-step-card">
@@ -128,7 +174,12 @@ export default function CanvasElement({
             onBlur={(e) => {
               const newText = e.target.innerText;
               if (newText !== currentText) {
-                onUpdateElement?.(id, { content: newText, text: newText });
+                const autoH = calculateTextAutoHeight(newText, norm.fontSize, norm.width, norm.lineHeight);
+                onUpdateElement?.(id, {
+                  content: newText,
+                  text: newText,
+                  ...(!element.customHeight ? { height: autoH } : {})
+                });
               }
             }}
             onKeyDown={(e) => e.stopPropagation()}
@@ -138,19 +189,17 @@ export default function CanvasElement({
               fontStyle: norm.fontStyle,
               textDecoration: norm.textDecoration,
               color: norm.color,
-              backgroundColor: norm.bg_color,
-              padding: norm.bg_color && norm.bg_color !== "transparent" ? "8px 12px" : undefined,
+              padding: norm.bg_color && norm.bg_color !== "transparent" ? "8px 12px" : "3.6px 7.2px",
               borderRadius: norm.borderRadius ? `${norm.borderRadius}px` : "4px",
               textAlign: norm.align,
               fontFamily: norm.fontFamily,
-              lineHeight: norm.lineHeight,
+              lineHeight: norm.lineHeight || 1.32,
               letterSpacing: norm.letterSpacing,
               display: "flex",
               flexDirection: "column",
               justifyContent: norm.valign === "middle" ? "center" : norm.valign === "bottom" ? "flex-end" : "flex-start",
               alignItems: norm.align === "center" ? "center" : norm.align === "right" ? "flex-end" : "flex-start",
-              width: "100%",
-              height: "100%",
+              width: "auto", height: "auto",
               wordBreak: "break-word",
               overflowWrap: "break-word",
               outline: "none",
@@ -167,8 +216,16 @@ export default function CanvasElement({
           <div
             className="element-image-container"
             style={{
-              borderRadius: `${norm.borderRadius}px`,
-              backgroundColor: norm.bg_color
+              width: "100%",
+              height: "100%",
+              borderRadius: `${norm.borderRadius !== undefined ? norm.borderRadius : 8}px`,
+              backgroundColor: norm.bg_color || "transparent",
+              overflow: "hidden",
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "flex-start"
             }}
           >
             <img
@@ -176,17 +233,33 @@ export default function CanvasElement({
               alt={norm.caption || "Presentation Visual"}
               draggable={false}
               style={{
-                borderRadius: `${norm.borderRadius}px`,
+                borderRadius: `${norm.borderRadius !== undefined ? norm.borderRadius : 8}px`,
                 width: "100%",
-                height: "100%",
-                objectFit: "cover",
+                height: norm.caption ? "calc(100% - 24px)" : "100%",
+                objectFit: norm.objectFit || "contain",
+                opacity: (norm.opacity !== undefined ? norm.opacity : 100) / 100,
+                display: "block",
                 userSelect: "none",
                 WebkitUserDrag: "none"
               }}
             />
-            {norm.caption && norm.caption.length <= 35 && !norm.caption.toLowerCase().includes("introduction") && (
-              <span className="image-caption" style={{ pointerEvents: "none" }}>
-                {norm.caption}
+            {norm.caption && (
+              <span
+                className="image-caption"
+                style={{
+                  pointerEvents: "none",
+                  fontSize: "10px",
+                  fontWeight: "bold",
+                  color: "#3B82F6",
+                  textAlign: "center",
+                  paddingTop: "4px",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxWidth: "100%"
+                }}
+              >
+                Fig: {norm.caption.replace(/^(?:fig\s*[:\-]\s*)/i, "")}
               </span>
             )}
           </div>
@@ -207,8 +280,7 @@ export default function CanvasElement({
                   : norm.shape_type === "rounded_rectangle"
                   ? `${norm.radius}px`
                   : "2px",
-              width: "100%",
-              height: "100%",
+              width: "auto", height: "auto",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -285,8 +357,8 @@ export default function CanvasElement({
             const areaString = `${padding},${height - padding} ${pointsString} ${width - padding},${height - padding}`;
 
             return (
-              <div className="svg-chart-wrap" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", width: "100%", height: "100%" }}>
-                <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", height: "100%", overflow: "visible" }}>
+              <div className="svg-chart-wrap" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", width: "auto", height: "auto", }}>
+                <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "auto", height: "auto", overflow: "visible" }}>
                   <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
                   <line x1={padding} y1={padding} x2={width - padding} y2={padding} stroke="rgba(255,255,255,0.1)" strokeDasharray="3,3" strokeWidth="1" />
 
@@ -325,7 +397,7 @@ export default function CanvasElement({
             return (
               <div className="pie-chart-wrap" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "space-around", width: "100%", gap: 10 }}>
                 <div style={{ position: "relative", width: 90, height: 90, flexShrink: 0 }}>
-                  <svg viewBox="0 0 32 32" style={{ width: "100%", height: "100%", transform: "rotate(-90deg)", borderRadius: "50%" }}>
+                  <svg viewBox="0 0 32 32" style={{ width: "auto", height: "auto", transform: "rotate(-90deg)", borderRadius: "50%" }}>
                     {slices.map((slice, i) => {
                       const dashArray = `${(slice.val / total) * 100} 100`;
                       let strokeDashoffset = 0;
@@ -465,8 +537,7 @@ export default function CanvasElement({
               borderRadius: `${norm.borderRadius || 8}px`,
               fontSize: `${norm.fontSize || 14}px`,
               fontFamily: norm.fontFamily,
-              width: "100%",
-              height: "100%",
+              width: "auto", height: "auto",
               boxSizing: "border-box",
               boxShadow: "0 4px 16px rgba(0, 0, 0, 0.25)",
               display: "flex",
@@ -474,22 +545,6 @@ export default function CanvasElement({
               overflow: "hidden"
             }}
           >
-            {norm.title && (
-              <div
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 800,
-                  color: "#38bdf8",
-                  letterSpacing: "0.8px",
-                  textTransform: "uppercase",
-                  marginBottom: "10px",
-                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-                  paddingBottom: "6px"
-                }}
-              >
-                {norm.title}
-              </div>
-            )}
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px", flex: 1 }}>
               {bulletList.map((pt, i) => (
                 <li
@@ -566,8 +621,8 @@ export default function CanvasElement({
         const tableHeaders = norm.headers && norm.headers.length ? norm.headers : ["Feature", "Standard", "Enterprise"];
         const tableRows = norm.rows && norm.rows.length ? norm.rows : [["Uptime", "99.9%", "99.99%"], ["Support", "24/7 Email", "Dedicated SLA"]];
         return (
-          <div className="element-table-container" style={{ backgroundColor: norm.bg_color, borderRadius: "6px", width: "100%", height: "100%", overflow: "hidden" }}>
-            <table className="mini-ppt-table" style={{ width: "100%", height: "100%" }}>
+          <div className="element-table-container" style={{ backgroundColor: norm.bg_color, borderRadius: "6px", width: "auto", height: "auto", overflow: "hidden" }}>
+            <table className="mini-ppt-table" style={{ width: "100%", height: "auto", }}>
               <thead>
                 <tr>
                   {tableHeaders.map((h, i) => (
@@ -591,7 +646,7 @@ export default function CanvasElement({
 
       case "stat":
         return (
-          <div className="element-stat-card" style={{ backgroundColor: norm.bg_color || "rgba(15, 23, 42, 0.7)", width: "100%", height: "100%", boxSizing: "border-box" }}>
+          <div className="element-stat-card" style={{ backgroundColor: norm.bg_color || "rgba(15, 23, 42, 0.7)", width: "auto", height: "auto", boxSizing: "border-box" }}>
             <div
               className="stat-number"
               contentEditable={true}
@@ -668,12 +723,16 @@ export default function CanvasElement({
           { phase: "Phase 4", title: "Q4 Optimization", status: "PLANNED" }
         ];
 
-        const diagType = String(norm.chart_type || norm.shape_type || (type === "roadmap" ? "timeline" : "flowchart")).toLowerCase();
+        const diagType = String(
+          norm.diagram_type ||
+          norm.diagramType ||
+          (type === "roadmap" ? "timeline" : "flowchart")
+        ).toLowerCase();
 
         // 1. ARCHITECTURE STACK
         if (diagType === "architecture" || diagType === "stack") {
           return (
-            <div className="element-diagram-stack" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
+            <div className="element-diagram-stack" style={{ backgroundColor: norm.bg_color, width: "auto", height: "auto", }}>
               <div className="diag-header-badge">🏛️ SYSTEM ARCHITECTURE STACK</div>
               <div className="architecture-layers-wrap">
                 {roadmapPhases.map((pItem, pIdx) => {
@@ -695,7 +754,7 @@ export default function CanvasElement({
           const reversedPhases = [...roadmapPhases].reverse();
           const numS = reversedPhases.length;
           return (
-            <div className="element-diagram-pyramid" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
+            <div className="element-diagram-pyramid" style={{ backgroundColor: norm.bg_color, width: "auto", height: "auto", }}>
               <div className="diag-header-badge">🔺 HIERARCHY PYRAMID</div>
               <div className="pyramid-levels-wrap">
                 {reversedPhases.map((pItem, pIdx) => {
@@ -717,7 +776,7 @@ export default function CanvasElement({
         if (diagType === "funnel") {
           const numS = roadmapPhases.length;
           return (
-            <div className="element-diagram-funnel" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
+            <div className="element-diagram-funnel" style={{ backgroundColor: norm.bg_color, width: "auto", height: "auto", }}>
               <div className="diag-header-badge">🔻 CONVERSION FUNNEL</div>
               <div className="funnel-stages-wrap">
                 {roadmapPhases.map((pItem, pIdx) => {
@@ -738,7 +797,7 @@ export default function CanvasElement({
         // 4. CIRCULAR CYCLE
         if (diagType === "cycle" || diagType === "loop") {
           return (
-            <div className="element-diagram-cycle" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
+            <div className="element-diagram-cycle" style={{ backgroundColor: norm.bg_color, width: "auto", height: "auto", }}>
               <div className="cycle-hub-badge">🔁 CYCLED PROCESS</div>
               <div className="cycle-nodes-grid">
                 {roadmapPhases.map((pItem, pIdx) => {
@@ -758,7 +817,7 @@ export default function CanvasElement({
         // 5. TIMELINE / ROADMAP
         if (diagType === "timeline" || type === "roadmap") {
           return (
-            <div className="element-diagram-timeline" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
+            <div className="element-diagram-timeline" style={{ backgroundColor: norm.bg_color, width: "auto", height: "auto", }}>
               <div className="timeline-axis-line" />
               <div className="timeline-cards-row">
                 {roadmapPhases.map((pItem, pIdx) => {
@@ -783,7 +842,7 @@ export default function CanvasElement({
         // 6. QUADRANT 2X2
         if (diagType === "quadrant" || diagType === "matrix") {
           return (
-            <div className="element-diagram-quadrant" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
+            <div className="element-diagram-quadrant" style={{ backgroundColor: norm.bg_color, width: "auto", height: "auto", }}>
               <div className="quadrant-2x2-grid">
                 {roadmapPhases.slice(0, 4).map((pItem, pIdx) => {
                   const titleLabel = typeof pItem === "string" ? pItem : pItem.title || pItem.name || `Q${pIdx + 1}`;
@@ -803,7 +862,7 @@ export default function CanvasElement({
         if (diagType === "io_cards" || diagType === "io") {
           const ioLabels = ["INPUT DATA", "PROCESSING ENGINE", "OUTPUT RESULT"];
           return (
-            <div className="element-diagram-iocards" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
+            <div className="element-diagram-iocards" style={{ backgroundColor: norm.bg_color, width: "auto", height: "auto", }}>
               {roadmapPhases.map((pItem, pIdx) => {
                 const titleLabel = typeof pItem === "string" ? pItem : pItem.title || pItem.name || `Step ${pIdx + 1}`;
                 const tagLabel = ioLabels[pIdx] || `STAGE ${pIdx + 1}`;
@@ -826,7 +885,7 @@ export default function CanvasElement({
           const rootTitle = typeof roadmapPhases[0] === "string" ? roadmapPhases[0] : roadmapPhases[0]?.title || "Core Concept";
           const branches = roadmapPhases.slice(1);
           return (
-            <div className="element-diagram-mindmap" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
+            <div className="element-diagram-mindmap" style={{ backgroundColor: norm.bg_color, width: "auto", height: "auto", }}>
               <div className="mindmap-root-node">🧠 {rootTitle}</div>
               {branches.length > 0 && (
                 <div className="mindmap-branches-row">
@@ -846,7 +905,7 @@ export default function CanvasElement({
 
         // 9. DEFAULT FLOWCHART
         return (
-          <div className="element-diagram-flowchart" style={{ backgroundColor: norm.bg_color, width: "100%", height: "100%" }}>
+          <div className="element-diagram-flowchart" style={{ backgroundColor: norm.bg_color, width: "100%", height: "fit-content" }}>
             {roadmapPhases.map((pItem, pIdx) => {
               const phaseLabel = typeof pItem === "string" ? `Step ${pIdx + 1}` : pItem.phase || `Step ${pIdx + 1}`;
               const titleLabel = typeof pItem === "string" ? pItem : pItem.title || pItem.name || `Step ${pIdx + 1}`;
@@ -869,7 +928,7 @@ export default function CanvasElement({
         const calloutTitle = norm.title || "KEY STRATEGIC TAKEAWAY";
         const calloutIcon = norm.icon || "💡";
         return (
-          <div className="element-callout-card" style={{ backgroundColor: norm.bg_color || "rgba(139, 92, 246, 0.12)", width: "100%", height: "100%", boxSizing: "border-box" }}>
+          <div className="element-callout-card" style={{ backgroundColor: norm.bg_color || "rgba(139, 92, 246, 0.12)", width: "auto", height: "auto", boxSizing: "border-box" }}>
             <div className="callout-header">
               <span className="callout-icon">{calloutIcon}</span>
               <span
@@ -909,7 +968,7 @@ export default function CanvasElement({
           { number: "< 12ms", label: "API Latency", trend: "-25% ↘" }
         ];
         return (
-          <div className="element-kpi-grid" style={{ width: "100%", height: "100%", boxSizing: "border-box" }}>
+          <div className="element-kpi-grid" style={{ width: "auto", height: "auto", boxSizing: "border-box" }}>
             {kpisList.map((kpi, kIdx) => (
               <div key={kIdx} className="kpi-card" style={{ backgroundColor: norm.bg_color || "rgba(15, 23, 42, 0.75)" }}>
                 <div className="kpi-number" style={{ color: norm.color || "#38bdf8" }}>{kpi.number || kpi.val || "100"}</div>
@@ -925,7 +984,7 @@ export default function CanvasElement({
         const prosList = norm.pros && norm.pros.length ? norm.pros : ["High Horizontal Scalability", "Low Query Latency", "Zero Downtime"];
         const consList = norm.cons && norm.cons.length ? norm.cons : ["Initial Setup Overhead", "Cloud Refactoring Effort"];
         return (
-          <div className="element-pros-cons-grid" style={{ width: "100%", height: "100%", boxSizing: "border-box" }}>
+          <div className="element-pros-cons-grid" style={{ width: "100%", height: "auto", boxSizing: "border-box" }}>
             <div className="pros-card" style={{ backgroundColor: norm.bg_color || "rgba(34, 197, 94, 0.08)" }}>
               <div className="pros-header">{norm.pros_title}</div>
               <ul style={{ color: norm.color || "#cbd5e1" }}>
@@ -945,13 +1004,91 @@ export default function CanvasElement({
       case "code_block": {
         const codeSnippet = norm.code || "async def process_telemetry(job_id: str):\n    res = await service.fetch(job_id)\n    return {'status': 'success', 'data': res}";
         const codeTitle = norm.title || "api_router.py";
+        const lines = codeSnippet.split("\n");
+        const bWidth = norm.borderWidth !== undefined ? norm.borderWidth : 1;
+        const bRadius = norm.borderRadius !== undefined ? norm.borderRadius : 8;
+        const padVal = typeof norm.codePadding === "number" ? norm.codePadding : 10;
+
         return (
-          <div className="element-code-block" style={{ backgroundColor: norm.bg_color || "#090d16", width: "100%", height: "100%", boxSizing: "border-box" }}>
-            <div className="code-header">
-              <span className="code-title">{codeTitle}</span>
-              <span className="code-lang">{norm.language}</span>
+          <div
+            className="element-code-block"
+            style={{
+              backgroundColor: norm.bg_color || "#090d16",
+              border: bWidth > 0 ? `${bWidth}px solid ${norm.borderColor || "rgba(255, 255, 255, 0.15)"}` : "none",
+              borderRadius: `${bRadius}px`,
+              boxShadow: norm.boxShadow || undefined,
+              opacity: (norm.opacity !== undefined ? norm.opacity : 100) / 100,
+              width: "100%",
+              height: "100%",
+              boxSizing: "border-box",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column"
+            }}
+          >
+            <div
+              className="code-header"
+              style={{
+                background: "rgba(255, 255, 255, 0.05)",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                padding: "5px 10px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
+            >
+              <span className="code-title" style={{ fontFamily: norm.fontFamily || "'JetBrains Mono', Consolas, monospace", fontSize: "11px", fontWeight: 600, color: "#cbd5e1" }}>
+                {codeTitle}
+              </span>
+              <span className="code-lang" style={{ fontFamily: norm.fontFamily || "'JetBrains Mono', Consolas, monospace", fontSize: "10px", color: "#94a3b8", textTransform: "uppercase" }}>
+                {norm.language || "python"}
+              </span>
             </div>
-            <pre className="code-content" style={{ color: norm.color || "#38bdf8" }}>{codeSnippet}</pre>
+
+            <div className="code-body-row" style={{ display: "flex", flex: 1, overflow: "auto", minHeight: 0 }}>
+              {norm.showLineNumbers !== false && (
+                <div
+                  className="code-line-numbers-gutter"
+                  style={{
+                    padding: `${padVal}px 8px`,
+                    textAlign: "right",
+                    userSelect: "none",
+                    opacity: 0.4,
+                    fontSize: `${norm.fontSize || 12}px`,
+                    lineHeight: norm.lineHeight || 1.5,
+                    fontFamily: norm.fontFamily || "'JetBrains Mono', 'Fira Code', Consolas, monospace",
+                    borderRight: "1px solid rgba(255, 255, 255, 0.08)",
+                    backgroundColor: "rgba(0, 0, 0, 0.15)",
+                    minWidth: "26px"
+                  }}
+                >
+                  {lines.map((_, i) => (
+                    <div key={i}>{i + 1}</div>
+                  ))}
+                </div>
+              )}
+
+              <pre
+                className="code-content"
+                style={{
+                  flex: 1,
+                  margin: 0,
+                  padding: `${padVal}px 12px`,
+                  fontFamily: norm.fontFamily || "'JetBrains Mono', 'Fira Code', Consolas, monospace",
+                  fontSize: `${norm.fontSize || 12}px`,
+                  lineHeight: norm.lineHeight || 1.5,
+                  letterSpacing: norm.letterSpacing || "normal",
+                  fontWeight: norm.fontWeight || "normal",
+                  textAlign: norm.align || "left",
+                  whiteSpace: norm.wordWrap ? "pre-wrap" : "pre",
+                  wordBreak: norm.wordWrap ? "break-word" : "normal",
+                  color: norm.color || "#38bdf8",
+                  overflow: "auto"
+                }}
+              >
+                {codeSnippet}
+              </pre>
+            </div>
           </div>
         );
       }
@@ -961,7 +1098,7 @@ export default function CanvasElement({
         const speakerRole = norm.role || "Chief AI Architect & Principal Engineer";
         const speakerBio = norm.bio && norm.bio.length ? norm.bio : ["15+ Years Distributed Systems Architecture", "Lead Architect at Vitya AI"];
         return (
-          <div className="element-speaker-card" style={{ backgroundColor: norm.bg_color || "rgba(15, 23, 42, 0.7)", width: "100%", height: "100%", boxSizing: "border-box" }}>
+          <div className="element-speaker-card" style={{ backgroundColor: norm.bg_color || "rgba(15, 23, 42, 0.7)", width: "auto", height: "auto", boxSizing: "border-box" }}>
             <div className="speaker-avatar">👤</div>
             <div className="speaker-details">
               <div className="speaker-name" style={{ color: norm.color || "#ffffff" }}>{speakerName}</div>
@@ -978,7 +1115,7 @@ export default function CanvasElement({
         const colItems = norm.items;
         if (Array.isArray(colItems) && colItems.length > 0) {
           return (
-            <div className="element-paragraph-2col" style={{ width: "100%", height: "100%", display: "grid", gridTemplateColumns: `repeat(${colItems.length}, 1fr)`, gap: "12px", boxSizing: "border-box" }}>
+            <div className="element-paragraph-2col" style={{ width: "100%", height: "auto", display: "grid", gridTemplateColumns: `repeat(${colItems.length}, 1fr)`, gap: "12px", boxSizing: "border-box" }}>
               {colItems.map((item, i) => (
                 <div key={i} className="para-col" style={{ backgroundColor: norm.bg_color || "rgba(30, 41, 59, 0.65)", border: "1px solid rgba(255, 255, 255, 0.12)", borderRadius: "8px", padding: "14px 16px", display: "flex", flexDirection: "column", boxSizing: "border-box", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)", overflow: "hidden" }}>
                   {item.title && <div className="para-col-title" style={{ fontSize: "11px", fontWeight: 800, color: "#38bdf8", letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: "8px", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "4px" }}>{item.title}</div>}
@@ -1012,7 +1149,7 @@ export default function CanvasElement({
               fontSize: `${norm.fontSize || 14}px`,
               fontFamily: norm.fontFamily,
               width: "100%",
-              height: "100%",
+              height: "auto",
               boxSizing: "border-box",
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
               display: "flex",
@@ -1020,22 +1157,6 @@ export default function CanvasElement({
               overflow: "hidden"
             }}
           >
-            {norm.title && (
-              <div
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 800,
-                  color: "#38bdf8",
-                  letterSpacing: "0.8px",
-                  textTransform: "uppercase",
-                  marginBottom: "8px",
-                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-                  paddingBottom: "4px"
-                }}
-              >
-                {norm.title}
-              </div>
-            )}
             <p
               contentEditable={true}
               suppressContentEditableWarning={true}
@@ -1052,6 +1173,97 @@ export default function CanvasElement({
         );
       }
 
+      case "image": {
+        const imageUrl = norm.url || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800";
+        const imageCaption = norm.caption || norm.title || "";
+        const imageAttribution = norm.attribution || (element.data && element.data.attribution) || "";
+        const imageLicense = norm.license || (element.data && element.data.license) || "";
+        const imageProvider = norm.provider || (element.data && element.data.provider) || norm.source || "";
+
+        return (
+          <div
+            className="element-image-container"
+            style={{
+              width: "100%",
+              height: "100%",
+              position: "relative",
+              borderRadius: `${norm.borderRadius || 6}px`,
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              backgroundColor: "rgba(15, 23, 42, 0.4)",
+              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
+            }}
+          >
+            <div style={{ flex: 1, position: "relative", width: "100%", height: "100%", minHeight: 0, overflow: "hidden" }}>
+              <img
+                src={imageUrl}
+                alt={imageCaption || "Slide visual"}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: norm.objectFit || "cover",
+                  display: "block",
+                  borderRadius: `${norm.borderRadius || 6}px`,
+                }}
+                onError={(e) => {
+                  e.target.src = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
+                }}
+              />
+              {(imageProvider || imageLicense) && (
+                <div
+                  className="image-meta-badge"
+                  style={{
+                    position: "absolute",
+                    top: 6,
+                    right: 6,
+                    background: "rgba(15, 23, 42, 0.85)",
+                    backdropFilter: "blur(6px)",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
+                    borderRadius: "4px",
+                    padding: "2px 6px",
+                    fontSize: "10px",
+                    fontWeight: 600,
+                    color: "#38bdf8",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    zIndex: 3,
+                  }}
+                  title={imageAttribution || `${imageProvider} - ${imageLicense}`}
+                >
+                  <span>{imageProvider.toUpperCase() || "WEB"}</span>
+                  {imageLicense && <span style={{ opacity: 0.8 }}>({imageLicense})</span>}
+                </div>
+              )}
+            </div>
+
+            {(imageCaption || imageAttribution) && (
+              <div
+                className="image-caption-bar"
+                style={{
+                  padding: "4px 8px",
+                  background: "rgba(15, 23, 42, 0.9)",
+                  borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                  textAlign: "center",
+                }}
+              >
+                {imageCaption && (
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "#f8fafc", lineHeight: "1.3" }}>
+                    Fig: {imageCaption}
+                  </div>
+                )}
+                {imageAttribution && (
+                  <div style={{ fontSize: "9px", color: "#94a3b8", fontWeight: 500, marginTop: "1px" }}>
+                    {imageAttribution}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      }
+
       default:
         return <div className="element-generic-box">{type} element</div>;
     }
@@ -1062,6 +1274,7 @@ export default function CanvasElement({
 
   return (
     <div
+      data-element-id={norm.id}
       className={`canvas-element-item ${isSelected ? "selected" : ""}`}
       style={{
         ...containerStyle,
@@ -1095,6 +1308,8 @@ export default function CanvasElement({
           onMouseDownResize={handleResize}
           onPointerDownDrag={(e) => handleDrag?.(e, element)}
           onMouseDownDrag={(e) => handleDrag?.(e, element)}
+          onAutoFitHeight={onAutoFitHeight}
+          onAutoFitBoth={onAutoFitBoth}
         />
       )}
     </div>

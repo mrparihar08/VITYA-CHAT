@@ -1,10 +1,11 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import { Download, CheckCircle, X } from "lucide-react";
 
 export default function ExportModal({ isOpen, onClose, onConfirmExport, isSaving }) {
   if (!isOpen) return null;
 
-  return (
+  const modalJSX = (
     <div className="export-modal-overlay" onClick={onClose}>
       <div className="export-modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="export-header">
@@ -50,4 +51,6 @@ export default function ExportModal({ isOpen, onClose, onConfirmExport, isSaving
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalJSX, document.body) : modalJSX;
 }

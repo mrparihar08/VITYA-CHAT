@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Plus, Copy, Trash2, ChevronUp, ChevronDown, ChevronLeft, Layers, ListTree } from "lucide-react";
 import SlideLayoutPicker from "./SlideLayoutPicker";
 import OutlineView from "./OutlineView";
+import { BACKGROUND_PRESETS } from "../PresentationEditor";
 
 export default function SlideSidebar({
   slides = [],
@@ -61,7 +62,14 @@ export default function SlideSidebar({
         <div className="thumbnails-scroll-list">
         {slides.map((slide, idx) => {
           const isActive = idx === activeSlideIndex;
-          const bgStyle = slide.background_theme === "custom"
+          const matchedPreset = (BACKGROUND_PRESETS || []).find(
+            (p) => p.id === slide.background_theme || p.id === slide.background_preset || p.id === slide.template || p.id === slide.bg_color
+          );
+          const bgStyle = slide.background_theme === "solid"
+            ? slide.bg_color || "#0f172a"
+            : matchedPreset
+            ? matchedPreset.bg
+            : slide.bg_gradient_start && slide.bg_gradient_end
             ? `linear-gradient(135deg, ${slide.bg_gradient_start || "#0f172a"} 0%, ${slide.bg_gradient_end || "#1e1b4b"} 100%)`
             : slide.bg_color || "#0f172a";
 

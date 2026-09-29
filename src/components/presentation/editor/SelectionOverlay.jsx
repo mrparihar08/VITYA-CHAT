@@ -8,7 +8,9 @@ export default function SelectionOverlay({
   onMouseDownResize,
   onMouseDownRotate,
   onPointerDownDrag,
-  onMouseDownDrag
+  onMouseDownDrag,
+  onAutoFitHeight,
+  onAutoFitBoth
 }) {
   if (!element) return null;
 
@@ -82,6 +84,15 @@ export default function SelectionOverlay({
             e.stopPropagation();
             handleResize?.(e, handleDir);
           }}
+          onDoubleClick={(e) => {
+            e.stopPropagation();
+            if (onAutoFitBoth) {
+              onAutoFitBoth(element?.id);
+            } else if (onAutoFitHeight) {
+              onAutoFitHeight(element?.id);
+            }
+          }}
+          title="Drag to resize (Double-click to auto-fit to content)"
         />
       ))}
     </div>

@@ -13,8 +13,11 @@ import SavedPresentationsModal from "./editor/SavedPresentationsModal";
 import ShapeCatalogModal from "./editor/ShapeCatalogModal";
 import VoiceoverStudioModal from "./editor/VoiceoverStudioModal";
 import ToastNotification from "./editor/ToastNotification";
-import { SAMPLE_SLIDES } from "./editor/editorState";
+import { SAMPLE_SLIDES, THEME_OPTIONS } from "./editor/editorState";
+import { calculateTextAutoHeight, fitElementHeightToText } from "./editor/textHeightUtils";
 import "./editor/PresentationEditor.css";
+
+export { calculateTextAutoHeight, fitElementHeightToText };
 
 
 // EXPORT CONSTANTS FOR COMPATIBILITY WITH PRESENTATION.JSX & SETUP
@@ -154,19 +157,21 @@ export function fixElementAntiOverlap(elements, isTitleSlide = false) {
     }
     titleEl.fontWeight = titleEl.fontWeight || "800";
 
-    // Dynamic height based on title length and font size
-    const titleLines = titleText.length > 70 ? 3 : titleText.length > 35 ? 2 : 1;
-    titleEl.height = titleLines === 3 ? 22 : titleLines === 2 ? 16 : 12;
+    // Dynamic height based on exact title content and font size to hug text
+    if (!titleEl.customHeight) {
+      titleEl.height = calculateTextAutoHeight(titleText, titleEl.fontSize, titleEl.width);
+    }
 
     if (subEl) {
       subEl.x = subEl.x !== undefined ? Number(subEl.x) : 8;
       // Position Subtitle cleanly below Title with safe gap!
-      subEl.y = titleEl.y + titleEl.height + 4;
+      subEl.y = titleEl.y + titleEl.height + 2;
       subEl.width = subEl.width !== undefined ? Number(subEl.width) : 84;
       const subText = String(subEl.content || subEl.text || "").trim();
-      const subLines = subText.length > 80 ? 3 : subText.length > 40 ? 2 : 1;
-      subEl.height = subLines * 6 + 6;
       subEl.fontSize = subText.length > 60 ? 16 : (subEl.fontSize || 18);
+      if (!subEl.customHeight) {
+        subEl.height = calculateTextAutoHeight(subText, subEl.fontSize, subEl.width);
+      }
     }
   }
 
@@ -175,19 +180,25 @@ export function fixElementAntiOverlap(elements, isTitleSlide = false) {
     const elType = el.type || "text";
     const textStr = String(el.content || el.text || "").trim();
 
-    let estHeight = Number(el.height) || 20;
+    let estHeight = Number(el.height) || 12;
 
-    if (elType === "text" || elType === "paragraph") {
-      const lineCount = textStr.length > 200 ? 6 : textStr.length > 120 ? 4 : textStr.length > 70 ? 3 : textStr.length > 30 ? 2 : 1;
-      const calcHeight = lineCount * 6 + 10;
-      estHeight = Math.max(Number(el.height) || 66, calcHeight);
+    if (elType === "text" || elType === "paragraph" || elType === "title" || elType === "subtitle") {
+      const autoH = calculateTextAutoHeight(textStr, Number(el.fontSize) || 16, Number(el.width) || 80);
+      estHeight = el.customHeight && Number(el.height) ? Number(el.height) : autoH;
     } else if (elType === "bullets") {
       const ptsCount = (el.points || []).length || 3;
-      estHeight = Math.max(Number(el.height) || 66, 20 + ptsCount * 8);
-    } else if (["diagram", "roadmap", "chart", "table", "kpi_grid"].includes(elType)) {
-      estHeight = Math.min(66, Number(el.height) || 32);
+      estHeight = el.customHeight && Number(el.height) ? Number(el.height) : Math.max(16, 8 + ptsCount * 6);
+    } else if (elType === "diagram" || elType === "roadmap") {
+      const rawDiagType = String(
+        el.diagram_type || el.diagramType || el.data?.diagram_type || el.data?.diagramType || (elType === "roadmap" ? "timeline" : "flowchart")
+      ).toLowerCase();
+      const isHorizontalFlow = ["flowchart", "timeline", "process", "roadmap", "io_cards", "io", "steps", "workflow"].some(k => rawDiagType.includes(k));
+      const defaultDiagH = isHorizontalFlow ? 13 : 32;
+      estHeight = el.customHeight && Number(el.height) ? Number(el.height) : defaultDiagH;
+    } else if (["chart", "table", "kpi_grid"].includes(elType)) {
+      estHeight = el.customHeight && Number(el.height) ? Number(el.height) : Math.min(68, Number(el.height) || 32);
     }
-    el.height = el.height !== undefined && Number(el.height) >= estHeight ? Number(el.height) : estHeight;
+    el.height = estHeight;
 
     if (idx === 0) {
       if (el.y === undefined) el.y = isHeroSlide ? 10 : 6;
@@ -256,7 +267,14 @@ export function resolveLayoutBoxes(pluginTypes, layout = null) {
         { x: 52, y: 22, width: 42, height: 66 },
       ];
     } else {
-      // 2 text rows
+      // 2 stacked rows
+      const firstIsHorizontalDiag = ["diagram", "roadmap"].includes(pluginTypes[0]);
+      if (firstIsHorizontalDiag) {
+        return [
+          { x: 6, y: 20, width: 88, height: 14 },
+          { x: 6, y: 37, width: 88, height: 53 },
+        ];
+      }
       return [
         { x: 6, y: 20, width: 88, height: 32 },
         { x: 6, y: 55, width: 88, height: 35 },
@@ -365,24 +383,40 @@ export function normalizeSlideElements(slide, index = 0) {
             borderRadius: el.borderRadius || 8,
           };
         }
+        const isTextEl = ["text", "title", "subtitle", "paragraph"].includes(el.type || "text");
+        const str = String(el.content || el.text || "").trim();
+        const autoH = isTextEl && str ? calculateTextAutoHeight(str, el.fontSize, el.width) : null;
         return {
           ...el,
           x: el.x !== undefined ? Number(el.x) : (isTitleSlide ? 8 : 6),
-          y: el.y !== undefined ? Number(el.y) : (isTitleSlide ? 26 : 6),
+          y: el.y !== undefined ? Number(el.y) : (isTitleSlide ? 24 : 8),
           width: el.width !== undefined ? Number(el.width) : (isTitleSlide ? 84 : 88),
-          height: el.height !== undefined ? Number(el.height) : (isTitleSlide ? 16 : 10),
+          height: el.customHeight ? Number(el.height) : (autoH || (el.height !== undefined ? Number(el.height) : (isTitleSlide ? 12 : 7.8))),
         };
       });
       return { ...slide, elements: fixElementAntiOverlap(updatedElements, isTitleSlide) };
     }
 
     const updatedElements = existingElements.map((el, i) => {
+      const isTextEl = ["text", "title", "subtitle", "paragraph"].includes(el.type || "text");
+      const str = String(el.content || el.text || "").trim();
+      const autoH = isTextEl && str ? calculateTextAutoHeight(str, el.fontSize, el.width) : null;
+      const isHorizontalDiag = (el.type === "diagram" || el.type === "roadmap") && (
+        ["flowchart", "timeline", "process", "roadmap", "io_cards", "io", "steps", "workflow"].some(k => String(el.diagram_type || el.diagramType || el.data?.diagram_type || "").toLowerCase().includes(k)) ||
+        !el.diagram_type
+      );
+      const defaultDiagHeight = isHorizontalDiag ? 13 : 20;
+      const currentH = Number(el.height);
+      const finalH = el.customHeight
+        ? currentH
+        : (autoH || (currentH && currentH !== 32 && currentH !== 38 ? currentH : defaultDiagHeight));
+
       return {
         ...el,
         x: el.x !== undefined ? Number(el.x) : 10,
-        y: el.y !== undefined ? Number(el.y) : Math.min(80, 10 + i * 20),
+        y: el.y !== undefined ? Number(el.y) : Math.min(80, 8 + i * 16),
         width: el.width !== undefined ? Number(el.width) : 80,
-        height: el.height !== undefined ? Number(el.height) : 25,
+        height: finalH,
       };
     });
     return { ...slide, elements: fixElementAntiOverlap(updatedElements, isTitleSlide) };
@@ -392,15 +426,18 @@ export function normalizeSlideElements(slide, index = 0) {
 
   // 1. Slide Title (Cover vs Content positioning)
   if (slide.title) {
+    const titleFSize = isTitleSlide ? 40 : 28;
+    const titleW = isTitleSlide ? 84 : 88;
+    const titleH = calculateTextAutoHeight(slide.title, titleFSize, titleW);
     newElements.push({
       id: `el-title-${Date.now()}-${index}`,
       type: "text",
       x: isTitleSlide ? 8 : 6,
-      y: isTitleSlide ? 26 : 6,
-      width: isTitleSlide ? 84 : 88,
-      height: isTitleSlide ? 16 : 10,
+      y: isTitleSlide ? 24 : 8,
+      width: titleW,
+      height: titleH,
       content: slide.title,
-      fontSize: isTitleSlide ? 40 : 28,
+      fontSize: titleFSize,
       fontWeight: isTitleSlide ? "800" : "700",
       color: defaultTextColor,
       align: isTitleSlide ? "center" : (slide.title_align || "left")
@@ -409,15 +446,18 @@ export function normalizeSlideElements(slide, index = 0) {
 
   // 2. Slide Subtitle (Cover vs Content positioning)
   if (slide.subtitle) {
+    const subFSize = isTitleSlide ? 18 : 15;
+    const subW = isTitleSlide ? 80 : 88;
+    const subH = calculateTextAutoHeight(slide.subtitle, subFSize, subW);
     newElements.push({
       id: `el-sub-${Date.now()}-${index}`,
       type: "text",
       x: isTitleSlide ? 10 : 6,
-      y: isTitleSlide ? 47 : 15,
-      width: isTitleSlide ? 80 : 88,
-      height: isTitleSlide ? 10 : 5,
+      y: isTitleSlide ? 38 : 16,
+      width: subW,
+      height: subH,
       content: slide.subtitle,
-      fontSize: isTitleSlide ? 18 : 15,
+      fontSize: subFSize,
       fontWeight: "400",
       color: defaultAccentColor,
       align: isTitleSlide ? "center" : (slide.subtitle_align || "left")
@@ -836,7 +876,7 @@ export default function PresentationEditor({
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedElementId]);
 
 
@@ -887,8 +927,9 @@ export default function PresentationEditor({
           diagram_type: "flowchart",
           phases: parsedPhases,
           diagram: refinedText,
-          content: refinedText,
-          height: 38
+          height: 13,
+          customHeight: false,
+          autoHeight: true
         });
       } else if (action === "bullets" || refinedText.includes("•")) {
         const points = refinedText.split("\n").map((s) => s.replace(/^[•\-*]\s*/, "").trim()).filter(Boolean);
@@ -919,14 +960,18 @@ export default function PresentationEditor({
             phases: parsedPhases,
             diagram: refinedText,
             content: refinedText,
-            height: 38
+            height: 13,
+            customHeight: false,
+            autoHeight: true
           });
         } else {
           handleAddElement("diagram", {
             diagram_type: "flowchart",
             phases: parsedPhases,
             diagram: refinedText,
-            height: 38
+            height: 13,
+            customHeight: false,
+            autoHeight: true
           });
         }
       } else if (action === "bullets" || refinedText.includes("•")) {
@@ -977,19 +1022,22 @@ export default function PresentationEditor({
 
   const createElementsForLayout = (layoutId, count) => {
     const titleText = `Slide ${count}: Topic Title`;
+    const titleAutoH = calculateTextAutoHeight(titleText, 28, 88);
     const timestamp = Date.now();
 
     switch (layoutId) {
-      case "title_slide":
+      case "title_slide": {
+        const coverTitle = `Presentation Title ${count}`;
+        const coverSub = "Add subtitle or presenter information here...";
         return [
           {
             id: `el-${timestamp}-title`,
             type: "text",
             x: 10,
-            y: 28,
+            y: 26,
             width: 80,
-            height: 22,
-            content: `Presentation Title ${count}`,
+            height: calculateTextAutoHeight(coverTitle, 36, 80),
+            content: coverTitle,
             fontSize: 36,
             fontWeight: "800",
             color: "#ffffff",
@@ -999,15 +1047,16 @@ export default function PresentationEditor({
             id: `el-${timestamp}-sub`,
             type: "text",
             x: 15,
-            y: 54,
+            y: 42,
             width: 70,
-            height: 16,
-            content: "Add subtitle or presenter information here...",
+            height: calculateTextAutoHeight(coverSub, 18, 70),
+            content: coverSub,
             fontSize: 18,
             color: "#c084fc",
             align: "center"
           }
         ];
+      }
 
       case "two_column":
         return [
@@ -1017,7 +1066,7 @@ export default function PresentationEditor({
             x: 6,
             y: 8,
             width: 88,
-            height: 14,
+            height: titleAutoH,
             content: titleText,
             fontSize: 28,
             fontWeight: "700",
@@ -1028,9 +1077,9 @@ export default function PresentationEditor({
             id: `el-${timestamp}-col1`,
             type: "text",
             x: 6,
-            y: 26,
+            y: 20,
             width: 42,
-            height: 60,
+            height: 66,
             content: "• Column 1 Key takeaway point\n• Operational workflow step\n• Strategic target metrics",
             fontSize: 15,
             color: "#cbd5e1",
@@ -1040,9 +1089,9 @@ export default function PresentationEditor({
             id: `el-${timestamp}-col2`,
             type: "text",
             x: 52,
-            y: 26,
+            y: 20,
             width: 42,
-            height: 60,
+            height: 66,
             content: "• Column 2 Comparative analysis\n• Industry benchmark data\n• Future growth projection",
             fontSize: 15,
             color: "#cbd5e1",
@@ -1058,7 +1107,7 @@ export default function PresentationEditor({
             x: 6,
             y: 8,
             width: 88,
-            height: 14,
+            height: titleAutoH,
             content: titleText,
             fontSize: 28,
             fontWeight: "700",
@@ -1069,9 +1118,9 @@ export default function PresentationEditor({
             id: `el-${timestamp}-text`,
             type: "text",
             x: 6,
-            y: 26,
+            y: 20,
             width: 42,
-            height: 60,
+            height: 66,
             content: "Highlight key visual concepts, product details, or media descriptions in this text block.",
             fontSize: 15,
             color: "#cbd5e1",
@@ -1081,9 +1130,9 @@ export default function PresentationEditor({
             id: `el-${timestamp}-img`,
             type: "image",
             x: 52,
-            y: 26,
+            y: 20,
             width: 42,
-            height: 60,
+            height: 66,
             url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
             caption: "Visual Media Feature Showcase"
           }
@@ -1097,7 +1146,7 @@ export default function PresentationEditor({
             x: 6,
             y: 8,
             width: 88,
-            height: 14,
+            height: titleAutoH,
             content: titleText,
             fontSize: 28,
             fontWeight: "700",
@@ -1108,9 +1157,9 @@ export default function PresentationEditor({
             id: `el-${timestamp}-chart`,
             type: "chart",
             x: 6,
-            y: 26,
+            y: 20,
             width: 88,
-            height: 60,
+            height: 66,
             data: {
               title: "Performance & Conversion Metrics",
               items: [
@@ -1131,7 +1180,7 @@ export default function PresentationEditor({
             x: 6,
             y: 8,
             width: 88,
-            height: 14,
+            height: titleAutoH,
             content: titleText,
             fontSize: 28,
             fontWeight: "700",
@@ -1142,9 +1191,9 @@ export default function PresentationEditor({
             id: `el-${timestamp}-table`,
             type: "table",
             x: 6,
-            y: 26,
+            y: 20,
             width: 88,
-            height: 60,
+            height: 66,
             headers: ["Phase", "Milestone Target", "Execution Status"],
             rows: [
               ["Phase 1", "Architecture Setup", "Completed"],
@@ -1154,7 +1203,8 @@ export default function PresentationEditor({
           }
         ];
 
-      case "section":
+      case "section": {
+        const secText = `SECTION ${count}: STRATEGIC PILLARS`;
         return [
           {
             id: `el-${timestamp}-section`,
@@ -1162,14 +1212,15 @@ export default function PresentationEditor({
             x: 10,
             y: 38,
             width: 80,
-            height: 24,
-            content: `SECTION ${count}: STRATEGIC PILLARS`,
+            height: calculateTextAutoHeight(secText, 34, 80),
+            content: secText,
             fontSize: 34,
             fontWeight: "800",
             color: "#c084fc",
             align: "center"
           }
         ];
+      }
 
       case "blank":
         return [];
@@ -1183,7 +1234,7 @@ export default function PresentationEditor({
             x: 6,
             y: 8,
             width: 88,
-            height: 14,
+            height: titleAutoH,
             content: titleText,
             fontSize: 28,
             fontWeight: "700",
@@ -1266,6 +1317,34 @@ export default function PresentationEditor({
   const handleUpdateSlide = (updatedFields) => {
     const newSlides = [...slides];
     newSlides[currentSlideIdx] = { ...newSlides[currentSlideIdx], ...updatedFields };
+    updateSlidesState(newSlides);
+  };
+
+  const handleSelectThemePreset = (presetId) => {
+    setSelectedBgPreset?.(presetId);
+
+    const preset = (BACKGROUND_PRESETS || []).find((p) => p.id === presetId) ||
+                   (THEME_OPTIONS || []).find((p) => p.id === presetId);
+    if (!preset) return;
+
+    const hexMatches = preset.bg ? preset.bg.match(/#[0-9a-fA-F]{3,6}/g) : null;
+    const bgStart = preset.bg_start || (hexMatches?.[0]) || "#0f172a";
+    const bgEnd = preset.bg_end || (hexMatches?.[1]) || bgStart;
+    const solidBg = preset.solid_bg || bgStart;
+    const accentColor = preset.accent || "#c084fc";
+    const textColor = preset.text || "#ffffff";
+
+    const newSlides = slides.map((s) => ({
+      ...s,
+      background_theme: presetId,
+      background_preset: presetId,
+      template: presetId,
+      bg_color: solidBg,
+      bg_gradient_start: bgStart,
+      bg_gradient_end: bgEnd,
+      accent_color: accentColor,
+      text_color: textColor
+    }));
     updateSlidesState(newSlides);
   };
 
@@ -1415,7 +1494,7 @@ export default function PresentationEditor({
             onDeleteElement={handleDeleteElement}
             onDuplicateElement={handleDuplicateElement}
             selectedBgPreset={selectedBgPreset || "dark_gradient"}
-            onSelectBgPreset={(preset) => setSelectedBgPreset?.(preset)}
+            onSelectBgPreset={handleSelectThemePreset}
             onAiRefine={(initialText) => handleOpenAiRefine(initialText)}
           />
         )}

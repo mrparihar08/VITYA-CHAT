@@ -201,7 +201,34 @@ export const getUnsplashPhotos = async (query, perPage = 9) => {
     return await safeFetchJSON(res);
   } catch (err) {
     console.warn("getUnsplashPhotos error", err);
-    return { query, total: 0, photos: [] };
+    return null;
+  }
+};
+
+export const searchPresentationImages = async ({ query, provider = null, page = 1, pageSize = 20, visualType = null }) => {
+  try {
+    let url = `${API_BASE_URL}/api/presentation/images/search?query=${encodeURIComponent(query)}&page=${page}&page_size=${pageSize}`;
+    if (provider) url += `&provider=${encodeURIComponent(provider)}`;
+    if (visualType) url += `&visual_type=${encodeURIComponent(visualType)}`;
+    const res = await fetch(url, { headers: getAuthHeaders() });
+    return await safeFetchJSON(res);
+  } catch (err) {
+    console.warn("searchPresentationImages error", err);
+    return { status: "error", results: [] };
+  }
+};
+
+export const suggestPresentationImages = async ({ presentation_topic, slide_title = "", slide_content = "", visual_type = null, slide_index = 0, used_urls = [] }) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/presentation/images/suggest`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+      body: JSON.stringify({ presentation_topic, slide_title, slide_content, visual_type, slide_index, used_urls }),
+    });
+    return await safeFetchJSON(res);
+  } catch (err) {
+    console.warn("suggestPresentationImages error", err);
+    return { query: "", visual_type: "photo", suggested_images: [] };
   }
 };
 

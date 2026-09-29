@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { Sparkles, Wand2, FileText, BarChart2, Network, Image as ImageIcon, X, Check, Loader2 } from "lucide-react";
 import { refineSlideText } from "../../../services/api";
 
@@ -64,7 +65,7 @@ export default function AiRefineModal({
     onClose();
   };
 
-  return (
+  const modalJSX = (
     <div className="ai-refine-overlay" onClick={onClose}>
       <div className="ai-refine-modal" onClick={(e) => e.stopPropagation()}>
         {/* HEADER */}
@@ -175,4 +176,6 @@ export default function AiRefineModal({
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalJSX, document.body) : modalJSX;
 }
