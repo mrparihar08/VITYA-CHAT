@@ -378,6 +378,94 @@ function sanitizePlanForBackend(rawPlan, themeConfig = null) {
       });
     }
 
+    // Process and merge all visual elements from the canvas (ground truth)
+    visualElements.forEach((el) => {
+      if (!el) return;
+      const rawX = Number(el.x !== undefined ? el.x : el.left);
+      const rawY = Number(el.y !== undefined ? el.y : el.top);
+      const rawW = Number(el.width !== undefined ? el.width : el.w);
+      const rawH = Number(el.height !== undefined ? el.height : el.h);
+
+      const inchBox = (!isNaN(rawX) && !isNaN(rawY) && !isNaN(rawW) && !isNaN(rawH) && rawW > 0 && rawH > 0)
+        ? {
+            left: Math.round((rawX / 100) * 13.333 * 100) / 100,
+            top: Math.round((rawY / 100) * 7.5 * 100) / 100,
+            width: Math.round((rawW / 100) * 13.333 * 100) / 100,
+            height: Math.round((rawH / 100) * 7.5 * 100) / 100,
+          }
+        : undefined;
+
+      if (el.type === "image") {
+        const imgUrl = String(el.url || el.src || el.data?.url || el.data?.src || "").trim();
+        if (imgUrl) {
+          extractedImageUrl = imgUrl;
+          const existingImgPlugin = plugins.find((p) => p.type === "image");
+          if (existingImgPlugin) {
+            existingImgPlugin.data = {
+              ...existingImgPlugin.data,
+              url: imgUrl,
+              path: imgUrl,
+              ...(inchBox ? { box: inchBox, left: inchBox.left, top: inchBox.top, width: inchBox.width, height: inchBox.height } : {})
+            };
+          } else {
+            plugins.push({
+              type: "image",
+              data: {
+                url: imgUrl,
+                path: imgUrl,
+                caption: String(el.caption || "").trim(),
+                ...(inchBox ? { box: inchBox, left: inchBox.left, top: inchBox.top, width: inchBox.width, height: inchBox.height } : {})
+              }
+            });
+          }
+        }
+      } else if (el.type === "bullets") {
+        const pts = safeArray(el.points || el.items).map((pt) => String(pt).trim()).filter(Boolean);
+        if (pts.length) {
+          extractedBullets.push(...pts);
+          const existingBullets = plugins.find((p) => p.type === "bullets");
+          if (existingBullets) {
+            existingBullets.data.points = pts;
+          } else {
+            plugins.push({
+              type: "bullets",
+              data: {
+                points: pts,
+                ...(inchBox ? { box: inchBox, left: inchBox.left, top: inchBox.top, width: inchBox.width, height: inchBox.height } : {})
+              }
+            });
+          }
+        }
+      } else if (el.type === "diagram") {
+        const existingDiag = plugins.find((p) => p.type === "diagram");
+        if (!existingDiag) {
+          plugins.push({
+            type: "diagram",
+            data: {
+              diagram: String(el.diagram || el.content || "").trim(),
+              diagram_type: el.diagram_type || "flowchart",
+              phases: safeArray(el.phases),
+              ...(inchBox ? { box: inchBox, left: inchBox.left, top: inchBox.top, width: inchBox.width, height: inchBox.height } : {})
+            }
+          });
+        }
+      } else if (el.type === "chart") {
+        const existingChart = plugins.find((p) => p.type === "chart");
+        if (!existingChart) {
+          plugins.push({
+            type: "chart",
+            data: {
+              chart_type: el.chart_type || el.chartType || "bar",
+              title: String(el.title || "Metrics").trim(),
+              labels: safeArray(el.labels),
+              values: safeArray(el.values).map(Number),
+              ...(inchBox ? { box: inchBox, left: inchBox.left, top: inchBox.top, width: inchBox.width, height: inchBox.height } : {})
+            }
+          });
+        }
+      }
+    });
+
     if (plugins.length === 0 && Array.isArray(cp.content) && cp.content.length > 0) {
       const bulletsList = [];
       cp.content.forEach((item) => {
@@ -1508,10 +1596,27 @@ export default function PresentationGenerator({ presentationId = null }) {
           background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 60%, var(--bg-0) 100%);
         }
 
-        .ppt-shell { min-height: 100vh; padding: 10px 14px; width: 100%; max-width: 100%; margin: 0; }
+        .ppt-shell {
+          height: 100%;
+          min-height: 100%;
+          max-height: 100%;
+          width: 100%;
+          max-width: 100%;
+          padding: 0;
+          margin: 0;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .ppt-shell.setup-mode {
+          height: 100%;
+          overflow-y: auto;
+          padding: 10px 14px;
+        }
 
         @media (max-width: 768px) {
-          .ppt-shell { padding: 4px !important; }
+          .ppt-shell.setup-mode { padding: 6px !important; }
           .card-box { padding: 8px 6px !important; border-radius: 10px !important; }
           .ppt-header-bar { padding: 8px 10px !important; border-radius: 10px !important; }
           .feature-block-card { padding: 8px 6px !important; margin-bottom: 8px !important; }
@@ -1795,52 +1900,54 @@ export default function PresentationGenerator({ presentationId = null }) {
         }
       `}</style>
 
-      <div className="ppt-shell">
-        {/* HEADER BAR */}
-        <div className="ppt-header-bar">
-          <div className="ppt-header-title" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <h1 style={{ margin: 0 }}>Presentation Studio</h1>
-          </div>
+      <div className={`ppt-shell ${currentStep === 2 ? "editor-mode" : "setup-mode"}`}>
+        {/* HEADER BAR (SHOWN ON SETUP & PLAN STEPS ONLY TO KEEP SLIDE EDITOR HEADER UNIFIED) */}
+        {currentStep !== 2 && (
+          <div className="ppt-header-bar">
+            <div className="ppt-header-title" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <h1 style={{ margin: 0 }}>Presentation Studio</h1>
+            </div>
 
-          <div className="ppt-header-controls" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <button
-              className="btn-ui sm secondary"
-              onClick={handleTriggerCacheCleanup}
-              disabled={isCleaningCache}
-              title="Purge expired presentation output files and cache from server storage"
-              style={{ fontSize: 11, display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 9px" }}
-            >
-              {isCleaningCache ? "⏳ Cleaning..." : "🧹 Clean Cache"}
-            </button>
+            <div className="ppt-header-controls" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <button
+                className="btn-ui sm secondary"
+                onClick={handleTriggerCacheCleanup}
+                disabled={isCleaningCache}
+                title="Purge expired presentation output files and cache from server storage"
+                style={{ fontSize: 11, display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 9px" }}
+              >
+                {isCleaningCache ? "⏳ Cleaning..." : "🧹 Clean Cache"}
+              </button>
 
-            {/* PAGE STEP NAVIGATION PILLS */}
-            <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.3)", padding: 4, borderRadius: 10, border: "1px solid var(--panel-border)" }}>
-              <button
-                className={`btn-ui sm ${currentStep === 1 ? "primary" : "secondary"}`}
-                onClick={() => setCurrentStep(1)}
-              >
-                Setup
-              </button>
-              <button
-                className={`btn-ui sm ${currentStep === 2 ? "primary" : "secondary"}`}
-                onClick={() => setCurrentStep(2)}
-                disabled={!plan}
-                title={!plan ? "Generate presentation first" : "Open Slide Editor & Viewer"}
-              >
-                Slide Editor {plan?.slides?.length ? `(${plan.slides.length})` : ""}
-              </button>
-              {planPreview && (
+              {/* PAGE STEP NAVIGATION PILLS */}
+              <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.3)", padding: 4, borderRadius: 10, border: "1px solid var(--panel-border)" }}>
                 <button
-                  className={`btn-ui sm ${currentStep === 3 ? "primary" : "secondary"}`}
-                  onClick={() => setCurrentStep(3)}
-                  title="View AI Stage 1 Plan & Sequence Structure"
+                  className={`btn-ui sm ${currentStep === 1 ? "primary" : "secondary"}`}
+                  onClick={() => setCurrentStep(1)}
                 >
-                  Plan
+                  Setup
                 </button>
-              )}
+                <button
+                  className={`btn-ui sm ${currentStep === 2 ? "primary" : "secondary"}`}
+                  onClick={() => setCurrentStep(2)}
+                  disabled={!plan}
+                  title={!plan ? "Generate presentation first" : "Open Slide Editor & Viewer"}
+                >
+                  Slide Editor {plan?.slides?.length ? `(${plan.slides.length})` : ""}
+                </button>
+                {planPreview && (
+                  <button
+                    className={`btn-ui sm ${currentStep === 3 ? "primary" : "secondary"}`}
+                    onClick={() => setCurrentStep(3)}
+                    title="View AI Stage 1 Plan & Sequence Structure"
+                  >
+                    Plan
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {cleanupMessage && (
           <div style={{
@@ -1967,6 +2074,8 @@ export default function PresentationGenerator({ presentationId = null }) {
             handleDeletePlugin={handleDeletePlugin}
             onBackToSetup={() => setCurrentStep(1)}
             onNewDeck={handleResetPlanToDefault}
+            onTriggerCacheCleanup={handleTriggerCacheCleanup}
+            isCleaningCache={isCleaningCache}
           />
         )}
       </div>

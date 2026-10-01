@@ -6,8 +6,9 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100vh;
-  max-height: 100vh;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
   background: #090d16;
   color: #f8fafc;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -229,6 +230,7 @@
 .ppt-main-body {
   display: flex;
   flex: 1;
+  min-height: 0;
   position: relative;
   overflow: hidden;
 }
@@ -440,13 +442,13 @@
 /* --------------------------------------------------------- */
 .ppt-canvas-workspace {
   flex: 1;
-  background: #070a12;
+  background: #090d16;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: auto;
-  padding: 24px;
+  padding: 0;
 }
 
 .slide-canvas-viewport {
@@ -463,8 +465,8 @@
   height: 540px;
   box-sizing: border-box;
   position: relative;
-  border-radius: 8px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   flex-shrink: 0;
   transition: transform 0.15s ease-out;
@@ -2237,23 +2239,220 @@
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
 }
 
-/* RESPONSIVE DESIGN */
-@media (max-width: 1024px) {
+/* ========================================================= */
+/* RESPONSIVE DESIGN & MOBILE/TABLET UPGRADE                */
+/* ========================================================= */
+.ppt-drawer-backdrop {
+  display: none;
+}
+
+@keyframes pptFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pptSlideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes pptSlideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@media (max-width: 1200px) {
   .ppt-slide-sidebar {
-    width: 180px;
+    width: 220px;
   }
   .ppt-properties-panel {
-    width: 250px;
+    width: 280px;
   }
 }
 
-@media (max-width: 768px) {
-  .ppt-main-body {
-    flex-direction: column;
+@media (max-width: 900px) {
+  .ppt-drawer-backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 90;
+    animation: pptFadeIn 0.2s ease-out;
   }
-  .ppt-slide-sidebar, .ppt-properties-panel {
+  .ppt-main-body {
+    display: flex;
+    flex-direction: row;
+    position: relative;
     width: 100%;
-    height: 160px;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .ppt-canvas-workspace {
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Slide Sidebar as Off-Canvas Drawer on Mobile/Tablet */
+  .ppt-slide-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 290px;
+    max-width: 85vw;
+    height: 100%;
+    z-index: 100;
+    background: #0f172a;
+    box-shadow: 10px 0 35px rgba(0, 0, 0, 0.85);
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+    animation: pptSlideInLeft 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Properties Panel as Off-Canvas Drawer on Mobile/Tablet */
+  .ppt-properties-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 320px;
+    max-width: 90vw;
+    height: 100%;
+    z-index: 100;
+    background: #0f172a;
+    box-shadow: -10px 0 35px rgba(0, 0, 0, 0.85);
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    animation: pptSlideInRight 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Top Navigation Bar */
+  .ppt-top-bar {
+    height: auto;
+    min-height: 44px;
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .title-container {
+    max-width: 130px;
+  }
+
+  .title-text {
+    font-size: 13px;
+  }
+
+  .save-status-pill {
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+
+  /* Bottom Insert Toolbar */
+  .ppt-bottom-toolbar {
+    width: calc(100% - 16px);
+    max-width: 460px;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 6px;
+    border-radius: 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    justify-content: flex-start;
+    touch-action: pan-x;
+  }
+
+  .ppt-bottom-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .toolbar-buttons-row {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  .insert-btn {
+    padding: 6px 10px;
+    font-size: 11.5px;
+    white-space: nowrap;
+    border-radius: 8px;
+    touch-action: manipulation;
+  }
+
+  /* Zoom controls placed cleanly above bottom toolbar on mobile */
+  .ppt-zoom-controls {
+    bottom: 54px;
+    right: 8px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    scale: 0.88;
+    transform-origin: bottom right;
+    backdrop-filter: blur(16px);
+  }
+
+  /* Modals on tablet and mobile */
+  .layout-picker-modal,
+  .export-modal-card,
+  .ai-refine-modal,
+  .design-check-modal,
+  .img-search-modal,
+  .gemini-gen-modal,
+  .ai-image-refine-modal {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 92vh !important;
+    margin: 8px;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 600px) {
+  .ppt-top-bar {
+    padding: 4px 6px;
+  }
+
+  .top-btn-group {
+    gap: 4px !important;
+  }
+
+  .top-btn {
+    padding: 5px 8px !important;
+    font-size: 11px !important;
+  }
+
+  .title-container {
+    max-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title-container {
+    max-width: 80px;
+  }
+
+  .title-text {
+    font-size: 12px;
+  }
+
+  .top-btn span {
+    display: none;
+  }
+
+  .ai-command-btn span {
+    display: inline;
+  }
+
+  .save-status-pill span {
+    display: none;
+  }
+
+  .save-status-pill {
+    padding: 3px 5px;
   }
 }
 

@@ -88,6 +88,50 @@ const CalendarApp = () => {
   };
 
   // =========================
+  // UPDATE EVENT
+  // =========================
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDate, setEditDate] = useState("");
+
+  const startEdit = (item) => {
+    setEditingId(item.id);
+    setEditTitle(item.title || item.event || "");
+    setEditDate(item.date || "");
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditTitle("");
+    setEditDate("");
+  };
+
+  const saveEdit = async (id) => {
+    if (!editTitle.trim()) return;
+
+    const token = getToken();
+    if (!token) {
+      setEvents((prev) =>
+        prev.map((e) => (e.id === id ? { ...e, title: editTitle.trim(), date: editDate } : e))
+      );
+      cancelEdit();
+      return;
+    }
+
+    try {
+      await api.put(`/api/calendar/${id}`, {
+        title: editTitle.trim(),
+        date: editDate,
+      });
+      setMessage("Event updated successfully!");
+      cancelEdit();
+      await fetchEvents();
+    } catch (err) {
+      setMessage(handleApiError(err) || "Failed to update event");
+    }
+  };
+
+  // =========================
   // DELETE EVENT
   // =========================
   const deleteEvent = async (id) => {
@@ -175,23 +219,60 @@ const CalendarApp = () => {
                 marginBottom: 8,
               }}
             >
-              <div>
-                <strong style={{ color: "var(--accent, #8b5cf6)" }}>{item.date}</strong>
-                <span style={{ marginLeft: 8 }}>{item.title || item.event}</span>
-                {item.time && (
-                  <span style={{ marginLeft: 8, fontSize: 12, color: "var(--text-muted, #888)" }}>
-                    ⏰ {item.time}
-                  </span>
-                )}
-              </div>
-              <button
-                className="deleteBtn"
-                onClick={() => deleteEvent(item.id)}
-                title="Delete event"
-                style={{ marginLeft: 8 }}
-              >
-                ×
-              </button>
+              {editingId === item.id ? (
+                <div style={{ display: "flex", gap: 8, flex: 1, alignItems: "center" }}>
+                  <input
+                    type="date"
+                    className="inputBox"
+                    value={editDate}
+                    onChange={(e) => setEditDate(e.target.value)}
+                    style={{ width: "auto" }}
+                  />
+                  <input
+                    type="text"
+                    className="inputBox"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    style={{ flex: 1 }}
+                  />
+                  <button className="smallBtn" onClick={() => saveEdit(item.id)}>
+                    Save
+                  </button>
+                  <button className="deleteBtn" onClick={cancelEdit} style={{ marginLeft: 4 }}>
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <strong style={{ color: "var(--accent, #8b5cf6)" }}>{item.date}</strong>
+                    <span style={{ marginLeft: 8 }}>{item.title || item.event}</span>
+                    {item.time && (
+                      <span style={{ marginLeft: 8, fontSize: 12, color: "var(--text-muted, #888)" }}>
+                        ⏰ {item.time}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    <button
+                      className="smallBtn"
+                      onClick={() => startEdit(item)}
+                      title="Edit event"
+                      style={{ padding: "4px 8px", fontSize: 12 }}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className="deleteBtn"
+                      onClick={() => deleteEvent(item.id)}
+                      title="Delete event"
+                      style={{ marginLeft: 4 }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           ))
         )}

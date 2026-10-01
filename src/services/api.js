@@ -244,6 +244,20 @@ export const getTemplatesCatalog = async () => {
   }
 };
 
+export const generateAiPresentationImage = async ({ prompt, style = "Professional", aspect_ratio = "16:9", topic = "", slide_title = "" }) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/presentation/ai-image/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+      body: JSON.stringify({ prompt, style, aspect_ratio, topic, slide_title }),
+    });
+    return await safeFetchJSON(res);
+  } catch (err) {
+    console.warn("generateAiPresentationImage error", err);
+    throw err;
+  }
+};
+
 
 // ================= SAVINGS GOALS API =================
 export const getSavingsGoals = async () => {
@@ -305,6 +319,125 @@ export const getFinancialHealthScore = async () => {
 
 export const getFinancialExecutiveSummary = async () => {
   const res = await api.get("/api/ai/executive-summary");
+  return res.data;
+};
+
+// ================= INCOME & EXPENSE MANAGEMENT API =================
+export const getIncomes = async () => {
+  const res = await api.get("/api/income/");
+  return res.data;
+};
+
+export const createIncome = async (data) => {
+  const res = await api.post("/api/income/", data);
+  return res.data;
+};
+
+export const updateIncome = async (id, data) => {
+  const res = await api.put(`/api/income/${id}`, data);
+  return res.data;
+};
+
+export const deleteIncome = async (id) => {
+  const res = await api.delete(`/api/income/${id}`);
+  return res.data;
+};
+
+export const getExpenses = async () => {
+  const res = await api.get("/api/expense/");
+  return res.data;
+};
+
+export const createExpense = async (data) => {
+  const res = await api.post("/api/expense/", data);
+  return res.data;
+};
+
+export const updateExpense = async (id, data) => {
+  const res = await api.put(`/api/expense/${id}`, data);
+  return res.data;
+};
+
+export const deleteExpense = async (id) => {
+  const res = await api.delete(`/api/expense/${id}`);
+  return res.data;
+};
+
+// ================= FINANCIAL TELEMETRY & CHARTS API =================
+export const getFinancialOverview = async () => {
+  const res = await api.get("/api/vitya/financial_overview");
+  return res.data;
+};
+
+export const getExpenseGraph = async () => {
+  const res = await api.get("/api/vitya/graph");
+  return res.data;
+};
+
+export const getExpenseIncomeTrend = async () => {
+  const res = await api.get("/api/vitya/expense_income_trend");
+  return res.data;
+};
+
+export const getExpensesChart = async () => {
+  const res = await api.get("/api/vitya/expenses_chart");
+  return res.data;
+};
+
+export const getRecentTransactions = async () => {
+  const res = await api.get("/api/vitya/transactions/recent");
+  return res.data;
+};
+
+// ================= AI PREDICTIVE & ADVISORY API =================
+export const getExpensePrediction = async (category) => {
+  const res = await api.get(`/api/ai/predict/${encodeURIComponent(category)}`);
+  return res.data;
+};
+
+export const getSpendingWasteAnalysis = async () => {
+  const res = await api.get("/api/ai/waste-analysis");
+  return res.data;
+};
+
+export const getFinancialAdvisor = async (category) => {
+  const res = await api.get(`/api/ai/advisor/${encodeURIComponent(category)}`);
+  return res.data;
+};
+
+export const getBudgetCaps = async () => {
+  const res = await api.get("/api/ai/budget-cap");
+  return res.data;
+};
+
+export const createOrUpdateBudgetCap = async (data) => {
+  const res = await api.post("/api/ai/budget-cap", data);
+  return res.data;
+};
+
+export const getBudgetAlerts = async () => {
+  const res = await api.get("/api/ai/budget-alerts");
+  return res.data;
+};
+
+// ================= SETTINGS, SUPPORT & EXPORT API =================
+export const getUserSettings = async () => {
+  const res = await api.get("/api/settings/");
+  return res.data;
+};
+
+export const updateUserSettings = async (data) => {
+  const res = await api.put("/api/settings/", data);
+  return res.data;
+};
+
+export const submitSupportTicket = async (data) => {
+  const res = await api.post("/api/users/support", data);
+  return res.data;
+};
+
+export const exportUserData = async () => {
+  const res = await api.get("/api/users/export-data");
   return res.data;
 };
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Sparkles, X, Check, RefreshCw, Wand2, Loader2 } from "lucide-react";
+import { generateAiPresentationImage } from "../../../services/api";
 
 const STYLES = [
   { id: "Professional", name: "Professional", desc: "Clean modern business graphic" },
@@ -48,30 +49,45 @@ export default function GeminiImageModal({
     }
   }, [isOpen, selectedStyle, aspectRatio, customInstructions, slideContext]);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
     setGenerationStep("Analyzing presentation context & slide topic...");
 
-    setTimeout(() => {
+    try {
       setGenerationStep("Synthesizing visual concepts with Gemini AI engine...");
-      setTimeout(() => {
-        setGenerationStep("Rendering high-definition presentation visual...");
-        setTimeout(() => {
-          // Pollinations / Gemini AI image service URL generation
-          const seed = Math.floor(Math.random() * 1000000);
-          const encodedPrompt = encodeURIComponent(`${constructedPrompt} hd high quality`);
-          const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?seed=${seed}&width=1280&height=720&nologo=true`;
+      const res = await generateAiPresentationImage({
+        prompt: constructedPrompt,
+        style: selectedStyle,
+        aspect_ratio: aspectRatio,
+        topic: slideContext.topic || slideContext.presentationTitle || "",
+        slide_title: slideContext.slideTitle || ""
+      });
 
-          setGeneratedImage({
-            url: imageUrl,
-            prompt: constructedPrompt,
-            style: selectedStyle,
-            source: "AI Generated (Gemini)"
-          });
-          setIsGenerating(false);
-        }, 1200);
-      }, 1000);
-    }, 800);
+      if (res && res.image_url) {
+        setGeneratedImage({
+          url: res.image_url,
+          prompt: res.revised_prompt || constructedPrompt,
+          style: selectedStyle,
+          source: res.source || "AI Generated (Gemini)"
+        });
+      } else {
+        throw new Error("No URL returned");
+      }
+    } catch (err) {
+      // Fallback to high-res synthesized image
+      const seed = Math.floor(Math.random() * 1000000);
+      const encodedPrompt = encodeURIComponent(`${constructedPrompt} hd high quality`);
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?seed=${seed}&width=1280&height=720&nologo=true`;
+
+      setGeneratedImage({
+        url: imageUrl,
+        prompt: constructedPrompt,
+        style: selectedStyle,
+        source: "AI Generated (Gemini)"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   if (!isOpen) return null;

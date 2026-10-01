@@ -1,0 +1,389 @@
+.vitya-finance-app {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #f8fafc;
+  font-family: inherit;
+}
+
+.finance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.finance-header h2 {
+  margin: 0 0 6px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.finance-header p {
+  margin: 0;
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+.finance-export-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.export-csv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #10b981;
+  color: #ffffff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.export-csv-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.export-csv-btn.secondary {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+}
+
+.export-csv-btn.secondary:hover {
+  background: #334155;
+}
+
+/* KPI GRID */
+.finance-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.finance-kpi-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.income-card {
+  border-left: 4px solid #10b981;
+}
+
+.expense-card {
+  border-left: 4px solid #ef4444;
+}
+
+.balance-card {
+  border-left: 4px solid #3b82f6;
+}
+
+.savings-card {
+  border-left: 4px solid #8b5cf6;
+}
+
+.kpi-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.kpi-value.positive {
+  color: #10b981;
+}
+
+.kpi-value.negative {
+  color: #ef4444;
+}
+
+.kpi-sub {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* TABS */
+.finance-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid #334155;
+  margin-bottom: 20px;
+}
+
+.finance-tab {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.finance-tab.active {
+  color: #8b5cf6;
+  border-bottom-color: #8b5cf6;
+}
+
+.finance-tab:hover:not(.active) {
+  color: #cbd5e1;
+}
+
+/* FORMS */
+.finance-form {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+}
+
+.finance-form h4 {
+  margin: 0 0 14px 0;
+  font-size: 15px;
+  color: #f1f5f9;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 140px;
+}
+
+.form-group.flex-2 {
+  flex: 2;
+  min-width: 200px;
+}
+
+.form-group label {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #8b5cf6;
+}
+
+.add-entry-btn {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  height: 42px;
+  transition: opacity 0.2s;
+}
+
+.add-entry-btn:hover {
+  opacity: 0.9;
+}
+
+.income-submit-btn {
+  background: #10b981;
+}
+
+/* FILTER BAR */
+.finance-filter-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.finance-search-input {
+  flex: 1;
+  min-width: 200px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+}
+
+.finance-filter-select {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+}
+
+/* TABLES */
+.finance-table-container {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.finance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.finance-table th {
+  background: #0f172a;
+  color: #94a3b8;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #334155;
+}
+
+.finance-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+.finance-table tbody tr:hover {
+  background: #33415540;
+}
+
+.muted-col {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.desc-col {
+  color: #f1f5f9;
+  font-weight: 500;
+}
+
+.amount-col {
+  font-weight: 700;
+  color: #ef4444;
+}
+
+.income-amount {
+  color: #10b981;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+.income-badge {
+  background: #10b98120;
+  color: #10b981;
+  border-color: #10b98140;
+}
+
+.del-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.del-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: #64748b;
+}
+
+/* CHARTS GRID */
+.finance-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+.chart-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.chart-card h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: #f1f5f9;
+}
+
+.empty-chart {
+  text-align: center;
+  color: #64748b;
+  padding: 60px 20px;
+}
+
+.vitya-finance-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #10b981;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+}

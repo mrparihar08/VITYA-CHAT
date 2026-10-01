@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, Search, Clock, FileText, Trash2, ArrowRight, RefreshCw } from "lucide-react";
-import { getUserPresentations, deleteUserPresentation } from "../../../services/api";
+import { X, Search, Clock, FileText, Trash2, ArrowRight, RefreshCw, Download } from "lucide-react";
+import { getUserPresentations, deleteUserPresentation, API_BASE_URL, getAuthHeaders } from "../../../services/api";
 
 export default function SavedPresentationsModal({ isOpen, onClose, onLoadDeck, onToast }) {
   const [presentations, setPresentations] = useState([]);
@@ -45,6 +45,31 @@ export default function SavedPresentationsModal({ isOpen, onClose, onLoadDeck, o
       onToast?.({ type: "success", title: "Deleted", message: `Presentation '${id}' deleted successfully.` });
     } catch (err) {
       onToast?.({ type: "error", title: "Delete Failed", message: err.message || "Failed to delete presentation." });
+    }
+  };
+
+  const handleDownloadPptx = async (e, presentationId, title) => {
+    e.stopPropagation();
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/presentation/download-presentation/${presentationId}`, {
+        headers: getAuthHeaders()
+      });
+      if (!res.ok) throw new Error("Download failed");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${title || "presentation"}.pptx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      onToast?.({ type: "success", title: "Downloaded", message: "PowerPoint file downloaded." });
+    } catch (err) {
+      console.warn("Download error", err);
+      const token = localStorage.getItem("token");
+      const tokenParam = token ? `?token=${encodeURIComponent(token)}` : "";
+      window.open(`${API_BASE_URL}/api/presentation/download-presentation/${presentationId}${tokenParam}`, "_blank");
     }
   };
 
@@ -252,25 +277,46 @@ export default function SavedPresentationsModal({ isOpen, onClose, onLoadDeck, o
                     <span style={{ fontSize: 11, fontWeight: 700, color: "#8b5cf6", display: "flex", alignItems: "center", gap: 4 }}>
                       Open in Editor <ArrowRight size={12} />
                     </span>
-                    <button
-                      onClick={(e) => handleDelete(e, item.presentation_id)}
-                      title="Delete presentation"
-                      style={{
-                        background: "rgba(239, 68, 68, 0.15)",
-                        border: "1px solid rgba(239, 68, 68, 0.3)",
-                        color: "#fca5a5",
-                        borderRadius: "6px",
-                        padding: "4px 8px",
-                        fontSize: "11px",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "4px",
-                      }}
-                    >
-                      <Trash2 size={12} />
-                      Delete
-                    </button>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDownloadPptx(e, item.presentation_id, item.title)}
+                        title="Download PowerPoint PPTX"
+                        style={{
+                          background: "rgba(59, 130, 246, 0.15)",
+                          border: "1px solid rgba(59, 130, 246, 0.3)",
+                          color: "#93c5fd",
+                          borderRadius: "6px",
+                          padding: "4px 8px",
+                          fontSize: "11px",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
+                        📥 PPTX
+                      </button>
+                      <button
+                        onClick={(e) => handleDelete(e, item.presentation_id)}
+                        title="Delete presentation"
+                        style={{
+                          background: "rgba(239, 68, 68, 0.15)",
+                          border: "1px solid rgba(239, 68, 68, 0.3)",
+                          color: "#fca5a5",
+                          borderRadius: "6px",
+                          padding: "4px 8px",
+                          fontSize: "11px",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
+                        <Trash2 size={12} />
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

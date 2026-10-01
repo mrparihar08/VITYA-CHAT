@@ -43,10 +43,10 @@ export default function SlideCanvas({
   const elements = useMemo(() => slide?.elements || [], [slide?.elements]);
   const selectedElement = elements.find((el) => el.id === selectedElementId);
 
-  const fitScaleX = Math.max(0.2, (viewportDimensions.width - 40) / 960);
-  const fitScaleY = Math.max(0.2, (viewportDimensions.height - 40) / 540);
-  const baseFitScale = Math.min(fitScaleX, fitScaleY, 1.25);
-  const effectiveScale = Math.max(0.2, Math.min(2.5, baseFitScale * zoom));
+  const fitScaleX = Math.max(0.2, (viewportDimensions.width - 8) / 960);
+  const fitScaleY = Math.max(0.2, (viewportDimensions.height - 8) / 540);
+  const baseFitScale = Math.min(fitScaleX, fitScaleY);
+  const effectiveScale = Math.max(0.2, Math.min(3.0, baseFitScale * zoom));
 
   const getCanvasRect = useCallback(() => {
     if (!canvasRef.current) {

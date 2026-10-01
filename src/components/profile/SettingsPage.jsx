@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { PageShell } from "../auth/AuthCommon";
+import { getUserSettings, updateUserSettings, exportUserData, api } from "../../services/api";
 import "../auth/Auth.css";
 import "./SettingsPage.css";
 
@@ -16,7 +17,7 @@ export function SettingsPage({ plain = true }) {
 
   // Persistent Settings States
   const [aiModel, setAiModel] = useState(
-    () => localStorage.getItem("vitya_ai_model") || "GPT-5"
+    () => localStorage.getItem("vitya_ai_model") || "GPT-4o (Default)"
   );
   const [language, setLanguage] = useState(
     () => localStorage.getItem("vitya_language") || "English"
@@ -47,10 +48,41 @@ export function SettingsPage({ plain = true }) {
     setTimeout(() => setToastMsg(""), 3000);
   };
 
+  // Sync settings on load from backend
+  useEffect(() => {
+    getUserSettings()
+      .then((data) => {
+        if (data) {
+          if (data.ai_model) {
+            setAiModel(data.ai_model);
+            localStorage.setItem("vitya_ai_model", data.ai_model);
+          }
+          if (data.language) {
+            setLanguage(data.language);
+            localStorage.setItem("vitya_language", data.language);
+          }
+          if (data.response_style) {
+            setResponseStyle(data.response_style);
+            localStorage.setItem("vitya_response_style", data.response_style);
+          }
+          if (data.font_size) {
+            setFontSize(data.font_size);
+            localStorage.setItem("vitya_font_size", data.font_size);
+          }
+          if (data.accent_color) {
+            setAccentColor(data.accent_color);
+            localStorage.setItem("vitya_accent_color", data.accent_color);
+          }
+        }
+      })
+      .catch((err) => console.warn("Could not load backend settings", err));
+  }, []);
+
   // Sync AI Model
   const handleModelChange = (val) => {
     setAiModel(val);
     localStorage.setItem("vitya_ai_model", val);
+    updateUserSettings({ ai_model: val }).catch(() => {});
     showToast(`Default AI Model set to ${val}`);
   };
 
@@ -58,6 +90,7 @@ export function SettingsPage({ plain = true }) {
   const handleLanguageChange = (val) => {
     setLanguage(val);
     localStorage.setItem("vitya_language", val);
+    updateUserSettings({ language: val }).catch(() => {});
     showToast(`Language preference saved (${val})`);
   };
 
@@ -65,6 +98,7 @@ export function SettingsPage({ plain = true }) {
   const handleStyleChange = (val) => {
     setResponseStyle(val);
     localStorage.setItem("vitya_response_style", val);
+    updateUserSettings({ response_style: val }).catch(() => {});
     showToast(`Response style set to ${val}`);
   };
 
@@ -72,6 +106,7 @@ export function SettingsPage({ plain = true }) {
   const handleAccentChange = (val) => {
     setAccentColor(val);
     localStorage.setItem("vitya_accent_color", val);
+    updateUserSettings({ accent_color: val }).catch(() => {});
     showToast(`Accent color updated to ${val}`);
   };
 
@@ -79,6 +114,7 @@ export function SettingsPage({ plain = true }) {
   const handleFontSizeChange = (val) => {
     setFontSize(val);
     localStorage.setItem("vitya_font_size", val);
+    updateUserSettings({ font_size: val }).catch(() => {});
     showToast(`Font size set to ${val}`);
   };
 
@@ -121,33 +157,43 @@ export function SettingsPage({ plain = true }) {
     }
   }, [fontSize]);
 
-  const handleExportData = () => {
+  const handleExportData = async () => {
+    let exportDataPayload = null;
+    try {
+      exportDataPayload = await exportUserData();
+    } catch {
+      exportDataPayload = {
+        exportedAt: new Date(),
+        app: "Vitya.AI",
+        userNotes: localStorage.getItem("vitya_notes") || "[]",
+        userTasks: localStorage.getItem("vitya_tasks") || "[]",
+        userChats: localStorage.getItem("vitya_conversations") || "[]",
+      };
+    }
+
     const dataStr =
       "data:text/json;charset=utf-8," +
-      encodeURIComponent(
-        JSON.stringify({
-          exportedAt: new Date(),
-          app: "Vitya.AI",
-          userNotes: localStorage.getItem("vitya_notes") || "[]",
-          userTasks: localStorage.getItem("vitya_tasks") || "[]",
-          userChats: localStorage.getItem("vitya_conversations") || "[]",
-        })
-      );
+      encodeURIComponent(JSON.stringify(exportDataPayload, null, 2));
     const downloadAnchor = document.createElement("a");
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", "vitya_ai_export.json");
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
-    showToast("Vitya.AI data backup exported successfully!");
+    showToast("Vitya.AI complete data backup exported successfully!");
   };
 
-  const handleDeleteAllChats = () => {
+  const handleDeleteAllChats = async () => {
     if (
       window.confirm(
         "Are you sure you want to delete all chat history? This action cannot be undone."
       )
     ) {
+      try {
+        await api.delete("/api/chat/history");
+      } catch (err) {
+        console.warn("Backend chat history clearing failed", err);
+      }
       localStorage.removeItem("vitya_chat_history");
       localStorage.removeItem("vitya_conversations");
       showToast("All chat history cleared successfully.");

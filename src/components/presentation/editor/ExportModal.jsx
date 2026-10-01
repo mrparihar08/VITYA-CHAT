@@ -47,6 +47,20 @@ export default function ExportModal({ isOpen, onClose, onConfirmExport, isSaving
               <span className="option-desc">High quality document format for printing & sharing.</span>
             </div>
           </button>
+
+          <button
+            className="export-option-card"
+            onClick={() => {
+              onConfirmExport?.("json");
+              onClose();
+            }}
+          >
+            <div className="option-icon" style={{ background: "rgba(59, 130, 246, 0.2)", color: "#60a5fa", fontWeight: 700, padding: "8px 12px", borderRadius: "6px" }}>JSON</div>
+            <div className="option-info">
+              <span className="option-name">Deck Backup / Project (.json)</span>
+              <span className="option-desc">Raw presentation canvas state for importing or restoring later.</span>
+            </div>
+          </button>
         </div>
       </div>
     </div>

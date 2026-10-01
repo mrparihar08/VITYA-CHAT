@@ -7,7 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { api } from "../../services/api";
+import { api, API_BASE_URL, getAuthHeaders } from "../../services/api";
 import "./AnalyticsApp.css";
 
 const CUSTOM_TOOLTIP = ({ active, payload, label }) => {
@@ -91,13 +91,22 @@ const AnalyticsApp = ({ notesCount: propNotes = 0, tasksCount: propTasks = 0, ch
       }
     }
 
-    // 4. Fetch Real Presentations
+    // 4. Fetch Real Presentations from Backend
     let realPresentations = [];
     try {
-      const raw = localStorage.getItem("vitya_presentations") || localStorage.getItem("presentations");
-      realPresentations = raw ? JSON.parse(raw) : [];
+      const presRes = await api.get("/api/presentation/my-presentations?limit=50");
+      if (presRes.data && Array.isArray(presRes.data.presentations)) {
+        realPresentations = presRes.data.presentations;
+      } else if (Array.isArray(presRes.data)) {
+        realPresentations = presRes.data;
+      }
     } catch {
-      realPresentations = [];
+      try {
+        const raw = localStorage.getItem("vitya_presentations") || localStorage.getItem("presentations");
+        realPresentations = raw ? JSON.parse(raw) : [];
+      } catch {
+        realPresentations = [];
+      }
     }
 
     const endTime = performance.now();
@@ -227,6 +236,44 @@ const AnalyticsApp = ({ notesCount: propNotes = 0, tasksCount: propTasks = 0, ch
       presentations: dayCounts[day].presentations,
     }));
   }, [conversationsList, tasksList, presentationsList, chatsCount, tasksCount, presentationsCount]);
+
+  const [presentationSearch, setPresentationSearch] = useState("");
+
+  const handleDownloadPptx = async (e, presentationId, title) => {
+    e.stopPropagation();
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/presentation/download-presentation/${presentationId}`, {
+        headers: getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error("Download failed");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${title || "presentation"}.pptx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.warn("Download error", err);
+      const token = localStorage.getItem("token");
+      const tokenParam = token ? `?token=${encodeURIComponent(token)}` : "";
+      window.open(`${API_BASE_URL}/api/presentation/download-presentation/${presentationId}${tokenParam}`, "_blank");
+    }
+  };
+
+  const filteredPresentations = useMemo(() => {
+    const q = presentationSearch.toLowerCase().trim();
+    if (!q) return presentationsList;
+    return presentationsList.filter(
+      (p) =>
+        (p.title && p.title.toLowerCase().includes(q)) ||
+        (p.presentation_id && p.presentation_id.toLowerCase().includes(q)) ||
+        (p.template_name && p.template_name.toLowerCase().includes(q)) ||
+        (p.content_theme && p.content_theme.toLowerCase().includes(q))
+    );
+  }, [presentationsList, presentationSearch]);
 
   return (
     <div className="vitya-analytics-app">
@@ -401,6 +448,111 @@ const AnalyticsApp = ({ notesCount: propNotes = 0, tasksCount: propTasks = 0, ch
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* AI PRESENTATION GENERATION RECORDER & AUDIT LOG */}
+      <div className="analytics-recorder-panel">
+        <div className="recorder-header-row">
+          <div className="recorder-title-area">
+            <h3>
+              <span>📋</span> AI Presentation Generation Recorder & Audit Log
+            </h3>
+            <p>Complete historical registry of all slide decks generated, stored, and exported.</p>
+          </div>
+          <div className="recorder-badges">
+            <span className="kpi-badge badge-blue">
+              {presentationsCount} Total Decks
+            </span>
+            <span className="kpi-badge badge-purple">
+              {totalSlidesCount} Slides Built
+            </span>
+            <input
+              type="text"
+              placeholder="Search presentations..."
+              value={presentationSearch}
+              onChange={(e) => setPresentationSearch(e.target.value)}
+              style={{
+                background: "rgba(255, 255, 255, 0.06)",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
+                borderRadius: "8px",
+                padding: "4px 10px",
+                color: "#ffffff",
+                fontSize: "12px",
+                outline: "none",
+                width: "160px",
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="recorder-table-wrap">
+          {filteredPresentations.length > 0 ? (
+            <table className="recorder-table">
+              <thead>
+                <tr>
+                  <th>Presentation Title & Topic</th>
+                  <th>ID / Reference</th>
+                  <th>Slides</th>
+                  <th>Theme & Style</th>
+                  <th>Recorded Date</th>
+                  <th style={{ textAlign: "right" }}>Export Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPresentations.map((p) => {
+                  const slidesNum = Array.isArray(p.slides) ? p.slides.length : (p.slides_count || 4);
+                  const dateStr = p.updated_at || p.created_at
+                    ? new Date(p.updated_at || p.created_at).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })
+                    : "Active Session";
+                  return (
+                    <tr key={p.presentation_id || p.id || Math.random()}>
+                      <td>
+                        <div className="recorder-deck-title">
+                          <span>📺</span>
+                          <span>{p.title || "Untitled Presentation"}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="recorder-deck-id">
+                          {p.presentation_id || p.id || "pres-auto"}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="kpi-badge badge-teal">
+                          {slidesNum} Slides
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{ fontSize: "12px", color: "#c4b5fd" }}>
+                          {p.template_name || p.content_theme || "Default"}
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)" }}>
+                          {dateStr}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: "right" }}>
+                        <button
+                          type="button"
+                          className="recorder-action-btn"
+                          onClick={(e) => handleDownloadPptx(e, p.presentation_id || p.id, p.title)}
+                          title="Download PPTX File"
+                        >
+                          📥 Download PPTX
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <div className="recorder-empty">
+              <span>📭 No presentations matching filter or recorded yet. Generate your first slide deck using the Presentation Studio!</span>
+            </div>
+          )}
         </div>
       </div>
 

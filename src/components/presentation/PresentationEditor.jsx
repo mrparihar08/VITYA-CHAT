@@ -479,21 +479,21 @@ export function normalizeSlideElements(slide, index = 0) {
 
       // Allow explicit plugin box coordinates if specified in plan (handling both inch and % systems)
       const boxCoord = pData.box || {};
-      const hasBox = boxCoord.width !== undefined || pData.width !== undefined;
+      const hasBox = (typeof boxCoord.width === "number" && !isNaN(boxCoord.width)) || (typeof pData.width === "number" && !isNaN(pData.width));
       const isInchCoord = hasBox && (
-        (boxCoord.width !== undefined && Number(boxCoord.width) <= 13.333 && Number(boxCoord.width) > 0) ||
-        (pData.width !== undefined && Number(pData.width) <= 13.333 && Number(pData.width) > 0)
+        (typeof boxCoord.width === "number" && boxCoord.width <= 13.333 && boxCoord.width > 0) ||
+        (typeof pData.width === "number" && pData.width <= 13.333 && pData.width > 0)
       );
 
-      const rawX = boxCoord.left !== undefined ? Number(boxCoord.left) : (pData.left !== undefined ? Number(pData.left) : box.x);
-      const rawY = boxCoord.top !== undefined ? Number(boxCoord.top) : (pData.top !== undefined ? Number(pData.top) : box.y);
-      const rawW = boxCoord.width !== undefined ? Number(boxCoord.width) : (pData.width !== undefined ? Number(pData.width) : box.width);
-      const rawH = boxCoord.height !== undefined ? Number(boxCoord.height) : (pData.height !== undefined ? Number(pData.height) : box.height);
+      const rawX = typeof boxCoord.left === "number" ? boxCoord.left : (typeof pData.left === "number" ? pData.left : box.x);
+      const rawY = typeof boxCoord.top === "number" ? boxCoord.top : (typeof pData.top === "number" ? pData.top : box.y);
+      const rawW = typeof boxCoord.width === "number" ? boxCoord.width : (typeof pData.width === "number" ? pData.width : box.width);
+      const rawH = typeof boxCoord.height === "number" ? boxCoord.height : (typeof pData.height === "number" ? pData.height : box.height);
 
-      const elX = isInchCoord ? Math.round((rawX / 13.333) * 1000) / 10 : rawX;
-      const elY = isInchCoord ? Math.round((rawY / 7.5) * 1000) / 10 : rawY;
-      const elW = isInchCoord ? Math.round((rawW / 13.333) * 1000) / 10 : rawW;
-      const elH = isInchCoord ? Math.round((rawH / 7.5) * 1000) / 10 : rawH;
+      const elX = isInchCoord ? Math.round((rawX / 13.333) * 1000) / 10 : (typeof rawX === "number" && !isNaN(rawX) ? rawX : box.x);
+      const elY = isInchCoord ? Math.round((rawY / 7.5) * 1000) / 10 : (typeof rawY === "number" && !isNaN(rawY) ? rawY : box.y);
+      const elW = isInchCoord ? Math.round((rawW / 13.333) * 1000) / 10 : (typeof rawW === "number" && !isNaN(rawW) ? rawW : box.width);
+      const elH = isInchCoord ? Math.round((rawH / 7.5) * 1000) / 10 : (typeof rawH === "number" && !isNaN(rawH) ? rawH : box.height);
 
       if (pType === "bullets") {
         newElements.push({
@@ -689,6 +689,107 @@ export function normalizeSlideElements(slide, index = 0) {
           borderRadius: 8,
           data: pData
         });
+      } else if (pType === "split_layout" || pType === "split" || pType === "two_column_split") {
+        const leftData = pData.left || {};
+        const rightData = pData.right || {};
+        const leftTitle = leftData.title || leftData.header || "Key Challenge & Context";
+        const leftText = leftData.text || leftData.content || (Array.isArray(leftData.bullets) ? leftData.bullets.join("\n") : "");
+        const rightTitle = rightData.title || rightData.header || "Strategic Response & Impact";
+        const rightText = rightData.text || rightData.content || (Array.isArray(rightData.bullets) ? rightData.bullets.join("\n") : "");
+
+        const splitItems = [
+          { title: leftTitle, text: leftText || (slide.content ? String(slide.content).slice(0, 160) : "Critical regional infrastructure and environmental constraints requiring coordinated policy action.") },
+          { title: rightTitle, text: rightText || (slide.subtitle ? String(slide.subtitle) : "Targeted ecological remediation frameworks and long-term sustainable development roadmap.") }
+        ];
+
+        newElements.push({
+          id: elId,
+          pluginIndex: pIdx,
+          type: "paragraph_2col",
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
+          items: splitItems,
+          bg_color: defaultCardBg,
+          borderRadius: 8,
+          data: pData
+        });
+      } else if (pType === "bento_grid" || pType === "bento" || pType === "bento_box") {
+        const rawCards = [];
+        if (pData.hero && (pData.hero.title || pData.hero.text)) {
+          rawCards.push({ title: pData.hero.title || "Core Focus Area", text: pData.hero.text || pData.hero.description || "" });
+        }
+        if (Array.isArray(pData.cards)) {
+          pData.cards.forEach(c => {
+            if (typeof c === "string") rawCards.push({ title: "Strategic Driver", text: c });
+            else if (c) rawCards.push({ title: c.title || c.label || "Key Driver", text: c.text || c.content || c.description || "" });
+          });
+        }
+        if (Array.isArray(pData.items)) {
+          pData.items.forEach(c => {
+            if (typeof c === "string") rawCards.push({ title: "Insight", text: c });
+            else if (c) rawCards.push({ title: c.title || c.label || "Driver", text: c.text || c.content || c.description || "" });
+          });
+        }
+        if (pData.feature && (pData.feature.title || pData.feature.text)) {
+          rawCards.push({ title: pData.feature.title || "Key Capability", text: pData.feature.text || pData.feature.description || "" });
+        }
+        if (pData.stat && (pData.stat.number || pData.stat.label)) {
+          rawCards.push({ title: `${pData.stat.number || "99.9%"} ${pData.stat.label || "Impact"}`, text: pData.stat.sublabel || pData.stat.context || "" });
+        }
+
+        const bentoItems = rawCards.length > 0 ? rawCards.slice(0, 4) : [
+          { title: "Regional Governance", text: "Integrated administrative protocols and multi-tier institutional alignment." },
+          { title: "Ecological Restoration", text: "Sustainable environmental conservation and proactive watershed management." },
+          { title: "Resource Resilience", text: "Equitable infrastructure modernization and scalable clean energy adoption." }
+        ];
+
+        newElements.push({
+          id: elId,
+          pluginIndex: pIdx,
+          type: "paragraph_2col",
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
+          items: bentoItems,
+          bg_color: defaultCardBg,
+          borderRadius: 8,
+          data: pData
+        });
+      } else if (pType === "process_flow" || pType === "pipeline" || pType === "journey") {
+        const rawSteps = pData.steps || [];
+        const parsedPhases = rawSteps.map((s, sIdx) => {
+          if (typeof s === "string") {
+            return { phase: `Step ${sIdx + 1}`, title: s, status: sIdx === 0 ? "COMPLETED" : sIdx === 1 ? "IN PROGRESS" : "PLANNED" };
+          }
+          return {
+            phase: s.step_number ? `Step ${s.step_number}` : (s.badge || `Step ${sIdx + 1}`),
+            title: s.title || s.name || s.description || `Step ${sIdx + 1}`,
+            status: s.status || (sIdx === 0 ? "COMPLETED" : sIdx === 1 ? "IN PROGRESS" : "PLANNED"),
+            description: s.description || ""
+          };
+        });
+
+        newElements.push({
+          id: elId,
+          pluginIndex: pIdx,
+          type: "diagram",
+          diagram_type: "flowchart",
+          x: elX,
+          y: elY,
+          width: elW,
+          height: elH,
+          phases: parsedPhases.length ? parsedPhases : [
+            { phase: "Phase 1", title: "Diagnostic Assessment", status: "COMPLETED" },
+            { phase: "Phase 2", title: "Strategic Execution", status: "IN PROGRESS" },
+            { phase: "Phase 3", title: "Sustainable Governance", status: "PLANNED" }
+          ],
+          bg_color: defaultCardBg,
+          borderRadius: 8,
+          data: pData
+        });
       } else if (pType === "paragraph_2col") {
         const rawItems = Array.isArray(pData.items) && pData.items.length > 0
           ? pData.items
@@ -710,15 +811,23 @@ export function normalizeSlideElements(slide, index = 0) {
           data: pData
         });
       } else {
-        const rawContent = pData.text || pData.content || slide.content || "Content text here...";
+        const rawContent = (
+          pData.text ||
+          pData.content ||
+          pData.description ||
+          (Array.isArray(pData.points) ? pData.points.join("\n") : null) ||
+          slide.content ||
+          (Array.isArray(slide.bullets) && slide.bullets.length ? slide.bullets.join("\n") : null) ||
+          `Strategic overview, actionable analysis, and key domain considerations for ${slide.title || "this topic"}.`
+        );
         newElements.push({
           id: elId,
           pluginIndex: pIdx,
           type: "paragraph",
-          x: elX,
-          y: elY,
-          width: elW,
-          height: elH,
+          x: isNaN(elX) ? box.x : elX,
+          y: isNaN(elY) ? box.y : elY,
+          width: isNaN(elW) ? box.width : elW,
+          height: isNaN(elH) ? box.height : elH,
           content: rawContent,
           fontSize: 15,
           color: defaultTextColor,
@@ -785,16 +894,22 @@ export function normalizeSlideElements(slide, index = 0) {
     }
   }
 
-  if (newElements.length === 0) {
+  // Guarantee that every non-title content slide has at least one body content element
+  const hasBodyContent = newElements.some((e) =>
+    ["bullets", "paragraph", "paragraph_2col", "diagram", "chart", "table", "image", "stat", "callout", "kpi_grid", "pros_cons", "code_block", "speaker_card"].includes(e.type)
+  );
+
+  if (!isTitleSlide && !hasBodyContent) {
+    const fallbackText = slide.content || slide.subtitle || `Detailed strategic overview, domain background, and operational considerations for ${slide.title || "this section"}.`;
     newElements.push({
       id: `el-default-${Date.now()}-${index}`,
       type: "paragraph",
       x: 6,
-      y: 26,
+      y: 24,
       width: 88,
-      height: 40,
-      content: slide.title || "Click to add slide content",
-      fontSize: 18,
+      height: 55,
+      content: fallbackText,
+      fontSize: 15,
       color: defaultTextColor,
       bg_color: defaultCardBg,
       borderRadius: 8
@@ -821,7 +936,9 @@ export default function PresentationEditor({
   isSaving = false,
   isSaved = true,
   onBackToSetup,
-  onNewDeck
+  onNewDeck,
+  onTriggerCacheCleanup,
+  isCleaningCache = false
 }) {
   // INTERNAL STATE MANAGEMENT
   const [internalSlides, setInternalSlides] = useState(() => {
@@ -838,8 +955,9 @@ export default function PresentationEditor({
   const [isExporting, setIsExporting] = useState(false);
   const [isAiRefineOpen, setIsAiRefineOpen] = useState(false);
   const [aiRefineInitialText, setAiRefineInitialText] = useState("");
-  const [showLeftSidebar, setShowLeftSidebar] = useState(true);
-  const [showRightSidebar, setShowRightSidebar] = useState(true);
+  const [aiRefineInitialAction, setAiRefineInitialAction] = useState("polish");
+  const [showLeftSidebar, setShowLeftSidebar] = useState(() => (typeof window !== "undefined" ? window.innerWidth > 900 : true));
+  const [showRightSidebar, setShowRightSidebar] = useState(() => (typeof window !== "undefined" ? window.innerWidth > 1200 : true));
   const [isDesignCheckOpen, setIsDesignCheckOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
 
@@ -880,20 +998,23 @@ export default function PresentationEditor({
   }, [selectedElementId]);
 
 
-  const handleOpenAiRefine = (overrideText = null) => {
+  const handleOpenAiRefine = (overrideText = null, action = "polish") => {
     const currentSlideEl = (currentSlide?.elements || []).find((el) => el.id === selectedElementId);
     const targetText = overrideText !== null 
       ? overrideText 
       : currentSlideEl?.content || currentSlideEl?.text || currentSlide?.title || plan?.title || "";
     setAiRefineInitialText(targetText);
+    setAiRefineInitialAction(action || "polish");
     setIsAiRefineOpen(true);
   };
 
-  const handleApplyAiRefine = (refinedResult, action) => {
+  const handleApplyAiRefine = (refinedResult, action, originalInputText = null) => {
     if (!refinedResult) return;
     const refinedText = typeof refinedResult.refined_text === "string" 
       ? refinedResult.refined_text 
-      : JSON.stringify(refinedResult.refined_text);
+      : typeof refinedResult.refined_text === "object"
+      ? JSON.stringify(refinedResult.refined_text)
+      : String(refinedResult.refined_text || "");
 
     const isDiagramAction = action === "diagram" || 
       (typeof refinedText === "string" && (refinedText.includes("➔") || refinedText.includes("->") || refinedText.includes("-->") || refinedText.includes("→")) && refinedText.includes("["));
@@ -920,76 +1041,125 @@ export default function PresentationEditor({
       }
     }
 
+    const currentSlideElements = currentSlide?.elements || [];
+    const sourceText = (originalInputText || aiRefineInitialText || "").trim();
+
+    // 1. Identify which target element on the canvas to update
+    let targetEl = null;
     if (selectedElementId) {
+      targetEl = currentSlideElements.find((el) => el.id === selectedElementId);
+    }
+
+    // If no element currently selected, find element whose content matches the input text
+    if (!targetEl && sourceText) {
+      targetEl = currentSlideElements.find(
+        (el) =>
+          (el.content && el.content.trim() === sourceText) ||
+          (el.text && el.text.trim() === sourceText)
+      );
+    }
+
+    // If still not found, check if input was the slide title or action is headline / polish
+    const isTitleTarget =
+      !targetEl &&
+      (action === "headline" ||
+       action === "polish" ||
+       (sourceText && currentSlide?.title && sourceText === currentSlide.title.trim()));
+
+    if (!targetEl && isTitleTarget) {
+      targetEl =
+        currentSlideElements.find(
+          (el) => el.isTitle || el.type === "title" || el.id?.includes("title") || (el.y !== undefined && el.y < 35)
+        ) || currentSlideElements[0];
+    }
+
+    // 2. Perform the element update on slide canvas
+    if (targetEl) {
+      const isTitleElement =
+        targetEl.isTitle ||
+        targetEl.type === "title" ||
+        targetEl.id?.includes("title") ||
+        (currentSlide?.title && (targetEl.content === currentSlide.title || targetEl.text === currentSlide.title));
+
       if (isDiagramAction && parsedPhases) {
-        handleUpdateElement(selectedElementId, {
+        handleUpdateElement(targetEl.id, {
           type: "diagram",
           diagram_type: "flowchart",
           phases: parsedPhases,
           diagram: refinedText,
-          height: 13,
+          height: 14,
           customHeight: false,
           autoHeight: true
         });
       } else if (action === "bullets" || refinedText.includes("•")) {
         const points = refinedText.split("\n").map((s) => s.replace(/^[•\-*]\s*/, "").trim()).filter(Boolean);
-        handleUpdateElement(selectedElementId, { type: "bullets", points, content: refinedText });
+        handleUpdateElement(targetEl.id, { type: "bullets", points, content: refinedText, text: refinedText });
       } else if (action === "chart" && refinedResult.refined_chart) {
         const c = refinedResult.refined_chart;
-        handleUpdateElement(selectedElementId, {
+        handleUpdateElement(targetEl.id, {
           type: "chart",
           title: c.title || "Chart Analytics",
           labels: c.categories || ["Q1", "Q2", "Q3", "Q4"],
           values: c.values || [40, 60, 80, 95],
           chart_type: c.chart_type || "bar"
         });
-      } else if (action === "image" && refinedText.startsWith("http")) {
-        handleUpdateElement(selectedElementId, { type: "image", url: refinedText });
+      } else if (action === "image" && (refinedText.startsWith("http") || refinedResult.image_url)) {
+        handleUpdateElement(targetEl.id, { type: "image", url: refinedResult.image_url || refinedText });
       } else {
-        handleUpdateElement(selectedElementId, { content: refinedText, text: refinedText });
+        const autoH = calculateTextAutoHeight(refinedText, targetEl.font_size || 22, targetEl.width || 80);
+        handleUpdateElement(targetEl.id, {
+          content: refinedText,
+          text: refinedText,
+          height: autoH || targetEl.height || 10,
+          autoHeight: true
+        });
+      }
+
+      if (isTitleElement || action === "headline" || isTitleTarget) {
+        handleUpdateSlide({ title: refinedText });
       }
     } else {
-      if (isDiagramAction && parsedPhases) {
-        const bodyEl = (currentSlide?.elements || []).find(
-          (el) => el.type !== "title" && !el.id?.includes("title")
-        );
-        if (bodyEl) {
-          handleUpdateElement(bodyEl.id, {
-            type: "diagram",
-            diagram_type: "flowchart",
-            phases: parsedPhases,
-            diagram: refinedText,
-            content: refinedText,
-            height: 13,
-            customHeight: false,
-            autoHeight: true
-          });
-        } else {
-          handleAddElement("diagram", {
-            diagram_type: "flowchart",
-            phases: parsedPhases,
-            diagram: refinedText,
-            height: 13,
-            customHeight: false,
-            autoHeight: true
-          });
-        }
+      // Fallback: If no elements exist on the slide yet
+      if (action === "headline" || isTitleTarget) {
+        handleUpdateSlide({ title: refinedText });
+        handleAddElement("text", {
+          content: refinedText,
+          text: refinedText,
+          isTitle: true,
+          font_size: 28,
+          x: 10,
+          y: 20,
+          width: 80
+        });
+      } else if (isDiagramAction && parsedPhases) {
+        handleAddElement("diagram", {
+          diagram_type: "flowchart",
+          phases: parsedPhases,
+          diagram: refinedText,
+          height: 14,
+          customHeight: false,
+          autoHeight: true
+        });
       } else if (action === "bullets" || refinedText.includes("•")) {
         const points = refinedText.split("\n").map((s) => s.replace(/^[•\-*]\s*/, "").trim()).filter(Boolean);
-        const bodyEl = (currentSlide?.elements || []).find(
-          (el) => el.type !== "title" && !el.id?.includes("title")
-        );
-        if (bodyEl) {
-          handleUpdateElement(bodyEl.id, { type: "bullets", points, content: refinedText });
-        } else {
-          handleAddElement("bullets", { points });
-        }
-      } else if (action === "headline") {
-        handleUpdateSlide({ title: refinedText });
+        handleAddElement("bullets", { points, content: refinedText });
       } else {
-        handleUpdateSlide({ subtitle: refinedText });
+        handleAddElement("text", {
+          content: refinedText,
+          text: refinedText,
+          font_size: 16,
+          x: 10,
+          y: 40,
+          width: 80
+        });
       }
     }
+
+    setToast({
+      type: "success",
+      title: "AI Refine Applied",
+      message: "Refined proposal successfully applied to the slide!"
+    });
   };
 
   // Sync external plan changes into internal state
@@ -1316,7 +1486,49 @@ export default function PresentationEditor({
   // ELEMENT MANAGEMENT HANDLERS
   const handleUpdateSlide = (updatedFields) => {
     const newSlides = [...slides];
-    newSlides[currentSlideIdx] = { ...newSlides[currentSlideIdx], ...updatedFields };
+    const targetSlide = { ...newSlides[currentSlideIdx], ...updatedFields };
+
+    // Synchronize title element on canvas if title was updated
+    if (updatedFields.title !== undefined) {
+      const elements = [...(targetSlide.elements || [])];
+      const titleElIdx = elements.findIndex(
+        (el) => el.isTitle || el.type === "title" || el.id?.includes("title") || (el.y !== undefined && el.y < 35)
+      );
+      if (titleElIdx !== -1) {
+        const titleEl = elements[titleElIdx];
+        const autoH = calculateTextAutoHeight(updatedFields.title, titleEl.font_size || 28, titleEl.width || 80);
+        elements[titleElIdx] = {
+          ...titleEl,
+          content: updatedFields.title,
+          text: updatedFields.title,
+          height: autoH || titleEl.height || 10,
+          autoHeight: true
+        };
+        targetSlide.elements = elements;
+      }
+    }
+
+    // Synchronize subtitle element on canvas if subtitle was updated
+    if (updatedFields.subtitle !== undefined) {
+      const elements = [...(targetSlide.elements || [])];
+      const subElIdx = elements.findIndex(
+        (el) => el.id?.includes("sub") || el.isSubtitle || el.type === "subtitle"
+      );
+      if (subElIdx !== -1) {
+        const subEl = elements[subElIdx];
+        const autoH = calculateTextAutoHeight(updatedFields.subtitle, subEl.font_size || 16, subEl.width || 80);
+        elements[subElIdx] = {
+          ...subEl,
+          content: updatedFields.subtitle,
+          text: updatedFields.subtitle,
+          height: autoH || subEl.height || 8,
+          autoHeight: true
+        };
+        targetSlide.elements = elements;
+      }
+    }
+
+    newSlides[currentSlideIdx] = targetSlide;
     updateSlidesState(newSlides);
   };
 
@@ -1356,12 +1568,20 @@ export default function PresentationEditor({
     if (elIdx !== -1) {
       const existingEl = elements[elIdx];
       const mergedData = existingEl.data ? { ...existingEl.data, ...updatedFields } : undefined;
-      elements[elIdx] = {
+      const updatedEl = {
         ...existingEl,
         ...updatedFields,
         ...(mergedData ? { data: mergedData } : {})
       };
+      elements[elIdx] = updatedEl;
       slide.elements = elements;
+
+      // Sync slide.title if this is a title element
+      const isTitle = existingEl.isTitle || existingEl.type === "title" || existingEl.id?.includes("title");
+      if (isTitle && (updatedFields.content !== undefined || updatedFields.text !== undefined)) {
+        slide.title = updatedFields.content !== undefined ? updatedFields.content : updatedFields.text;
+      }
+
       newSlides[currentSlideIdx] = slide;
       updateSlidesState(newSlides);
     }
@@ -1430,28 +1650,83 @@ export default function PresentationEditor({
         onSave={() => savePresentation?.()}
         onDownload={() => downloadSavedPresentation?.()}
         onPresent={() => setIsPresenting(true)}
-        onPreview={() => setIsPresenting(true)}
         onNewDeck={onNewDeck || onBackToSetup}
         onAiRefine={() => handleOpenAiRefine()}
+        onSelectAiAction={(actionId) => {
+          let prompt = "";
+          let actionTab = "polish";
+          if (actionId === "improve_slide") {
+            prompt = `Improve and polish the wording and structure for slide: "${currentSlide?.title || ''}"`;
+            actionTab = "polish";
+          } else if (actionId === "rewrite") {
+            const el = (currentSlide?.elements || []).find(e => e.id === selectedElementId) || currentSlide?.elements?.[0];
+            prompt = el?.content || el?.text || currentSlide?.title || "";
+            actionTab = "headline";
+          } else if (actionId === "shorten") {
+            const el = (currentSlide?.elements || []).find(e => e.id === selectedElementId) || currentSlide?.elements?.[0];
+            prompt = el?.content || el?.text || (currentSlide?.elements || []).map(e => e.content || e.text).filter(Boolean).join("\n");
+            actionTab = "summarize";
+          } else if (actionId === "expand") {
+            prompt = currentSlide?.title || plan?.title || "";
+            actionTab = "bullets";
+          } else if (actionId === "generate_image") {
+            prompt = `Generate a modern presentation visual concept for: ${currentSlide?.title || 'Slide'}`;
+            actionTab = "image";
+          } else if (actionId === "create_diagram") {
+            prompt = `Create a 4-step workflow process for: ${currentSlide?.title || 'Process'}`;
+            actionTab = "diagram";
+          } else if (actionId === "create_chart") {
+            prompt = `Generate performance analytics chart data for: ${currentSlide?.title || 'Metrics'}`;
+            actionTab = "chart";
+          } else if (actionId === "change_tone") {
+            prompt = `Rephrase with persuasive, executive tone: ${currentSlide?.title || ''}`;
+            actionTab = "polish";
+          } else if (actionId === "translate") {
+            prompt = `Translate the slide content into Hindi: "${currentSlide?.title || ''}"`;
+            actionTab = "polish";
+          } else if (actionId === "fix_layout") {
+            prompt = `Organize and balance slide elements into clean bullet points`;
+            actionTab = "bullets";
+          }
+          handleOpenAiRefine(prompt, actionTab);
+        }}
         onOpenDesignCheck={() => setIsDesignCheckOpen(true)}
         showLeftSidebar={showLeftSidebar}
         showRightSidebar={showRightSidebar}
         onToggleLeftSidebar={() => setShowLeftSidebar((prev) => !prev)}
         onToggleRightSidebar={() => setShowRightSidebar((prev) => !prev)}
+        onBackToSetup={onBackToSetup}
+        onTriggerCacheCleanup={onTriggerCacheCleanup}
+        isCleaningCache={isCleaningCache}
       />
 
       {/* 3-PANEL EDITOR MAIN BODY */}
       <div className="ppt-main-body">
+        {/* MOBILE / TABLET BACKDROP */}
+        {(showLeftSidebar || showRightSidebar) && (
+          <div 
+            className="ppt-drawer-backdrop" 
+            onClick={() => {
+              setShowLeftSidebar(false);
+              setShowRightSidebar(false);
+            }} 
+          />
+        )}
+
         {/* 2. LEFT SLIDE SIDEBAR */}
         {showLeftSidebar && (
           <SlideSidebar
             slides={slides}
             activeSlideIndex={currentSlideIdx}
-            onSelectSlide={handleSelectSlide}
+            onSelectSlide={(idx) => {
+              handleSelectSlide(idx);
+              if (window.innerWidth <= 900) setShowLeftSidebar(false);
+            }}
             onAddSlide={handleAddSlide}
             onDuplicateSlide={handleDuplicateSlide}
             onDeleteSlide={handleDeleteSlide}
             onMoveSlide={handleMoveSlide}
+            onToggleSidebar={() => setShowLeftSidebar(false)}
             onAiAction={(actionId) => {
               let prompt = "";
               if (actionId === "create_diagram") prompt = "Create a 4-step process flow diagram: [Step 1: Plan] ➔ [Step 2: Build] ➔ [Step 3: Test] ➔ [Step 4: Launch]";
@@ -1496,6 +1771,7 @@ export default function PresentationEditor({
             selectedBgPreset={selectedBgPreset || "dark_gradient"}
             onSelectBgPreset={handleSelectThemePreset}
             onAiRefine={(initialText) => handleOpenAiRefine(initialText)}
+            onToggleSidebar={() => setShowRightSidebar(false)}
           />
         )}
       </div>
@@ -1526,7 +1802,34 @@ export default function PresentationEditor({
       <ExportModal
         isOpen={isExporting}
         onClose={() => setIsExporting(false)}
-        onConfirmExport={() => downloadSavedPresentation?.()}
+        onConfirmExport={(format) => {
+          if (format === "json") {
+            try {
+              const exportPayload = {
+                title: plan?.title || "Presentation",
+                plan,
+                slides,
+                templateName,
+                selectedBgPreset,
+                exportedAt: new Date().toISOString()
+              };
+              const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: "application/json" });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `${(plan?.title || "presentation").replace(/[^a-zA-Z0-9_-]/g, "_")}_backup.json`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+              setToast({ type: "success", title: "Exported", message: "Presentation backup downloaded as JSON." });
+            } catch (err) {
+              setToast({ type: "error", title: "Export Failed", message: err.message });
+            }
+          } else {
+            downloadSavedPresentation?.(format);
+          }
+        }}
         isSaving={isSaving}
       />
 
@@ -1535,6 +1838,7 @@ export default function PresentationEditor({
         isOpen={isAiRefineOpen}
         onClose={() => setIsAiRefineOpen(false)}
         initialText={aiRefineInitialText}
+        initialAction={aiRefineInitialAction}
         slideTitle={currentSlide?.title || ""}
         presentationTitle={plan?.title || ""}
         onApplyRefined={handleApplyAiRefine}
@@ -1545,9 +1849,15 @@ export default function PresentationEditor({
         isOpen={isDesignCheckOpen}
         onClose={() => setIsDesignCheckOpen(false)}
         slide={currentSlide}
-        onShortenText={() => handleOpenAiRefine()}
+        onShortenText={() => handleOpenAiRefine(null, "summarize")}
         onApplyFixes={() => {
-          handleUpdateSlide({ title: (currentSlide?.title || "").toUpperCase() });
+          if (!currentSlide) return;
+          const fixedElements = fixElementAntiOverlap(currentSlide.elements || []);
+          handleUpdateSlide({
+            elements: fixedElements,
+            title: (currentSlide.title || "").trim()
+          });
+          setToast({ type: "success", title: "Design Audit Applied", message: "Layout spacing, typography and element alignment optimized!" });
         }}
       />
 

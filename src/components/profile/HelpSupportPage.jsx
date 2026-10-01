@@ -83,9 +83,21 @@ export function HelpSupportPage({ insideDashboard = false }) {
     setOpenFaq(openFaq === id ? null : id);
   };
 
-  const handleSubmitContact = (e) => {
+  const handleSubmitContact = async (e) => {
     e.preventDefault();
     if (!contactMessage.trim()) return;
+
+    try {
+      const { submitSupportTicket } = await import("../../services/api");
+      await submitSupportTicket({
+        email: userEmail || "anonymous@vitya.ai",
+        subject: contactSubject || "Support Inquiry",
+        category: contactCategory || "General Inquiry",
+        message: contactMessage,
+      });
+    } catch (err) {
+      console.warn("Backend ticket logging failed, falling back to mail client", err);
+    }
 
     const subjectText = `[Vitya Support - ${contactCategory}] ${contactSubject}`;
     const bodyText = `From User: ${userEmail || "Not provided"}\nCategory: ${contactCategory}\nSubject: ${contactSubject}\n\nMessage Details:\n${contactMessage}`;

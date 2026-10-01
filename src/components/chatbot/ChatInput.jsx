@@ -47,9 +47,9 @@ export const ChatInput = ({
     <div
       style={{
         padding: "12px 18px",
-        background: "rgba(15, 20, 36, 0.72)",
-        backdropFilter: "blur(14px)",
-        borderTop: "1px solid rgba(255,255,255,0.08)",
+        background: "transparent",
+        backdropFilter: "none",
+        borderTop: "none",
         flexShrink: 0,
       }}
     >

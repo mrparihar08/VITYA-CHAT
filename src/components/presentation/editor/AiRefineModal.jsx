@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Sparkles, Wand2, FileText, BarChart2, Network, Image as ImageIcon, X, Check, Loader2 } from "lucide-react";
 import { refineSlideText } from "../../../services/api";
@@ -7,15 +7,25 @@ export default function AiRefineModal({
   isOpen,
   onClose,
   initialText = "",
+  initialAction = "polish",
   slideTitle = "",
   presentationTitle = "",
   onApplyRefined
 }) {
   const [inputText, setInputText] = useState(initialText);
-  const [selectedAction, setSelectedAction] = useState("polish");
+  const [selectedAction, setSelectedAction] = useState(initialAction);
   const [isRefining, setIsRefining] = useState(false);
   const [refinedResult, setRefinedResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    if (isOpen) {
+      setInputText(initialText || "");
+      setSelectedAction(initialAction || "polish");
+      setRefinedResult(null);
+      setErrorMessage("");
+    }
+  }, [isOpen, initialText, initialAction]);
 
   if (!isOpen) return null;
 
@@ -61,7 +71,7 @@ export default function AiRefineModal({
 
   const handleApply = () => {
     if (!refinedResult) return;
-    onApplyRefined?.(refinedResult, selectedAction);
+    onApplyRefined?.(refinedResult, selectedAction, inputText);
     onClose();
   };
 

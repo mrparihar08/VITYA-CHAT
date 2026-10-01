@@ -15,6 +15,7 @@ import AnalyticsApp from "../components/apps/AnalyticsApp";
 import SavingsApp from "../components/apps/SavingsApp";
 import SubscriptionsApp from "../components/apps/SubscriptionsApp";
 import FinancialHealthApp from "../components/apps/FinancialHealthApp";
+import FinanceApp from "../components/apps/FinanceApp";
 import Profile from "../components/auth/Profile";
 import ProfileEdit from "../components/auth/ProfileEdit";
 import Sidebar from "../components/sidebar/Sidebar";
@@ -78,6 +79,16 @@ const APP_REGISTRY = [
     category: "workspace",
     iconBg: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
     component: AnalyticsApp,
+  },
+  {
+    id: "finance",
+    name: "Finance & Expenses",
+    desc: "Income, expense & cashflow tracker",
+    icon: "💳",
+    type: "internal",
+    category: "workspace",
+    iconBg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+    component: FinanceApp,
   },
   {
     id: "savings",
@@ -594,7 +605,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           </button>
         </header>
 
-        <main className={`content ${activeTab === "chat" ? "contentChat" : ""}`}>
+        <main className={`content ${activeTab === "chat" || activeTab === "presentation" ? "contentNoScroll" : ""}`}>
           {activeTab === "chat" && (
             <section className="chatShell">
               <Chatbot
@@ -606,7 +617,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           )}
 
           {activeTab === "presentation" && (
-            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+            <section className="contentCard" style={{ width: "100%", height: "100%", minHeight: 0, padding: 0, background: "transparent", border: "none", boxShadow: "none", display: "flex", flexDirection: "column", overflow: "hidden" }}>
               <Presentation />
             </section>
           )}
