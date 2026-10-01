@@ -5,6 +5,22 @@ import ChatInput from "./ChatInput";
 import FormattedMarkdown from "./FormattedMarkdown";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../services/api";
+import {
+  Copy,
+  Check,
+  Mic,
+  Download,
+  MoreVertical,
+  Pencil,
+  Files,
+  Bookmark,
+  Share2,
+  Trash2,
+  FileText,
+  Sparkles,
+  User,
+  RotateCcw,
+} from "lucide-react";
 
 /* -------------------------------------------------------
    Constants
@@ -567,6 +583,19 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
   const [mode, setMode] = useState("chat");
   const [useWebSearch, setUseWebSearch] = useState(true);
   const [ragDocs, setRagDocs] = useState([]);
+  const [activeMoreIndex, setActiveMoreIndex] = useState(null);
+  const [copiedIndex, setCopiedIndex] = useState(null);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".vitya-more-wrap")) {
+        setActiveMoreIndex(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleDocumentFileUpload = async (e) => {
     const files = Array.from(e.target.files || []);
@@ -929,11 +958,19 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
     []
   );
 
-  const handleCopyMessage = async (msg) => {
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 2500);
+  };
+
+  const handleCopyMessage = async (msg, index) => {
     const text = getMessageText(msg);
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
+      setCopiedIndex(index);
+      showToast("Message copied to clipboard!");
+      setTimeout(() => setCopiedIndex(null), 2000);
     } catch (err) {
       console.error("Copy failed:", err);
     }
@@ -941,7 +978,123 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
 
   const handleSpeakMessage = (msg) => {
     const text = getSpeakText(msg);
-    if (text) speak(text);
+    if (text) {
+      if (isSpeakingRef.current) {
+        window.speechSynthesis.cancel();
+        isSpeakingRef.current = false;
+      } else {
+        speak(text);
+      }
+    }
+  };
+
+  const handleRenameMessage = (index) => {
+    const currentMsg = messages[index];
+    const currentText = getMessageText(currentMsg);
+    const newText = window.prompt("Rename message content:", currentText);
+    if (newText !== null && newText.trim() !== "") {
+      setMessages((prev) =>
+        prev.map((m, idx) => (idx === index ? { ...m, text: newText } : m))
+      );
+      showToast("Message updated!");
+    }
+    setActiveMoreIndex(null);
+  };
+
+  const handleDuplicateMessage = (index) => {
+    setMessages((prev) => {
+      const newArr = [...prev];
+      const dup = { ...newArr[index], id: Date.now() + Math.random() };
+      newArr.splice(index + 1, 0, dup);
+      return newArr;
+    });
+    showToast("Message duplicated!");
+    setActiveMoreIndex(null);
+  };
+
+  const handleSaveToLibrary = (msg) => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("vitya_saved_library") || "[]");
+      saved.unshift({
+        id: Date.now(),
+        savedAt: new Date().toISOString(),
+        type: msg.type || "text",
+        content: getMessageText(msg) || "",
+      });
+      localStorage.setItem("vitya_saved_library", JSON.stringify(saved.slice(0, 100)));
+      showToast("Saved to Library!");
+    } catch (e) {
+      console.error(e);
+    }
+    setActiveMoreIndex(null);
+  };
+
+  const handleShareMessage = async (msg) => {
+    const text = getMessageText(msg);
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Vitya AI Message",
+          text: text || "Check out this response from Vitya AI",
+        });
+        setActiveMoreIndex(null);
+        return;
+      } catch (e) {}
+    }
+    try {
+      await navigator.clipboard.writeText(text || window.location.href);
+      showToast("Link/Text copied to clipboard!");
+    } catch (e) {}
+    setActiveMoreIndex(null);
+  };
+
+  const handleDeleteMessage = (index) => {
+    setMessages((prev) => prev.filter((_, idx) => idx !== index));
+    showToast("Message deleted!");
+    setActiveMoreIndex(null);
+  };
+
+  const handleExportPDF = async (msg, index) => {
+    try {
+      const text = getMessageText(msg);
+      const res = await fetch(`${API_BASE_URL}/chat/export`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ format: "pdf", messages: [msg] }),
+      });
+      if (res.ok) {
+        await downloadBlobFromResponse(res, `vitya_message_${index + 1}.pdf`);
+        showToast("PDF downloaded!");
+      } else {
+        downloadTextFile(text || "", `message_${index + 1}.txt`);
+        showToast("Exported as file!");
+      }
+    } catch (err) {
+      downloadTextFile(getMessageText(msg) || "", `message_${index + 1}.txt`);
+      showToast("Exported as file!");
+    }
+    setActiveMoreIndex(null);
+  };
+
+  const handleRewriteUserMessage = (msg, index) => {
+    const text = getMessageText(msg) || msg.text || "";
+    setInput(text);
+    // Remove the previous user message and its subsequent bot reply
+    setMessages((prev) => prev.slice(0, index));
+    showToast("Previous reply removed & prompt loaded to rewrite!");
+    setTimeout(() => {
+      const inputEl =
+        document.querySelector(".chat-input textarea") ||
+        document.querySelector("textarea") ||
+        document.querySelector("input[type='text']");
+      if (inputEl) {
+        inputEl.focus();
+        inputEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 100);
   };
 
   const handleDownloadMessage = async (msg, index) => {
@@ -1274,6 +1427,213 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
           box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45) !important;
           border-color: transparent !important;
         }
+
+        .vitya-msg-actions-row {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+          margin-top: 8px;
+          padding: 4px 2px;
+          position: relative;
+        }
+
+        .vitya-action-unit {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          cursor: pointer;
+          user-select: none;
+        }
+
+        .vitya-user-msg-actions-row {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 12px;
+          margin-top: 5px;
+          padding: 2px 2px;
+          width: 100%;
+        }
+
+        .vitya-action-round-btn-sm {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: rgba(30, 41, 59, 0.65);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: #cbd5e1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          padding: 0;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+
+        .vitya-action-unit:hover .vitya-action-round-btn-sm,
+        .vitya-action-round-btn-sm:hover {
+          background: rgba(51, 65, 85, 0.9);
+          border-color: rgba(139, 92, 246, 0.5);
+          color: #ffffff;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 14px rgba(99, 102, 241, 0.3);
+        }
+
+        .vitya-action-round-btn {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(30, 41, 59, 0.65);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: #cbd5e1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          padding: 0;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .vitya-action-unit:hover .vitya-action-round-btn,
+        .vitya-action-round-btn:hover {
+          background: rgba(51, 65, 85, 0.9);
+          border-color: rgba(139, 92, 246, 0.5);
+          color: #ffffff;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        .vitya-action-round-btn.active {
+          background: rgba(99, 102, 241, 0.35);
+          border-color: #818cf8;
+          color: #ffffff;
+          box-shadow: 0 0 16px rgba(129, 140, 248, 0.4);
+        }
+
+        .vitya-action-label {
+          font-size: 11px;
+          font-weight: 500;
+          color: #94a3b8;
+          text-align: center;
+          transition: color 0.15s ease;
+          letter-spacing: 0.01em;
+        }
+
+        .vitya-action-unit:hover .vitya-action-label {
+          color: #e2e8f0;
+        }
+
+        .vitya-more-wrap {
+          position: relative;
+        }
+
+        .vitya-more-dropdown {
+          position: absolute;
+          top: -8px;
+          left: calc(100% + 12px);
+          background: rgba(13, 17, 28, 0.97);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          border-radius: 14px;
+          padding: 6px;
+          min-width: 175px;
+          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.75), 0 0 24px rgba(99, 102, 241, 0.18);
+          z-index: 250;
+          animation: vityaPopIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .vitya-more-dropdown::before {
+          content: '';
+          position: absolute;
+          left: -6px;
+          top: 20px;
+          width: 10px;
+          height: 10px;
+          background: rgba(13, 17, 28, 0.97);
+          border-left: 1px solid rgba(255, 255, 255, 0.14);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+          transform: rotate(45deg);
+        }
+
+        @keyframes vityaPopIn {
+          0% {
+            opacity: 0;
+            transform: scale(0.92) translateX(-6px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateX(0);
+          }
+        }
+
+        .vitya-more-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          padding: 8px 12px;
+          font-size: 13px;
+          font-weight: 500;
+          color: #cbd5e1;
+          background: transparent;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          text-align: left;
+          transition: all 0.15s ease;
+          box-sizing: border-box;
+        }
+
+        .vitya-more-item .vitya-item-icon {
+          color: #94a3b8;
+          transition: color 0.15s ease;
+          flex-shrink: 0;
+        }
+
+        .vitya-more-item:hover {
+          background: rgba(255, 255, 255, 0.08);
+          color: #ffffff;
+        }
+
+        .vitya-more-item:hover .vitya-item-icon {
+          color: #ffffff;
+        }
+
+        .vitya-more-item.delete:hover {
+          background: rgba(239, 68, 68, 0.15);
+          color: #f87171;
+        }
+
+        .vitya-more-item.delete:hover .vitya-item-icon {
+          color: #f87171;
+        }
+
+        .vitya-more-divider {
+          height: 1px;
+          background: rgba(255, 255, 255, 0.08);
+          margin: 5px 4px;
+        }
+
+        @media (max-width: 600px) {
+          .vitya-more-dropdown {
+            left: auto;
+            right: 0;
+            top: calc(100% + 10px);
+          }
+          .vitya-more-dropdown::before {
+            left: auto;
+            right: 14px;
+            top: -6px;
+            border-left: none;
+            border-bottom: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
+            border-left: 1px solid rgba(255, 255, 255, 0.14);
+          }
+        }
       `}</style>
 
       <header>
@@ -1377,82 +1737,163 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                       alignItems: isUser ? "flex-end" : "flex-start",
                     }}
                   >
-                    <div style={styles.messageMeta}>
-                      <span style={styles.senderName}>{isUser ? "You" : "Vitya"}</span>
-                      <span style={styles.senderDot} />
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 7,
+                        marginBottom: 2,
+                        alignSelf: isUser ? "flex-end" : "flex-start",
+                      }}
+                    >
+                      {isUser ? (
+                        <>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8" }}>You</span>
+                          <div
+                            style={{
+                              width: 18,
+                              height: 18,
+                              borderRadius: "50%",
+                              background: "rgba(255, 255, 255, 0.12)",
+                              display: "grid",
+                              placeItems: "center",
+                            }}
+                          >
+                            <User size={11} color="#cbd5e1" />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div
+                            style={{
+                              width: 18,
+                              height: 18,
+                              borderRadius: "50%",
+                              background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+                              display: "grid",
+                              placeItems: "center",
+                              boxShadow: "0 2px 8px rgba(139, 92, 246, 0.4)",
+                            }}
+                          >
+                            <Sparkles size={11} color="#ffffff" />
+                          </div>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0" }}>Vitya</span>
+                        </>
+                      )}
                     </div>
 
                     <div
                       style={{
                         ...styles.bubble,
                         ...(isUser ? styles.userBubble : styles.botBubble),
+                        ...(msg.type === "download_link" ? { background: "transparent", border: "none", padding: 0, boxShadow: "none" } : {}),
                       }}
                     >
                       {msg.type === "download_link" ? (
-                        <div style={styles.downloadCard}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                        <div
+                          style={{
+                            padding: "16px 18px",
+                            borderRadius: 18,
+                            background: "linear-gradient(145deg, rgba(26, 32, 56, 0.95) 0%, rgba(15, 20, 36, 0.98) 100%)",
+                            border: "1px solid rgba(139, 92, 246, 0.35)",
+                            boxShadow: "0 12px 30px rgba(0, 0, 0, 0.45), 0 0 20px rgba(139, 92, 246, 0.12)",
+                            maxWidth: 520,
+                            width: "100%",
+                            boxSizing: "border-box",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 14,
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+                            {/* MODERN PRESENTATION ICON BADGE */}
                             <div
                               style={{
-                                width: 46,
-                                height: 46,
-                                borderRadius: 12,
-                                background: "linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(99, 102, 241, 0.3) 100%)",
-                                border: "1px solid rgba(139, 92, 246, 0.4)",
+                                width: 44,
+                                height: 44,
+                                borderRadius: 14,
+                                background: "linear-gradient(135deg, #d946ef 0%, #8b5cf6 50%, #6366f1 100%)",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                fontSize: 22,
-                                boxShadow: "0 4px 12px rgba(139, 92, 246, 0.25)",
+                                boxShadow: "0 6px 16px rgba(139, 92, 246, 0.35)",
                                 flexShrink: 0,
+                                marginTop: 2,
                               }}
                             >
-                              📊
+                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="2" y="3" width="20" height="14" rx="2" />
+                                <line x1="8" y1="21" x2="16" y2="21" />
+                                <line x1="12" y1="17" x2="12" y2="21" />
+                                <path d="M7 8h10" />
+                                <path d="M7 11h6" />
+                              </svg>
                             </div>
+
+                            {/* TITLE & META BADGES */}
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div
                                 style={{
-                                  fontSize: 15,
+                                  fontSize: 15.5,
                                   fontWeight: 700,
                                   color: "#ffffff",
-                                  letterSpacing: "0.2px",
+                                  lineHeight: 1.35,
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
                                   overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  lineHeight: 1.3,
+                                  letterSpacing: "0.2px",
                                 }}
                               >
                                 {msg.title || msg.text?.split("\n")[0]?.replace(/^✅\s*Presentation ready:\s*/i, "") || "Presentation Deck"}
                               </div>
+
                               <div
                                 style={{
                                   display: "flex",
                                   alignItems: "center",
-                                  gap: 6,
-                                  fontSize: 12,
-                                  color: "rgba(226, 232, 240, 0.8)",
-                                  marginTop: 4,
-                                  fontWeight: 500,
+                                  gap: 8,
+                                  marginTop: 6,
+                                  flexWrap: "wrap",
                                 }}
                               >
                                 <span
                                   style={{
-                                    background: "rgba(139, 92, 246, 0.25)",
+                                    background: "rgba(139, 92, 246, 0.2)",
                                     color: "#d8b4fe",
-                                    padding: "2px 8px",
+                                    padding: "3px 9px",
                                     borderRadius: 6,
-                                    fontSize: 11,
+                                    fontSize: 11.5,
                                     fontWeight: 600,
                                     border: "1px solid rgba(139, 92, 246, 0.35)",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 4,
                                   }}
                                 >
-                                  📄 {msg.slidesCount || 6} Slides
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                  {msg.slidesCount || 6} Slides
                                 </span>
-                                <span>• PowerPoint (.pptx)</span>
+
+                                <span
+                                  style={{
+                                    background: "rgba(255, 255, 255, 0.06)",
+                                    color: "#94a3b8",
+                                    padding: "3px 9px",
+                                    borderRadius: 6,
+                                    fontSize: 11.5,
+                                    fontWeight: 500,
+                                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                                  }}
+                                >
+                                  PowerPoint (.pptx)
+                                </span>
                               </div>
                             </div>
                           </div>
 
-                          <div style={{ display: "flex", gap: 10, marginTop: 4, flexWrap: "wrap" }}>
+                          {/* ACTION BUTTONS */}
+                          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                             <button
                               type="button"
                               onClick={() => handleDownloadMessage(msg, i)}
@@ -1467,11 +1908,11 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                                 color: "#ffffff",
                                 border: "none",
                                 padding: "10px 16px",
-                                borderRadius: 10,
+                                borderRadius: 12,
                                 fontSize: 13,
                                 fontWeight: 600,
                                 cursor: "pointer",
-                                boxShadow: "0 4px 14px rgba(139, 92, 246, 0.35)",
+                                boxShadow: "0 4px 16px rgba(139, 92, 246, 0.4)",
                                 transition: "all 0.15s ease",
                               }}
                             >
@@ -1497,7 +1938,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                                 border: "1px solid rgba(255, 255, 255, 0.18)",
                                 color: "#f1f5f9",
                                 padding: "10px 16px",
-                                borderRadius: 10,
+                                borderRadius: 12,
                                 fontSize: 13,
                                 fontWeight: 600,
                                 cursor: "pointer",
@@ -1571,19 +2012,151 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                     </div>
 
                     {!isUser && (
-                      <div style={styles.messageActions}>
-                        <button onClick={() => handleCopyMessage(msg)} style={styles.actionBtn} title="Copy">
-                          <img src="/copy.png" alt="copy" style={styles.iconTiny} />
-                        </button>
-                        <button onClick={() => handleSpeakMessage(msg)} style={styles.actionBtn} title="Speak">
-                          <img src="/speak.png" alt="speak" style={styles.iconTiny} />
-                        </button>
-                        <button onClick={() => handleDownloadMessage(msg, i)} style={styles.actionBtn} title="Download">
-                          <img src="/downloading.png" alt="download" style={styles.iconTiny} />
-                        </button>
-                        <button onClick={() => alert("Add action here")} style={styles.actionBtn} title="More">
-                          <img src="/dots.png" alt="more" style={{ width: 10, height: 10 }} />
-                        </button>
+                      <div className="vitya-msg-actions-row">
+                        {/* Copy */}
+                        <div
+                          className="vitya-action-unit"
+                          onClick={() => handleCopyMessage(msg, i)}
+                          title="Copy message"
+                        >
+                          <button className="vitya-action-round-btn">
+                            {copiedIndex === i ? (
+                              <Check size={16} color="#10b981" />
+                            ) : (
+                              <Copy size={16} />
+                            )}
+                          </button>
+                          <span className="vitya-action-label">Copy</span>
+                        </div>
+
+                        {/* Voice */}
+                        <div
+                          className="vitya-action-unit"
+                          onClick={() => handleSpeakMessage(msg)}
+                          title="Read out loud"
+                        >
+                          <button className="vitya-action-round-btn">
+                            <Mic size={16} />
+                          </button>
+                          <span className="vitya-action-label">Voice</span>
+                        </div>
+
+                        {/* Download */}
+                        <div
+                          className="vitya-action-unit"
+                          onClick={() => handleDownloadMessage(msg, i)}
+                          title="Download message"
+                        >
+                          <button className="vitya-action-round-btn">
+                            <Download size={16} />
+                          </button>
+                          <span className="vitya-action-label">Download</span>
+                        </div>
+
+                        {/* More */}
+                        <div className="vitya-action-unit vitya-more-wrap">
+                          <button
+                            className={`vitya-action-round-btn ${activeMoreIndex === i ? "active" : ""}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveMoreIndex((prev) => (prev === i ? null : i));
+                            }}
+                            title="More options"
+                          >
+                            <MoreVertical size={16} />
+                          </button>
+                          <span className="vitya-action-label">More</span>
+
+                          {/* Popover Dropdown Menu */}
+                          {activeMoreIndex === i && (
+                            <div
+                              className="vitya-more-dropdown"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                className="vitya-more-item"
+                                onClick={() => handleRenameMessage(i)}
+                              >
+                                <Pencil size={14} className="vitya-item-icon" />
+                                <span>Rename</span>
+                              </button>
+
+                              <button
+                                className="vitya-more-item"
+                                onClick={() => handleDuplicateMessage(i)}
+                              >
+                                <Files size={14} className="vitya-item-icon" />
+                                <span>Duplicate</span>
+                              </button>
+
+                              <button
+                                className="vitya-more-item"
+                                onClick={() => handleSaveToLibrary(msg)}
+                              >
+                                <Bookmark size={14} className="vitya-item-icon" />
+                                <span>Save to Library</span>
+                              </button>
+
+                              <button
+                                className="vitya-more-item"
+                                onClick={() => handleShareMessage(msg)}
+                              >
+                                <Share2 size={14} className="vitya-item-icon" />
+                                <span>Share</span>
+                              </button>
+
+                              <button
+                                className="vitya-more-item delete"
+                                onClick={() => handleDeleteMessage(i)}
+                              >
+                                <Trash2 size={14} className="vitya-item-icon" />
+                                <span>Delete</span>
+                              </button>
+
+                              <div className="vitya-more-divider" />
+
+                              <button
+                                className="vitya-more-item"
+                                onClick={() => handleExportPDF(msg, i)}
+                              >
+                                <FileText size={14} className="vitya-item-icon" />
+                                <span>Export as PDF</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {isUser && (
+                      <div className="vitya-user-msg-actions-row">
+                        {/* Copy */}
+                        <div
+                          className="vitya-action-unit"
+                          onClick={() => handleCopyMessage(msg, i)}
+                          title="Copy prompt"
+                        >
+                          <button className="vitya-action-round-btn-sm">
+                            {copiedIndex === i ? (
+                              <Check size={13} color="#10b981" />
+                            ) : (
+                              <Copy size={13} />
+                            )}
+                          </button>
+                          <span className="vitya-action-label">Copy</span>
+                        </div>
+
+                        {/* Rewrite */}
+                        <div
+                          className="vitya-action-unit"
+                          onClick={() => handleRewriteUserMessage(msg, i)}
+                          title="Edit and rewrite prompt"
+                        >
+                          <button className="vitya-action-round-btn-sm">
+                            <RotateCcw size={13} />
+                          </button>
+                          <span className="vitya-action-label">Rewrite</span>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1619,6 +2192,35 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         handleFileUpload={handleDocumentFileUpload}
         handleClearDocs={handleClearRagDocs}
       />
+
+      {/* Floating Action Toast Notification */}
+      {toastMessage && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 90,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "rgba(15, 23, 42, 0.95)",
+            border: "1px solid rgba(139, 92, 246, 0.4)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(99,102,241,0.3)",
+            backdropFilter: "blur(14px)",
+            color: "#ffffff",
+            padding: "8px 18px",
+            borderRadius: 24,
+            fontSize: 13,
+            fontWeight: 600,
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            animation: "vityaPopIn 0.2s ease",
+          }}
+        >
+          <Check size={15} color="#10b981" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 };
@@ -1628,8 +2230,6 @@ export default Chatbot;
 /* -------------------------------------------------------
    Styles
 ------------------------------------------------------- */
-const glass = "rgba(18, 24, 40, 0.72)";
-const border = "1px solid rgba(255,255,255,0.10)";
 const styles = {
   page: {
     width: "100%",
@@ -1773,22 +2373,32 @@ const styles = {
     transition: "all 0.2s ease",
   },
   messageRow: { display: "flex", width: "100%" },
-  messageStack: { display: "flex", flexDirection: "column", gap: 8, width: "fit-content", maxWidth: "100%" },
-  messageMeta: { display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "rgba(255,255,255,0.66)" },
-  senderName: { fontWeight: 700 },
-  senderDot: { width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.35)" },
+  messageStack: { display: "flex", flexDirection: "column", gap: 6, width: "fit-content", maxWidth: "100%" },
   bubble: {
-    padding: 14,
-    borderRadius: 20,
+    padding: "13px 18px",
+    borderRadius: 18,
     wordBreak: "break-word",
     boxSizing: "border-box",
     maxWidth: "100%",
-    border,
-    boxShadow: "0 12px 30px rgba(0,0,0,0.16)",
-    backdropFilter: "blur(12px)",
+    boxShadow: "0 10px 28px rgba(0,0,0,0.22)",
+    backdropFilter: "blur(14px)",
+    fontSize: "14.5px",
+    lineHeight: "1.6",
   },
-  userBubble: { background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)" },
-  botBubble: { background: glass },
+  userBubble: {
+    background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+    color: "#ffffff",
+    border: "1px solid rgba(255, 255, 255, 0.18)",
+    borderRadius: "18px 18px 4px 18px",
+    boxShadow: "0 6px 20px rgba(99, 102, 241, 0.32)",
+    fontWeight: 500,
+  },
+  botBubble: {
+    background: "rgba(18, 24, 40, 0.75)",
+    color: "#f1f5f9",
+    border: "1px solid rgba(255, 255, 255, 0.08)",
+    borderRadius: "18px 18px 18px 4px",
+  },
   cardWrap: {
     width: 620,
     maxWidth: "100%",
@@ -1992,7 +2602,7 @@ const styles = {
     padding: "12px 14px",
     borderRadius: 28,
     background: "rgba(15, 20, 36, 0.92)",
-    border,
+    border: "1px solid rgba(255,255,255,0.10)",
     boxShadow: "0 12px 30px rgba(0,0,0,0.38)",
     boxSizing: "border-box",
     backdropFilter: "blur(16px)",
