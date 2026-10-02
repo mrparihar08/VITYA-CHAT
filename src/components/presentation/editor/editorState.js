@@ -302,14 +302,21 @@ export const SAMPLE_SLIDES = [
 ];
 
 export const LAYOUT_OPTIONS = [
-  { id: "title_slide", name: "Title Slide", icon: "🎴", desc: "Hero header & subtitle cover" },
-  { id: "title_content", name: "Title + Content", icon: "📑", desc: "Header with structured text" },
-  { id: "two_column", name: "Two Columns", icon: "⚖️", desc: "Side-by-side comparison" },
-  { id: "image", name: "Image Slide", icon: "🖼️", desc: "Visual focused layout" },
-  { id: "chart", name: "Chart Slide", icon: "📊", desc: "Data & metrics visualization" },
-  { id: "table", name: "Table Slide", icon: "📋", desc: "Structured data matrix" },
-  { id: "section", name: "Section Slide", icon: "📌", desc: "Topic break & chapter cover" },
-  { id: "blank", name: "Blank Slide", icon: "⬜", desc: "Empty canvas canvas" }
+  { id: "title_slide", name: "Cover / Title Slide", icon: "🎴", desc: "Hero header & subtitle cover" },
+  { id: "title_content", name: "Title + Content", icon: "📑", desc: "Header with structured text & bullets" },
+  { id: "two_column", name: "Two Columns", icon: "⚖️", desc: "Side-by-side parallel content" },
+  { id: "three_column", name: "Three Cards Grid", icon: "🏛️", desc: "3 structured cards with top accents" },
+  { id: "section", name: "Section Divider", icon: "📌", desc: "Topic break & chapter cover" },
+  { id: "quote", name: "Quote & Takeaway", icon: "💬", desc: "High-impact quotation & author" },
+  { id: "statistics", name: "KPI / Statistics", icon: "📈", desc: "3-4 metric cards with big numbers" },
+  { id: "comparison", name: "Comparison Split", icon: "⚔️", desc: "Option A vs Option B analysis" },
+  { id: "timeline", name: "Timeline Roadmap", icon: "⏱️", desc: "Milestone nodes with connector line" },
+  { id: "process", name: "Process Execution Flow", icon: "🔄", desc: "Sequential steps with arrow chevrons" },
+  { id: "image_text", name: "Image + Narrative", icon: "🖼️", desc: "Dual-pane image & descriptive text" },
+  { id: "chart", name: "Chart & Analytics", icon: "📊", desc: "Data & metrics visualization" },
+  { id: "table", name: "Table Data Matrix", icon: "📋", desc: "Structured data table with headers" },
+  { id: "mixed_content", name: "Mixed Multi-Modal", icon: "🧩", desc: "Concept overview prose + bullet items" },
+  { id: "blank", name: "Blank Canvas", icon: "⬜", desc: "Empty clean canvas" }
 ];
 
 export const AI_ACTIONS = [

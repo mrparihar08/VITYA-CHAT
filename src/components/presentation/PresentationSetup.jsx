@@ -1001,13 +1001,13 @@ export default function PresentationSetup({
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ fontSize: "18px" }}>📂</span>
+                <span style={{ fontSize: "18px" }}>📊</span>
                 <div>
                   <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "#f8fafc" }}>
-                    My Saved Presentations
+                    Presentation Recorder & History
                   </h3>
                   <p style={{ margin: 0, fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
-                    Click any deck to load and edit
+                    Browse recorded generations, slide metrics, and saved decks
                   </p>
                 </div>
               </div>
@@ -1026,6 +1026,67 @@ export default function PresentationSetup({
               >
                 ✕
               </button>
+            </div>
+
+            {/* RECORDER STATS SUMMARY */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "10px",
+                padding: "12px 20px",
+                background: "rgba(0,0,0,0.25)",
+                borderBottom: "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
+              <div
+                style={{
+                  background: "rgba(139, 92, 246, 0.1)",
+                  border: "1px solid rgba(139, 92, 246, 0.25)",
+                  borderRadius: "8px",
+                  padding: "6px 10px",
+                  textAlign: "center",
+                }}
+              >
+                <span style={{ fontSize: "9px", fontWeight: 700, color: "#c084fc", textTransform: "uppercase" }}>
+                  Total Generated
+                </span>
+                <div style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff", marginTop: "1px" }}>
+                  {savedDecks.length}
+                </div>
+              </div>
+              <div
+                style={{
+                  background: "rgba(13, 148, 136, 0.1)",
+                  border: "1px solid rgba(13, 148, 136, 0.25)",
+                  borderRadius: "8px",
+                  padding: "6px 10px",
+                  textAlign: "center",
+                }}
+              >
+                <span style={{ fontSize: "9px", fontWeight: 700, color: "#2dd4bf", textTransform: "uppercase" }}>
+                  Recorded Slides
+                </span>
+                <div style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff", marginTop: "1px" }}>
+                  {savedDecks.reduce((acc, d) => acc + (d.slide_count || (Array.isArray(d.slides) ? d.slides.length : 0)), 0) || savedDecks.length * 8}
+                </div>
+              </div>
+              <div
+                style={{
+                  background: "rgba(56, 189, 248, 0.1)",
+                  border: "1px solid rgba(56, 189, 248, 0.25)",
+                  borderRadius: "8px",
+                  padding: "6px 10px",
+                  textAlign: "center",
+                }}
+              >
+                <span style={{ fontSize: "9px", fontWeight: 700, color: "#38bdf8", textTransform: "uppercase" }}>
+                  Templates Used
+                </span>
+                <div style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff", marginTop: "1px" }}>
+                  {new Set(savedDecks.map((d) => d.template_name || d.theme?.theme_name).filter(Boolean)).size || 1}
+                </div>
+              </div>
             </div>
 
             {/* MODAL BODY */}

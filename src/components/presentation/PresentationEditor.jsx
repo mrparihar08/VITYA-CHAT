@@ -1342,6 +1342,365 @@ export default function PresentationEditor({
           }
         ];
 
+      case "three_column":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: titleAutoH,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-card1`,
+            type: "text",
+            x: 6,
+            y: 22,
+            width: 27,
+            height: 64,
+            content: "✦ Pillar 1: Architecture\n\nModular design separating ThemeConfig and Geometry calculations.",
+            fontSize: 14,
+            color: "#f8fafc",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-card2`,
+            type: "text",
+            x: 36.5,
+            y: 22,
+            width: 27,
+            height: 64,
+            content: "✦ Pillar 2: Typography\n\nStandardized font scales enforcing contrast legibility rules.",
+            fontSize: 14,
+            color: "#f8fafc",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-card3`,
+            type: "text",
+            x: 67,
+            y: 22,
+            width: 27,
+            height: 64,
+            content: "✦ Pillar 3: Validation\n\nAutomated boundary collision and safe-area checking.",
+            fontSize: 14,
+            color: "#f8fafc",
+            align: "left"
+          }
+        ];
+
+      case "quote":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: titleAutoH,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-quote`,
+            type: "text",
+            x: 10,
+            y: 28,
+            width: 80,
+            height: 36,
+            content: '"Simplicity is the prerequisite for reliability."',
+            fontSize: 28,
+            fontWeight: "800",
+            color: "#0d9488",
+            align: "center"
+          },
+          {
+            id: `el-${timestamp}-author`,
+            type: "text",
+            x: 10,
+            y: 66,
+            width: 80,
+            height: 14,
+            content: "— Edsger W. Dijkstra, Turing Award Lecture",
+            fontSize: 16,
+            color: "#94a3b8",
+            align: "center"
+          }
+        ];
+
+      case "statistics":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: titleAutoH,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-stat1`,
+            type: "stat",
+            x: 6,
+            y: 24,
+            width: 27,
+            height: 62,
+            number: "99.9%",
+            label: "Layout Accuracy",
+            sublabel: "Zero placeholder collisions",
+            color: "#0d9488"
+          },
+          {
+            id: `el-${timestamp}-stat2`,
+            type: "stat",
+            x: 36.5,
+            y: 24,
+            width: 27,
+            height: 62,
+            number: "<45ms",
+            label: "Compile Latency",
+            sublabel: "Real-time generation",
+            color: "#6366f1"
+          },
+          {
+            id: `el-${timestamp}-stat3`,
+            type: "stat",
+            x: 67,
+            y: 24,
+            width: 27,
+            height: 62,
+            number: "100%",
+            label: "16:9 Compliance",
+            sublabel: "Widescreen standard",
+            color: "#f43f5e"
+          }
+        ];
+
+      case "comparison":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: titleAutoH,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-left`,
+            type: "text",
+            x: 6,
+            y: 22,
+            width: 42,
+            height: 64,
+            content: "Option A: Legacy Placeholders\n\n• Unwanted template artifacts\n• Invisible placeholder collisions\n• Duplicate title areas",
+            fontSize: 15,
+            color: "#cbd5e1",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-right`,
+            type: "text",
+            x: 52,
+            y: 22,
+            width: 42,
+            height: 64,
+            content: "Option B: Modern Blank Engine\n\n• Clean blank slides (layout 6)\n• Safe-area boundary validation\n• WCAG contrast compliance",
+            fontSize: 15,
+            color: "#2dd4bf",
+            align: "left"
+          }
+        ];
+
+      case "timeline":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: titleAutoH,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-roadmap`,
+            type: "roadmap",
+            x: 6,
+            y: 22,
+            width: 88,
+            height: 64,
+            phases: [
+              { phase: "Q1", title: "Architecture", desc: "Modularization of ThemeConfig and Geometry systems" },
+              { phase: "Q2", title: "Layout Resolver", desc: "Intelligent content parsing and slide selection" },
+              { phase: "Q3", title: "Validation Engine", desc: "Safe-area bounds and WCAG contrast verification" },
+              { phase: "Q4", title: "Production Release", desc: "Full-stack PowerPoint template engine deployment" }
+            ]
+          }
+        ];
+
+      case "process":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: titleAutoH,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-step1`,
+            type: "text",
+            x: 6,
+            y: 24,
+            width: 20,
+            height: 60,
+            content: "STEP 1\n\nContent Ingestion\n\nRaw text parsing & semantic extraction",
+            fontSize: 14,
+            color: "#f8fafc",
+            align: "center"
+          },
+          {
+            id: `el-${timestamp}-step2`,
+            type: "text",
+            x: 29,
+            y: 24,
+            width: 20,
+            height: 60,
+            content: "STEP 2\n\nLayout Resolution\n\nOptimal slide type mapping",
+            fontSize: 14,
+            color: "#f8fafc",
+            align: "center"
+          },
+          {
+            id: `el-${timestamp}-step3`,
+            type: "text",
+            x: 52,
+            y: 24,
+            width: 20,
+            height: 60,
+            content: "STEP 3\n\nShape Synthesis\n\nDeterministic canvas rendering",
+            fontSize: 14,
+            color: "#f8fafc",
+            align: "center"
+          },
+          {
+            id: `el-${timestamp}-step4`,
+            type: "text",
+            x: 74,
+            y: 24,
+            width: 20,
+            height: 60,
+            content: "STEP 4\n\nQuality Verification\n\nBounds and contrast validation",
+            fontSize: 14,
+            color: "#f8fafc",
+            align: "center"
+          }
+        ];
+
+      case "image":
+      case "image_text":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: titleAutoH,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-img`,
+            type: "image",
+            x: 6,
+            y: 22,
+            width: 42,
+            height: 64,
+            url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
+            caption: "Contextual Visual Asset"
+          },
+          {
+            id: `el-${timestamp}-text`,
+            type: "text",
+            x: 52,
+            y: 22,
+            width: 42,
+            height: 64,
+            content: "Key Observations\n\n• Integrated visual asset framing\n• Contextual editorial annotation\n• High legibility contrast styling",
+            fontSize: 15,
+            color: "#cbd5e1",
+            align: "left"
+          }
+        ];
+
+      case "chart":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: titleAutoH,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-chart`,
+            type: "chart",
+            x: 6,
+            y: 20,
+            width: 88,
+            height: 66,
+            data: {
+              title: "Performance & Conversion Metrics",
+              items: [
+                { label: "Q1", value: "45%" },
+                { label: "Q2", value: "68%" },
+                { label: "Q3", value: "82%" },
+                { label: "Q4", value: "95%" }
+              ]
+            }
+          }
+        ];
+
       case "table":
         return [
           {
@@ -1364,11 +1723,12 @@ export default function PresentationEditor({
             y: 20,
             width: 88,
             height: 66,
-            headers: ["Phase", "Milestone Target", "Execution Status"],
+            headers: ["Module", "Responsibility", "Status"],
             rows: [
-              ["Phase 1", "Architecture Setup", "Completed"],
-              ["Phase 2", "AI Model Fine-tuning", "In Progress"],
-              ["Phase 3", "Enterprise Rollout", "Scheduled"]
+              ["ThemeConfig", "Encapsulates theme styling & contrast", "Active"],
+              ["GeometryConfig", "16:9 safe bounds calculation", "Verified"],
+              ["LayoutResolver", "Automated content-to-slide mapping", "Production"],
+              ["PPTBuilder", "Deterministic blank-slide renderer", "Deployed"]
             ]
           }
         ];
@@ -1391,6 +1751,50 @@ export default function PresentationEditor({
           }
         ];
       }
+
+      case "mixed_content":
+        return [
+          {
+            id: `el-${timestamp}-title`,
+            type: "text",
+            x: 6,
+            y: 8,
+            width: 88,
+            height: titleAutoH,
+            content: titleText,
+            fontSize: 28,
+            fontWeight: "700",
+            color: "#ffffff",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-left`,
+            type: "text",
+            x: 6,
+            y: 22,
+            width: 42,
+            height: 64,
+            content: "Strategic Synthesis\n\nThis multi-modal layout seamlessly integrates conceptual prose with high-impact categorical bullet points and structured takeaways.",
+            fontSize: 15,
+            color: "#f8fafc",
+            align: "left"
+          },
+          {
+            id: `el-${timestamp}-right`,
+            type: "bullets",
+            x: 52,
+            y: 22,
+            width: 42,
+            height: 64,
+            points: [
+              "Deterministic coordinate bounding checks on all elements",
+              "Universal compatibility with Microsoft PowerPoint and LibreOffice",
+              "Flexible data-driven layout resolution for AI generation pipelines"
+            ],
+            fontSize: 15,
+            color: "#cbd5e1"
+          }
+        ];
 
       case "blank":
         return [];

@@ -73,6 +73,10 @@ export default function SavedPresentationsModal({ isOpen, onClose, onLoadDeck, o
     }
   };
 
+  const totalDecksCount = presentations.length;
+  const totalSlidesCount = presentations.reduce((acc, p) => acc + (p.slide_count || (Array.isArray(p.slides) ? p.slides.length : 0)), 0);
+  const uniqueTemplatesCount = new Set(presentations.map((p) => p.template_name || p.theme?.theme_name).filter(Boolean)).size;
+
   const filtered = presentations.filter((p) => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return true;
@@ -131,10 +135,10 @@ export default function SavedPresentationsModal({ isOpen, onClose, onLoadDeck, o
             <FileText size={20} style={{ color: "#c084fc" }} />
             <div>
               <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 800, color: "#ffffff" }}>
-                My Saved Presentations
+                Presentation Recorder & History
               </h2>
               <p style={{ margin: "2px 0 0", fontSize: "11px", color: "#94a3b8" }}>
-                Browse, search, load, or delete your saved presentation decks
+                Recorded presentations log, stats summary, and cloud deck library
               </p>
             </div>
           </div>
@@ -173,6 +177,67 @@ export default function SavedPresentationsModal({ isOpen, onClose, onLoadDeck, o
             >
               <X size={18} />
             </button>
+          </div>
+        </div>
+
+        {/* PRESENTATION RECORDER STATS BAR */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "10px",
+            padding: "12px 22px",
+            background: "rgba(0,0,0,0.25)",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <div
+            style={{
+              background: "rgba(139, 92, 246, 0.1)",
+              border: "1px solid rgba(139, 92, 246, 0.25)",
+              borderRadius: "10px",
+              padding: "8px 12px",
+              textAlign: "center",
+            }}
+          >
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#c084fc", textTransform: "uppercase" }}>
+              Total Decks Created
+            </span>
+            <div style={{ fontSize: "20px", fontWeight: 900, color: "#ffffff", marginTop: "2px" }}>
+              {totalDecksCount}
+            </div>
+          </div>
+          <div
+            style={{
+              background: "rgba(13, 148, 136, 0.1)",
+              border: "1px solid rgba(13, 148, 136, 0.25)",
+              borderRadius: "10px",
+              padding: "8px 12px",
+              textAlign: "center",
+            }}
+          >
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#2dd4bf", textTransform: "uppercase" }}>
+              Total Slides Recorded
+            </span>
+            <div style={{ fontSize: "20px", fontWeight: 900, color: "#ffffff", marginTop: "2px" }}>
+              {totalSlidesCount || totalDecksCount * 8}
+            </div>
+          </div>
+          <div
+            style={{
+              background: "rgba(56, 189, 248, 0.1)",
+              border: "1px solid rgba(56, 189, 248, 0.25)",
+              borderRadius: "10px",
+              padding: "8px 12px",
+              textAlign: "center",
+            }}
+          >
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#38bdf8", textTransform: "uppercase" }}>
+              Active Templates
+            </span>
+            <div style={{ fontSize: "20px", fontWeight: 900, color: "#ffffff", marginTop: "2px" }}>
+              {uniqueTemplatesCount || 1}
+            </div>
           </div>
         </div>
 
