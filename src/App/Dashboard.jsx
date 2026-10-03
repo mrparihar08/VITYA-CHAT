@@ -15,6 +15,7 @@ import AnalyticsApp from "../components/apps/AnalyticsApp";
 import SavingsApp from "../components/apps/SavingsApp";
 import SubscriptionsApp from "../components/apps/SubscriptionsApp";
 import FinancialHealthApp from "../components/apps/FinancialHealthApp";
+import DoraHealthApp from "../components/apps/DoraHealthApp";
 import FinanceApp from "../components/apps/FinanceApp";
 import Profile from "../components/auth/Profile";
 import ProfileEdit from "../components/auth/ProfileEdit";
@@ -31,6 +32,16 @@ import {
 
 const APP_REGISTRY = [
   {
+    id: "dora",
+    name: "DORA Health AI",
+    desc: "Doctor AI, Symptom Diagnosis & Wellness",
+    icon: "🩺",
+    type: "internal",
+    category: "workspace",
+    iconBg: "linear-gradient(135deg, #06b6d4 0%, #0284c7 50%, #2563eb 100%)",
+    component: DoraHealthApp,
+  },
+  {
     id: "notes",
     name: "Notes",
     desc: "Quick notes and ideas",
@@ -43,6 +54,7 @@ const APP_REGISTRY = [
   {
     id: "calendar",
     name: "Calendar",
+
     desc: "Meetings and events",
     icon: "📅",
     type: "internal",

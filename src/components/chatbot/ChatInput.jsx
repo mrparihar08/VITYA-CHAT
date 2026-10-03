@@ -2,6 +2,7 @@ import React from "react";
 
 export const MODES = [
   { key: "chat", label: "Chat", hint: "Default AI Assistant" },
+  { key: "dora", label: "DORA Health AI", hint: "Medical & Symptom Consultant" },
   { key: "websearch", label: "Web Search", hint: "Live web search & facts" },
   { key: "news", label: "News", hint: "Search latest news & headlines" },
   { key: "wiki", label: "Wikipedia", hint: "Search encyclopedia knowledge" },
@@ -9,6 +10,7 @@ export const MODES = [
 
 export const placeholderMap = {
   chat: "Ask Vitya anything…",
+  dora: "Describe symptoms or ask a health question (e.g. fever & throat pain)…",
   news: "Type news topic (e.g. India Economy)…",
   wiki: "Search Wikipedia (e.g. Quantum Computing)…",
   file: "Describe presentation (e.g. AI Trends)…",

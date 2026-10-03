@@ -441,4 +441,37 @@ export const exportUserData = async () => {
   return res.data;
 };
 
+// ================= DORA MEDICAL INTELLIGENCE API =================
+export const getDoraInfo = async () => {
+  const res = await api.get("/api/dora/");
+  return res.data;
+};
+
+export const getDoraSymptoms = async (query = "") => {
+  const url = query ? `/api/dora/symptoms?query=${encodeURIComponent(query)}` : "/api/dora/symptoms";
+  const res = await api.get(url);
+  return res.data;
+};
+
+export const getDoraDiseases = async () => {
+  const res = await api.get("/api/dora/diseases");
+  return res.data;
+};
+
+export const predictDoraDisease = async (payload, topK = 5) => {
+  const res = await api.post(`/api/dora/predict?top_k=${topK}`, payload);
+  return res.data;
+};
+
+export const sendDoraChat = async (payload) => {
+  const res = await api.post("/api/dora/chat", payload);
+  return res.data;
+};
+
+export const calculateDoraHealthAssessment = async (payload) => {
+  const res = await api.post("/api/dora/health-assessment", payload);
+  return res.data;
+};
+
 export default api;
+

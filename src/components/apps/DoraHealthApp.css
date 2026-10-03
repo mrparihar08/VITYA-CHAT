@@ -1,0 +1,1707 @@
+/* ==========================================================================
+   DORA ULTRA CLINICAL AI HEALTH APP - NEXT-LEVEL STYLESHEET
+   ========================================================================== */
+
+:root {
+  --dora-bg-dark: #080c16;
+  --dora-card-bg: rgba(15, 23, 42, 0.75);
+  --dora-glass-border: rgba(255, 255, 255, 0.08);
+  --dora-cyan-glow: #06b6d4;
+  --dora-emerald-glow: #10b981;
+  --dora-purple-glow: #8b5cf6;
+  --dora-blue-glow: #3b82f6;
+  --dora-amber-glow: #f59e0b;
+  --dora-rose-glow: #f43f5e;
+}
+
+.dora-ultra-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: radial-gradient(circle at 10% 20%, #0d1527 0%, #070a12 90%);
+  color: #f1f5f9;
+  overflow-y: auto;
+  padding: 24px 28px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* ================= 1. TOP TELEMETRY HUD ================= */
+.dora-top-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px 24px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+
+.dora-hud-brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.dora-pulse-orb {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #06b6d4 0%, #0284c7 50%, #2563eb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 0 25px rgba(6, 182, 212, 0.45);
+}
+
+.dora-pulse-icon {
+  animation: dora-heartbeat 1.4s ease-in-out infinite;
+}
+
+@keyframes dora-heartbeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.18); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.15); }
+  70% { transform: scale(1); }
+}
+
+.dora-pulse-ring {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 22px;
+  border: 2px solid rgba(6, 182, 212, 0.5);
+  animation: dora-ring-pulse 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes dora-ring-pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.08); opacity: 0.2; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.dora-brand-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dora-brand-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  background: linear-gradient(135deg, #ffffff 30%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dora-version-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  color: #38bdf8;
+  padding: 3px 9px;
+  border-radius: 12px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.dora-live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+
+.dora-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: dora-blink 1.5s infinite;
+}
+
+@keyframes dora-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.dora-brand-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.dora-hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dora-ecg-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 7px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+}
+
+.dora-ecg-icon {
+  color: #10b981;
+  animation: dora-ecg-flicker 2s infinite;
+}
+
+.dora-emergency-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.3));
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dora-emergency-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.6);
+}
+
+.dora-voice-toggle {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dora-voice-toggle.active {
+  background: rgba(14, 165, 233, 0.2);
+  border-color: #0ea5e9;
+  color: #38bdf8;
+}
+
+/* ================= 2. NAVIGATION SHELF ================= */
+.dora-nav-shelf {
+  margin-bottom: 24px;
+}
+
+.dora-tabs-strip {
+  display: flex;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.7);
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: fit-content;
+}
+
+.dora-shelf-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dora-shelf-tab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.dora-shelf-tab.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+  box-shadow: 0 4px 18px rgba(37, 99, 235, 0.4);
+}
+
+.dora-tab-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+
+.dora-badge-glow {
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(168, 85, 247, 0.25);
+  border: 1px solid rgba(168, 85, 247, 0.5);
+  color: #d8b4fe;
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+/* ================= 3. WORKBENCH & PANELS ================= */
+.dora-workbench-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .dora-workbench-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dora-glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+}
+
+.dora-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dora-head-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dora-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-cyan { background: rgba(6, 182, 212, 0.18); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.35); }
+.bg-purple { background: rgba(139, 92, 246, 0.18); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.35); }
+.bg-emerald { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
+
+.dora-panel-heading {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.dora-panel-caption {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: #94a3b8;
+}
+
+/* ================= BODY PART SELECTOR ================= */
+.dora-body-shelf {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 18px;
+}
+
+.dora-shelf-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.dora-body-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dora-body-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.dora-body-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.dora-body-btn.active {
+  background: rgba(14, 165, 233, 0.2);
+  border-color: #0ea5e9;
+  color: #38bdf8;
+}
+
+/* Search bar */
+.dora-search-hud {
+  display: flex;
+  align-items: center;
+  position: relative;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0 12px;
+  margin-bottom: 16px;
+}
+
+.dora-hud-search-icon {
+  color: #64748b;
+  margin-right: 8px;
+}
+
+.dora-search-hud input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 12px 0;
+  color: #ffffff;
+  font-size: 13.5px;
+  outline: none;
+}
+
+.dora-quick-add-btn {
+  background: #0284c7;
+  border: none;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Symptom Chips Viewport */
+.dora-chips-viewport {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 18px;
+  padding-right: 4px;
+}
+
+.dora-neo-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: capitalize;
+}
+
+.dora-neo-chip:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dora-neo-chip.selected {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(37, 99, 235, 0.25));
+  border-color: #0ea5e9;
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.dora-chip-check {
+  font-size: 11px;
+}
+
+/* Active Dock */
+.dora-active-dock {
+  background: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.dora-dock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.dora-dock-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #38bdf8;
+  text-transform: uppercase;
+}
+
+.dora-dock-clear {
+  background: none;
+  border: none;
+  color: #f87171;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dora-active-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dora-active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #0284c7;
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.dora-active-tag button {
+  background: none;
+  border: none;
+  color: #bfdbfe;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* Context Matrix */
+.dora-context-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.dora-dial-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dora-dial-item label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.dora-dial-item select,
+.dora-dial-item input {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 9px 12px;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+}
+
+.dora-dial-item select:focus,
+.dora-dial-item input:focus {
+  border-color: #0ea5e9;
+}
+
+.dora-ai-switch-row {
+  margin-bottom: 20px;
+}
+
+.dora-switch-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #cbd5e1;
+  cursor: pointer;
+}
+
+.dora-switch-label input {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+/* Buttons */
+.dora-launch-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 24px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+}
+
+.dora-launch-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+}
+
+.dora-launch-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bg-gradient-emerald {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+}
+
+.dora-print-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dora-print-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+/* ================= 4. CLINICAL REPORT DOSSIER ================= */
+.dora-dossier-empty {
+  text-align: center;
+  padding: 60px 24px;
+  color: #64748b;
+}
+
+.dora-empty-pulse-glow {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+  color: #38bdf8;
+}
+
+.dora-dossier-empty h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #e2e8f0;
+}
+
+.dora-dossier-empty p {
+  margin: 0;
+  font-size: 13px;
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.dora-dossier-loading {
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.dora-dna-loader {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.dora-dna-loader span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #38bdf8;
+  animation: dora-dna 1s infinite alternate;
+}
+
+.dora-dna-loader span:nth-child(2) { animation-delay: 0.2s; background: #60a5fa; }
+.dora-dna-loader span:nth-child(3) { animation-delay: 0.4s; background: #a78bfa; }
+.dora-dna-loader span:nth-child(4) { animation-delay: 0.6s; background: #34d399; }
+
+@keyframes dora-dna {
+  0% { transform: translateY(0); opacity: 0.3; }
+  100% { transform: translateY(-16px); opacity: 1; }
+}
+
+/* Hero Diagnosis Card */
+.dora-hero-diagnosis {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dora-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.dora-hero-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #38bdf8;
+  letter-spacing: 0.6px;
+}
+
+.dora-triage-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 12px;
+}
+
+.triage-urgent {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+}
+
+.triage-moderate {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+}
+
+.dora-disease-title {
+  margin: 0 0 12px;
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.dora-hero-stats {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 14px;
+}
+
+.dora-gauge-track {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dora-gauge-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #0ea5e9, #10b981);
+  border-radius: 10px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Specialist HUD */
+.dora-specialist-hud {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.dora-spec-avatar {
+  font-size: 36px;
+}
+
+.dora-spec-info {
+  flex: 1;
+}
+
+.dora-spec-sub {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.dora-spec-title {
+  margin: 2px 0 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.dora-consult-action-btn {
+  background: rgba(14, 165, 233, 0.2);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  color: #38bdf8;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dora-consult-action-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+/* Gemini AI Box */
+.dora-gemini-box {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.06) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.dora-gemini-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dora-gemini-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #a5b4fc;
+}
+
+.dora-voice-read-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+
+.dora-voice-read-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.dora-gemini-body {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #e2e8f0;
+  white-space: pre-wrap;
+}
+
+/* Two Columns */
+.dora-clinical-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 640px) {
+  .dora-clinical-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dora-col-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.dora-col-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.dora-col-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.dora-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dora-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+  color: #cbd5e1;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.dora-check-row input {
+  margin-top: 2px;
+}
+
+.dora-check-row span.done {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.dora-test-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dora-test-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #94a3b8;
+}
+
+.dora-bullet-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0ea5e9;
+}
+
+/* Differential Accordion */
+.dora-diff-accordion {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+.dora-diff-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.dora-diff-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.dora-diff-card {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.dora-diff-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.dora-diff-doc {
+  font-size: 11px;
+  color: #64748b;
+  margin: 2px 0 4px;
+}
+
+.dora-diff-match {
+  font-size: 11px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.dora-medical-disclaimer {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.5;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+
+/* ================= 5. CHAT THEATER ================= */
+.dora-chat-theater {
+  height: calc(100vh - 230px);
+  min-height: 540px;
+}
+
+.dora-chat-main-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.dora-emergency-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(90deg, #b91c1c, #dc2626);
+  color: #ffffff;
+  padding: 12px 20px;
+  font-size: 13px;
+}
+
+.dora-chat-stream {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dora-chat-bubble-row {
+  display: flex;
+  gap: 14px;
+  max-width: 85%;
+}
+
+.dora-chat-bubble-row.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.dora-chat-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dora-chat-bubble-row.assistant .dora-chat-avatar {
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.dora-chat-bubble-wrap {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 14px 18px;
+}
+
+.dora-chat-bubble-row.user .dora-chat-bubble-wrap {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+.dora-chat-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+
+.dora-chat-sender {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.dora-chat-bubble-row.user .dora-chat-sender {
+  color: #bfdbfe;
+}
+
+.dora-chat-time {
+  font-size: 10.5px;
+  color: #64748b;
+}
+
+.dora-chat-bubble-body {
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.dora-bubble-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dora-action-icon-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.dora-action-icon-btn:hover {
+  color: #38bdf8;
+  border-color: rgba(14, 165, 233, 0.4);
+}
+
+.dora-chat-loading-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dora-wave-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #38bdf8;
+  animation: dora-bounce-wave 1.2s infinite ease-in-out;
+}
+
+.dora-wave-dot:nth-child(2) { animation-delay: 0.2s; }
+.dora-wave-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dora-bounce-wave {
+  0%, 80%, 100% { transform: scale(0.3); opacity: 0.3; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.dora-wave-text {
+  font-size: 12px;
+  color: #64748b;
+  margin-left: 8px;
+}
+
+.dora-quick-prompt-shelf {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.25);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.dora-quick-prompt-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.dora-prompt-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.dora-prompt-pill:hover {
+  background: rgba(14, 165, 233, 0.15);
+  color: #38bdf8;
+  border-color: #0ea5e9;
+}
+
+.dora-chat-dock {
+  padding: 16px 20px;
+  background: rgba(15, 23, 42, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dora-input-wrapper {
+  display: flex;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 8px 12px;
+  transition: border-color 0.2s;
+}
+
+.dora-input-wrapper:focus-within {
+  border-color: #0ea5e9;
+}
+
+.dora-input-wrapper textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.dora-input-dock-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.dora-mic-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dora-mic-btn.listening {
+  background: #ef4444;
+  color: #ffffff;
+  animation: dora-mic-pulse 1s infinite;
+}
+
+@keyframes dora-mic-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.dora-send-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 0 18px;
+  height: 36px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.dora-send-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ================= 6. METABOLIC & BMI HUD ================= */
+.dora-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.dora-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.dora-form-field label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.dora-form-field select,
+.dora-form-field input {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+}
+
+.dora-risk-switches-box {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 14px;
+  margin-top: 12px;
+}
+
+.dora-risk-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.dora-risk-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.dora-neo-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #cbd5e1;
+  cursor: pointer;
+}
+
+.dora-vitals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.dora-vital-tile {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.dora-vital-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.dora-vital-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.dora-badge-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.status-success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.status-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.status-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+.dora-vital-val {
+  font-size: 26px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.dora-vital-val small {
+  font-size: 13px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.dora-vital-sub {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.dora-water-counter {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11.5px;
+  color: #cbd5e1;
+}
+
+.dora-water-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.dora-water-actions button {
+  background: rgba(14, 165, 233, 0.2);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  color: #38bdf8;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dora-water-actions button:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.dora-risk-strip {
+  display: flex;
+  gap: 16px;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.risk-success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #a7f3d0;
+}
+
+.risk-warning {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fde68a;
+}
+
+.risk-danger {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fecaca;
+}
+
+.dora-risk-header-text {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dora-risk-status-text {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 3px 0 6px;
+}
+
+.dora-risk-advice-text {
+  margin: 0;
+  font-size: 12.5px;
+  color: #e2e8f0;
+  line-height: 1.5;
+}
+
+/* ================= 7. MEDICAL ENCYCLOPEDIA ================= */
+.dora-library-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dora-library-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dora-cat-pills {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.dora-cat-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.dora-cat-pill.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+.dora-lib-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 8px 12px;
+  color: #ffffff;
+}
+
+.dora-lib-search input {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+  min-width: 180px;
+}
+
+.dora-disease-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.dora-disease-neo-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s;
+}
+
+.dora-disease-neo-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(14, 165, 233, 0.35);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.dora-neo-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.dora-neo-type {
+  font-size: 11px;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.dora-neo-sev {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.sev-mild { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.sev-moderate { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.sev-severe { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+.dora-neo-title {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.dora-neo-meta {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 14px;
+}
+
+.dora-neo-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.dora-neo-btn {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.dora-neo-btn.primary {
+  background: rgba(14, 165, 233, 0.2);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  color: #38bdf8;
+}
+
+.dora-neo-btn.primary:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.dora-neo-btn.secondary {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+}
+
+.dora-neo-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.dora-neo-expanded-body {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ================= 8. PRINT MEDIA STYLES ================= */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #dora-printable-report, #dora-printable-report * {
+    visibility: visible;
+  }
+  #dora-printable-report {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    color: #000000 !important;
+    background: #ffffff !important;
+  }
+  .dora-hero-diagnosis, .dora-col-card, .dora-gemini-box {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+  .dora-disease-title, .dora-spec-title, h4 {
+    color: #0f172a !important;
+  }
+}
