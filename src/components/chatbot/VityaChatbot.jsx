@@ -4,7 +4,7 @@ import ChatCharts from "./ChatCharts";
 import ChatInput from "./ChatInput";
 import FormattedMarkdown from "./FormattedMarkdown";
 import { useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../../services/api";
+import { API_BASE_URL, scanReceiptImage } from "../../services/api";
 import {
   Copy,
   Check,
@@ -646,6 +646,63 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
     }
   };
 
+  const handleReceiptUpload = async (e) => {
+    const file = e.target?.files?.[0] || e;
+    if (!file) return;
+
+    const previewUrl = URL.createObjectURL(file);
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender: "user",
+        type: "image",
+        text: `Uploaded receipt: ${file.name || "receipt.jpg"} 🧾`,
+        content: previewUrl,
+      },
+    ]);
+
+    setLoading(true);
+    try {
+      const data = await scanReceiptImage(file, true, conversationId);
+      if (data?.type === "receipt") {
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "bot",
+            type: "receipt",
+            data: data.data,
+            expense_id: data.expense_id,
+            text: data.summary || "Receipt analyzed and expense saved!",
+          },
+        ]);
+        showToast("Receipt scanned and expense logged! 🧾💰");
+      } else {
+        const textMsg = data?.message || data?.text || data?.summary || "Receipt processed.";
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "bot",
+            type: "text",
+            text: textMsg,
+          },
+        ]);
+      }
+    } catch (err) {
+      console.error("Receipt upload error:", err);
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          type: "text",
+          text: `Receipt scan error: ${err?.message || "Failed to process receipt image"}`,
+        },
+      ]);
+    } finally {
+      setLoading(false);
+      if (e.target) e.target.value = "";
+    }
+  };
+
   const bottomRef = useRef(null);
   const recognitionRef = useRef(null);
   const isSpeakingRef = useRef(false);
@@ -958,6 +1015,132 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
     []
   );
 
+  const renderReceipt = useCallback((msg) => {
+    const rData = msg.data || safeJSON(msg.content) || {};
+    const merchant = rData.merchant || "Receipt";
+    const amount = rData.total_amount || rData.amount || 0;
+    const category = rData.category || "General";
+    const date = rData.date || new Date().toISOString().split("T")[0];
+    const items = rData.items || [];
+    const tax = rData.tax;
+    const payment = rData.payment_method;
+    const expenseId = msg.expense_id || rData.expense_id;
+
+    return (
+      <div
+        style={{
+          background: "linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)",
+          border: "1px solid rgba(139, 92, 246, 0.35)",
+          borderRadius: 18,
+          padding: "18px 20px",
+          maxWidth: 480,
+          width: "100%",
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.15)",
+          boxSizing: "border-box",
+          color: "#f8fafc",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px dashed rgba(255,255,255,0.15)", paddingBottom: 12, marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", display: "grid", placeItems: "center", fontSize: 18 }}>
+              🧾
+            </div>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#ffffff" }}>{merchant}</div>
+              <div style={{ fontSize: 11, color: "#94a3b8" }}>{date}</div>
+            </div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#34d399" }}>₹{Number(amount).toLocaleString("en-IN")}</div>
+            <span style={{ fontSize: 10.5, fontWeight: 600, background: "rgba(139,92,246,0.25)", color: "#c084fc", border: "1px solid rgba(139,92,246,0.4)", borderRadius: 6, padding: "2px 7px" }}>
+              {category}
+            </span>
+          </div>
+        </div>
+
+        {items && items.length > 0 && (
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8", letterSpacing: 0.5, marginBottom: 6 }}>
+              Itemized Breakdown
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {items.map((it, idx) => (
+                <div key={idx} style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "#cbd5e1", background: "rgba(255,255,255,0.03)", padding: "4px 8px", borderRadius: 6 }}>
+                  <span>{it.name || it.item || `Item #${idx + 1}`} {it.qty ? `(x${it.qty})` : ""}</span>
+                  <span style={{ fontWeight: 600, color: "#f1f5f9" }}>{it.price ? `₹${it.price}` : ""}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tax !== undefined && tax !== null && (
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, color: "#94a3b8", marginBottom: 4 }}>
+            <span>Tax / VAT</span>
+            <span>₹{tax}</span>
+          </div>
+        )}
+
+        {payment && (
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, color: "#94a3b8", marginBottom: 10 }}>
+            <span>Payment Method</span>
+            <span>{payment}</span>
+          </div>
+        )}
+
+        <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11.5, color: "#34d399", fontWeight: 600 }}>
+            <span>✅</span> {expenseId ? `Logged in Finance (ID #${expenseId})` : "Expense Logged in Database"}
+          </span>
+          <span style={{ fontSize: 10.5, color: "#64748b" }}>AI Vision Scanned</span>
+        </div>
+      </div>
+    );
+  }, []);
+
+  const renderSources = (sources) => {
+    if (!sources || !Array.isArray(sources) || sources.length === 0) return null;
+    return (
+      <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.08)", display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+        <span style={{ fontSize: 10.5, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase" }}>Sources:</span>
+        {sources.slice(0, 5).map((src, sIdx) => {
+          const title = src.title || (typeof src === "string" ? src : "Source");
+          const url = src.url || (typeof src === "string" && isHttpUrl(src) ? src : null);
+          return url ? (
+            <a
+              key={sIdx}
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                fontSize: 11,
+                color: "#818cf8",
+                background: "rgba(99, 102, 241, 0.12)",
+                border: "1px solid rgba(99, 102, 241, 0.25)",
+                padding: "2px 8px",
+                borderRadius: 6,
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                maxWidth: 220,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              🌐 {title} ↗
+            </a>
+          ) : (
+            <span key={sIdx} style={{ fontSize: 11, color: "#94a3b8", background: "rgba(255,255,255,0.06)", padding: "2px 8px", borderRadius: 6 }}>
+              {title}
+            </span>
+          );
+        })}
+      </div>
+    );
+  };
+
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 2500);
@@ -1263,8 +1446,11 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       const botMessage = {
         sender: "bot",
         type: data?.type || (mode === "wiki" ? "wiki" : mode === "news" ? "news" : isChartData(normalizedPayload) ? "bar" : "text"),
-        text: typeof normalizedPayload === "string" ? normalizedPayload : "",
+        text: typeof normalizedPayload === "string" ? normalizedPayload : (data?.summary || data?.message || data?.text || ""),
         content: normalizedPayload,
+        data: data?.data,
+        sources: data?.sources || (normalizedPayload && typeof normalizedPayload === "object" ? normalizedPayload.sources : null),
+        expense_id: data?.expense_id,
       };
 
       setMessages((prev) => [...prev, botMessage].slice(-50));
@@ -1953,6 +2139,10 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                             </button>
                           </div>
                         </div>
+                      ) : type === "receipt" ? (
+                        <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
+                          {renderReceipt(msg)}
+                        </div>
                       ) : type === "news" ? (
                         <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
                           {renderNews(msg)}
@@ -2007,7 +2197,10 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                           {chartElement || <div style={styles.emptyText}>No chart data</div>}
                         </div>
                       ) : (
-                        <FormattedMarkdown content={msg.text} />
+                        <>
+                          <FormattedMarkdown content={msg.text} />
+                          {renderSources(msg.sources || (msg.content && typeof msg.content === "object" ? msg.content.sources : null))}
+                        </>
                       )}
                     </div>
 
@@ -2191,6 +2384,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         ragDocs={ragDocs}
         handleFileUpload={handleDocumentFileUpload}
         handleClearDocs={handleClearRagDocs}
+        handleReceiptUpload={handleReceiptUpload}
       />
 
       {/* Floating Action Toast Notification */}

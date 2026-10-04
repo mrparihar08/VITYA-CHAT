@@ -16,6 +16,17 @@ export const placeholderMap = {
   file: "Describe presentation (e.g. AI Trends)…",
 };
 
+export const QUICK_ACTIONS = [
+  { label: "💳 Balance", query: "my balance" },
+  { label: "📊 Pie Chart", query: "show pie chart for expenses" },
+  { label: "📅 Subscriptions", query: "my subscriptions" },
+  { label: "🎯 Goals", query: "my savings goals" },
+  { label: "🩺 Health Score", query: "financial health score" },
+  { label: "📈 Report", query: "monthly report" },
+  { label: "🌦️ Weather", query: "weather in Delhi" },
+  { label: "📰 Tech News", query: "/news tech" },
+];
+
 export const ChatInput = ({
   input,
   setInput,
@@ -35,20 +46,25 @@ export const ChatInput = ({
   ragDocs = [],
   handleFileUpload,
   handleClearDocs,
+  handleReceiptUpload,
 }) => {
   const [pluginsExpanded, setPluginsExpanded] = React.useState(false);
   const inputRef = React.useRef(null);
+  const receiptInputRef = React.useRef(null);
 
   const getPlaceholder = () => {
     if (input.startsWith("/image")) return "Type AI image description (e.g. /image cyberpunk city 8k)…";
     if (input.startsWith("/presentation") || input.startsWith("/ppt")) return "Type topic (e.g. /presentation India in BRICS)…";
-    return placeholderMap[mode] || "Ask Vitya anything…";
+    if (input.startsWith("/news")) return "Type news topic (e.g. /news stock market)…";
+    if (input.startsWith("/wiki")) return "Type subject (e.g. /wiki quantum physics)…";
+    if (input.startsWith("/dora")) return "Describe symptoms for Dora AI (e.g. /dora fever and throat pain)…";
+    return placeholderMap[mode] || "Ask Vitya anything, log an expense, or ask for charts…";
   };
 
   return (
     <div
       style={{
-        padding: "12px 18px",
+        padding: "8px 18px 14px 18px",
         background: "transparent",
         backdropFilter: "none",
         borderTop: "none",
@@ -56,6 +72,53 @@ export const ChatInput = ({
       }}
     >
       <div style={{ position: "relative", maxWidth: 900, margin: "0 auto" }} ref={menuRef}>
+        {/* QUICK SUGGESTION CHIPS */}
+        <div
+          style={{
+            display: "flex",
+            gap: 6,
+            overflowX: "auto",
+            paddingBottom: 8,
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            alignItems: "center",
+          }}
+        >
+          {QUICK_ACTIONS.map((action, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => {
+                setInput(action.query);
+                setTimeout(() => sendMessage(action.query), 50);
+              }}
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.85)",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 999,
+                padding: "4px 12px",
+                whiteSpace: "nowrap",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(139,92,246,0.25)";
+                e.currentTarget.style.borderColor = "rgba(139,92,246,0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+              }}
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+
+        {/* PLUS / ACTIONS MENU */}
         {plusOpen && (
           <div
             style={{
@@ -63,12 +126,12 @@ export const ChatInput = ({
               bottom: "100%",
               left: 0,
               marginBottom: 6,
-              width: 200,
+              width: 220,
               borderRadius: 14,
-              background: "rgba(18, 24, 40, 0.96)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              boxShadow: "0 16px 40px rgba(0,0,0,0.55)",
-              padding: 5,
+              background: "rgba(18, 24, 40, 0.98)",
+              border: "1px solid rgba(255,255,255,0.14)",
+              boxShadow: "0 16px 40px rgba(0,0,0,0.65)",
+              padding: 6,
               zIndex: 100,
               display: "grid",
               gap: 2,
@@ -96,6 +159,35 @@ export const ChatInput = ({
                 <div style={{ fontSize: 10, opacity: 0.6, marginTop: 1 }}>{item.hint}</div>
               </button>
             ))}
+
+            {/* RECEIPT & BILL SCANNER OPTION */}
+            {handleReceiptUpload && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPlusOpen(false);
+                  receiptInputRef.current?.click();
+                }}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  padding: "6px 8px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: "rgba(16, 185, 129, 0.15)",
+                  color: "#34d399",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  transition: "background 0.15s ease",
+                }}
+              >
+                <div style={{ fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
+                  <span>🧾</span> Scan Receipt / Bill
+                </div>
+                <div style={{ fontSize: 10, opacity: 0.8, color: "#fff", marginTop: 1 }}>AI Vision expense extraction</div>
+              </button>
+            )}
 
             {/* EXPANDABLE PLUGINS & TOOLS SECTION */}
             <button
@@ -206,7 +298,7 @@ export const ChatInput = ({
                     <div style={{ fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
                       🌐 Web Search
                     </div>
-                    <div style={{ fontSize: 9, opacity: 0.6, marginTop: 1 }}>Toggle live DuckDuckGo facts</div>
+                    <div style={{ fontSize: 9, opacity: 0.6, marginTop: 1 }}>Toggle live Google/Web facts</div>
                   </button>
                 )}
 
@@ -246,6 +338,20 @@ export const ChatInput = ({
             )}
           </div>
         )}
+
+        {/* HIDDEN RECEIPT UPLOAD INPUT */}
+        <input
+          ref={receiptInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={(e) => {
+            if (e.target.files?.[0] && handleReceiptUpload) {
+              handleReceiptUpload(e.target.files[0]);
+            }
+            e.target.value = "";
+          }}
+        />
 
         {/* ACTIVE RAG DOCUMENT BADGES */}
         {ragDocs && ragDocs.length > 0 && (
@@ -312,10 +418,33 @@ export const ChatInput = ({
               placeItems: "center",
               flexShrink: 0,
             }}
-            title="More actions"
+            title="More actions & plugins"
           >
             <img src="/plus.png" alt="Plus" style={{ width: 16, height: 16 }} />
           </button>
+
+          {/* RECEIPT CAMERA BUTTON */}
+          {handleReceiptUpload && (
+            <button
+              type="button"
+              onClick={() => receiptInputRef.current?.click()}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 12,
+                border: "none",
+                background: "rgba(16, 185, 129, 0.12)",
+                color: "#34d399",
+                cursor: "pointer",
+                display: "grid",
+                placeItems: "center",
+                flexShrink: 0,
+              }}
+              title="Upload / Scan Receipt Image"
+            >
+              <span style={{ fontSize: 16 }}>🧾</span>
+            </button>
+          )}
 
           <input
             ref={inputRef}

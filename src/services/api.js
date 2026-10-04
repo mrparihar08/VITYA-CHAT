@@ -473,5 +473,57 @@ export const calculateDoraHealthAssessment = async (payload) => {
   return res.data;
 };
 
+// ================= CHAT & MULTIMODAL RECEIPT API =================
+export const scanReceiptImage = async (file, autoSave = true, conversationId = null) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  let url = `/api/chat/receipt?auto_save=${autoSave}`;
+  if (conversationId) url += `&conversation_id=${conversationId}`;
+
+  const res = await api.post(url, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+export const sendChatMessage = async ({ message, conversation_id = null, use_web_search = false, mode = null, requestType = null }) => {
+  const res = await api.post("/api/chat/", {
+    message,
+    conversation_id,
+    use_web_search,
+    mode,
+    requestType,
+  });
+  return res.data;
+};
+
+export const getChatHistory = async (conversationId = null, limit = 100, offset = 0) => {
+  let url = `/api/chat/history?limit=${limit}&offset=${offset}`;
+  if (conversationId) url += `&conversation_id=${conversationId}`;
+  const res = await api.get(url);
+  return res.data;
+};
+
+export const getConversations = async (limit = 50) => {
+  const res = await api.get(`/api/chat/conversations?limit=${limit}`);
+  return res.data;
+};
+
+export const createNewConversation = async () => {
+  const res = await api.post("/api/chat/new");
+  return res.data;
+};
+
+export const deleteConversation = async (conversationId) => {
+  const res = await api.delete(`/api/chat/conversation/${conversationId}`);
+  return res.data;
+};
+
+export const clearChatHistory = async () => {
+  const res = await api.delete("/api/chat/history");
+  return res.data;
+};
+
 export default api;
+
 
