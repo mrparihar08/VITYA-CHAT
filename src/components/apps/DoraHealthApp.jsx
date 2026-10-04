@@ -30,7 +30,8 @@ import {
   Clock,
   Share2,
   Sliders,
-  Award
+  Award,
+  Globe
 } from "lucide-react";
 import {
   predictDoraDisease,
@@ -41,6 +42,40 @@ import {
   getDoraInfo,
 } from "../../services/api";
 import "./DoraHealthApp.css";
+
+export const LANGUAGE_OPTIONS = [
+  { id: "auto", label: "🌐 Auto (हिंदी/Eng)", short: "Auto", speechLang: "en-IN" },
+  { id: "hi", label: "🇮🇳 हिन्दी (Hindi)", short: "हिन्दी", speechLang: "hi-IN" },
+  { id: "hinglish", label: "🇮🇳 Hinglish", short: "Hinglish", speechLang: "hi-IN" },
+  { id: "en", label: "🇬🇧 English", short: "English", speechLang: "en-US" },
+];
+
+export const LOCALIZED_QUICK_PROMPTS = {
+  auto: [
+    { label: "😴 नींद न आना / Insomnia", query: "Mujhe raat me neend nahi aa rahi aur thakan lag rahi hai, kya karu?" },
+    { label: "🤒 Tez Bukhar & Thand", query: "Mujhe 2 din se tez bukhar, sukhi khansi aur thand lag rahi hai. Kya karna chahiye?" },
+    { label: "🥗 Acidity & Gas Relief", query: "Acidity aur pet me jalan kam karne ke liye kya gharelu upay aur diet leni chahiye?" },
+    { label: "🦴 Back Pain Specialist", query: "Lagaatar kamar dard aur stiffness ke liye kaun se specialist doctor ko dikhana chahiye?" },
+  ],
+  hi: [
+    { label: "😴 नींद न आना (अनिद्रा)", query: "मुझे रात में नींद नहीं आ रही है और दिन में बहुत थकान रहती है। इसके क्या कारण और घरेलू उपाय हैं?" },
+    { label: "🤒 तेज बुखार और ठंड लगना", query: "मुझे 2 दिन से तेज बुखार, सूखी खांसी और कंपकंपी है। मुझे क्या करना चाहिए?" },
+    { label: "🥗 एसिडिटी व गैस से राहत", query: "एसिडिटी और सीने में जलन कम करने के लिए कौन सा खानपान और घरेलू उपाय अपनाने चाहिए?" },
+    { label: "🦴 कमर दर्द के लिए डॉक्टर", query: "लगातार कमर दर्द और जकड़न के लिए मुझे किस विशेषज्ञ डॉक्टर को दिखाना चाहिए?" },
+  ],
+  hinglish: [
+    { label: "😴 Neend nahi aa rahi", query: "Mujhe raat me neend nahi aa rahi aur bohot thakan lagti hai. Kya home remedies ya precautions lene chahiye?" },
+    { label: "🤒 Tez Bukhar & Thand", query: "Mujhe 2 din se tez bukhar, sukhi khansi aur thand lag rahi hai. Kya karna chahiye?" },
+    { label: "🥗 Acidity & Gas Relief", query: "Acidity aur pet me jalan kam karne ke liye kya diet leni chahiye?" },
+    { label: "🦴 Back Pain Doctor", query: "Lagaatar kamar dard aur stiffness ke liye kaun se specialist doctor ko dikhana chahiye?" },
+  ],
+  en: [
+    { label: "😴 Insomnia & Sleep Relief", query: "I have difficulty falling asleep at night and feel fatigued during the day. What self-care tips do you suggest?" },
+    { label: "🤒 High Fever & Shivering", query: "I have had high fever, dry cough, and shivering for 2 days. What should I do?" },
+    { label: "🥗 Acid Reflux Diet Plan", query: "What dietary changes should I follow to reduce acidity and GERD reflux?" },
+    { label: "🦴 Specialist for Back Pain", query: "Which specialist doctor should I consult for persistent lower back pain and stiffness?" },
+  ],
+};
 
 // Anatomical Body Parts with associated symptoms
 const BODY_PARTS = [
@@ -87,6 +122,7 @@ const DEFAULT_FALLBACK_DISEASES = [
 export default function DoraHealthApp() {
   const [activeTab, setActiveTab] = useState("symptoms"); // 'symptoms' | 'chat' | 'assessment' | 'library'
   const [selectedBodyPart, setSelectedBodyPart] = useState("all");
+  const [selectedLang, setSelectedLang] = useState("auto"); // 'auto' | 'hi' | 'hinglish' | 'en'
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [speakingIndex, setSpeakingIndex] = useState(null);
   const [systemInfo, setSystemInfo] = useState({
@@ -223,7 +259,8 @@ export default function DoraHealthApp() {
       return;
     }
     const recognition = new SpeechRec();
-    recognition.lang = "en-IN";
+    const opt = LANGUAGE_OPTIONS.find((l) => l.id === selectedLang);
+    recognition.lang = opt?.speechLang || "en-IN";
     recognition.continuous = false;
     recognition.interimResults = false;
 
@@ -267,6 +304,7 @@ export default function DoraHealthApp() {
         age: parseInt(userAge) || 25,
         gender: userGender,
         include_ai_explanation: includeAiSummary,
+        language: selectedLang,
       };
       const data = await predictDoraDisease(payload, 4);
       setPredictResult(data);
@@ -323,6 +361,7 @@ export default function DoraHealthApp() {
     try {
       const payload = {
         messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
+        language: selectedLang,
       };
       const res = await sendDoraChat(payload);
       if (res?.reply) {
@@ -333,7 +372,12 @@ export default function DoraHealthApp() {
         if (res.is_emergency) setChatEmergency(true);
       }
     } catch (err) {
-      const fallbackReply = `🩺 **DORA Clinical Consultation**:\n\nRegarding your question: *"${msg}"*\n\n• **Immediate Self-Care**: Ensure adequate rest, maintain steady fluid intake (water/coconut water), and record your symptoms in a log.\n• **When to consult**: If fever exceeds 101°F, shortness of breath occurs, or symptoms persist beyond 48 hours, consult a **General Physician**.\n\n⚠️ *Clinical Disclaimer: DORA is an AI health companion for educational purposes.*`;
+      const fallbackReply = selectedLang === "hi"
+        ? `🩺 **डौरा (DORA) स्वास्थ्य परामर्श**:\n\nआपके प्रश्न के संदर्भ में: *"${msg}"*\n\n• **प्राथमिक देखभाल**: पर्याप्त आराम करें, गुनगुना पानी पिएं और अपने लक्षणों पर नजर रखें।\n• **डॉक्टर से परामर्श**: यदि तेज बुखार या सांस लेने में परेशानी हो तो तुरंत **सामान्य चिकित्सक (General Physician)** से संपर्क करें।\n\n⚠️ *चिकित्सा अस्वीकरण: डौरा केवल शैक्षिक जानकारी प्रदान करने वाला AI सहायक है।*`
+        : selectedLang === "hinglish"
+        ? `🩺 **DORA Clinical Consultation**:\n\nAapke sawal ke baare me: *"${msg}"*\n\n• **Self-Care**: Proper rest karein, paani/ORS khoob piyein aur symptoms par dhyan rakhein.\n• **Doctor consultation**: Agar bukhar tez ho ya 2-3 din se zyada rahe to **General Physician** ko zaroor dikhayein.\n\n⚠️ *Disclaimer: DORA ek AI health companion hai aur medical advice ka replacement nahi hai.*`
+        : `🩺 **DORA Clinical Consultation**:\n\nRegarding your question: *"${msg}"*\n\n• **Immediate Self-Care**: Ensure adequate rest, maintain steady fluid intake (water/coconut water), and record your symptoms in a log.\n• **When to consult**: If fever exceeds 101°F, shortness of breath occurs, or symptoms persist beyond 48 hours, consult a **General Physician**.\n\n⚠️ *Clinical Disclaimer: DORA is an AI health companion for educational purposes.*`;
+
       setMessages([
         ...newMessages,
         {
@@ -362,6 +406,7 @@ export default function DoraHealthApp() {
         has_diabetes_history: assessDiabetes,
         has_hypertension: assessHypertension,
         include_ai_plan: includeAiPlan,
+        language: selectedLang,
       };
       const data = await calculateDoraHealthAssessment(payload);
       setAssessResult(data);
@@ -456,6 +501,22 @@ export default function DoraHealthApp() {
             <Activity className="dora-ecg-icon" />
             <div className="dora-ecg-wave"></div>
             <span>AI TRIAGE ACTIVE</span>
+          </div>
+
+          {/* DORA LANGUAGE PICKER */}
+          <div className="dora-lang-picker" title="Response Language / भाषा">
+            <Globe size={14} className="dora-lang-icon" />
+            <select
+              value={selectedLang}
+              onChange={(e) => setSelectedLang(e.target.value)}
+              className="dora-lang-select"
+            >
+              {LANGUAGE_OPTIONS.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <a
@@ -1043,45 +1104,36 @@ export default function DoraHealthApp() {
                 <div ref={chatBottomRef} />
               </div>
 
-              {/* QUICK PROMPT SHELF */}
+              {/* QUICK PROMPT SHELF & LANGUAGE PILLS */}
               <div className="dora-quick-prompt-shelf">
-                <span className="dora-quick-prompt-label">Quick Inquiries:</span>
-                <button
-                  type="button"
-                  className="dora-prompt-pill"
-                  onClick={() =>
-                    handleSendMessage("I have had high fever, dry cough, and shivering for 2 days. What should I do?")
-                  }
-                >
-                  🤒 High Fever & Shivering
-                </button>
-                <button
-                  type="button"
-                  className="dora-prompt-pill"
-                  onClick={() =>
-                    handleSendMessage("What dietary changes should I follow to reduce acidity and GERD reflux?")
-                  }
-                >
-                  🥗 Acid Reflux Diet Plan
-                </button>
-                <button
-                  type="button"
-                  className="dora-prompt-pill"
-                  onClick={() =>
-                    handleSendMessage("Which specialist doctor should I consult for persistent lower back pain and stiffness?")
-                  }
-                >
-                  🦴 Specialist for Back Pain
-                </button>
-                <button
-                  type="button"
-                  className="dora-prompt-pill"
-                  onClick={() =>
-                    handleSendMessage("What are the warning signs of severe dehydration and how to treat it?")
-                  }
-                >
-                  💧 Dehydration Treatment
-                </button>
+                <div className="dora-shelf-row-top">
+                  <span className="dora-quick-prompt-label">Quick Inquiries:</span>
+                  <div className="dora-lang-mini-toggles">
+                    {LANGUAGE_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        className={`dora-lang-mini-btn ${selectedLang === opt.id ? "active" : ""}`}
+                        onClick={() => setSelectedLang(opt.id)}
+                      >
+                        {opt.short}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="dora-prompt-pills-row">
+                  {(LOCALIZED_QUICK_PROMPTS[selectedLang] || LOCALIZED_QUICK_PROMPTS.auto).map((qp, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      className="dora-prompt-pill"
+                      onClick={() => handleSendMessage(qp.query)}
+                    >
+                      {qp.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* CHAT INPUT FORM */}
@@ -1089,7 +1141,15 @@ export default function DoraHealthApp() {
                 <div className="dora-input-wrapper">
                   <textarea
                     rows="2"
-                    placeholder="Ask DORA about symptoms, medications, precautions, diet, or second opinions..."
+                    placeholder={
+                      selectedLang === "hi"
+                        ? "लक्षण, घरेलू उपाय, दवाइयां, खानपान या स्वास्थ्य परामर्श पूछें (उदा. 'मुझे नींद नहीं आ रही')..."
+                        : selectedLang === "hinglish"
+                        ? "Apne symptoms, dawa, gharelu nuskhe ya diet ke baare me puchiye (e.g. 'neend nahi aa rahi')..."
+                        : selectedLang === "en"
+                        ? "Ask DORA about symptoms, medications, precautions, diet, or second opinions..."
+                        : "Ask DORA in Hindi, Hinglish, or English (e.g. 'mujhe neend nahi aa rahi' or 'fever diet')..."
+                    }
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => {

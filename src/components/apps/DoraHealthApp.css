@@ -202,6 +202,44 @@
   box-shadow: 0 0 16px rgba(239, 68, 68, 0.6);
 }
 
+/* HUD Language Selector */
+.dora-lang-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+  padding: 6px 12px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.dora-lang-picker:hover {
+  border-color: rgba(56, 189, 248, 0.6);
+  background: rgba(14, 165, 233, 0.18);
+}
+
+.dora-lang-icon {
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+
+.dora-lang-select {
+  background: transparent;
+  border: none;
+  color: #f1f5f9;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  padding-right: 4px;
+}
+
+.dora-lang-select option {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
 .dora-voice-toggle {
   width: 38px;
   height: 38px;
@@ -1192,13 +1230,18 @@
 
 .dora-quick-prompt-shelf {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
   padding: 10px 20px;
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.28);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  overflow-x: auto;
-  white-space: nowrap;
+}
+
+.dora-shelf-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .dora-quick-prompt-label {
@@ -1206,6 +1249,46 @@
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dora-lang-mini-toggles {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dora-lang-mini-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dora-lang-mini-btn:hover {
+  color: #38bdf8;
+  border-color: rgba(14, 165, 233, 0.4);
+}
+
+.dora-lang-mini-btn.active {
+  background: rgba(14, 165, 233, 0.2);
+  border-color: #0ea5e9;
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.dora-prompt-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 2px;
 }
 
 .dora-prompt-pill {
@@ -1218,6 +1301,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
+  flex-shrink: 0;
 }
 
 .dora-prompt-pill:hover {
