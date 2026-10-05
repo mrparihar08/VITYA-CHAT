@@ -497,6 +497,33 @@ export const sendChatMessage = async ({ message, conversation_id = null, use_web
   return res.data;
 };
 
+export const sendMultimodalChatMessage = async ({
+  message = "",
+  images = [],
+  conversation_id = null,
+  use_web_search = false,
+  mode = null,
+}) => {
+  const formData = new FormData();
+  if (message) formData.append("message", message);
+  if (conversation_id) formData.append("conversation_id", conversation_id);
+  if (use_web_search) formData.append("use_web_search", String(use_web_search));
+  if (mode) formData.append("mode", mode);
+
+  if (Array.isArray(images)) {
+    images.forEach((img) => {
+      formData.append("files", img);
+    });
+  } else if (images) {
+    formData.append("files", images);
+  }
+
+  const res = await api.post("/api/chat/multimodal", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
 export const getChatHistory = async (conversationId = null, limit = 100, offset = 0) => {
   let url = `/api/chat/history?limit=${limit}&offset=${offset}`;
   if (conversationId) url += `&conversation_id=${conversationId}`;

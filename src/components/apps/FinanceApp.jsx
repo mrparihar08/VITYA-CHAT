@@ -143,18 +143,41 @@ export default function FinanceApp() {
     if (!expAmount || Number(expAmount) <= 0) return;
 
     try {
-      await createExpense({
+      const payload = {
         amount: parseFloat(expAmount),
         category: expCategory,
         description: expDesc.trim() || `${expCategory} expense`,
-        date: expDate || new Date().toISOString(),
-      });
+      };
+      if (expDate) {
+        payload.date = expDate;
+      }
+
+      try {
+        await createExpense(payload);
+      } catch (postErr) {
+        // Fallback for legacy backend schema where date must be None
+        if (postErr?.response?.status === 422 && payload.date) {
+          const fallbackPayload = { ...payload };
+          delete fallbackPayload.date;
+          await createExpense(fallbackPayload);
+        } else {
+          throw postErr;
+        }
+      }
+
       setExpAmount("");
       setExpDesc("");
       showToast("Expense recorded successfully!");
       fetchData();
     } catch (err) {
-      alert("Failed to record expense. Please check your connection.");
+      console.error("Expense record error:", err);
+      const errMsg =
+        err?.response?.data?.detail
+          ? typeof err.response.data.detail === "string"
+            ? err.response.data.detail
+            : JSON.stringify(err.response.data.detail)
+          : err?.message || "Please check your connection.";
+      alert(`Failed to record expense: ${errMsg}`);
     }
   };
 
@@ -176,16 +199,39 @@ export default function FinanceApp() {
     if (!incAmount || Number(incAmount) <= 0) return;
 
     try {
-      await createIncome({
+      const payload = {
         amount: parseFloat(incAmount),
         source: incSource,
-        date: incDate || new Date().toISOString(),
-      });
+      };
+      if (incDate) {
+        payload.date = incDate;
+      }
+
+      try {
+        await createIncome(payload);
+      } catch (postErr) {
+        // Fallback for legacy backend schema where date must be None
+        if (postErr?.response?.status === 422 && payload.date) {
+          const fallbackPayload = { ...payload };
+          delete fallbackPayload.date;
+          await createIncome(fallbackPayload);
+        } else {
+          throw postErr;
+        }
+      }
+
       setIncAmount("");
       showToast("Income added successfully!");
       fetchData();
     } catch (err) {
-      alert("Failed to add income. Please check your connection.");
+      console.error("Income record error:", err);
+      const errMsg =
+        err?.response?.data?.detail
+          ? typeof err.response.data.detail === "string"
+            ? err.response.data.detail
+            : JSON.stringify(err.response.data.detail)
+          : err?.message || "Please check your connection.";
+      alert(`Failed to add income: ${errMsg}`);
     }
   };
 

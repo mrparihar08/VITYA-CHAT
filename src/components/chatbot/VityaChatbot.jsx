@@ -4,7 +4,7 @@ import ChatCharts from "./ChatCharts";
 import ChatInput from "./ChatInput";
 import FormattedMarkdown from "./FormattedMarkdown";
 import { useNavigate } from "react-router-dom";
-import { API_BASE_URL, scanReceiptImage } from "../../services/api";
+import { API_BASE_URL, scanReceiptImage, sendMultimodalChatMessage } from "../../services/api";
 import {
   Copy,
   Check,
@@ -583,9 +583,20 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
   const [mode, setMode] = useState("chat");
   const [useWebSearch, setUseWebSearch] = useState(true);
   const [ragDocs, setRagDocs] = useState([]);
+  const [attachedImages, setAttachedImages] = useState([]);
   const [activeMoreIndex, setActiveMoreIndex] = useState(null);
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
+
+  const handleImageSelect = useCallback((files) => {
+    const fileArray = Array.from(files || []).filter((f) => f.type && f.type.startsWith("image/"));
+    if (!fileArray.length) return;
+    setAttachedImages((prev) => [...prev, ...fileArray]);
+  }, []);
+
+  const handleRemoveAttachedImage = useCallback((index) => {
+    setAttachedImages((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -1465,32 +1476,73 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
     async (explicitText = null, options = {}) => {
       const messageToSend = (explicitText ?? input).trim();
       const isVoiceInput = options?.source === "voice";
+      const currentAttachedImages = [...attachedImages];
 
-      if (!messageToSend || loading) return;
+      if (!messageToSend && currentAttachedImages.length === 0) return;
+      if (loading) return;
 
       if (!token) {
         alert("Please login again.");
         return;
       }
 
+      const previewUrls = currentAttachedImages.map((file) => URL.createObjectURL(file));
+
       setMessages((prev) => [
         ...prev,
-        { sender: "user", type: "text", text: messageToSend, mode },
+        {
+          sender: "user",
+          type: "text",
+          text: messageToSend,
+          images: previewUrls,
+          mode,
+        },
       ]);
 
+      setAttachedImages([]);
+      setInput("");
       setLoading(true);
 
       try {
         let botMessage = null;
 
-        const isPresentationSlash = /^\/(presentation|ppt)\b/i.test(messageToSend);
-        if (mode === "file" || isPresentationSlash) {
-          const pptTopic = isPresentationSlash
-            ? messageToSend.replace(/^\/(presentation|ppt)\s*/i, "").trim()
-            : messageToSend;
-          botMessage = await sendPptMessage(pptTopic || "Presentation Deck");
+        if (currentAttachedImages.length > 0) {
+          const multimodalData = await sendMultimodalChatMessage({
+            message: messageToSend,
+            images: currentAttachedImages,
+            conversation_id: conversationId || undefined,
+            use_web_search: useWebSearch,
+            mode,
+          });
+
+          const replyText =
+            multimodalData?.content ||
+            multimodalData?.reply ||
+            multimodalData?.message ||
+            multimodalData?.text ||
+            (typeof multimodalData === "string" ? multimodalData : "Processed visual input.");
+
+          botMessage = {
+            sender: "bot",
+            type: "text",
+            text: replyText,
+            content: replyText,
+            multimodal: true,
+          };
+
+          setMessages((prev) => [...prev, botMessage].slice(-50));
+          if (multimodalData?.conversation_id) onConversationChange?.(multimodalData.conversation_id);
+          onConversationUpdated?.();
         } else {
-          botMessage = await sendChatMessage(messageToSend);
+          const isPresentationSlash = /^\/(presentation|ppt)\b/i.test(messageToSend);
+          if (mode === "file" || isPresentationSlash) {
+            const pptTopic = isPresentationSlash
+              ? messageToSend.replace(/^\/(presentation|ppt)\s*/i, "").trim()
+              : messageToSend;
+            botMessage = await sendPptMessage(pptTopic || "Presentation Deck");
+          } else {
+            botMessage = await sendChatMessage(messageToSend);
+          }
         }
 
         if (isVoiceInput && botMessage) {
@@ -1505,10 +1557,9 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         setMessages((prev) => [...prev, { sender: "bot", type: "text", text: errorText }]);
       } finally {
         setLoading(false);
-        setInput("");
       }
     },
-    [input, loading, token, mode, sendPptMessage, sendChatMessage, speak]
+    [input, attachedImages, loading, token, mode, conversationId, useWebSearch, sendPptMessage, sendChatMessage, speak, onConversationChange, onConversationUpdated]
   );
 
   const startListening = useCallback(() => {
@@ -1832,43 +1883,43 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
               <div style={styles.emptyCard}>
                 <div style={styles.heroTitle}>What can I help you with today?</div>
                 <p className="vitya-chat-hero-sub">
-                  Ask any question, brainstorm ideas, debug code, or generate slide decks in seconds.
+                  Analyze finances, scan receipts & images, consult DORA Health AI, or generate slide decks in seconds.
                 </p>
 
                 <div className="vitya-chat-starter-grid">
                   <div
                     className="vitya-starter-card"
-                    onClick={() => sendMessage("Explain Recursion with a clear Python code example")}
+                    onClick={() => sendMessage("Analyze my monthly expenses, budget breakdown, and savings")}
                   >
-                    <div className="starter-icon-box bg-purple">💡</div>
+                    <div className="starter-icon-box bg-purple">📊</div>
                     <div className="starter-card-body">
-                      <h4>Brainstorm & Learn</h4>
-                      <p>Explain Recursion with code example</p>
+                      <h4>Financial Intelligence</h4>
+                      <p>Monthly expenses & budget breakdown</p>
                     </div>
                   </div>
 
                   <div
                     className="vitya-starter-card"
-                    onClick={() => sendMessage("Debug and optimize Python code for web scraping")}
+                    onClick={() => sendMessage("How can I scan a receipt, bill, or analyze an image with AI Vision?")}
                   >
-                    <div className="starter-icon-box bg-blue">💻</div>
+                    <div className="starter-icon-box bg-blue">📸</div>
                     <div className="starter-card-body">
-                      <h4>Code & Debug</h4>
-                      <p>Debug Python scraping script</p>
+                      <h4>AI Vision & Bills</h4>
+                      <p>Scan receipts, charts, notes & photos</p>
                     </div>
                   </div>
 
                   <div
                     className="vitya-starter-card"
                     onClick={() => {
-                      openMode("wiki");
-                      sendMessage("Quantum Computing");
+                      openMode("dora");
+                      sendMessage("I have a mild headache and throat pain for 2 days. What should I do?");
                     }}
                   >
-                    <div className="starter-icon-box bg-teal">🌐</div>
+                    <div className="starter-icon-box bg-teal">🩺</div>
                     <div className="starter-card-body">
-                      <h4>Search Knowledge</h4>
-                      <p>Wikipedia: Quantum Computing</p>
+                      <h4>DORA Health AI</h4>
+                      <p>Symptom analysis & health guidance</p>
                     </div>
                   </div>
 
@@ -1879,9 +1930,9 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                       sendMessage("Artificial Intelligence Trends");
                     }}
                   >
-                    <div className="starter-icon-box bg-rose">📺</div>
+                    <div className="starter-icon-box bg-rose">🚀</div>
                     <div className="starter-card-body">
-                      <h4>Create Presentation</h4>
+                      <h4>AI Presentation</h4>
                       <p>Generate deck: AI Trends</p>
                     </div>
                   </div>
@@ -2198,7 +2249,26 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                         </div>
                       ) : (
                         <>
-                          <FormattedMarkdown content={msg.text} />
+                          {isUser && msg.images && msg.images.length > 0 && (
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: msg.text ? 10 : 0 }}>
+                              {msg.images.map((imgUrl, imgIdx) => (
+                                <img
+                                  key={imgIdx}
+                                  src={imgUrl}
+                                  alt="User attachment"
+                                  style={{
+                                    maxWidth: msg.images.length === 1 ? 260 : 130,
+                                    maxHeight: 180,
+                                    borderRadius: 12,
+                                    objectFit: "cover",
+                                    border: "1px solid rgba(255, 255, 255, 0.25)",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          )}
+                          {msg.text ? <FormattedMarkdown content={msg.text} /> : null}
                           {renderSources(msg.sources || (msg.content && typeof msg.content === "object" ? msg.content.sources : null))}
                         </>
                       )}
@@ -2385,6 +2455,10 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         handleFileUpload={handleDocumentFileUpload}
         handleClearDocs={handleClearRagDocs}
         handleReceiptUpload={handleReceiptUpload}
+        attachedImages={attachedImages}
+        setAttachedImages={setAttachedImages}
+        onImageSelect={handleImageSelect}
+        removeAttachedImage={handleRemoveAttachedImage}
       />
 
       {/* Floating Action Toast Notification */}
