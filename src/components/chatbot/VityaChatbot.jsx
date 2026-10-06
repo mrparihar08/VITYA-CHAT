@@ -20,6 +20,8 @@ import {
   Sparkles,
   User,
   RotateCcw,
+  X,
+  ZoomIn,
 } from "lucide-react";
 
 /* -------------------------------------------------------
@@ -587,6 +589,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
   const [activeMoreIndex, setActiveMoreIndex] = useState(null);
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
+  const [activeLightboxImg, setActiveLightboxImg] = useState(null);
 
   const handleImageSelect = useCallback((files) => {
     const fileArray = Array.from(files || []).filter((f) => f.type && f.type.startsWith("image/"));
@@ -742,22 +745,36 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
           const parsed = safeJSON(rawContent);
           const newsData = normalizeNewsData(parsed);
           let msgType = "text";
-          if (
-            Array.isArray(newsData) &&
-            newsData.length > 0 &&
-            newsData[0] &&
-            typeof newsData[0] === "object" &&
-            (newsData[0].title || newsData[0].name) &&
-            (newsData[0].url || newsData[0].description)
-          ) {
-            msgType = "news";
-          } else if (isChartData(parsed)) {
-            msgType = "bar";
+          let msgImages = undefined;
+          let msgText = typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent);
+
+          if (parsed && typeof parsed === "object") {
+            if (parsed.type === "multimodal_user" || (parsed.images && Array.isArray(parsed.images))) {
+              msgType = "text";
+              msgText = parsed.text || "";
+              msgImages = (parsed.images || []).map((img) => buildFileUrl(img));
+            } else if (
+              Array.isArray(newsData) &&
+              newsData.length > 0 &&
+              newsData[0] &&
+              typeof newsData[0] === "object" &&
+              (newsData[0].title || newsData[0].name) &&
+              (newsData[0].url || newsData[0].description)
+            ) {
+              msgType = "news";
+            } else if (isChartData(parsed)) {
+              msgType = "bar";
+            }
+          } else if (typeof rawContent === "string" && rawContent.includes("[Image Attached]")) {
+            const cleanText = rawContent.replace(/🖼️\s*\[Image Attached\]\s*/g, "").trim();
+            msgText = cleanText || "🖼️ [Image Attached]";
           }
+
           return {
             sender: message.role === "user" ? "user" : "bot",
             type: msgType,
-            text: typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent),
+            text: msgText,
+            images: msgImages,
             content: parsed,
           };
         }));
@@ -1530,7 +1547,21 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
             multimodal: true,
           };
 
-          setMessages((prev) => [...prev, botMessage].slice(-50));
+          if (multimodalData?.saved_images && Array.isArray(multimodalData.saved_images) && multimodalData.saved_images.length > 0) {
+            const permanentUrls = multimodalData.saved_images.map((img) => buildFileUrl(img));
+            setMessages((prev) => {
+              const next = [...prev];
+              for (let idx = next.length - 1; idx >= 0; idx--) {
+                if (next[idx].sender === "user" && next[idx].images) {
+                  next[idx] = { ...next[idx], images: permanentUrls };
+                  break;
+                }
+              }
+              return [...next, botMessage].slice(-50);
+            });
+          } else {
+            setMessages((prev) => [...prev, botMessage].slice(-50));
+          }
           if (multimodalData?.conversation_id) onConversationChange?.(multimodalData.conversation_id);
           onConversationUpdated?.();
         } else {
@@ -1913,7 +1944,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                     className="vitya-starter-card"
                     onClick={() => {
                       openMode("dora");
-                      sendMessage("I have a mild headache and throat pain for 2 days. What should I do?");
+                      sendMessage("/dora I have a mild headache and throat pain for 2 days. What should I do?");
                     }}
                   >
                     <div className="starter-icon-box bg-teal">🩺</div>
@@ -2023,6 +2054,9 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                       style={{
                         ...styles.bubble,
                         ...(isUser ? styles.userBubble : styles.botBubble),
+                        ...(isUser && msg.images && msg.images.length > 0 && !msg.text
+                          ? { padding: "6px", background: "rgba(139, 92, 246, 0.15)", border: "1px solid rgba(139, 92, 246, 0.35)", boxShadow: "0 6px 20px rgba(0,0,0,0.3)" }
+                          : {}),
                         ...(msg.type === "download_link" ? { background: "transparent", border: "none", padding: 0, boxShadow: "none" } : {}),
                       }}
                     >
@@ -2250,21 +2284,58 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                       ) : (
                         <>
                           {isUser && msg.images && msg.images.length > 0 && (
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: msg.text ? 10 : 0 }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 8,
+                                marginBottom: msg.text ? 10 : 0,
+                              }}
+                            >
                               {msg.images.map((imgUrl, imgIdx) => (
-                                <img
+                                <div
                                   key={imgIdx}
-                                  src={imgUrl}
-                                  alt="User attachment"
+                                  onClick={() => setActiveLightboxImg(imgUrl)}
                                   style={{
-                                    maxWidth: msg.images.length === 1 ? 260 : 130,
-                                    maxHeight: 180,
-                                    borderRadius: 12,
-                                    objectFit: "cover",
-                                    border: "1px solid rgba(255, 255, 255, 0.25)",
-                                    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                                    position: "relative",
+                                    cursor: "pointer",
+                                    borderRadius: 14,
+                                    overflow: "hidden",
+                                    border: "1px solid rgba(255, 255, 255, 0.22)",
+                                    boxShadow: "0 4px 14px rgba(0, 0, 0, 0.35)",
+                                    background: "rgba(0, 0, 0, 0.25)",
                                   }}
-                                />
+                                  title="Click to view full image"
+                                >
+                                  <img
+                                    src={imgUrl}
+                                    alt="User attachment"
+                                    style={{
+                                      maxWidth: msg.images.length === 1 ? 280 : 135,
+                                      maxHeight: 200,
+                                      display: "block",
+                                      objectFit: "cover",
+                                    }}
+                                  />
+                                  <div
+                                    style={{
+                                      position: "absolute",
+                                      bottom: 6,
+                                      right: 6,
+                                      width: 24,
+                                      height: 24,
+                                      borderRadius: "50%",
+                                      background: "rgba(0, 0, 0, 0.6)",
+                                      backdropFilter: "blur(4px)",
+                                      display: "grid",
+                                      placeItems: "center",
+                                      color: "#ffffff",
+                                      opacity: 0.85,
+                                    }}
+                                  >
+                                    <ZoomIn size={13} />
+                                  </div>
+                                </div>
                               ))}
                             </div>
                           )}
@@ -2460,6 +2531,110 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         onImageSelect={handleImageSelect}
         removeAttachedImage={handleRemoveAttachedImage}
       />
+
+      {/* Lightbox Image Preview Modal */}
+      {activeLightboxImg && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 10000,
+            background: "rgba(3, 7, 18, 0.9)",
+            backdropFilter: "blur(14px)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20,
+            boxSizing: "border-box",
+            animation: "vityaPopIn 0.2s ease",
+          }}
+          onClick={() => setActiveLightboxImg(null)}
+        >
+          {/* Top Controls Bar */}
+          <div
+            style={{
+              position: "absolute",
+              top: 20,
+              right: 24,
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              zIndex: 10001,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <a
+              href={activeLightboxImg}
+              download="attached_image.jpg"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "8px 16px",
+                borderRadius: 20,
+                background: "rgba(255, 255, 255, 0.12)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                color: "#f8fafc",
+                fontSize: 13,
+                fontWeight: 600,
+                textDecoration: "none",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+              title="Download image"
+            >
+              <Download size={15} />
+              <span>Download</span>
+            </a>
+            <button
+              type="button"
+              onClick={() => setActiveLightboxImg(null)}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                background: "rgba(255, 255, 255, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.25)",
+                color: "#ffffff",
+                display: "grid",
+                placeItems: "center",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+              title="Close (Esc)"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div
+            style={{
+              maxWidth: "90vw",
+              maxHeight: "85vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={activeLightboxImg}
+              alt="Expanded preview"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "85vh",
+                borderRadius: 16,
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 40px rgba(139, 92, 246, 0.25)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                objectFit: "contain",
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Floating Action Toast Notification */}
       {toastMessage && (
