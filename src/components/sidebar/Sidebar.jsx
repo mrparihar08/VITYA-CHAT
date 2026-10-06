@@ -136,7 +136,8 @@ export default function Sidebar({
       label: "Create Presentation",
       icon: <DocIcon />,
       colorClass: "qt-purple",
-      action: () => handleTabClick("presentation"),
+      action: () => (onQuickToolClick ? onQuickToolClick("presentation") : handleTabClick("presentation")),
+      active: activeTab === "presentation",
     },
     {
       id: "generate_image",
@@ -144,6 +145,7 @@ export default function Sidebar({
       icon: <ImageIcon />,
       colorClass: "qt-teal",
       action: () => onQuickToolClick?.("image"),
+      active: false,
     },
     {
       id: "write_code",
@@ -151,13 +153,15 @@ export default function Sidebar({
       icon: <CodeIcon />,
       colorClass: "qt-blue",
       action: () => onQuickToolClick?.("code"),
+      active: false,
     },
     {
       id: "explore_apps",
       label: "Explore Apps",
       icon: <AppsIcon />,
       colorClass: "qt-amber",
-      action: () => handleTabClick("apps"),
+      action: () => (onQuickToolClick ? onQuickToolClick("apps") : handleTabClick("apps")),
+      active: activeTab === "apps",
     },
   ];
 
@@ -250,7 +254,7 @@ export default function Sidebar({
           {quickTools.map((tool) => (
             <button
               key={tool.id}
-              className={`vitya-qt-card ${tool.colorClass}`}
+              className={`vitya-qt-card ${tool.colorClass} ${tool.active ? "active" : ""}`}
               onClick={tool.action}
             >
               <div className="vitya-qt-icon">{tool.icon}</div>

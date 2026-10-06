@@ -36,7 +36,6 @@ export function Profile({ insideDashboard = false }) {
       } catch (err) {
         console.error(err);
         if (err?.response?.status === 401) {
-          alert("Session expired, please login again!");
           logout();
           navigate("/login");
         } else if (!profile) {

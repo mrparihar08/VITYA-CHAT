@@ -20,6 +20,9 @@ import FinanceApp from "../components/apps/FinanceApp";
 import Profile from "../components/auth/Profile";
 import ProfileEdit from "../components/auth/ProfileEdit";
 import Sidebar from "../components/sidebar/Sidebar";
+import AppsWorkspace from "../components/apps/AppsWorkspace";
+import CommandPalette from "../components/common/CommandPalette";
+import { Search } from "lucide-react";
 import {
   SettingsPage,
   HelpSupportPage,
@@ -34,191 +37,218 @@ const APP_REGISTRY = [
   {
     id: "dora",
     name: "DORA Health AI",
-    desc: "Doctor AI, Symptom Diagnosis & Wellness",
+    desc: "Doctor AI, Symptom Diagnosis & Clinical Wellness",
     icon: "🩺",
     type: "internal",
-    category: "workspace",
+    category: "ai",
+    keywords: ["health", "doctor", "symptoms", "diagnosis", "medical", "dora", "ai", "wellness"],
     iconBg: "linear-gradient(135deg, #06b6d4 0%, #0284c7 50%, #2563eb 100%)",
     component: DoraHealthApp,
   },
   {
     id: "notes",
     name: "Notes",
-    desc: "Quick notes and ideas",
+    desc: "Quick scratchpad, ideas and formatted notes",
     icon: "📝",
     type: "internal",
-    category: "workspace",
+    category: "productivity",
+    keywords: ["notes", "ideas", "writing", "scratchpad", "text", "docs"],
     iconBg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
     component: NotesApp,
   },
   {
     id: "calendar",
     name: "Calendar",
-
-    desc: "Meetings and events",
+    desc: "Meetings, schedules and calendar events",
     icon: "📅",
     type: "internal",
-    category: "workspace",
+    category: "productivity",
+    keywords: ["calendar", "events", "meetings", "schedule", "planner", "time"],
     iconBg: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
     component: CalendarApp,
   },
   {
     id: "files",
     name: "Files",
-    desc: "Manage documents",
+    desc: "Manage and organize workspace documents",
     icon: "📁",
     type: "internal",
-    category: "workspace",
+    category: "productivity",
+    keywords: ["files", "documents", "storage", "upload", "pdf", "folders"],
     iconBg: "linear-gradient(135deg, #eab308 0%, #ca8a04 100%)",
     component: FilesApp,
   },
   {
     id: "tasks",
     name: "Tasks",
-    desc: "Track your work",
+    desc: "Track work, todos and action checklists",
     icon: "✅",
     type: "internal",
-    category: "workspace",
+    category: "productivity",
+    keywords: ["tasks", "todos", "work", "checklist", "tracking", "goals"],
     iconBg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
     component: TasksApp,
   },
   {
     id: "analytics",
     name: "Analytics",
-    desc: "View activity stats",
+    desc: "Interactive activity trends & performance charts",
     icon: "📊",
     type: "internal",
-    category: "workspace",
+    category: "finance",
+    keywords: ["analytics", "charts", "graphs", "statistics", "reports", "insights"],
     iconBg: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
     component: AnalyticsApp,
   },
   {
     id: "finance",
     name: "Finance & Expenses",
-    desc: "Income, expense & cashflow tracker",
+    desc: "Income, expense, cashflow and budget tracker",
     icon: "💳",
     type: "internal",
-    category: "workspace",
+    category: "finance",
+    keywords: ["finance", "expenses", "income", "money", "budget", "cashflow", "tracking"],
     iconBg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
     component: FinanceApp,
   },
   {
     id: "savings",
     name: "Savings Goals",
-    desc: "Target savings & emergency funds",
+    desc: "Target savings, milestones & emergency funds",
     icon: "🎯",
     type: "internal",
-    category: "workspace",
+    category: "finance",
+    keywords: ["savings", "goals", "funds", "targets", "emergency", "money"],
     iconBg: "linear-gradient(135deg, #10b981 0%, #047857 100%)",
     component: SavingsApp,
   },
   {
     id: "subscriptions",
     name: "Subscriptions",
-    desc: "Recurring bills & sub tracker",
+    desc: "Recurring bills, active plans & renewal tracker",
     icon: "🔄",
     type: "internal",
-    category: "workspace",
+    category: "finance",
+    keywords: ["subscriptions", "recurring", "bills", "membership", "renewal"],
     iconBg: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
     component: SubscriptionsApp,
   },
   {
     id: "financial-health",
     name: "Financial Health",
-    desc: "AI Health Score & Briefings",
+    desc: "AI Financial Health Score & Intelligence Briefings",
     icon: "⚡",
     type: "internal",
-    category: "workspace",
+    category: "finance",
+    keywords: ["financial health", "score", "advisor", "briefings", "budget", "ai"],
     iconBg: "linear-gradient(135deg, #ec4899 0%, #be185d 100%)",
     component: FinancialHealthApp,
   },
   {
     id: "settings",
     name: "Settings",
-    desc: "App preferences",
+    desc: "System preferences, security & user profile",
     icon: "⚙️",
     type: "internal",
-    category: "workspace",
+    category: "system",
+    keywords: ["settings", "preferences", "config", "account", "profile", "options"],
     iconBg: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
     component: SettingsPage,
   },
   {
     id: "vitya-expense",
     name: "Vitya.Expense",
-    desc: "Track expenses & finance",
+    desc: "Automated receipt scanning & expense ledger",
     icon: "💸",
     type: "external",
-    category: "vitya",
+    category: "finance",
+    isExternal: true,
+    keywords: ["vitya expense", "receipts", "tracking", "business", "money"],
     iconBg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
     url: "https://vitya-expense.onrender.com",
   },
   {
     id: "Security-vitya",
     name: "Vitya Tourist Security",
-    desc: "Tourist safety & security web",
+    desc: "Tourist safety, SOS emergency & web monitoring",
     icon: "🛡️",
     type: "external",
-    category: "vitya",
+    category: "security",
+    isExternal: true,
+    keywords: ["security", "tourist", "safety", "alert", "emergency", "protection"],
     iconBg: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
     url: "https://security-vitya.onrender.com",
   },
   {
     id: "vitya-admin-dashboard",
     name: "Vitya Admin",
-    desc: "Admin control dashboard",
+    desc: "System administration & user control panel",
     icon: "⚡",
     type: "external",
-    category: "vitya",
+    category: "security",
+    isAdmin: true,
+    isExternal: true,
+    keywords: ["admin", "control", "dashboard", "moderation", "system", "vitya"],
     iconBg: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
     url: "https://admin-vitya.onrender.com",
   },
   {
     id: "vitya-tourist-travel-assistant",
     name: "Vitya Assistant",
-    desc: "Travel assistant web",
+    desc: "AI Tourist Travel Guide & Local Itinerary Assistant",
     icon: "🧭",
     type: "external",
-    category: "vitya",
+    category: "ai",
+    isExternal: true,
+    keywords: ["assistant", "travel", "tourist", "guide", "ai", "trip", "places"],
     iconBg: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
     url: "https://tourist-vitya.onrender.com",
   },
   {
     id: "vitya-monitor",
     name: "Vitya Monitor",
-    desc: "Real-time monitor web",
+    desc: "Real-time telemetry, server health & live status",
     icon: "📡",
     type: "external",
-    category: "vitya",
+    category: "ai",
+    isExternal: true,
+    keywords: ["monitor", "realtime", "telemetry", "system", "status", "ai", "analytics"],
     iconBg: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
     url: "https://monitor-vitya.onrender.com",
   },
   {
     id: "gmail",
     name: "Gmail",
-    desc: "Open Gmail web",
+    desc: "Google Mail inbox & message communications",
     icon: "📧",
     type: "external",
-    category: "google",
+    category: "external",
+    isExternal: true,
+    keywords: ["gmail", "email", "mail", "google", "inbox", "messages"],
     iconBg: "linear-gradient(135deg, #ea4335 0%, #c5221f 100%)",
     url: "https://mail.google.com/",
   },
   {
     id: "drive",
     name: "Google Drive",
-    desc: "Open Drive cloud storage",
+    desc: "Cloud file storage, shared drives and backups",
     icon: "🗂️",
     type: "external",
-    category: "google",
+    category: "external",
+    isExternal: true,
+    keywords: ["google drive", "drive", "cloud", "google", "storage", "backup"],
     iconBg: "linear-gradient(135deg, #fbbc04 0%, #f29900 100%)",
     url: "https://drive.google.com/",
   },
   {
     id: "calendar-web",
     name: "Google Calendar",
-    desc: "Open Calendar web",
+    desc: "Google Cloud Calendar events & appointments",
     icon: "🌐",
     type: "external",
-    category: "google",
+    category: "external",
+    isExternal: true,
+    keywords: ["google calendar", "calendar", "google", "events", "web", "schedule"],
     iconBg: "linear-gradient(135deg, #4285f4 0%, #1a73e8 100%)",
     url: "https://calendar.google.com/",
   },
@@ -312,6 +342,19 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
   const [isMobile, setIsMobile] = useState(getIsMobile());
   const [sidebarOpen, setSidebarOpen] = useState(() => !getIsMobile());
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
+  const [chatInitialPrompt, setChatInitialPrompt] = useState("");
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const prevIsMobileRef = useRef(getIsMobile());
   const { user: authUser } = useAuth();
@@ -450,22 +493,22 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
 
   const handleQuickToolClick = useCallback(
     (toolType) => {
-      updateNavigationState("chat", null, activeConversationId);
+      if (toolType === "presentation") {
+        updateNavigationState("presentation", null, null);
+      } else if (toolType === "image") {
+        setChatInitialPrompt("/image ");
+        updateNavigationState("chat", null, activeConversationId);
+      } else if (toolType === "code") {
+        setChatInitialPrompt("Write clean code for ");
+        updateNavigationState("chat", null, activeConversationId);
+      } else if (toolType === "apps") {
+        updateNavigationState("apps", null, null);
+      }
       closeSidebarIfMobile();
     },
     [activeConversationId, closeSidebarIfMobile, updateNavigationState]
   );
 
-  const filteredApps = useMemo(() => {
-    const q = searchText.trim().toLowerCase();
-    if (!q) return APP_REGISTRY;
-
-    return APP_REGISTRY.filter(
-      (app) =>
-        app.name.toLowerCase().includes(q) ||
-        app.desc.toLowerCase().includes(q)
-    );
-  }, [searchText]);
 
   const openApp = useCallback(
     (app) => {
@@ -601,20 +644,47 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
             </div>
           </div>
 
-          <button
-            className="profileMiniBtn"
-            onClick={() => navigate("/profile")}
-            aria-label="Open profile"
-          >
-            <img
-              src={profilePicSrc}
-              alt="Profile"
-              onError={(e) => {
-                e.currentTarget.onerror = null;
-                e.currentTarget.src = defaultAvatar;
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button
+              onClick={() => setCommandPaletteOpen(true)}
+              title="Search apps & commands (Ctrl+K)"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
+                borderRadius: "10px",
+                padding: "6px 12px",
+                color: "#94a3b8",
+                fontSize: "12.5px",
+                fontWeight: 500,
+                cursor: "pointer",
+                transition: "all 0.18s ease",
               }}
-            />
-          </button>
+            >
+              <Search size={14} color="#818cf8" />
+              <span className="hideOnMobile">Spotlight</span>
+              <kbd style={{ background: "rgba(255, 255, 255, 0.08)", padding: "1px 6px", borderRadius: "4px", fontSize: "10.5px", color: "#cbd5e1", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
+                ⌘K
+              </kbd>
+            </button>
+
+            <button
+              className="profileMiniBtn"
+              onClick={() => navigate("/profile")}
+              aria-label="Open profile"
+            >
+              <img
+                src={profilePicSrc}
+                alt="Profile"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = defaultAvatar;
+                }}
+              />
+            </button>
+          </div>
         </header>
 
         <main className={`content ${activeTab === "chat" || activeTab === "presentation" ? "contentNoScroll" : ""}`}>
@@ -624,6 +694,8 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
                 conversationId={activeConversationId}
                 onConversationChange={(id) => updateNavigationState("chat", null, id)}
                 onConversationUpdated={() => setHistoryRefreshKey((value) => value + 1)}
+                initialInput={chatInitialPrompt}
+                onClearInitialInput={() => setChatInitialPrompt("")}
               />
             </section>
           )}
@@ -644,45 +716,13 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           )}
 
           {activeTab === "apps" && (
-            <section className="contentCard">
+            <section className="contentCard" style={!activeApp ? { background: "transparent", border: "none", boxShadow: "none", padding: "4px 0 24px 0" } : {}}>
               {!activeApp ? (
-                <>
-                  <div className="sectionHeader">
-                    <div>
-                      <h2>Apps Workspace</h2>
-                      <p className="mutedText">
-                        {filteredApps.length} app
-                        {filteredApps.length !== 1 ? "s" : ""} available
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="appsGrid">
-                    {filteredApps.map((app) => (
-                      <button
-                        key={app.id}
-                        className="appCard"
-                        onClick={() => openApp(app)}
-                      >
-                        <div
-                          className="appIconBox"
-                          style={{ background: app.iconBg || "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)" }}
-                        >
-                          <span className="appIcon">{app.icon}</span>
-                        </div>
-                        <h3>{app.name}</h3>
-                        <p>{app.desc}</p>
-                        <small className={`appBadge ${app.category || "external"}`}>
-                          {app.category === "workspace"
-                            ? "Workspace Tool"
-                            : app.category === "vitya"
-                            ? "Vitya App"
-                            : "External App"}
-                        </small>
-                      </button>
-                    ))}
-                  </div>
-                </>
+                <AppsWorkspace
+                  apps={APP_REGISTRY}
+                  onOpenApp={openApp}
+                  user={user}
+                />
               ) : (
                 renderAppPanel()
               )}
@@ -744,6 +784,18 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           )}
         </main>
       </div>
+
+      {/* Global Command Palette Spotlight Modal */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onNavigate={updateNavigationState}
+        onTriggerPrompt={(prompt) => {
+          setChatInitialPrompt(prompt);
+          updateNavigationState("chat");
+        }}
+        apps={APP_REGISTRY}
+      />
     </div>
   );
 };

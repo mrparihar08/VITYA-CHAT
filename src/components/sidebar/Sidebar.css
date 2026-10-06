@@ -360,6 +360,10 @@
   line-height: 1.25;
 }
 
+.vitya-qt-card:active {
+  transform: scale(0.97);
+}
+
 /* Tool color variants */
 .qt-purple {
   background: rgba(139, 92, 246, 0.08);
@@ -368,9 +372,11 @@
 .qt-purple .vitya-qt-icon {
   color: #a78bfa;
 }
-.qt-purple:hover {
-  background: rgba(139, 92, 246, 0.15);
-  border-color: rgba(139, 92, 246, 0.4);
+.qt-purple:hover,
+.qt-purple.active {
+  background: rgba(139, 92, 246, 0.22);
+  border-color: rgba(139, 92, 246, 0.55);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.25);
 }
 
 .qt-teal {
@@ -380,9 +386,11 @@
 .qt-teal .vitya-qt-icon {
   color: #2dd4bf;
 }
-.qt-teal:hover {
-  background: rgba(20, 184, 166, 0.15);
-  border-color: rgba(20, 184, 166, 0.4);
+.qt-teal:hover,
+.qt-teal.active {
+  background: rgba(20, 184, 166, 0.22);
+  border-color: rgba(20, 184, 166, 0.55);
+  box-shadow: 0 0 16px rgba(20, 184, 166, 0.25);
 }
 
 .qt-blue {
@@ -392,9 +400,11 @@
 .qt-blue .vitya-qt-icon {
   color: #60a5fa;
 }
-.qt-blue:hover {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.4);
+.qt-blue:hover,
+.qt-blue.active {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.25);
 }
 
 .qt-amber {
@@ -404,9 +414,11 @@
 .qt-amber .vitya-qt-icon {
   color: #fbbf24;
 }
-.qt-amber:hover {
-  background: rgba(245, 158, 11, 0.15);
-  border-color: rgba(245, 158, 11, 0.4);
+.qt-amber:hover,
+.qt-amber.active {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.55);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
 }
 
 /* 6. SECONDARY SETTINGS MENU */

@@ -22,6 +22,7 @@ import {
   RotateCcw,
   X,
   ZoomIn,
+  AlertCircle,
 } from "lucide-react";
 
 /* -------------------------------------------------------
@@ -542,7 +543,13 @@ const getSpeakText = (msg) => {
 /* -------------------------------------------------------
    Component
 ------------------------------------------------------- */
-const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }) => {
+const Chatbot = ({
+  conversationId,
+  onConversationChange,
+  onConversationUpdated,
+  initialInput,
+  onClearInitialInput,
+}) => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
 
@@ -578,6 +585,19 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
     navigate("/presentation");
   };
   const [input, setInput] = useState("");
+
+  useEffect(() => {
+    if (initialInput) {
+      setInput(initialInput);
+      onClearInitialInput?.();
+      setTimeout(() => {
+        const inputEl = document.querySelector(".chat-input textarea") || document.querySelector("input[type='text']");
+        if (inputEl) {
+          inputEl.focus();
+        }
+      }, 100);
+    }
+  }, [initialInput, onClearInitialInput]);
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
@@ -590,6 +610,20 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
   const [activeLightboxImg, setActiveLightboxImg] = useState(null);
+
+  const showToast = useCallback((msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 2500);
+  }, []);
+
+  const handleSessionExpired = useCallback(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    showToast("Session expired. Redirecting to login...");
+    setTimeout(() => {
+      navigate("/login");
+    }, 1000);
+  }, [navigate, showToast]);
 
   const handleImageSelect = useCallback((files) => {
     const fileArray = Array.from(files || []).filter((f) => f.type && f.type.startsWith("image/"));
@@ -737,6 +771,10 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         const response = await fetch(`${API_BASE_URL}/api/chat/history?conversation_id=${conversationId}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
+        if (response.status === 401) {
+          handleSessionExpired();
+          return;
+        }
         if (!response.ok) throw new Error("Unable to load conversation");
         const data = await response.json();
         if (cancelled) return;
@@ -776,6 +814,9 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
             text: msgText,
             images: msgImages,
             content: parsed,
+            intent: parsed?.intent,
+            disclaimer: parsed?.disclaimer,
+            suggestions: parsed?.suggestions,
           };
         }));
       } catch (error) {
@@ -788,7 +829,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
 
     loadConversation();
     return () => { cancelled = true; };
-  }, [conversationId, token]);
+  }, [conversationId, token, handleSessionExpired]);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1169,11 +1210,6 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
     );
   };
 
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 2500);
-  };
-
   const handleCopyMessage = async (msg, index) => {
     const text = getMessageText(msg);
     if (!text) return;
@@ -1276,6 +1312,10 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         },
         body: JSON.stringify({ format: "pdf", messages: [msg] }),
       });
+      if (res.status === 401) {
+        handleSessionExpired();
+        return;
+      }
       if (res.ok) {
         await downloadBlobFromResponse(res, `vitya_message_${index + 1}.pdf`);
         showToast("PDF downloaded!");
@@ -1361,7 +1401,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       const data = await readResponse(res);
 
       if (res.status === 401) {
-        alert("Session expired. Please login again.");
+        handleSessionExpired();
         return null;
       }
 
@@ -1393,7 +1433,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
 
       return botMessage;
     },
-    [token, useWebSearch]
+    [token, useWebSearch, handleSessionExpired]
   );
 
   const sendChatMessage = useCallback(
@@ -1420,7 +1460,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       const data = await readResponse(res);
 
       if (res.status === 401) {
-        alert("Session expired. Please login again.");
+        handleSessionExpired();
         return null;
       }
 
@@ -1478,6 +1518,9 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         content: normalizedPayload,
         data: data?.data,
         sources: data?.sources || (normalizedPayload && typeof normalizedPayload === "object" ? normalizedPayload.sources : null),
+        intent: data?.intent,
+        disclaimer: data?.disclaimer,
+        suggestions: data?.suggestions,
         expense_id: data?.expense_id,
       };
 
@@ -1486,7 +1529,128 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       onConversationUpdated?.();
       return botMessage;
     },
-    [token, mode, conversationId, useWebSearch, handleFileResponse, onConversationChange, onConversationUpdated]
+    [token, mode, conversationId, useWebSearch, handleFileResponse, handleSessionExpired, onConversationChange, onConversationUpdated]
+  );
+
+  const sendStreamingChatMessage = useCallback(
+    async (messageToSend) => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/chat/stream`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            message: messageToSend,
+            mode,
+            requestType: mode,
+            conversation_id: conversationId || undefined,
+            use_web_search: useWebSearch,
+          }),
+        });
+
+        if (res.status === 401) {
+          handleSessionExpired();
+          return null;
+        }
+
+        if (!res.ok || !res.body) {
+          return sendChatMessage(messageToSend);
+        }
+
+        const botMsgId = Date.now() + Math.random();
+        let streamedText = "";
+        let streamedIntent = null;
+        let streamedDisclaimer = null;
+        let finalConvId = null;
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: botMsgId,
+            sender: "bot",
+            type: "text",
+            text: "",
+            isStreaming: true,
+            intent: null,
+            disclaimer: null,
+          },
+        ]);
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        const updateBotMeta = (intent, disclaimer) => {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === botMsgId ? { ...m, intent, disclaimer } : m))
+          );
+        };
+
+        const updateBotText = (text) => {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === botMsgId ? { ...m, text } : m))
+          );
+        };
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith("data: ")) continue;
+
+            const jsonStr = trimmed.replace(/^data:\s*/, "");
+            try {
+              const eventData = JSON.parse(jsonStr);
+
+              if (eventData.type === "meta") {
+                streamedIntent = eventData.intent;
+                streamedDisclaimer = eventData.disclaimer;
+                updateBotMeta(streamedIntent, streamedDisclaimer);
+              } else if (eventData.type === "token") {
+                streamedText += eventData.token;
+                updateBotText(streamedText);
+              } else if (eventData.type === "done") {
+                finalConvId = eventData.conversation_id;
+                if (eventData.full_text) streamedText = eventData.full_text;
+              }
+            } catch (err) {
+              console.warn("SSE parse error:", err);
+            }
+          }
+        }
+
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === botMsgId
+              ? {
+                  ...m,
+                  isStreaming: false,
+                  text: streamedText,
+                  intent: streamedIntent,
+                  disclaimer: streamedDisclaimer,
+                }
+              : m
+          )
+        );
+
+        if (finalConvId) onConversationChange?.(finalConvId);
+        onConversationUpdated?.();
+
+        return { sender: "bot", type: "text", text: streamedText };
+      } catch (err) {
+        console.warn("Streaming fallback to standard chat:", err);
+        return sendChatMessage(messageToSend);
+      }
+    },
+    [token, mode, conversationId, useWebSearch, handleSessionExpired, sendChatMessage, onConversationChange, onConversationUpdated]
   );
 
   const sendMessage = useCallback(
@@ -1499,7 +1663,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
       if (loading) return;
 
       if (!token) {
-        alert("Please login again.");
+        handleSessionExpired();
         return;
       }
 
@@ -1571,6 +1735,8 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
               ? messageToSend.replace(/^\/(presentation|ppt)\s*/i, "").trim()
               : messageToSend;
             botMessage = await sendPptMessage(pptTopic || "Presentation Deck");
+          } else if (mode === "chat" || !mode) {
+            botMessage = await sendStreamingChatMessage(messageToSend);
           } else {
             botMessage = await sendChatMessage(messageToSend);
           }
@@ -1590,7 +1756,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
         setLoading(false);
       }
     },
-    [input, attachedImages, loading, token, mode, conversationId, useWebSearch, sendPptMessage, sendChatMessage, speak, onConversationChange, onConversationUpdated]
+    [input, attachedImages, loading, token, mode, conversationId, useWebSearch, handleSessionExpired, sendPptMessage, sendChatMessage, sendStreamingChatMessage, speak, onConversationChange, onConversationUpdated]
   );
 
   const startListening = useCallback(() => {
@@ -1886,6 +2052,66 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
           margin: 5px 4px;
         }
 
+        @keyframes vityaMenuPop {
+          0% {
+            opacity: 0;
+            transform: scale(0.95) translateY(6px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+
+        .vitya-disclaimer-card {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          margin-top: 10px;
+          padding: 8px 12px;
+          border-radius: 10px;
+          background: rgba(239, 68, 68, 0.08);
+          border: 1px solid rgba(239, 68, 68, 0.22);
+          color: #fca5a5;
+          font-size: 12px;
+          line-height: 1.4;
+        }
+
+        .vitya-disclaimer-icon {
+          flex-shrink: 0;
+          color: #f87171;
+        }
+
+        .vitya-suggestions-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-top: 10px;
+        }
+
+        .vitya-suggestion-pill {
+          background: rgba(139, 92, 246, 0.12);
+          border: 1px solid rgba(139, 92, 246, 0.3);
+          color: #d8b4fe;
+          padding: 5px 12px;
+          border-radius: 999px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+
+        .vitya-suggestion-pill:hover {
+          background: rgba(139, 92, 246, 0.28);
+          border-color: rgba(139, 92, 246, 0.55);
+          color: #ffffff;
+          transform: translateY(-1px);
+        }
+
+        .vitya-tool-popover::-webkit-scrollbar {
+          display: none;
+        }
+
         @media (max-width: 600px) {
           .vitya-more-dropdown {
             left: auto;
@@ -1900,6 +2126,10 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
             border-bottom: none;
             border-top: 1px solid rgba(255, 255, 255, 0.14);
             border-left: 1px solid rgba(255, 255, 255, 0.14);
+          }
+          .vitya-tool-popover {
+            width: min(215px, 86vw) !important;
+            max-height: 65vh !important;
           }
         }
       `}</style>
@@ -1949,7 +2179,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                   >
                     <div className="starter-icon-box bg-teal">🩺</div>
                     <div className="starter-card-body">
-                      <h4>DORA Health AI</h4>
+                      <h4>DORA.AI</h4>
                       <p>Symptom analysis & health guidance</p>
                     </div>
                   </div>
@@ -2355,12 +2585,12 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                         >
                           <button className="vitya-action-round-btn">
                             {copiedIndex === i ? (
-                              <Check size={16} color="#10b981" />
+                              <Check size={13} color="#10b981" />
                             ) : (
-                              <Copy size={16} />
+                              <Copy size={13} />
                             )}
                           </button>
-                          <span className="vitya-action-label">Copy</span>
+                          <span className="vitya-action-label"></span>
                         </div>
 
                         {/* Voice */}
@@ -2370,9 +2600,9 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                           title="Read out loud"
                         >
                           <button className="vitya-action-round-btn">
-                            <Mic size={16} />
+                            <Mic size={13} />
                           </button>
-                          <span className="vitya-action-label">Voice</span>
+                          <span className="vitya-action-label"></span>
                         </div>
 
                         {/* Download */}
@@ -2382,9 +2612,9 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                           title="Download message"
                         >
                           <button className="vitya-action-round-btn">
-                            <Download size={16} />
+                            <Download size={13} />
                           </button>
-                          <span className="vitya-action-label">Download</span>
+                          <span className="vitya-action-label"></span>
                         </div>
 
                         {/* More */}
@@ -2397,9 +2627,9 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                             }}
                             title="More options"
                           >
-                            <MoreVertical size={16} />
+                            <MoreVertical size={13} />
                           </button>
-                          <span className="vitya-action-label">More</span>
+                          <span className="vitya-action-label"></span>
 
                           {/* Popover Dropdown Menu */}
                           {activeMoreIndex === i && (
@@ -2411,7 +2641,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                                 className="vitya-more-item"
                                 onClick={() => handleRenameMessage(i)}
                               >
-                                <Pencil size={14} className="vitya-item-icon" />
+                                <Pencil size={13} className="vitya-item-icon" />
                                 <span>Rename</span>
                               </button>
 
@@ -2419,7 +2649,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                                 className="vitya-more-item"
                                 onClick={() => handleDuplicateMessage(i)}
                               >
-                                <Files size={14} className="vitya-item-icon" />
+                                <Files size={13} className="vitya-item-icon" />
                                 <span>Duplicate</span>
                               </button>
 
@@ -2427,7 +2657,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                                 className="vitya-more-item"
                                 onClick={() => handleSaveToLibrary(msg)}
                               >
-                                <Bookmark size={14} className="vitya-item-icon" />
+                                <Bookmark size={13} className="vitya-item-icon" />
                                 <span>Save to Library</span>
                               </button>
 
@@ -2435,7 +2665,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                                 className="vitya-more-item"
                                 onClick={() => handleShareMessage(msg)}
                               >
-                                <Share2 size={14} className="vitya-item-icon" />
+                                <Share2 size={13} className="vitya-item-icon" />
                                 <span>Share</span>
                               </button>
 
@@ -2443,7 +2673,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                                 className="vitya-more-item delete"
                                 onClick={() => handleDeleteMessage(i)}
                               >
-                                <Trash2 size={14} className="vitya-item-icon" />
+                                <Trash2 size={13} className="vitya-item-icon" />
                                 <span>Delete</span>
                               </button>
 
@@ -2453,7 +2683,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                                 className="vitya-more-item"
                                 onClick={() => handleExportPDF(msg, i)}
                               >
-                                <FileText size={14} className="vitya-item-icon" />
+                                <FileText size={13} className="vitya-item-icon" />
                                 <span>Export as PDF</span>
                               </button>
                             </div>
@@ -2477,7 +2707,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                               <Copy size={13} />
                             )}
                           </button>
-                          <span className="vitya-action-label">Copy</span>
+                          <span className="vitya-action-label"></span>
                         </div>
 
                         {/* Rewrite */}
@@ -2489,7 +2719,7 @@ const Chatbot = ({ conversationId, onConversationChange, onConversationUpdated }
                           <button className="vitya-action-round-btn-sm">
                             <RotateCcw size={13} />
                           </button>
-                          <span className="vitya-action-label">Rewrite</span>
+                          <span className="vitya-action-label"></span>
                         </div>
                       </div>
                     )}

@@ -3,7 +3,7 @@ import { Paperclip, Camera, X, Image as ImageIcon } from "lucide-react";
 
 export const MODES = [
   { key: "chat", label: "Chat", hint: "Default AI Assistant" },
-  { key: "dora", label: "DORA Health AI", hint: "Medical & Symptom Consultant" },
+  { key: "dora", label: "DORA.AI", hint: "Medical & Symptom Consultant" },
   { key: "websearch", label: "Web Search", hint: "Live web search & facts" },
   { key: "news", label: "News", hint: "Search latest news & headlines" },
   { key: "wiki", label: "Wikipedia", hint: "Search encyclopedia knowledge" },
@@ -19,13 +19,13 @@ export const placeholderMap = {
 
 export const QUICK_ACTIONS = [
   { label: "💳 Balance", query: "my balance" },
-  { label: "📊 Pie Chart", query: "show pie chart for expenses" },
-  { label: "📅 Subscriptions", query: "my subscriptions" },
-  { label: "🎯 Goals", query: "my savings goals" },
-  { label: "🩺 Health Score", query: "financial health score" },
-  { label: "📈 Report", query: "monthly report" },
-  { label: "🌦️ Weather", query: "weather in Delhi" },
-  { label: "📰 Tech News", query: "/news tech" },
+  { label: "💸 Expenses", query: "mere recent expenses dikhao" },
+  { label: "📊 Charts", query: "show pie chart for expenses" },
+  { label: "💰 Budget", query: "budget status" },
+  { label: "📈 Reports", query: "monthly report" },
+  { label: "🌦️ Weather", query: "aaj weather kaisa hai?" },
+  { label: "📸 Vision", query: "How to scan receipts and analyze images" },
+  { label: "📰 News", query: "/news latest updates" },
 ];
 
 export const ChatInput = ({
@@ -53,7 +53,7 @@ export const ChatInput = ({
   onImageSelect,
   removeAttachedImage,
 }) => {
-  const [pluginsExpanded, setPluginsExpanded] = React.useState(false);
+  const [activeMenu, setActiveMenu] = React.useState("main"); // "main" | "plugins"
   const [isCameraOpen, setIsCameraOpen] = React.useState(false);
   const [cameraError, setCameraError] = React.useState(null);
   const inputRef = React.useRef(null);
@@ -62,6 +62,23 @@ export const ChatInput = ({
   const receiptInputRef = React.useRef(null);
   const videoRef = React.useRef(null);
   const streamRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!plusOpen) {
+      setActiveMenu("main");
+    }
+  }, [plusOpen]);
+
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && plusOpen) {
+        setPlusOpen(false);
+        setActiveMenu("main");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [plusOpen, setPlusOpen]);
 
   const startLiveCamera = async () => {
     setCameraError(null);
@@ -236,305 +253,553 @@ export const ChatInput = ({
           ))}
         </div>
 
-        {/* PLUS / ACTIONS MENU */}
+        {/* PLUS / ACTIONS FLOATING POPOVER */}
         {plusOpen && (
           <div
+            className="vitya-tool-popover"
+            role="menu"
+            aria-label="Vitya Tools Menu"
             style={{
               position: "absolute",
-              bottom: "100%",
+              bottom: "calc(100% + 8px)",
               left: 0,
-              marginBottom: 6,
-              width: 220,
-              maxHeight: 330,
+              width: "min(215px, 86vw)",
+              maxHeight: "min(75vh, 520px)",
               overflowY: "auto",
+              overflowX: "hidden",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
               borderRadius: 14,
-              background: "#0d1322",
-              border: "1px solid rgba(255, 255, 255, 0.16)",
-              boxShadow: "0 16px 40px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08)",
-              padding: 5,
-              zIndex: 999,
-              display: "grid",
+              background: "rgba(13, 19, 34, 0.97)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              border: "1px solid rgba(255, 255, 255, 0.14)",
+              boxShadow: "0 20px 45px rgba(0, 0, 0, 0.85), 0 0 25px rgba(99, 102, 241, 0.15)",
+              padding: "5px",
+              zIndex: 1000,
+              display: "flex",
+              flexDirection: "column",
               gap: 2,
+              animation: "vityaMenuPop 0.18s cubic-bezier(0.16, 1, 0.3, 1)",
             }}
           >
-            {MODES.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => openMode(item.key)}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                  padding: "5px 8px",
-                  borderRadius: 7,
-                  border: "none",
-                  background: mode === item.key ? "rgba(139, 92, 246, 0.25)" : "transparent",
-                  color: "#fff",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  transition: "background 0.12s ease",
-                }}
-                onMouseEnter={(e) => {
-                  if (mode !== item.key) e.currentTarget.style.background = "rgba(255, 255, 255, 0.06)";
-                }}
-                onMouseLeave={(e) => {
-                  if (mode !== item.key) e.currentTarget.style.background = "transparent";
-                }}
-              >
-                <div style={{ fontSize: 11.5, fontWeight: 700, lineHeight: 1.2 }}>{item.label}</div>
-                <div style={{ fontSize: 9.5, opacity: 0.65, marginTop: 1, lineHeight: 1.1 }}>{item.hint}</div>
-              </button>
-            ))}
-
-            <div style={{ height: 1, background: "rgba(255, 255, 255, 0.1)", margin: "2px 2px" }} />
-
-            {/* ATTACH IMAGE FROM DISK */}
-            <button
-              type="button"
-              onClick={() => {
-                setPlusOpen(false);
-                imageInputRef.current?.click();
-              }}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                padding: "5px 8px",
-                borderRadius: 7,
-                border: "1px solid rgba(59, 130, 246, 0.3)",
-                background: "rgba(59, 130, 246, 0.12)",
-                color: "#60a5fa",
-                cursor: "pointer",
-                textAlign: "left",
-                transition: "all 0.12s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(59, 130, 246, 0.22)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(59, 130, 246, 0.12)";
-              }}
-            >
-              <div style={{ fontSize: 11.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 5, lineHeight: 1.2 }}>
-                <Paperclip size={13} color="#60a5fa" /> Attach Image
-              </div>
-              <div style={{ fontSize: 9.5, color: "#94a3b8", marginTop: 1, lineHeight: 1.1 }}>Photo, chart, notes, screenshot</div>
-            </button>
-
-            {/* CAMERA CAPTURE */}
-            <button
-              type="button"
-              onClick={() => {
-                setPlusOpen(false);
-                startLiveCamera();
-              }}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                padding: "5px 8px",
-                borderRadius: 7,
-                border: "1px solid rgba(168, 85, 247, 0.3)",
-                background: "rgba(168, 85, 247, 0.12)",
-                color: "#c084fc",
-                cursor: "pointer",
-                textAlign: "left",
-                transition: "all 0.12s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(168, 85, 247, 0.22)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(168, 85, 247, 0.12)";
-              }}
-            >
-              <div style={{ fontSize: 11.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 5, lineHeight: 1.2 }}>
-                <Camera size={13} color="#c084fc" /> Camera Photo
-              </div>
-              <div style={{ fontSize: 9.5, color: "#94a3b8", marginTop: 1, lineHeight: 1.1 }}>Take picture directly</div>
-            </button>
-
-            {/* RECEIPT & BILL SCANNER OPTION */}
-            {handleReceiptUpload && (
-              <button
-                type="button"
-                onClick={() => {
-                  setPlusOpen(false);
-                  receiptInputRef.current?.click();
-                }}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                  padding: "5px 8px",
-                  borderRadius: 7,
-                  border: "1px solid rgba(168, 85, 129, 0.3)",
-                  background: "rgba(16, 185, 129, 0.12)",
-                  color: "#34d399",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  transition: "all 0.12s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(16, 185, 129, 0.22)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(16, 185, 129, 0.12)";
-                }}
-              >
-                <div style={{ fontSize: 11.5, fontWeight: 700, display: "flex", alignItems: "center", gap: 5, lineHeight: 1.2 }}>
-                  <span>🧾</span> Scan Receipt / Bill
+            {activeMenu === "main" ? (
+              <>
+                {/* SECTION 1: AI MODES */}
+                <div style={{ padding: "4px 8px 2px", fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", color: "#94a3b8", textTransform: "uppercase" }}>
+                  AI Modes
                 </div>
-                <div style={{ fontSize: 9.5, color: "#94a3b8", marginTop: 1, lineHeight: 1.1 }}>AI Vision expense extraction</div>
-              </button>
-            )}
 
-            {/* EXPANDABLE PLUGINS & TOOLS SECTION */}
-            <button
-              type="button"
-              onClick={() => setPluginsExpanded((v) => !v)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "5px 8px",
-                borderRadius: 7,
-                border: "none",
-                background: "rgba(244,63,94,0.12)",
-                color: "#fff",
-                cursor: "pointer",
-                textAlign: "left",
-                marginTop: 1,
-                transition: "background 0.12s ease",
-              }}
-            >
-              <div>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: "#f43f5e", display: "flex", alignItems: "center", gap: 4, lineHeight: 1.2 }}>
-                  <span>🧩</span> Plugins & Tools
-                </div>
-                <div style={{ fontSize: 9.5, opacity: 0.75, marginTop: 1, lineHeight: 1.1 }}>PPT, AI Image, Web & Docs</div>
-              </div>
-              <span style={{ fontSize: 9, color: "#f43f5e", fontWeight: 900 }}>
-                {pluginsExpanded ? "▲" : "▼"}
-              </span>
-            </button>
+                {MODES.map((item) => {
+                  const isSelected = item.key === "websearch" ? Boolean(useWebSearch) : mode === item.key;
+                  return (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() => {
+                        openMode(item.key);
+                        setPlusOpen(false);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "6px 10px",
+                        borderRadius: 9,
+                        border: isSelected ? "1px solid rgba(139, 92, 246, 0.4)" : "1px solid transparent",
+                        background: isSelected ? "rgba(139, 92, 246, 0.22)" : "transparent",
+                        color: "#fff",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        transition: "all 0.12s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSelected) e.currentTarget.style.background = "rgba(255, 255, 255, 0.06)";
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSelected) e.currentTarget.style.background = "transparent";
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 26,
+                          height: 26,
+                          borderRadius: 7,
+                          background: item.key === "dora" ? "rgba(20, 184, 166, 0.15)" : item.key === "websearch" ? "rgba(59, 130, 246, 0.15)" : item.key === "news" ? "rgba(236, 72, 153, 0.15)" : item.key === "wiki" ? "rgba(6, 182, 212, 0.15)" : "rgba(139, 92, 246, 0.15)",
+                          display: "grid",
+                          placeItems: "center",
+                          fontSize: 13,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {item.key === "chat" && "💬"}
+                        {item.key === "dora" && "🩺"}
+                        {item.key === "websearch" && "🌐"}
+                        {item.key === "news" && "📰"}
+                        {item.key === "wiki" && "📚"}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, color: isSelected ? "#c084fc" : "#f1f5f9" }}>
+                        {item.label}
+                      </div>
+                      {isSelected && (
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#a855f7", boxShadow: "0 0 8px #a855f7", flexShrink: 0 }} />
+                      )}
+                    </button>
+                  );
+                })}
 
-            {pluginsExpanded && (
-              <div style={{ display: "grid", gap: 2, paddingLeft: 4, borderLeft: "2px solid rgba(244,63,94,0.3)", marginLeft: 4, marginTop: 2 }}>
-                {/* TOOL 0: PRESENTATION GENERATOR SLASH COMMAND */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlusOpen(false);
-                    setInput("/presentation ");
-                    setTimeout(() => inputRef.current?.focus(), 50);
-                  }}
+                <div style={{ height: 1, background: "rgba(255, 255, 255, 0.08)", margin: "3px 6px" }} />
+
+                {/* SECTION 2: IMAGE & CAMERA SUBMENU ENTRY */}
+                {(() => {
+                  const isCameraActive = attachedImages.length > 0 || isCameraOpen;
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => setActiveMenu("camera")}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "7px 10px",
+                        borderRadius: 9,
+                        border: isCameraActive ? "1px solid rgba(59, 130, 246, 0.5)" : "1px solid rgba(59, 130, 246, 0.25)",
+                        background: isCameraActive ? "rgba(59, 130, 246, 0.22)" : "rgba(59, 130, 246, 0.08)",
+                        color: "#fff",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        transition: "all 0.15s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "rgba(59, 130, 246, 0.16)";
+                        e.currentTarget.style.borderColor = "rgba(59, 130, 246, 0.4)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = isCameraActive ? "rgba(59, 130, 246, 0.22)" : "rgba(59, 130, 246, 0.08)";
+                        e.currentTarget.style.borderColor = isCameraActive ? "rgba(59, 130, 246, 0.5)" : "rgba(59, 130, 246, 0.25)";
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                        <div style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(59, 130, 246, 0.2)", display: "grid", placeItems: "center", color: "#60a5fa", flexShrink: 0 }}>
+                          <Camera size={14} />
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd" }}>
+                          Image & Camera
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 14, fontWeight: 900, color: "#60a5fa", paddingRight: 4 }}>›</span>
+                    </button>
+                  );
+                })()}
+
+                {/* SECTION 3: PLUGINS & TOOLS SUBMENU ENTRY */}
+                {(() => {
+                  const isPluginsActive = input.startsWith("/presentation") || input.startsWith("/ppt") || input.startsWith("/image") || ragDocs.length > 0;
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => setActiveMenu("plugins")}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "7px 10px",
+                        borderRadius: 9,
+                        border: isPluginsActive ? "1px solid rgba(244, 63, 94, 0.5)" : "1px solid rgba(244, 63, 94, 0.25)",
+                        background: isPluginsActive ? "rgba(244, 63, 94, 0.22)" : "rgba(244, 63, 94, 0.08)",
+                        color: "#fff",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        transition: "all 0.15s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "rgba(244, 63, 94, 0.16)";
+                        e.currentTarget.style.borderColor = "rgba(244, 63, 94, 0.4)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = isPluginsActive ? "rgba(244, 63, 94, 0.22)" : "rgba(244, 63, 94, 0.08)";
+                        e.currentTarget.style.borderColor = isPluginsActive ? "rgba(244, 63, 94, 0.5)" : "rgba(244, 63, 94, 0.25)";
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                        <div style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(244, 63, 94, 0.2)", display: "grid", placeItems: "center", fontSize: 13, flexShrink: 0 }}>
+                          🧩
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "#fda4af" }}>
+                          Plugins & Tools
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 14, fontWeight: 900, color: "#fb7185", paddingRight: 4 }}>›</span>
+                    </button>
+                  );
+                })()}
+              </>
+            ) : activeMenu === "camera" ? (
+              /* SUBMENU: IMAGE & CAMERA */
+              <>
+                {/* SUBMENU HEADER WITH < BACK BUTTON */}
+                <div
                   style={{
                     display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                    padding: "5px 8px",
-                    borderRadius: 6,
-                    border: "none",
-                    background: "transparent",
-                    color: "#fff",
-                    cursor: "pointer",
-                    textAlign: "left",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "4px 6px 6px",
+                    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                    marginBottom: 3,
                   }}
                 >
-                  <div style={{ fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
-                    📊 PPT Generator (/presentation)
-                  </div>
-                  <div style={{ fontSize: 9, opacity: 0.7, marginTop: 1 }}>Fill /presentation [topic] prompt</div>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveMenu("main")}
+                    style={{
+                      display: "grid",
+                      placeItems: "center",
+                      width: 22,
+                      height: 22,
+                      background: "rgba(255, 255, 255, 0.08)",
+                      border: "1px solid rgba(255, 255, 255, 0.12)",
+                      borderRadius: 6,
+                      color: "#cbd5e1",
+                      fontSize: 13,
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      transition: "all 0.12s ease",
+                      padding: 0,
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255, 255, 255, 0.16)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)")}
+                    title="Back"
+                  >
+                    &lt;
+                  </button>
+                  <span style={{ fontSize: 12.5, fontWeight: 800, color: "#f8fafc" }}>Image & Camera</span>
+                </div>
 
-                {/* TOOL 1: AI IMAGE GENERATOR */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlusOpen(false);
-                    setInput("/image ");
-                    setTimeout(() => inputRef.current?.focus(), 50);
-                  }}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                    padding: "5px 8px",
-                    borderRadius: 6,
-                    border: "none",
-                    background: "transparent",
-                    color: "#fff",
-                    cursor: "pointer",
-                    textAlign: "left",
-                  }}
-                >
-                  <div style={{ fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
-                    🎨 AI Image Generator
-                  </div>
-                  <div style={{ fontSize: 9, opacity: 0.6, marginTop: 1 }}>Fill /image prompt in search bar</div>
-                </button>
+                {/* ATTACH IMAGE */}
+                {(() => {
+                  const isAttachActive = attachedImages.length > 0;
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPlusOpen(false);
+                        imageInputRef.current?.click();
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "6px 10px",
+                        borderRadius: 9,
+                        border: isAttachActive ? "1px solid rgba(59, 130, 246, 0.4)" : "1px solid transparent",
+                        background: isAttachActive ? "rgba(59, 130, 246, 0.2)" : "transparent",
+                        color: "#fff",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        transition: "all 0.12s ease",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(59, 130, 246, 0.12)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = isAttachActive ? "rgba(59, 130, 246, 0.2)" : "transparent")}
+                    >
+                      <div style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(59, 130, 246, 0.15)", display: "grid", placeItems: "center", color: "#60a5fa", flexShrink: 0 }}>
+                        <Paperclip size={14} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, color: "#93c5fd" }}>
+                        Attach Image
+                      </div>
+                      {isAttachActive && (
+                        <span style={{ fontSize: 10, background: "#3b82f6", color: "#fff", padding: "1px 6px", borderRadius: 999, fontWeight: 700 }}>
+                          {attachedImages.length}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })()}
 
-                {/* TOOL 2: LIVE WEB SEARCH TOGGLE */}
-                {setUseWebSearch && (
+                {/* CAMERA PHOTO */}
+                {(() => {
+                  const isCamActive = Boolean(isCameraOpen);
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPlusOpen(false);
+                        startLiveCamera();
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "6px 10px",
+                        borderRadius: 9,
+                        border: isCamActive ? "1px solid rgba(168, 85, 247, 0.4)" : "1px solid transparent",
+                        background: isCamActive ? "rgba(168, 85, 247, 0.2)" : "transparent",
+                        color: "#fff",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        transition: "all 0.12s ease",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(168, 85, 247, 0.12)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = isCamActive ? "rgba(168, 85, 247, 0.2)" : "transparent")}
+                    >
+                      <div style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(168, 85, 247, 0.15)", display: "grid", placeItems: "center", color: "#c084fc", flexShrink: 0 }}>
+                        <Camera size={14} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, color: "#d8b4fe" }}>
+                        Camera Photo
+                      </div>
+                      {isCamActive && (
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#c084fc", boxShadow: "0 0 8px #c084fc", flexShrink: 0 }} />
+                      )}
+                    </button>
+                  );
+                })()}
+
+                {/* SCAN RECEIPT / BILL */}
+                {handleReceiptUpload && (
                   <button
                     type="button"
                     onClick={() => {
-                      setUseWebSearch((v) => !v);
+                      setPlusOpen(false);
+                      receiptInputRef.current?.click();
                     }}
                     style={{
                       display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                      padding: "5px 8px",
-                      borderRadius: 6,
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "6px 10px",
+                      borderRadius: 9,
                       border: "none",
                       background: "transparent",
                       color: "#fff",
                       cursor: "pointer",
                       textAlign: "left",
+                      transition: "all 0.12s ease",
                     }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(16, 185, 129, 0.12)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                   >
-                    <div style={{ fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
-                      🌐 Web Search {useWebSearch ? "(ON)" : "(OFF)"}
+                    <div style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(16, 185, 129, 0.15)", display: "grid", placeItems: "center", fontSize: 13, flexShrink: 0 }}>
+                      🧾
                     </div>
-                    <div style={{ fontSize: 9, opacity: 0.6, marginTop: 1 }}>Toggle live Google/Web facts</div>
+                    <div style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, color: "#6ee7b7" }}>
+                      Scan Receipt / Bill
+                    </div>
+                  </button>
+                )}
+              </>
+            ) : (
+              /* SUBMENU: PLUGINS & TOOLS */
+              <>
+                {/* SUBMENU HEADER WITH < BACK BUTTON */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "4px 6px 6px",
+                    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                    marginBottom: 3,
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setActiveMenu("main")}
+                    style={{
+                      display: "grid",
+                      placeItems: "center",
+                      width: 22,
+                      height: 22,
+                      background: "rgba(255, 255, 255, 0.08)",
+                      border: "1px solid rgba(255, 255, 255, 0.12)",
+                      borderRadius: 6,
+                      color: "#cbd5e1",
+                      fontSize: 13,
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      transition: "all 0.12s ease",
+                      padding: 0,
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255, 255, 255, 0.16)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)")}
+                    title="Back"
+                  >
+                    &lt;
+                  </button>
+                  <span style={{ fontSize: 12.5, fontWeight: 800, color: "#f8fafc" }}>Plugins & Tools</span>
+                </div>
+
+                {/* PLUGIN 1: PRESENTATION GENERATOR */}
+                {(() => {
+                  const isPptActive = mode === "file" || input.startsWith("/presentation") || input.startsWith("/ppt");
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPlusOpen(false);
+                        setInput("/presentation ");
+                        setTimeout(() => inputRef.current?.focus(), 50);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "7px 10px",
+                        borderRadius: 9,
+                        border: isPptActive ? "1px solid rgba(244, 63, 94, 0.4)" : "1px solid transparent",
+                        background: isPptActive ? "rgba(244, 63, 94, 0.2)" : "transparent",
+                        color: "#fff",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        transition: "all 0.12s ease",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(244, 63, 94, 0.12)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = isPptActive ? "rgba(244, 63, 94, 0.2)" : "transparent")}
+                    >
+                      <div style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(244, 63, 94, 0.15)", display: "grid", placeItems: "center", fontSize: 13, flexShrink: 0 }}>
+                        📊
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, color: "#f43f5e" }}>
+                        PPT Generator (/presentation)
+                      </div>
+                      {isPptActive && (
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#f43f5e", boxShadow: "0 0 8px #f43f5e", flexShrink: 0 }} />
+                      )}
+                    </button>
+                  );
+                })()}
+
+                {/* PLUGIN 2: AI IMAGE GENERATOR */}
+                {(() => {
+                  const isImgActive = input.startsWith("/image");
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPlusOpen(false);
+                        setInput("/image ");
+                        setTimeout(() => inputRef.current?.focus(), 50);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "7px 10px",
+                        borderRadius: 9,
+                        border: isImgActive ? "1px solid rgba(168, 85, 247, 0.4)" : "1px solid transparent",
+                        background: isImgActive ? "rgba(168, 85, 247, 0.2)" : "transparent",
+                        color: "#fff",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        transition: "all 0.12s ease",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(168, 85, 247, 0.12)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = isImgActive ? "rgba(168, 85, 247, 0.2)" : "transparent")}
+                    >
+                      <div style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(168, 85, 247, 0.15)", display: "grid", placeItems: "center", fontSize: 13, flexShrink: 0 }}>
+                        🎨
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, color: "#c084fc" }}>
+                        AI Image Generator (/image)
+                      </div>
+                      {isImgActive && (
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#c084fc", boxShadow: "0 0 8px #c084fc", flexShrink: 0 }} />
+                      )}
+                    </button>
+                  );
+                })()}
+
+                {/* PLUGIN 3: LIVE WEB SEARCH TOGGLE */}
+                {setUseWebSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setUseWebSearch((v) => !v)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "7px 10px",
+                      borderRadius: 9,
+                      border: "none",
+                      background: "transparent",
+                      color: "#fff",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.12s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(59, 130, 246, 0.12)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                      <div style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(59, 130, 246, 0.15)", display: "grid", placeItems: "center", fontSize: 13, flexShrink: 0 }}>
+                        🌐
+                      </div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#60a5fa" }}>
+                        Live Web Search
+                      </div>
+                    </div>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 800,
+                        padding: "2px 8px",
+                        borderRadius: 999,
+                        background: useWebSearch ? "rgba(34, 197, 94, 0.2)" : "rgba(148, 163, 184, 0.2)",
+                        color: useWebSearch ? "#4ade80" : "#94a3b8",
+                        border: `1px solid ${useWebSearch ? "rgba(34, 197, 94, 0.4)" : "rgba(148, 163, 184, 0.3)"}`,
+                      }}
+                    >
+                      {useWebSearch ? "ON" : "OFF"}
+                    </span>
                   </button>
                 )}
 
-                {/* TOOL 3: MULTI-DOC RAG Q&A */}
-                {handleFileUpload && (
-                  <label
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                      padding: "5px 8px",
-                      borderRadius: 6,
-                      border: "none",
-                      background: "transparent",
-                      color: "#fff",
-                      cursor: "pointer",
-                      textAlign: "left",
-                    }}
-                  >
-                    <div style={{ fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 5 }}>
-                      📎 Upload Document
-                    </div>
-                    <div style={{ fontSize: 9, opacity: 0.6, marginTop: 1 }}>PDF, CSV, TXT for Multi-Doc Q&A</div>
-                    <input
-                      type="file"
-                      multiple
-                      accept=".pdf,.csv,.txt,.docx"
-                      style={{ display: "none" }}
-                      onChange={(e) => {
-                        setPlusOpen(false);
-                        handleFileUpload(e);
+                {/* PLUGIN 4: MULTI-DOC RAG UPLOAD */}
+                {handleFileUpload && (() => {
+                  const isDocsActive = ragDocs.length > 0;
+                  return (
+                    <label
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "7px 10px",
+                        borderRadius: 9,
+                        border: isDocsActive ? "1px solid rgba(16, 185, 129, 0.4)" : "1px solid transparent",
+                        background: isDocsActive ? "rgba(16, 185, 129, 0.2)" : "transparent",
+                        color: "#fff",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        transition: "all 0.12s ease",
                       }}
-                    />
-                  </label>
-                )}
-              </div>
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(16, 185, 129, 0.12)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = isDocsActive ? "rgba(16, 185, 129, 0.2)" : "transparent")}
+                    >
+                      <div style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(16, 185, 129, 0.15)", display: "grid", placeItems: "center", fontSize: 13, flexShrink: 0 }}>
+                        📎
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, color: "#34d399" }}>
+                        Upload Document
+                      </div>
+                      {isDocsActive && (
+                        <span style={{ fontSize: 10, background: "#10b981", color: "#fff", padding: "1px 6px", borderRadius: 999, fontWeight: 700 }}>
+                          {ragDocs.length}
+                        </span>
+                      )}
+                      <input
+                        type="file"
+                        multiple
+                        accept=".pdf,.csv,.txt,.docx"
+                        style={{ display: "none" }}
+                        onChange={(e) => {
+                          setPlusOpen(false);
+                          handleFileUpload(e);
+                        }}
+                      />
+                    </label>
+                  );
+                })()}
+              </>
             )}
           </div>
         )}
