@@ -22,7 +22,6 @@ import {
   RotateCcw,
   X,
   ZoomIn,
-  AlertCircle,
 } from "lucide-react";
 
 /* -------------------------------------------------------
@@ -348,10 +347,12 @@ const isChartData = (raw) => {
   if (Array.isArray(parsed)) {
     list = parsed;
   } else if (typeof parsed === "object") {
-    if (Array.isArray(parsed.data)) list = parsed.data;
+    if (Array.isArray(parsed.content)) list = parsed.content;
+    else if (Array.isArray(parsed.data)) list = parsed.data;
     else if (Array.isArray(parsed.items)) list = parsed.items;
     else if (Array.isArray(parsed.chartData)) list = parsed.chartData;
     else if (Array.isArray(parsed.rows)) list = parsed.rows;
+    else if (Array.isArray(parsed.income) || Array.isArray(parsed.expense)) return true;
   }
 
   if (!list || !Array.isArray(list) || !list.length) return false;
@@ -1594,6 +1595,34 @@ const Chatbot = ({
           );
         };
 
+        const updateBotStructured = (p, currentIntent, currentDisclaimer) => {
+          const chartType = p.type || (isChartData(p.content || p.data) ? "bar" : "text");
+          const resolvedContent = p.content ?? p.data ?? p;
+          const displayText = p.title || p.text || (typeof p.content === "string" ? p.content : "");
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === botMsgId
+                ? {
+                    ...m,
+                    type: chartType,
+                    content: resolvedContent,
+                    data: p.data || resolvedContent,
+                    title: p.title,
+                    text: displayText,
+                    sources: p.sources,
+                    intent: p.intent || currentIntent,
+                    disclaimer: p.disclaimer || currentDisclaimer,
+                    expense_id: p.expense_id,
+                    isStreaming: false,
+                  }
+                : m
+            )
+          );
+          return displayText;
+        };
+
+        let structuredPayload = null;
+
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -1614,12 +1643,24 @@ const Chatbot = ({
                 streamedIntent = eventData.intent;
                 streamedDisclaimer = eventData.disclaimer;
                 updateBotMeta(streamedIntent, streamedDisclaimer);
+              } else if (eventData.type === "structured") {
+                const p = eventData.payload || {};
+                structuredPayload = p;
+                streamedText = updateBotStructured(p, streamedIntent, streamedDisclaimer);
               } else if (eventData.type === "token") {
-                streamedText += eventData.token;
+                if (typeof eventData.token === "string") {
+                  streamedText += eventData.token;
+                } else if (eventData.token && typeof eventData.token === "object") {
+                  try {
+                    streamedText += JSON.stringify(eventData.token);
+                  } catch {
+                    streamedText += String(eventData.token);
+                  }
+                }
                 updateBotText(streamedText);
               } else if (eventData.type === "done") {
                 finalConvId = eventData.conversation_id;
-                if (eventData.full_text) streamedText = eventData.full_text;
+                if (eventData.full_text && !streamedText) streamedText = eventData.full_text;
               }
             } catch (err) {
               console.warn("SSE parse error:", err);
@@ -1628,17 +1669,33 @@ const Chatbot = ({
         }
 
         setMessages((prev) =>
-          prev.map((m) =>
-            m.id === botMsgId
-              ? {
-                  ...m,
-                  isStreaming: false,
-                  text: streamedText,
-                  intent: streamedIntent,
-                  disclaimer: streamedDisclaimer,
-                }
-              : m
-          )
+          prev.map((m) => {
+            if (m.id !== botMsgId) return m;
+            if (structuredPayload) {
+              const chartType = structuredPayload.type || (isChartData(structuredPayload.content || structuredPayload.data) ? "bar" : "text");
+              const resolvedContent = structuredPayload.content ?? structuredPayload.data ?? structuredPayload;
+              return {
+                ...m,
+                isStreaming: false,
+                type: chartType,
+                content: resolvedContent,
+                data: structuredPayload.data || resolvedContent,
+                title: structuredPayload.title,
+                text: streamedText || structuredPayload.title || "",
+                sources: structuredPayload.sources,
+                intent: structuredPayload.intent || streamedIntent,
+                disclaimer: structuredPayload.disclaimer || streamedDisclaimer,
+                expense_id: structuredPayload.expense_id,
+              };
+            }
+            return {
+              ...m,
+              isStreaming: false,
+              text: streamedText,
+              intent: streamedIntent,
+              disclaimer: streamedDisclaimer,
+            };
+          })
         );
 
         if (finalConvId) onConversationChange?.(finalConvId);
@@ -2203,7 +2260,7 @@ const Chatbot = ({
           ) : (
             messages.map((msg, i) => {
               let type = (msg.type || "").toLowerCase().trim();
-              const rawData = msg.content ?? msg.text ?? msg.data;
+              const rawData = msg.content ?? msg.data ?? msg.text;
               const newsData = normalizeNewsData(rawData);
               if (
                 type !== "news" &&
@@ -2215,7 +2272,7 @@ const Chatbot = ({
                 (newsData[0].url || newsData[0].description)
               ) {
                 type = "news";
-              } else if (!CHAT_TYPES.has(type) && type !== "news" && isChartData(rawData)) {
+              } else if (!CHAT_TYPES.has(type) && type !== "news" && (isChartData(msg.content) || isChartData(msg.data) || isChartData(msg.text) || isChartData(rawData))) {
                 type = "bar";
               }
               const chartElement = CHAT_TYPES.has(type) ? renderChart(msg) : null;
