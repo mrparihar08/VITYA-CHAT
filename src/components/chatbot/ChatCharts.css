@@ -1,0 +1,303 @@
+/* ==========================================================================
+   Vitya AI Next-Gen Cyber Glassmorphic Chart Component Styles
+   ========================================================================== */
+
+.vitya-chart-card {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  background: linear-gradient(135deg, rgba(20, 26, 46, 0.95) 0%, rgba(12, 16, 32, 0.98) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  border-radius: 20px;
+  padding: 18px 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(139, 92, 246, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #f1f5f9;
+  font-family: inherit;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vitya-chart-card:hover {
+  border-color: rgba(139, 92, 246, 0.45);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 35px rgba(139, 92, 246, 0.2);
+}
+
+/* Background Ambient Glow */
+.vitya-chart-card::before {
+  content: "";
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Header Section */
+.vitya-chart-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vitya-chart-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.vitya-chart-icon-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(99, 102, 241, 0.2) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+}
+
+.vitya-chart-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vitya-chart-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 11.5px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Controls / View Switcher */
+.vitya-chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vitya-chart-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vitya-chart-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.vitya-chart-btn.active {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+}
+
+/* Metric Summary Pills */
+.vitya-chart-metrics-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.vitya-metric-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  font-size: 11.5px;
+  color: #cbd5e1;
+}
+
+.vitya-metric-pill strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.vitya-metric-pill.highlight {
+  background: rgba(139, 92, 246, 0.14);
+  border-color: rgba(139, 92, 246, 0.35);
+  color: #d8b4fe;
+}
+
+.vitya-metric-pill.highlight strong {
+  color: #a855f7;
+}
+
+.vitya-metric-pill.green {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #86efac;
+}
+
+.vitya-metric-pill.green strong {
+  color: #22c55e;
+}
+
+/* Visual Canvas Area */
+.vitya-chart-canvas-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 250px;
+}
+
+/* Custom Frosted Glass Tooltip */
+.vitya-custom-tooltip {
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(139, 92, 246, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #f8fafc;
+  min-width: 140px;
+  pointer-events: none;
+}
+
+.vitya-tooltip-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vitya-tooltip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.vitya-tooltip-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+}
+
+.vitya-tooltip-pct {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a855f7;
+  margin-top: 2px;
+}
+
+/* Table View */
+.vitya-chart-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.vitya-chart-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  text-align: left;
+}
+
+.vitya-chart-table th {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vitya-chart-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #e2e8f0;
+}
+
+.vitya-chart-table tr:hover td {
+  background: rgba(139, 92, 246, 0.08);
+}
+
+.vitya-table-progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.vitya-table-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6, #38bdf8);
+  border-radius: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 540px) {
+  .vitya-chart-card {
+    padding: 14px 14px;
+    border-radius: 16px;
+  }
+  .vitya-chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .vitya-chart-controls {
+    width: 100%;
+    justify-content: space-between;
+    overflow-x: auto;
+  }
+  .vitya-chart-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+}

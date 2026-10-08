@@ -18,7 +18,8 @@ import {
 import { 
   searchPresentationImages, 
   suggestPresentationImages, 
-  getUnsplashPhotos 
+  getUnsplashPhotos,
+  generateAiPresentationImage
 } from "../../../services/api";
 
 const VISUAL_TYPES = [
@@ -46,8 +47,11 @@ export default function ImageSearchModal({
   const [previewImage, setPreviewImage] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [customPrompt, setCustomPrompt] = useState("");
+  const [aiProvider, setAiProvider] = useState("auto");
+  const [aiStyle, setAiStyle] = useState("Professional");
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiGeneratedUrl, setAiGeneratedUrl] = useState(null);
+  const [aiGeneratedMeta, setAiGeneratedMeta] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -168,13 +172,28 @@ export default function ImageSearchModal({
 
     setIsGenerating(true);
     setAiGeneratedUrl(null);
+    setAiGeneratedMeta(null);
 
     try {
-      const promptEncoded = encodeURIComponent(`${promptText} realistic presentation visual high resolution 16:9`);
-      const seed = Math.floor(Math.random() * 100000);
-      const generatedUrl = `https://image.pollinations.ai/prompt/${promptEncoded}?width=1280&height=720&model=flux&nologo=true&seed=${seed}`;
-      
-      setAiGeneratedUrl(generatedUrl);
+      const res = await generateAiPresentationImage({
+        prompt: promptText,
+        provider: aiProvider,
+        style: aiStyle,
+        aspect_ratio: "16:9",
+        topic: slideContext.topic || slideContext.presentationTitle || "",
+        slide_title: slideContext.slideTitle || "",
+        slide_content: slideContext.slideContent || "",
+      });
+      if (res && (res.image_url || res.url)) {
+        setAiGeneratedUrl(res.image_url || res.url);
+        setAiGeneratedMeta({
+          provider: res.provider || aiProvider,
+          model: res.model || "AI Model",
+          source: res.source || (res.provider === "gemini" ? "Google Gemini" : "Pollinations.ai"),
+          attribution: res.attribution || `Image generated via ${res.provider || "AI"}`,
+          prompt: res.prompt || promptText,
+        });
+      }
     } catch (err) {
       console.warn("AI generation failed:", err);
     } finally {
@@ -267,19 +286,75 @@ export default function ImageSearchModal({
             </label>
           </div>
         ) : activeTab === "generate" ? (
-          <div style={{ padding: "24px 20px", minHeight: "300px" }}>
-            <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+          <div style={{ padding: "20px", minHeight: "300px", display: "flex", flexDirection: "column", gap: 14 }}>
+            {/* PROVIDER & STYLE SELECTOR ROW */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                  PROVIDER / ENGINE
+                </label>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {[
+                    { id: "auto", label: "Auto" },
+                    { id: "gemini", label: "Gemini" },
+                    { id: "pollinations", label: "Pollinations" },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setAiProvider(p.id)}
+                      style={{
+                        flex: 1,
+                        padding: "7px 8px",
+                        borderRadius: "6px",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        border: aiProvider === p.id ? "1px solid #38bdf8" : "1px solid rgba(255,255,255,0.1)",
+                        backgroundColor: aiProvider === p.id ? "rgba(56, 189, 248, 0.2)" : "rgba(15, 23, 42, 0.6)",
+                        color: aiProvider === p.id ? "#38bdf8" : "#cbd5e1",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                  VISUAL STYLE
+                </label>
+                <select
+                  value={aiStyle}
+                  onChange={(e) => setAiStyle(e.target.value)}
+                  style={{ width: "100%", padding: "7px 10px", background: "#0f172a", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "6px", color: "#fff", fontSize: "12px" }}
+                >
+                  <option value="Professional">Professional (Corporate)</option>
+                  <option value="Technology">Technology & AI</option>
+                  <option value="Photorealistic">Photorealistic Studio</option>
+                  <option value="3D">3D Rendered Isometric</option>
+                  <option value="Illustration">Vector Illustration</option>
+                  <option value="Minimal">Minimalist Visual</option>
+                  <option value="Medical">Medical & Biotech</option>
+                  <option value="Finance">Finance & Analytics</option>
+                </select>
+              </div>
+            </div>
+
+            {/* PROMPT INPUT */}
+            <div style={{ display: "flex", gap: 10 }}>
               <input
                 type="text"
                 value={customPrompt}
                 onChange={(e) => setCustomPrompt(e.target.value)}
                 placeholder="Describe image to generate (e.g. Modern executive conference room with high tech dashboard)..."
-                style={{ flex: 1, padding: "10px 14px", background: "#0f172a", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "6px", color: "#fff" }}
+                style={{ flex: 1, padding: "10px 14px", background: "#0f172a", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "6px", color: "#fff", fontSize: "13px" }}
               />
               <button
                 onClick={handleGenerateAiImage}
                 disabled={isGenerating}
-                style={{ background: "#38bdf8", color: "#0f172a", fontWeight: 700, padding: "10px 20px", borderRadius: "6px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                style={{ background: "#38bdf8", color: "#0f172a", fontWeight: 700, padding: "10px 20px", borderRadius: "6px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}
               >
                 {isGenerating ? <Loader2 size={16} className="spin-loader" /> : <Sparkles size={16} />}
                 <span>{isGenerating ? "Generating..." : "Generate AI Image"}</span>
@@ -287,18 +362,25 @@ export default function ImageSearchModal({
             </div>
 
             {aiGeneratedUrl && (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, background: "rgba(15, 23, 42, 0.6)", padding: 16, borderRadius: 8 }}>
-                <img src={aiGeneratedUrl} alt="AI Generated" style={{ maxWidth: "480px", width: "100%", borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)" }} />
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, background: "rgba(15, 23, 42, 0.6)", padding: 16, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "520px", fontSize: "12px" }}>
+                  <span style={{ color: "#10b981", fontWeight: 700 }}>✓ AI Visual Ready</span>
+                  <span style={{ color: "#94a3b8" }}>{aiGeneratedMeta?.source || "AI Generated"}</span>
+                </div>
+                <img src={aiGeneratedUrl} alt="AI Generated" style={{ maxWidth: "520px", width: "100%", borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)", maxHeight: "320px", objectFit: "contain" }} />
                 <button
                   onClick={() => {
-                    onSelectImage?.(aiGeneratedUrl, customPrompt || "AI Generated Visual", "Pollinations AI", {
+                    const sourceName = aiGeneratedMeta?.source || (aiProvider === "gemini" ? "Google Gemini" : "Pollinations.ai");
+                    onSelectImage?.(aiGeneratedUrl, customPrompt || "AI Generated Visual", sourceName, {
                       provider: "ai",
+                      engine: aiGeneratedMeta?.provider || aiProvider,
+                      model: aiGeneratedMeta?.model || "",
                       license: "Custom AI License",
-                      attribution: `Image: ${customPrompt || "AI Visual"} — AI Generated`
+                      attribution: aiGeneratedMeta?.attribution || `Image: ${customPrompt || "AI Visual"} — Generated by ${sourceName}`
                     });
                     onClose();
                   }}
-                  style={{ background: "#10b981", color: "#fff", fontWeight: 700, padding: "8px 18px", borderRadius: "6px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                  style={{ background: "#10b981", color: "#fff", fontWeight: 700, padding: "9px 20px", borderRadius: "6px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
                 >
                   <Check size={16} />
                   <span>Use AI Generated Image</span>

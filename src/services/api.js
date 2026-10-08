@@ -244,12 +244,38 @@ export const getTemplatesCatalog = async () => {
   }
 };
 
-export const generateAiPresentationImage = async ({ prompt, style = "Professional", aspect_ratio = "16:9", topic = "", slide_title = "" }) => {
+export const generateAiPresentationImage = async ({
+  prompt,
+  provider = "auto",
+  style = "Professional",
+  aspect_ratio = "16:9",
+  visual_type = "photo",
+  topic = "",
+  slide_title = "",
+  slide_content = "",
+  slide_type = "",
+  theme = "",
+  custom_instructions = "",
+  seed = null,
+}) => {
   try {
     const res = await fetch(`${API_BASE_URL}/api/presentation/ai-image/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-      body: JSON.stringify({ prompt, style, aspect_ratio, topic, slide_title }),
+      body: JSON.stringify({
+        prompt,
+        provider,
+        style,
+        aspect_ratio,
+        visual_type,
+        topic,
+        slide_title,
+        slide_content,
+        slide_type,
+        theme,
+        custom_instructions,
+        seed,
+      }),
     });
     return await safeFetchJSON(res);
   } catch (err) {
@@ -486,13 +512,25 @@ export const scanReceiptImage = async (file, autoSave = true, conversationId = n
   return res.data;
 };
 
-export const sendChatMessage = async ({ message, conversation_id = null, use_web_search = false, mode = null, requestType = null }) => {
+export const sendChatMessage = async ({
+  message,
+  conversation_id = null,
+  use_web_search = false,
+  mode = null,
+  requestType = null,
+  latitude = null,
+  longitude = null,
+  city = null,
+}) => {
   const res = await api.post("/api/chat/", {
     message,
     conversation_id,
     use_web_search,
     mode,
     requestType,
+    latitude,
+    longitude,
+    city,
   });
   return res.data;
 };

@@ -5,3 +5,4 @@ export { AppearancePage } from "./AppearancePage";
 export { AboutPage } from "./AboutPage";
 export { HelpSupportPage } from "./HelpSupportPage";
 export { SettingsPage } from "./SettingsPage";
+export { BotIntegrationSection } from "./BotIntegrationSection";

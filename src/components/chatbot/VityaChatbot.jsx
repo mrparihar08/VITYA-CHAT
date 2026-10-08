@@ -3,6 +3,7 @@ import html2canvas from "html2canvas";
 import ChatCharts from "./ChatCharts";
 import ChatInput from "./ChatInput";
 import FormattedMarkdown from "./FormattedMarkdown";
+import VityaProcessingStatus from "./VityaProcessingStatus";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL, scanReceiptImage, sendMultimodalChatMessage } from "../../services/api";
 import {
@@ -22,6 +23,10 @@ import {
   RotateCcw,
   X,
   ZoomIn,
+  Calendar,
+  CheckSquare,
+  Mail,
+  Send,
 } from "lucide-react";
 
 /* -------------------------------------------------------
@@ -611,6 +616,7 @@ const Chatbot = ({
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
   const [activeLightboxImg, setActiveLightboxImg] = useState(null);
+  const [lastUserPrompt, setLastUserPrompt] = useState("");
 
   const showToast = useCallback((msg) => {
     setToastMessage(msg);
@@ -758,6 +764,37 @@ const Chatbot = ({
   const chartRefs = useRef({});
   const forceStopRef = useRef(false);
   const menuRef = useRef(null);
+  const userLocationRef = useRef(null);
+
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem("vitya_user_coords");
+      if (cached) {
+        userLocationRef.current = JSON.parse(cached);
+      }
+    } catch (e) {}
+
+    if (typeof navigator !== "undefined" && "geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (pos && pos.coords) {
+            const coords = {
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude,
+            };
+            userLocationRef.current = coords;
+            try {
+              sessionStorage.setItem("vitya_user_coords", JSON.stringify(coords));
+            } catch (e) {}
+          }
+        },
+        (err) => {
+          console.debug("Geolocation access optional:", err.message);
+        },
+        { timeout: 10000, maximumAge: 300000, enableHighAccuracy: false }
+      );
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -786,6 +823,8 @@ const Chatbot = ({
           let msgType = "text";
           let msgImages = undefined;
           let msgText = typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent);
+          let resolvedContent = parsed;
+          let resolvedData = undefined;
 
           if (parsed && typeof parsed === "object") {
             if (parsed.type === "multimodal_user" || (parsed.images && Array.isArray(parsed.images))) {
@@ -801,8 +840,24 @@ const Chatbot = ({
               (newsData[0].url || newsData[0].description)
             ) {
               msgType = "news";
-            } else if (isChartData(parsed)) {
+            } else if (parsed.type && CHAT_TYPES.has(parsed.type.toLowerCase().trim())) {
+              msgType = parsed.type.toLowerCase().trim();
+              resolvedContent = parsed.content ?? parsed.data ?? parsed;
+              resolvedData = parsed.data || resolvedContent;
+              msgText = parsed.title || parsed.text || "";
+            } else if (parsed.type === "receipt") {
+              msgType = "receipt";
+              resolvedData = parsed.data || parsed;
+              msgText = parsed.summary || parsed.text || "Receipt analyzed";
+            } else if (parsed.type === "download_link" || parsed.type === "file") {
+              msgType = "download_link";
+              resolvedContent = parsed.content || parsed.download_url || "";
+              msgText = parsed.text || "";
+            } else if (isChartData(parsed) || isChartData(parsed.content) || isChartData(parsed.data)) {
               msgType = "bar";
+              resolvedContent = parsed.content ?? parsed.data ?? parsed;
+              resolvedData = parsed.data || resolvedContent;
+              msgText = parsed.title || parsed.text || "";
             }
           } else if (typeof rawContent === "string" && rawContent.includes("[Image Attached]")) {
             const cleanText = rawContent.replace(/🖼️\s*\[Image Attached\]\s*/g, "").trim();
@@ -814,7 +869,10 @@ const Chatbot = ({
             type: msgType,
             text: msgText,
             images: msgImages,
-            content: parsed,
+            content: resolvedContent,
+            data: resolvedData,
+            title: parsed?.title,
+            expense_id: parsed?.expense_id,
             intent: parsed?.intent,
             disclaimer: parsed?.disclaimer,
             suggestions: parsed?.suggestions,
@@ -962,14 +1020,87 @@ const Chatbot = ({
   );
 
   const downloadChartPNG = useCallback(async (index, msg) => {
+    const filename = `${msg.type || "chart"}_${index + 1}.png`;
     const element = chartRefs.current[index];
-    if (!element) return;
-    const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
-    const link = document.createElement("a");
-    link.download = `${msg.type || "chart"}_${index + 1}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  }, []);
+
+    if (element) {
+      // 1. Try html2canvas with sanitized backdrop-filters
+      try {
+        const canvas = await html2canvas(element, {
+          backgroundColor: "#0c1020",
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          onclone: (clonedDoc, clonedEl) => {
+            clonedEl.style.backdropFilter = "none";
+            clonedEl.style.webkitBackdropFilter = "none";
+            clonedEl.querySelectorAll("*").forEach((el) => {
+              el.style.backdropFilter = "none";
+              el.style.webkitBackdropFilter = "none";
+            });
+          },
+        });
+
+        const dataUrl = canvas.toDataURL("image/png");
+        if (dataUrl && dataUrl.length > 200 && dataUrl !== "data:,") {
+          const link = document.createElement("a");
+          link.download = filename;
+          link.href = dataUrl;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          showToast("Chart image downloaded as PNG! 📊");
+          return;
+        }
+      } catch (canvasErr) {
+        console.warn("html2canvas error, attempting SVG rasterizer:", canvasErr);
+      }
+
+      // 2. Direct SVG-to-Canvas fallback
+      try {
+        const svg = element.querySelector("svg.recharts-surface") || element.querySelector("svg");
+        if (svg) {
+          const svgData = new XMLSerializer().serializeToString(svg);
+          const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+          const URLObj = window.URL || window.webkitURL || window;
+          const blobURL = URLObj.createObjectURL(svgBlob);
+
+          const img = new Image();
+          await new Promise((resolve, reject) => {
+            img.onload = () => {
+              const canvas = document.createElement("canvas");
+              const w = (svg.clientWidth || 550) * 2;
+              const h = (svg.clientHeight || 280) * 2;
+              canvas.width = w;
+              canvas.height = h;
+              const ctx = canvas.getContext("2d");
+              ctx.fillStyle = "#0c1020";
+              ctx.fillRect(0, 0, w, h);
+              ctx.drawImage(img, 0, 0, w, h);
+              URLObj.revokeObjectURL(blobURL);
+
+              const link = document.createElement("a");
+              link.download = filename;
+              link.href = canvas.toDataURL("image/png");
+              document.body.appendChild(link);
+              link.click();
+              link.remove();
+              showToast("Chart image downloaded as PNG! 📊");
+              resolve();
+            };
+            img.onerror = reject;
+            img.src = blobURL;
+          });
+          return;
+        }
+      } catch (svgErr) {
+        console.warn("SVG canvas rasterizer failed:", svgErr);
+      }
+    }
+
+    showToast("Could not capture chart image. Please try again.");
+  }, [showToast]);
 
   const renderNews = useCallback((msg) => {
     const raw = msg.content ?? msg.text ?? msg.data ?? [];
@@ -1167,6 +1298,291 @@ const Chatbot = ({
       </div>
     );
   }, []);
+
+  const handleDownloadAiImage = useCallback(async (src, prompt) => {
+    try {
+      const filename = `vitya_ai_${(prompt || "image").slice(0, 24).replace(/[^a-zA-Z0-9_-]/g, "_")}.jpg`;
+      const response = await fetch(src);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch (err) {
+      const link = document.createElement("a");
+      link.href = src;
+      link.target = "_blank";
+      link.download = "vitya_ai_image.jpg";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }, []);
+
+  const renderAiGeneratedImage = useCallback((msg, i) => {
+    const raw = msg.content ?? msg.text ?? msg.data ?? "";
+    const src = getImageSrc(raw);
+    const prompt = msg.prompt || (typeof msg.content === "object" ? msg.content?.prompt : null) || msg.caption || "";
+    const cleanPrompt = prompt.replace(/^🖼️\s*(?:AI Image:)?\s*/i, "").trim();
+
+    if (!src) {
+      return <div style={styles.emptyText}>Invalid media data</div>;
+    }
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          maxWidth: 560,
+          width: "100%",
+          borderRadius: 18,
+          overflow: "hidden",
+          background: "linear-gradient(180deg, rgba(30, 27, 75, 0.45) 0%, rgba(15, 23, 42, 0.65) 100%)",
+          border: "1px solid rgba(139, 92, 246, 0.28)",
+          boxShadow: "0 14px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+          backdropFilter: "blur(16px)",
+          transition: "all 0.2s ease",
+        }}
+      >
+        {/* Header Badge */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "10px 14px",
+            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            background: "rgba(0, 0, 0, 0.2)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <Sparkles size={14} color="#a855f7" />
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0", letterSpacing: "0.02em" }}>
+              AI Image Generator
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span
+              style={{
+                fontSize: 10.5,
+                fontWeight: 600,
+                padding: "2px 8px",
+                borderRadius: 6,
+                background: "rgba(139, 92, 246, 0.2)",
+                color: "#c084fc",
+                border: "1px solid rgba(139, 92, 246, 0.35)",
+              }}
+            >
+              Google Imagen 3
+            </span>
+            <span
+              style={{
+                fontSize: 10.5,
+                fontWeight: 600,
+                padding: "2px 8px",
+                borderRadius: 6,
+                background: "rgba(16, 185, 129, 0.15)",
+                color: "#34d399",
+                border: "1px solid rgba(16, 185, 129, 0.3)",
+              }}
+            >
+              1080p
+            </span>
+          </div>
+        </div>
+
+        {/* Image Preview Container with Click to Zoom */}
+        <div
+          onClick={() => setActiveLightboxImg(src)}
+          style={{
+            position: "relative",
+            cursor: "pointer",
+            overflow: "hidden",
+            background: "#090d16",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            maxHeight: 380,
+          }}
+          title="Click to view full image in Lightbox"
+        >
+          <img
+            src={src}
+            alt={cleanPrompt || "AI Generated Image"}
+            style={{
+              width: "100%",
+              height: "auto",
+              maxHeight: 380,
+              objectFit: "contain",
+              display: "block",
+              transition: "transform 0.25s ease",
+            }}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              if (e.currentTarget.nextSibling) {
+                e.currentTarget.nextSibling.style.display = "flex";
+              }
+            }}
+          />
+          <div
+            style={{
+              display: "none",
+              padding: "24px",
+              color: "#f87171",
+              fontSize: 13,
+              fontWeight: 600,
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            ⚠️ Image could not be loaded or URL expired.
+          </div>
+
+          {/* Hover Zoom pill */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 10,
+              right: 10,
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+              padding: "5px 10px",
+              borderRadius: 20,
+              background: "rgba(0, 0, 0, 0.75)",
+              backdropFilter: "blur(6px)",
+              color: "#ffffff",
+              fontSize: 11,
+              fontWeight: 600,
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
+            }}
+          >
+            <ZoomIn size={12} />
+            <span>Zoom</span>
+          </div>
+        </div>
+
+        {/* Prompt Description & Toolbar Footer */}
+        <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+          {cleanPrompt && (
+            <div
+              style={{
+                fontSize: 12.5,
+                color: "#cbd5e1",
+                lineHeight: 1.45,
+                display: "-webkit-box",
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
+              <span style={{ color: "#a855f7", fontWeight: 700, marginRight: 5 }}>Prompt:</span>
+              {cleanPrompt}
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 8,
+              paddingTop: 8,
+              borderTop: "1px solid rgba(255, 255, 255, 0.07)",
+            }}
+          >
+            <div style={{ display: "flex", gap: 6 }}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownloadAiImage(src, cleanPrompt);
+                }}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "6px 12px",
+                  borderRadius: 8,
+                  background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+                  color: "#ffffff",
+                  border: "none",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  boxShadow: "0 2px 8px rgba(139, 92, 246, 0.35)",
+                }}
+                title="Download High Definition Image"
+              >
+                <Download size={13} />
+                <span>Download HD</span>
+              </button>
+
+              {cleanPrompt && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(cleanPrompt);
+                    setCopiedIndex(i);
+                    setTimeout(() => setCopiedIndex(null), 2000);
+                  }}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "6px 12px",
+                    borderRadius: 8,
+                    background: "rgba(255, 255, 255, 0.08)",
+                    color: "#e2e8f0",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                  title="Copy Prompt"
+                >
+                  {copiedIndex === i ? <Check size={13} color="#10b981" /> : <Copy size={13} />}
+                  <span>{copiedIndex === i ? "Copied" : "Copy Prompt"}</span>
+                </button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveLightboxImg(src);
+              }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "6px 10px",
+                borderRadius: 8,
+                background: "rgba(255, 255, 255, 0.06)",
+                color: "#94a3b8",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                fontSize: 11.5,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              <ZoomIn size={12} />
+              <span>Fullscreen</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }, [copiedIndex, handleDownloadAiImage]);
 
   const renderSources = (sources) => {
     if (!sources || !Array.isArray(sources) || sources.length === 0) return null;
@@ -1378,10 +1794,15 @@ const Chatbot = ({
       }
 
       const text = getMessageText(msg);
-      if (text) downloadTextFile(text, `${type || "message"}_${index + 1}.txt`);
+      if (text) {
+        downloadTextFile(text, `${type || "message"}_${index + 1}.txt`);
+        showToast("Message exported as file!");
+      }
     } catch (err) {
-      console.error(err);
-      alert("Download failed");
+      console.error("Download error:", err);
+      const fallbackText = getMessageText(msg) || "Vitya Message";
+      downloadTextFile(fallbackText, `message_${index + 1}.txt`);
+      showToast("Exported as text file!");
     }
   };
 
@@ -1451,6 +1872,8 @@ const Chatbot = ({
           requestType: mode,
           conversation_id: conversationId || undefined,
           use_web_search: useWebSearch,
+          latitude: userLocationRef.current?.latitude,
+          longitude: userLocationRef.current?.longitude,
         }),
       });
 
@@ -1548,6 +1971,8 @@ const Chatbot = ({
             requestType: mode,
             conversation_id: conversationId || undefined,
             use_web_search: useWebSearch,
+            latitude: userLocationRef.current?.latitude,
+            longitude: userLocationRef.current?.longitude,
           }),
         });
 
@@ -1739,6 +2164,7 @@ const Chatbot = ({
 
       setAttachedImages([]);
       setInput("");
+      setLastUserPrompt(messageToSend);
       setLoading(true);
 
       try {
@@ -1897,6 +2323,303 @@ const Chatbot = ({
     setPlusOpen(false);
   };
 
+  const renderCalendarEvent = (msg) => {
+    const title = msg.title || "Scheduled Event";
+    const date = msg.date || "Scheduled Date";
+    const time = msg.time || "Scheduled Time";
+    const gcalUrl = msg.gcal_url || (msg.content && typeof msg.content === "object" ? msg.content.gcal_url : null);
+
+    return (
+      <div
+        style={{
+          padding: "16px 18px",
+          borderRadius: 18,
+          background: "linear-gradient(145deg, rgba(26, 32, 56, 0.95) 0%, rgba(15, 20, 36, 0.98) 100%)",
+          border: "1px solid rgba(59, 130, 246, 0.35)",
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.45), 0 0 20px rgba(59, 130, 246, 0.12)",
+          maxWidth: 520,
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 14,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 14,
+              background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 6px 16px rgba(59, 130, 246, 0.35)",
+              flexShrink: 0,
+            }}
+          >
+            <Calendar size={22} color="#ffffff" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#ffffff", lineHeight: 1.35 }}>
+              {title}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
+              <span
+                style={{
+                  background: "rgba(59, 130, 246, 0.2)",
+                  color: "#93c5fd",
+                  padding: "3px 9px",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  border: "1px solid rgba(59, 130, 246, 0.35)",
+                }}
+              >
+                📆 {date}
+              </span>
+              <span
+                style={{
+                  background: "rgba(16, 185, 129, 0.2)",
+                  color: "#6ee7b7",
+                  padding: "3px 9px",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  border: "1px solid rgba(16, 185, 129, 0.35)",
+                }}
+              >
+                ⏰ {time}
+              </span>
+              <span
+                style={{
+                  background: "rgba(255, 255, 255, 0.08)",
+                  color: "#cbd5e1",
+                  padding: "3px 9px",
+                  borderRadius: 6,
+                  fontSize: 11.5,
+                  fontWeight: 500,
+                }}
+              >
+                🟢 Vitya Calendar
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {gcalUrl && (
+          <a
+            href={gcalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+              color: "#ffffff",
+              padding: "10px 16px",
+              borderRadius: 12,
+              fontSize: 13,
+              fontWeight: 600,
+              textDecoration: "none",
+              boxShadow: "0 4px 16px rgba(59, 130, 246, 0.35)",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <Calendar size={16} /> ➕ Add to Google Calendar
+          </a>
+        )}
+      </div>
+    );
+  };
+
+  const renderTaskItem = (msg) => {
+    const title = msg.title || "Action Item";
+    const priority = msg.priority || "🟢 Normal Priority";
+    const dueDate = msg.due_date;
+    const taskId = msg.task_id;
+
+    return (
+      <div
+        style={{
+          padding: "16px 18px",
+          borderRadius: 18,
+          background: "linear-gradient(145deg, rgba(26, 32, 56, 0.95) 0%, rgba(15, 20, 36, 0.98) 100%)",
+          border: "1px solid rgba(16, 185, 129, 0.35)",
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.45), 0 0 20px rgba(16, 185, 129, 0.12)",
+          maxWidth: 520,
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 14,
+              background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 6px 16px rgba(16, 185, 129, 0.35)",
+              flexShrink: 0,
+            }}
+          >
+            <CheckSquare size={22} color="#ffffff" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#ffffff", lineHeight: 1.35 }}>
+              {title}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
+              <span
+                style={{
+                  background: String(priority).includes("High") ? "rgba(239, 68, 68, 0.2)" : "rgba(16, 185, 129, 0.2)",
+                  color: String(priority).includes("High") ? "#fca5a5" : "#6ee7b7",
+                  padding: "3px 9px",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  border: `1px solid ${String(priority).includes("High") ? "rgba(239, 68, 68, 0.35)" : "rgba(16, 185, 129, 0.35)"}`,
+                }}
+              >
+                {priority}
+              </span>
+              {dueDate && (
+                <span
+                  style={{
+                    background: "rgba(255, 255, 255, 0.08)",
+                    color: "#cbd5e1",
+                    padding: "3px 9px",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 500,
+                  }}
+                >
+                  🎯 Target: {dueDate}
+                </span>
+              )}
+              {taskId && (
+                <span
+                  style={{
+                    background: "rgba(139, 92, 246, 0.15)",
+                    color: "#c4b5fd",
+                    padding: "3px 9px",
+                    borderRadius: 6,
+                    fontSize: 11.5,
+                    fontWeight: 600,
+                  }}
+                >
+                  Task #{taskId}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderEmailDraft = (msg) => {
+    const recipient = msg.recipient || "client@example.com";
+    const subject = msg.subject || "Email Subject";
+    const body = msg.body || "";
+    const mailtoUrl = msg.mailto_url;
+    const isDispatched = msg.type === "email_dispatched" || msg.status === "DELIVERED";
+
+    return (
+      <div
+        style={{
+          padding: "16px 18px",
+          borderRadius: 18,
+          background: "linear-gradient(145deg, rgba(26, 32, 56, 0.95) 0%, rgba(15, 20, 36, 0.98) 100%)",
+          border: `1px solid ${isDispatched ? "rgba(16, 185, 129, 0.35)" : "rgba(139, 92, 246, 0.35)"}`,
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.45)",
+          maxWidth: 520,
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              background: isDispatched
+                ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+                : "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Mail size={20} color="#ffffff" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, color: "#94a3b8", fontWeight: 500 }}>
+              To: <span style={{ color: "#f8fafc", fontWeight: 600 }}>{recipient}</span>
+            </div>
+            <div style={{ fontSize: 14.5, fontWeight: 700, color: "#ffffff", marginTop: 2 }}>
+              {subject}
+            </div>
+          </div>
+        </div>
+
+        {body && (
+          <div
+            style={{
+              background: "rgba(15, 23, 42, 0.6)",
+              padding: "12px 14px",
+              borderRadius: 12,
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              fontSize: 13,
+              color: "#cbd5e1",
+              lineHeight: 1.5,
+              maxHeight: 200,
+              overflowY: "auto",
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {body}
+          </div>
+        )}
+
+        {mailtoUrl && !isDispatched && (
+          <a
+            href={mailtoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+              color: "#ffffff",
+              padding: "10px 16px",
+              borderRadius: 12,
+              fontSize: 13,
+              fontWeight: 600,
+              textDecoration: "none",
+              boxShadow: "0 4px 16px rgba(139, 92, 246, 0.35)",
+            }}
+          >
+            <Send size={15} /> 📤 Open in Email Client / Send Now
+          </a>
+        )}
+      </div>
+    );
+  };
+
   const showLanding = messages.length === 0;
 
   return (
@@ -1920,101 +2643,69 @@ const Chatbot = ({
         }
 
         .vitya-msg-actions-row {
-          display: flex;
-          align-items: flex-start;
-          gap: 16px;
-          margin-top: 8px;
-          padding: 4px 2px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          margin-top: 4px;
+          padding: 2px 0;
           position: relative;
         }
 
         .vitya-action-unit {
-          display: flex;
-          flex-direction: column;
+          display: inline-flex;
           align-items: center;
-          gap: 4px;
-          cursor: pointer;
+          position: relative;
           user-select: none;
         }
 
         .vitya-user-msg-actions-row {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           justify-content: flex-end;
-          gap: 12px;
-          margin-top: 5px;
-          padding: 2px 2px;
+          gap: 6px;
+          margin-top: 4px;
+          padding: 2px 0;
           width: 100%;
         }
 
-        .vitya-action-round-btn-sm {
+        .vitya-action-compact-btn,
+        .vitya-action-round-btn-sm,
+        .vitya-action-round-btn {
           width: 28px;
           height: 28px;
-          border-radius: 50%;
-          background: rgba(30, 41, 59, 0.65);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          color: #cbd5e1;
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          color: #94a3b8;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
           padding: 0;
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
-        .vitya-action-unit:hover .vitya-action-round-btn-sm,
-        .vitya-action-round-btn-sm:hover {
-          background: rgba(51, 65, 85, 0.9);
-          border-color: rgba(139, 92, 246, 0.5);
-          color: #ffffff;
-          transform: translateY(-2px);
-          box-shadow: 0 6px 14px rgba(99, 102, 241, 0.3);
-        }
-
-        .vitya-action-round-btn {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: rgba(30, 41, 59, 0.65);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          color: #cbd5e1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          padding: 0;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        }
-
-        .vitya-action-unit:hover .vitya-action-round-btn,
+        .vitya-action-compact-btn:hover,
+        .vitya-action-round-btn-sm:hover,
         .vitya-action-round-btn:hover {
-          background: rgba(51, 65, 85, 0.9);
-          border-color: rgba(139, 92, 246, 0.5);
+          background: rgba(139, 92, 246, 0.16);
+          border-color: rgba(139, 92, 246, 0.4);
           color: #ffffff;
-          transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);
         }
 
+        .vitya-action-compact-btn.active,
         .vitya-action-round-btn.active {
-          background: rgba(99, 102, 241, 0.35);
+          background: rgba(139, 92, 246, 0.3);
           border-color: #818cf8;
           color: #ffffff;
-          box-shadow: 0 0 16px rgba(129, 140, 248, 0.4);
+          box-shadow: 0 0 12px rgba(129, 140, 248, 0.35);
         }
 
         .vitya-action-label {
-          font-size: 11px;
-          font-weight: 500;
-          color: #94a3b8;
-          text-align: center;
-          transition: color 0.15s ease;
-          letter-spacing: 0.01em;
-        }
-
-        .vitya-action-unit:hover .vitya-action-label {
-          color: #e2e8f0;
+          display: none;
         }
 
         .vitya-more-wrap {
@@ -2278,6 +2969,35 @@ const Chatbot = ({
               const chartElement = CHAT_TYPES.has(type) ? renderChart(msg) : null;
               const isUser = msg.sender === "user";
 
+              if (!isUser && msg.isStreaming && !msg.text && !msg.content) {
+                return (
+                  <div
+                    key={msg.id || i}
+                    style={{
+                      ...styles.messageRow,
+                      justifyContent: "flex-start",
+                    }}
+                  >
+                    <div
+                      style={{
+                        ...styles.messageStack,
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <VityaProcessingStatus
+                        prompt={lastUserPrompt}
+                        context={{
+                          mode,
+                          useWebSearch,
+                          hasImages: attachedImages.length > 0,
+                          isPpt: mode === "file" || /^\/(presentation|ppt)\b/i.test(lastUserPrompt),
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={i}
@@ -2344,7 +3064,7 @@ const Chatbot = ({
                         ...(isUser && msg.images && msg.images.length > 0 && !msg.text
                           ? { padding: "6px", background: "rgba(139, 92, 246, 0.15)", border: "1px solid rgba(139, 92, 246, 0.35)", boxShadow: "0 6px 20px rgba(0,0,0,0.3)" }
                           : {}),
-                        ...(msg.type === "download_link" ? { background: "transparent", border: "none", padding: 0, boxShadow: "none" } : {}),
+                        ...(msg.type === "download_link" || msg.type === "calendar_event" || msg.type === "task_item" || msg.type === "email_draft" || msg.type === "email_dispatched" ? { background: "transparent", border: "none", padding: 0, boxShadow: "none" } : {}),
                       }}
                     >
                       {msg.type === "download_link" ? (
@@ -2511,6 +3231,18 @@ const Chatbot = ({
                             </button>
                           </div>
                         </div>
+                      ) : type === "calendar_event" ? (
+                        <div style={{ maxWidth: "100%", width: "100%", display: "flex" }}>
+                          {renderCalendarEvent(msg)}
+                        </div>
+                      ) : type === "task_item" ? (
+                        <div style={{ maxWidth: "100%", width: "100%", display: "flex" }}>
+                          {renderTaskItem(msg)}
+                        </div>
+                      ) : type === "email_draft" || type === "email_dispatched" ? (
+                        <div style={{ maxWidth: "100%", width: "100%", display: "flex" }}>
+                          {renderEmailDraft(msg)}
+                        </div>
                       ) : type === "receipt" ? (
                         <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
                           {renderReceipt(msg)}
@@ -2522,6 +3254,10 @@ const Chatbot = ({
                       ) : type === "wiki" ? (
                         <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
                           {renderWiki(msg)}
+                        </div>
+                      ) : type === "image" ? (
+                        <div ref={(el) => (chartRefs.current[i] = el)} style={{ maxWidth: "100%", width: "100%", display: "flex" }}>
+                          {renderAiGeneratedImage(msg, i)}
                         </div>
                       ) : MEDIA_TYPES.has(type) ? (
                         <div style={styles.stack}>
@@ -2632,61 +3368,51 @@ const Chatbot = ({
                       )}
                     </div>
 
-                    {!isUser && (
+                    {!isUser && !msg.isStreaming && (msg.text || msg.content || msg.data) && (
                       <div className="vitya-msg-actions-row">
                         {/* Copy */}
                         <div
                           className="vitya-action-unit"
                           onClick={() => handleCopyMessage(msg, i)}
-                          title="Copy message"
+                          title="Copy response"
+                          aria-label="Copy response"
                         >
-                          <button className="vitya-action-round-btn">
+                          <button className="vitya-action-compact-btn">
                             {copiedIndex === i ? (
                               <Check size={13} color="#10b981" />
                             ) : (
                               <Copy size={13} />
                             )}
                           </button>
-                          <span className="vitya-action-label"></span>
                         </div>
 
-                        {/* Voice */}
-                        <div
-                          className="vitya-action-unit"
-                          onClick={() => handleSpeakMessage(msg)}
-                          title="Read out loud"
-                        >
-                          <button className="vitya-action-round-btn">
-                            <Mic size={13} />
-                          </button>
-                          <span className="vitya-action-label"></span>
-                        </div>
+                        {/* Voice (if readable text) */}
+                        {Boolean(msg.text || typeof msg.content === "string") && (
+                          <div
+                            className="vitya-action-unit"
+                            onClick={() => handleSpeakMessage(msg)}
+                            title="Read out loud"
+                            aria-label="Read out loud"
+                          >
+                            <button className="vitya-action-compact-btn">
+                              <Mic size={13} />
+                            </button>
+                          </div>
+                        )}
 
-                        {/* Download */}
-                        <div
-                          className="vitya-action-unit"
-                          onClick={() => handleDownloadMessage(msg, i)}
-                          title="Download message"
-                        >
-                          <button className="vitya-action-round-btn">
-                            <Download size={13} />
-                          </button>
-                          <span className="vitya-action-label"></span>
-                        </div>
-
-                        {/* More */}
+                        {/* More Options Popover */}
                         <div className="vitya-action-unit vitya-more-wrap">
                           <button
-                            className={`vitya-action-round-btn ${activeMoreIndex === i ? "active" : ""}`}
+                            className={`vitya-action-compact-btn ${activeMoreIndex === i ? "active" : ""}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               setActiveMoreIndex((prev) => (prev === i ? null : i));
                             }}
                             title="More options"
+                            aria-label="More options"
                           >
                             <MoreVertical size={13} />
                           </button>
-                          <span className="vitya-action-label"></span>
 
                           {/* Popover Dropdown Menu */}
                           {activeMoreIndex === i && (
@@ -2695,22 +3421,25 @@ const Chatbot = ({
                               onClick={(e) => e.stopPropagation()}
                             >
                               <button
+                                type="button"
                                 className="vitya-more-item"
-                                onClick={() => handleRenameMessage(i)}
+                                onClick={() => handleDownloadMessage(msg, i)}
                               >
-                                <Pencil size={13} className="vitya-item-icon" />
-                                <span>Rename</span>
+                                <Download size={13} className="vitya-item-icon" />
+                                <span>Download</span>
                               </button>
 
                               <button
+                                type="button"
                                 className="vitya-more-item"
-                                onClick={() => handleDuplicateMessage(i)}
+                                onClick={() => handleExportPDF(msg, i)}
                               >
-                                <Files size={13} className="vitya-item-icon" />
-                                <span>Duplicate</span>
+                                <FileText size={13} className="vitya-item-icon" />
+                                <span>Export as PDF</span>
                               </button>
 
                               <button
+                                type="button"
                                 className="vitya-more-item"
                                 onClick={() => handleSaveToLibrary(msg)}
                               >
@@ -2719,6 +3448,7 @@ const Chatbot = ({
                               </button>
 
                               <button
+                                type="button"
                                 className="vitya-more-item"
                                 onClick={() => handleShareMessage(msg)}
                               >
@@ -2727,21 +3457,32 @@ const Chatbot = ({
                               </button>
 
                               <button
-                                className="vitya-more-item delete"
-                                onClick={() => handleDeleteMessage(i)}
+                                type="button"
+                                className="vitya-more-item"
+                                onClick={() => handleDuplicateMessage(i)}
                               >
-                                <Trash2 size={13} className="vitya-item-icon" />
-                                <span>Delete</span>
+                                <Files size={13} className="vitya-item-icon" />
+                                <span>Duplicate</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                className="vitya-more-item"
+                                onClick={() => handleRenameMessage(i)}
+                              >
+                                <Pencil size={13} className="vitya-item-icon" />
+                                <span>Rename</span>
                               </button>
 
                               <div className="vitya-more-divider" />
 
                               <button
-                                className="vitya-more-item"
-                                onClick={() => handleExportPDF(msg, i)}
+                                type="button"
+                                className="vitya-more-item delete"
+                                onClick={() => handleDeleteMessage(i)}
                               >
-                                <FileText size={13} className="vitya-item-icon" />
-                                <span>Export as PDF</span>
+                                <Trash2 size={13} className="vitya-item-icon" />
+                                <span>Delete</span>
                               </button>
                             </div>
                           )}
@@ -2756,15 +3497,15 @@ const Chatbot = ({
                           className="vitya-action-unit"
                           onClick={() => handleCopyMessage(msg, i)}
                           title="Copy prompt"
+                          aria-label="Copy prompt"
                         >
-                          <button className="vitya-action-round-btn-sm">
+                          <button className="vitya-action-compact-btn">
                             {copiedIndex === i ? (
-                              <Check size={13} color="#10b981" />
+                              <Check size={12} color="#10b981" />
                             ) : (
-                              <Copy size={13} />
+                              <Copy size={12} />
                             )}
                           </button>
-                          <span className="vitya-action-label"></span>
                         </div>
 
                         {/* Rewrite */}
@@ -2772,11 +3513,11 @@ const Chatbot = ({
                           className="vitya-action-unit"
                           onClick={() => handleRewriteUserMessage(msg, i)}
                           title="Edit and rewrite prompt"
+                          aria-label="Edit and rewrite prompt"
                         >
-                          <button className="vitya-action-round-btn-sm">
-                            <RotateCcw size={13} />
+                          <button className="vitya-action-compact-btn">
+                            <RotateCcw size={12} />
                           </button>
-                          <span className="vitya-action-label"></span>
                         </div>
                       </div>
                     )}
@@ -2786,7 +3527,21 @@ const Chatbot = ({
             })
           )}
 
-          {loading && <div style={styles.typing}>Bot typing…</div>}
+          {loading && !messages.some((m) => m.isStreaming) && (
+            <div style={{ ...styles.messageRow, justifyContent: "flex-start", marginTop: 4 }}>
+              <div style={{ ...styles.messageStack, alignItems: "flex-start" }}>
+                <VityaProcessingStatus
+                  prompt={lastUserPrompt}
+                  context={{
+                    mode,
+                    useWebSearch,
+                    hasImages: attachedImages.length > 0,
+                    isPpt: mode === "file" || /^\/(presentation|ppt)\b/i.test(lastUserPrompt),
+                  }}
+                />
+              </div>
+            </div>
+          )}
           <div ref={bottomRef} />
         </div>
       </main>
