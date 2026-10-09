@@ -1627,7 +1627,6 @@ export default function PresentationEditor({
           }
         ];
 
-      case "image":
       case "image_text":
         return [
           {
@@ -1667,7 +1666,7 @@ export default function PresentationEditor({
           }
         ];
 
-      case "chart":
+      case "chart_slide":
         return [
           {
             id: `el-${timestamp}-title`,

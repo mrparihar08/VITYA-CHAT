@@ -76,7 +76,7 @@ export function AppearancePage({ insideDashboard = false }) {
             <div className="vitya-header-icon bg-teal">🎨</div>
             <div className="vitya-header-title-block">
               <h3>Dynamic Workspace Theme Presets</h3>
-              <p>Select your preferred theme. Changes sync with your MOTHER account across devices.</p>
+              <p>Select your preferred theme. Changes sync with your vitya.ai account across devices.</p>
             </div>
           </div>
 

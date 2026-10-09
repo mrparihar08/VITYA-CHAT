@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   HeartPulse,
   Activity,
@@ -6,10 +6,8 @@ import {
   ShieldAlert,
   Sparkles,
   User,
-  Download,
   Printer,
   Search,
-  CheckCircle2,
   AlertTriangle,
   Volume2,
   VolumeX,
@@ -24,12 +22,9 @@ import {
   Zap,
   Thermometer,
   Pill,
-  Calendar,
   Check,
   PhoneCall,
-  Clock,
   Share2,
-  Sliders,
   Award,
   Globe
 } from "lucide-react";
@@ -41,6 +36,7 @@ import {
   getDoraDiseases,
   getDoraInfo,
 } from "../../services/api";
+import FormattedMarkdown from "../chatbot/FormattedMarkdown";
 import "./DoraHealthApp.css";
 
 export const LANGUAGE_OPTIONS = [
@@ -473,7 +469,7 @@ export default function DoraHealthApp() {
   };
 
   return (
-    <div className="dora-ultra-container">
+    <div className={`dora-ultra-container ${activeTab === "chat" ? "chat-active" : ""}`}>
       {/* 1. TOP TELEMETRY & STATUS HUD */}
       <div className="dora-top-hud">
         <div className="dora-hud-brand">
@@ -484,13 +480,15 @@ export default function DoraHealthApp() {
           <div>
             <div className="dora-brand-title-wrap">
               <h1 className="dora-brand-title">DORA Health AI</h1>
-              <span className="dora-version-badge">v3.0 Ultra Clinical</span>
-              <span className="dora-live-indicator">
+              <span className="dora-version-badge" title={`${systemInfo.ai_powered_by} • ${systemInfo.total_diseases_indexed} diseases & ${systemInfo.total_symptoms_indexed} symptoms indexed`}>
+                {systemInfo.version || "v3.0 Ultra"}
+              </span>
+              <span className="dora-live-indicator" title={`Status: ${systemInfo.status}`}>
                 <span className="dora-live-dot"></span> LIVE
               </span>
             </div>
             <p className="dora-brand-sub">
-              Doctor Online Remote Assistant • Gemini 2.5 Flash Grounded Health Intelligence
+              {systemInfo.service || "Doctor Online Remote Assistant"} • Grounded Clinical Health Intelligence
             </p>
           </div>
         </div>
@@ -1053,7 +1051,11 @@ export default function DoraHealthApp() {
                         </div>
 
                         <div className="dora-chat-bubble-body">
-                          {m.content}
+                          {isUser ? (
+                            m.content
+                          ) : (
+                            <FormattedMarkdown content={m.content} />
+                          )}
                         </div>
 
                         {!isUser && (

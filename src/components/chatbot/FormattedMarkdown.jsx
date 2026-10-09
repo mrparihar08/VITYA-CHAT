@@ -1,15 +1,53 @@
 import React from "react";
 
+export const extractYouTubeId = (url) => {
+  if (!url) return null;
+  const match = String(url).match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i);
+  return match ? match[1] : null;
+};
+
+export const extractAllYouTubeVideos = (line) => {
+  if (!line || typeof line !== "string") return [];
+  const videos = [];
+  const seenIds = new Set();
+
+  // 1. Markdown links: [Title](url)
+  const linkRegex = /\[((?:\[[^\]]*\]|[\s\S])*?)\]\((https?:\/\/[^\s)]+)\)/g;
+  let match;
+  while ((match = linkRegex.exec(line)) !== null) {
+    const title = match[1];
+    const url = match[2];
+    const id = extractYouTubeId(url);
+    if (id && !seenIds.has(id)) {
+      seenIds.add(id);
+      videos.push({ title: title.replace(/^🔗\s*/, "").trim(), url, id });
+    }
+  }
+
+  // 2. Raw URLs: https://...
+  const rawUrlRegex = /(https?:\/\/[^\s<>()]+)/g;
+  while ((match = rawUrlRegex.exec(line)) !== null) {
+    const url = match[1];
+    const id = extractYouTubeId(url);
+    if (id && !seenIds.has(id)) {
+      seenIds.add(id);
+      videos.push({ title: "YouTube Video", url, id });
+    }
+  }
+
+  return videos;
+};
+
 export function FormattedMarkdown({ content }) {
   if (typeof content !== "string") {
     return <span>{JSON.stringify(content)}</span>;
   }
 
-  // Helper to parse inline markdown: **bold**, *italic*, `code`, [link](url)
+  // Helper to parse inline markdown: **bold**, *italic*, `code`, [link](url), raw URLs
   const parseInline = (text) => {
     if (!text) return [];
 
-    const regex = /(`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|(?:\b|_)\*[^*]+\*(?:\b|_)|(?:\b|_)_[^_]+_(?:\b|_)|\[[^\]]+\]\([^)]+\))/g;
+    const regex = /(`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|(?:\b|_)\*[^*]+\*(?:\b|_)|(?:\b|_)_[^_]+_(?:\b|_)|\[(?:\[[^\]]*\]|[\s\S])*?\]\(https?:\/\/[^\s)]+\)|https?:\/\/[^\s<>()]+)/g;
 
     const parts = text.split(regex);
     return parts.map((part, index) => {
@@ -58,18 +96,128 @@ export function FormattedMarkdown({ content }) {
         );
       }
 
-      // Link: [text](url)
-      const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+      // Markdown Link: [text](url)
+      const linkMatch = part.match(/^\[((?:\[[^\]]*\]|[\s\S])*?)\]\((https?:\/\/[^\s)]+)\)$/);
       if (linkMatch) {
+        const linkTitle = linkMatch[1];
+        const linkUrl = linkMatch[2];
+        const ytId = extractYouTubeId(linkUrl);
+
+        if (ytId) {
+          return (
+            <a
+              key={index}
+              href={linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "3px 10px",
+                background: "rgba(239, 68, 68, 0.18)",
+                border: "1px solid rgba(239, 68, 68, 0.5)",
+                borderRadius: "8px",
+                color: "#fca5a5",
+                fontWeight: 600,
+                textDecoration: "none",
+                fontSize: "13px",
+                margin: "2px 0",
+              }}
+            >
+              <span style={{ color: "#ef4444" }}>▶</span>
+              <span>{linkTitle}</span>
+              <span style={{ fontSize: "11px", opacity: 0.8 }}>↗</span>
+            </a>
+          );
+        }
+
         return (
           <a
             key={index}
-            href={linkMatch[2]}
+            href={linkUrl}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "#38bdf8", textDecoration: "underline" }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              padding: "2px 8px",
+              background: "rgba(56, 189, 248, 0.12)",
+              border: "1px solid rgba(56, 189, 248, 0.3)",
+              borderRadius: "6px",
+              color: "#38bdf8",
+              fontWeight: 600,
+              textDecoration: "none",
+              fontSize: "0.95em",
+              margin: "0 2px",
+            }}
           >
-            {linkMatch[1]}
+            <span>{linkTitle}</span>
+            <span style={{ fontSize: "10px", opacity: 0.8 }}>↗</span>
+          </a>
+        );
+      }
+
+      // Raw URL: https://...
+      const rawUrlMatch = part.match(/^(https?:\/\/[^\s<>()]+)$/);
+      if (rawUrlMatch) {
+        const rawUrl = rawUrlMatch[1];
+        const ytId = extractYouTubeId(rawUrl);
+
+        if (ytId) {
+          return (
+            <a
+              key={index}
+              href={rawUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "3px 10px",
+                background: "rgba(239, 68, 68, 0.18)",
+                border: "1px solid rgba(239, 68, 68, 0.5)",
+                borderRadius: "8px",
+                color: "#fca5a5",
+                fontWeight: 600,
+                textDecoration: "none",
+                fontSize: "13px",
+                margin: "2px 0",
+              }}
+            >
+              <span style={{ color: "#ef4444" }}>▶</span>
+              <span>YouTube Video</span>
+              <span style={{ fontSize: "11px", opacity: 0.8 }}>↗</span>
+            </a>
+          );
+        }
+
+        return (
+          <a
+            key={index}
+            href={rawUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              padding: "2px 8px",
+              background: "rgba(56, 189, 248, 0.12)",
+              border: "1px solid rgba(56, 189, 248, 0.3)",
+              borderRadius: "6px",
+              color: "#38bdf8",
+              fontWeight: 600,
+              textDecoration: "none",
+              fontSize: "0.95em",
+              margin: "0 2px",
+              wordBreak: "break-all",
+            }}
+          >
+            <span>{rawUrl}</span>
+            <span style={{ fontSize: "10px", opacity: 0.8 }}>↗</span>
           </a>
         );
       }
@@ -149,6 +297,7 @@ export function FormattedMarkdown({ content }) {
 
         lines.forEach((line, lIdx) => {
           const trimmed = line.trim();
+          const ytVideos = extractAllYouTubeVideos(line);
 
           // Headings
           if (trimmed.startsWith("### ")) {
@@ -201,6 +350,93 @@ export function FormattedMarkdown({ content }) {
                 {parseInline(line)}
               </div>
             );
+          }
+
+          // Embedded YouTube player cards
+          if (ytVideos.length > 0) {
+            ytVideos.forEach((yt, ytIdx) => {
+              renderedLines.push(
+                <div
+                  key={`yt-${lIdx}-${ytIdx}`}
+                  style={{
+                    marginTop: 10,
+                    marginBottom: 12,
+                    borderRadius: 14,
+                    overflow: "hidden",
+                    border: "1px solid rgba(255, 255, 255, 0.14)",
+                    background: "rgba(10, 15, 29, 0.95)",
+                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.45)",
+                    maxWidth: 560,
+                    width: "100%",
+                  }}
+                >
+                  <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+                    <iframe
+                      src={`https://www.youtube-nocookie.com/embed/${yt.id}`}
+                      title={yt.title || "YouTube video"}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        border: 0,
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      padding: "10px 14px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      background: "rgba(15, 23, 42, 0.85)",
+                      borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                    }}
+                  >
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: "#f8fafc",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {yt.title}
+                      </div>
+                      <div style={{ fontSize: 11, color: "#94a3b8" }}>YouTube Video Link</div>
+                    </div>
+                    <a
+                      href={yt.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 5,
+                        padding: "5px 12px",
+                        borderRadius: 8,
+                        background: "#dc2626",
+                        color: "#ffffff",
+                        fontSize: 11.5,
+                        fontWeight: 700,
+                        textDecoration: "none",
+                        flexShrink: 0,
+                        transition: "filter 0.15s ease",
+                      }}
+                    >
+                      Watch ↗
+                    </a>
+                  </div>
+                </div>
+              );
+            });
           }
         });
 

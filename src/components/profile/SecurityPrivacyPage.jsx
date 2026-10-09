@@ -102,7 +102,7 @@ export function SecurityPrivacyPage({ insideDashboard = false }) {
   return (
     <PageShell
       title="Security & Privacy"
-      subtitle="Manage your password, 2FA authentication, and account security synced with MOTHER."
+      subtitle="Manage your password, 2FA authentication, and account security synced with vitya.ai."
       plain={insideDashboard}
       hideBrandRow={insideDashboard}
       wide={true}

@@ -338,9 +338,7 @@ const FinancialHealthApp = () => {
 
               <div style={{ marginTop: 16 }}>
                 <h5 style={{ margin: "0 0 10px 0", color: "#94a3b8" }}>Active Budget Status:</h5>
-                {budgetAlerts.length === 0 ? (
-                  <p style={{ fontSize: 13, color: "#64748b" }}>No active budget limits configured yet.</p>
-                ) : (
+                {budgetAlerts.length > 0 ? (
                   budgetAlerts.map((b, i) => (
                     <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #334155", fontSize: 13 }}>
                       <span><strong>{b.category}</strong>: ${b.current_spent || 0} / ${b.monthly_limit}</span>
@@ -349,6 +347,15 @@ const FinancialHealthApp = () => {
                       </span>
                     </div>
                   ))
+                ) : budgetCaps.length > 0 ? (
+                  budgetCaps.map((b, i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #334155", fontSize: 13 }}>
+                      <span><strong>{b.category}</strong>: Cap ${b.monthly_limit || b.limit}</span>
+                      <span style={{ color: "#10b981", fontWeight: 600 }}>Active Cap</span>
+                    </div>
+                  ))
+                ) : (
+                  <p style={{ fontSize: 13, color: "#64748b" }}>No active budget limits configured yet.</p>
                 )}
               </div>
             </div>
@@ -384,8 +391,11 @@ const FinancialHealthApp = () => {
                       <p style={{ margin: "0 0 6px 0", color: "#10b981", fontWeight: 700, fontSize: 16 }}>
                         Projected Spend: ${prediction.predicted_next_month_expense}
                       </p>
-                      <p style={{ margin: 0, color: "#94a3b8" }}>
+                      <p style={{ margin: "0 0 6px 0", color: "#94a3b8" }}>
                         Based on {prediction.current_count} historical records for {prediction.category}.
+                      </p>
+                      <p style={{ margin: 0, fontSize: 11, color: "#64748b" }}>
+                        ⚠️ Advisory forecast based on historical regression trends. Actual expenses may vary.
                       </p>
                     </div>
                   ) : (
@@ -394,6 +404,61 @@ const FinancialHealthApp = () => {
                 </div>
               )}
             </div>
+
+            {/* AI FINANCIAL ADVISOR */}
+            <div className="health-briefing-card" style={{ margin: 0 }}>
+              <div className="briefing-header">
+                <span className="ai-badge">💡 FIDUCIARY AI ADVICE</span>
+              </div>
+              <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+                <select
+                  value={advisorCategory}
+                  onChange={(e) => setAdvisorCategory(e.target.value)}
+                  style={{ background: "#1e293b", border: "1px solid #334155", color: "#fff", padding: "8px 12px", borderRadius: 8, flex: 1 }}
+                >
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={handleGetAdvice}
+                  disabled={adviceLoading}
+                  style={{ background: "#06b6d4", color: "#fff", border: "none", padding: "8px 16px", borderRadius: 8, fontWeight: 600, cursor: "pointer" }}
+                >
+                  {adviceLoading ? "Analyzing..." : "Get Advice"}
+                </button>
+              </div>
+
+              {advice && (
+                <div style={{ marginTop: 16, padding: 12, background: "#0f172a", borderRadius: 8, fontSize: 13 }}>
+                  <p style={{ margin: "0 0 4px 0", color: "#38bdf8", fontWeight: 600 }}>
+                    {advice.category || advisorCategory} Strategy:
+                  </p>
+                  <p style={{ margin: 0, color: "#cbd5e1", lineHeight: 1.5 }}>
+                    {advice.advice || advice.message || JSON.stringify(advice)}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* SPENDING WASTE ANALYSIS */}
+            {wasteData && wasteData.length > 0 && (
+              <div className="health-briefing-card" style={{ margin: 0 }}>
+                <div className="briefing-header">
+                  <span className="ai-badge" style={{ background: "rgba(239, 68, 68, 0.2)", color: "#f87171" }}>
+                    ⚠️ SPENDING WASTE & ANOMALIES
+                  </span>
+                </div>
+                <div style={{ marginTop: 14 }}>
+                  {wasteData.map((w, idx) => (
+                    <div key={idx} style={{ padding: "8px 0", borderBottom: "1px solid #334155", fontSize: 13 }}>
+                      <span style={{ color: "#f87171", fontWeight: 600 }}>{w.category || "General"}: </span>
+                      <span style={{ color: "#cbd5e1" }}>{w.reason || w.description || JSON.stringify(w)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}

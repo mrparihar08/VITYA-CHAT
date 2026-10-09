@@ -109,7 +109,7 @@ export function SubscriptionPage({ insideDashboard = false }) {
   return (
     <PageShell
       title="Subscription & Billing"
-      subtitle="Manage your subscription plan, billing details, and API quotas synced with MOTHER."
+      subtitle="Manage your subscription plan, billing details, and API quotas synced with vitya.ai."
       plain={insideDashboard}
       hideBrandRow={insideDashboard}
       wide={true}

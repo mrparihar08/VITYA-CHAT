@@ -159,10 +159,12 @@ const PageTitleUpdater = () => {
     else if (path.startsWith("/settings/about")) title = "About Vitya AI | Vitya AI";
     else if (path.startsWith("/settings/help")) title = "Help & Support | Vitya AI";
     else if (path.startsWith("/settings")) title = "Settings | Vitya AI";
-    else if (path.startsWith("/presentation")) title = "Presentation Studio | Vitya AI";
-    else if (path.startsWith("/chatbot")) title = "AI Assistant | Vitya AI";
-    else if (path.startsWith("/apps")) title = "Apps Workspace | Vitya AI";
-    else if (path.startsWith("/dashboard")) title = "Dashboard | Vitya AI";
+    else if (path.startsWith("/presentation")) title = "Presentation Studio | vitya.ai";
+    else if (path.startsWith("/dora")) title = "Dora Dr. | vitya.ai";
+    else if (path.startsWith("/finance") || path.startsWith("/fei")) title = "Vidya F.E.I Advisor | vitya.ai";
+    else if (path.startsWith("/chatbot")) title = "AI Assistant | vitya.ai";
+    else if (path.startsWith("/apps")) title = "Apps Workspace | vitya.ai";
+    else if (path.startsWith("/dashboard")) title = "Dashboard | vitya.ai";
 
     document.title = title;
   }, [location]);
@@ -248,6 +250,30 @@ function AppRoutes() {
           element={
             <PrivateRoute>
               <Dashboard initialTab="presentation" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/dora"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="dora" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/finance"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="finance" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/fei"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="finance" />
             </PrivateRoute>
           }
         />

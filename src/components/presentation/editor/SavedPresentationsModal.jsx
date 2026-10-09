@@ -360,7 +360,7 @@ export default function SavedPresentationsModal({ isOpen, onClose, onLoadDeck, o
                           gap: "4px",
                         }}
                       >
-                        📥 PPTX
+                        <Download size={12} /> PPTX
                       </button>
                       <button
                         onClick={(e) => handleDelete(e, item.presentation_id)}

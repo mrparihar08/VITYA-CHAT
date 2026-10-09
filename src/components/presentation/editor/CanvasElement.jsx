@@ -211,60 +211,6 @@ export default function CanvasElement({
         );
       }
 
-      case "image":
-        return (
-          <div
-            className="element-image-container"
-            style={{
-              width: "100%",
-              height: "100%",
-              borderRadius: `${norm.borderRadius !== undefined ? norm.borderRadius : 8}px`,
-              backgroundColor: norm.bg_color || "transparent",
-              overflow: "hidden",
-              position: "relative",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "flex-start"
-            }}
-          >
-            <img
-              src={norm.url || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800"}
-              alt={norm.caption || "Presentation Visual"}
-              draggable={false}
-              style={{
-                borderRadius: `${norm.borderRadius !== undefined ? norm.borderRadius : 8}px`,
-                width: "100%",
-                height: norm.caption ? "calc(100% - 24px)" : "100%",
-                objectFit: norm.objectFit || "contain",
-                opacity: (norm.opacity !== undefined ? norm.opacity : 100) / 100,
-                display: "block",
-                userSelect: "none",
-                WebkitUserDrag: "none"
-              }}
-            />
-            {norm.caption && (
-              <span
-                className="image-caption"
-                style={{
-                  pointerEvents: "none",
-                  fontSize: "10px",
-                  fontWeight: "bold",
-                  color: "#3B82F6",
-                  textAlign: "center",
-                  paddingTop: "4px",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  maxWidth: "100%"
-                }}
-              >
-                Fig: {norm.caption.replace(/^(?:fig\s*[:\-]\s*)/i, "")}
-              </span>
-            )}
-          </div>
-        );
-
       case "shape":
         return (
           <div

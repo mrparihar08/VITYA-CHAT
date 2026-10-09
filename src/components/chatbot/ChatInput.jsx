@@ -1181,6 +1181,30 @@ export const ChatInput = ({
                   muted
                   style={{ width: "100%", maxHeight: 380, objectFit: "cover" }}
                 />
+                {cameraError && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 20,
+                      background: "rgba(15, 23, 42, 0.9)",
+                      borderRadius: 14,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: 16,
+                      textAlign: "center",
+                      color: "#f87171",
+                      fontSize: 13,
+                      zIndex: 10,
+                    }}
+                  >
+                    <p style={{ margin: "0 0 10px 0", fontWeight: 600 }}>⚠️ {cameraError}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: "#94a3b8" }}>
+                      Please enable camera permissions in your browser or use "Upload File".
+                    </p>
+                  </div>
+                )}
                 {/* TARGETING RETICLE */}
                 <div
                   style={{

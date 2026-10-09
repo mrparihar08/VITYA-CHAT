@@ -28,6 +28,7 @@ import {
   getAuthHeaders,
 } from "../../services/api";
 import "./FinanceApp.css";
+import FinancialHealthApp from "./FinancialHealthApp";
 
 const CATEGORY_COLORS = {
   Food: "#f59e0b",
@@ -316,8 +317,8 @@ export default function FinanceApp() {
       {/* HEADER & CSV EXPORT ACTIONS */}
       <div className="finance-header">
         <div>
-          <h2>💳 Financial Management & Cashflow</h2>
-          <p>Track live expenses, incomes, cashflow velocity, and download audit CSVs.</p>
+          <h2>💳 Vidya F.E.I Advisor • Finance, Expense & Income</h2>
+          <p>Live cashflow tracking, income velocity, expense analytics, and autonomous AI Fiduciary advice.</p>
         </div>
         <div className="finance-export-group">
           <button
@@ -395,6 +396,12 @@ export default function FinanceApp() {
           onClick={() => setActiveTab("charts")}
         >
           📈 Charts & Trends
+        </button>
+        <button
+          className={`finance-tab ${activeTab === "health" ? "active" : ""}`}
+          onClick={() => setActiveTab("health")}
+        >
+          ⚡ F.E.I Score & AI Advisor
         </button>
       </div>
 
@@ -635,7 +642,32 @@ export default function FinanceApp() {
       {/* TAB CONTENT: CHARTS */}
       {activeTab === "charts" && (
         <div className="finance-tab-body">
+          {loading && (
+            <div className="empty-state" style={{ padding: "12px", marginBottom: "16px" }}>
+              <p>🔄 Refreshing financial telemetry...</p>
+            </div>
+          )}
           <div className="finance-charts-grid">
+            {/* MONTHLY CASHFLOW TREND CHART */}
+            {trendData && trendData.length > 0 && (
+              <div className="chart-card" style={{ gridColumn: "1 / -1" }}>
+                <h4>📈 Monthly Cashflow Trend (Income vs Outflow)</h4>
+                <div style={{ width: "100%", height: 300 }}>
+                  <ResponsiveContainer>
+                    <LineChart data={trendData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                      <XAxis dataKey="month" stroke="#94a3b8" />
+                      <YAxis stroke="#94a3b8" />
+                      <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
+                      <Legend />
+                      <Line type="monotone" dataKey="income" name="Income" stroke="#10b981" strokeWidth={2.5} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                      <Line type="monotone" dataKey="expense" name="Expense" stroke="#ef4444" strokeWidth={2.5} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
             {/* CATEGORY PIE CHART */}
             <div className="chart-card">
               <h4>📊 Outflow Distribution by Category</h4>
@@ -689,7 +721,26 @@ export default function FinanceApp() {
                 </div>
               )}
             </div>
+
+            {/* BACKEND ANALYTICS GRAPH */}
+            {categoryData && categoryData.image_url && (
+              <div className="chart-card" style={{ gridColumn: "1 / -1", textAlign: "center" }}>
+                <h4>📊 Telemetry Spending Distribution Chart</h4>
+                <img
+                  src={categoryData.image_url}
+                  alt="Financial Telemetry Chart"
+                  style={{ maxWidth: "100%", height: "auto", borderRadius: 8, marginTop: 8 }}
+                />
+              </div>
+            )}
           </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT: F.E.I HEALTH & AI ADVISOR */}
+      {activeTab === "health" && (
+        <div className="finance-tab-body" style={{ marginTop: 12 }}>
+          <FinancialHealthApp />
         </div>
       )}
     </div>

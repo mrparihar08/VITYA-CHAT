@@ -388,7 +388,11 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
       let targetPath = "/dashboard";
       if (newTab === "chat") targetPath = "/chatbot";
       else if (newTab === "presentation") targetPath = "/presentation";
-      else if (newTab === "apps") targetPath = newApp ? `/apps/${newApp}` : "/apps";
+      else if (newTab === "apps") {
+        if (newApp === "dora") targetPath = "/dora";
+        else if (newApp === "finance") targetPath = "/finance";
+        else targetPath = newApp ? `/apps/${newApp}` : "/apps";
+      }
       else if (newTab === "history") targetPath = "/dashboard?tab=history";
       else if (newTab === "profile") targetPath = "/profile";
       else if (newTab === "profile/edit") targetPath = "/profile/edit";
@@ -566,20 +570,23 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
       );
     }
 
+    const isSovereignApp = ["dora", "finance"].includes(currentApp.id);
     const AppComponent = currentApp.component;
 
     return (
-      <div className="appPanel">
-        <div className="appPanelTopBar">
-          <button className="backBtn" onClick={() => updateNavigationState("apps", null, null)}>
-            ← Back to Apps
-          </button>
-          <div className="appBreadcrumb">
-            <span>Apps</span> <span className="bcSep">/</span> <strong className="bcCurrent">{currentApp.name}</strong>
+      <div className={`appPanel ${isSovereignApp ? "appPanelSovereign" : ""}`}>
+        {!isSovereignApp && (
+          <div className="appPanelTopBar">
+            <button className="backBtn" onClick={() => updateNavigationState("apps", null, null)}>
+              ← Back to Apps
+            </button>
+            <div className="appBreadcrumb">
+              <span>Apps</span> <span className="bcSep">/</span> <strong className="bcCurrent">{currentApp.name}</strong>
+            </div>
           </div>
-        </div>
+        )}
 
-        {currentApp.id !== "analytics" && (
+        {!["analytics", "dora", "finance"].includes(currentApp.id) && (
           <div className="panelHeader">
             <div className="appHeaderIconBox" style={{ background: currentApp.iconBg }}>
               {currentApp.icon}
@@ -591,7 +598,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           </div>
         )}
 
-        <div className="miniAppContent">
+        <div className={`miniAppContent ${isSovereignApp ? "miniAppContentSovereign" : ""}`}>
           <ErrorBoundary>
             {currentApp.id === "analytics" ? (
               <AppComponent {...analyticsData} />
@@ -615,7 +622,9 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
         setSidebarOpen={setSidebarOpen}
         isMobile={isMobile}
         activeTab={activeTab}
+        activeApp={activeApp}
         handleTabClick={handleTabClick}
+        onOpenApp={openApp}
         handleNewChat={handleNewChat}
         searchText={searchText}
         setSearchText={setSearchText}
@@ -639,8 +648,16 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
 
           <div className="topbarText">
             <div className="brandWrap">
-              <h2 className="brand">Vitya.AI</h2>
-              <p>Welcome back, {user?.name || "User"}</p>
+              <h2 className="brand">vitya.ai</h2>
+              <p>
+                {activeTab === "presentation"
+                  ? "Presentation Studio • Autonomous Deck Synthesizer"
+                  : activeApp === "dora"
+                  ? "Dora Dr. • Clinical Health Intelligence & Triage"
+                  : activeApp === "finance"
+                  ? "Vidya F.E.I Advisor • Finance, Expense & Income Intelligence"
+                  : `Welcome back, ${user?.name || "User"}`}
+              </p>
             </div>
           </div>
 
@@ -687,7 +704,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           </div>
         </header>
 
-        <main className={`content ${activeTab === "chat" || activeTab === "presentation" ? "contentNoScroll" : ""}`}>
+        <main className={`content ${activeTab === "chat" || activeTab === "presentation" || (activeTab === "apps" && (activeApp === "dora" || activeApp === "finance")) ? "contentNoScroll" : ""}`}>
           {activeTab === "chat" && (
             <section className="chatShell">
               <Chatbot

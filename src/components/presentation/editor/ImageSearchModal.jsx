@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { 
   Search, 
@@ -53,21 +53,7 @@ export default function ImageSearchModal({
   const [aiGeneratedUrl, setAiGeneratedUrl] = useState(null);
   const [aiGeneratedMeta, setAiGeneratedMeta] = useState(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      const topic = slideContext.topic || slideContext.presentationTitle || "";
-      const title = slideContext.slideTitle || "";
-      
-      let contextQuery = initialQuery;
-      if (!contextQuery || contextQuery === "technology" || contextQuery === "Current Slide") {
-        contextQuery = title && title !== "Current Slide" ? `${title} ${topic}`.trim() : (topic || "technology");
-      }
-      setSearchQuery(contextQuery);
-      performSearch(contextQuery, "web", "all");
-    }
-  }, [isOpen, initialQuery, slideContext]);
-
-  const performSearch = async (queryText, providerTab = activeTab, vType = selectedVisualType) => {
+  const performSearch = useCallback(async (queryText, providerTab = activeTab, vType = selectedVisualType) => {
     const cleanQuery = (queryText || "").trim();
     if (!cleanQuery && providerTab !== "suggested" && providerTab !== "upload" && providerTab !== "generate") {
       return;
@@ -139,7 +125,21 @@ export default function ImageSearchModal({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [activeTab, selectedVisualType, slideContext]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const topic = slideContext.topic || slideContext.presentationTitle || "";
+      const title = slideContext.slideTitle || "";
+      
+      let contextQuery = initialQuery;
+      if (!contextQuery || contextQuery === "technology" || contextQuery === "Current Slide") {
+        contextQuery = title && title !== "Current Slide" ? `${title} ${topic}`.trim() : (topic || "technology");
+      }
+      setSearchQuery(contextQuery);
+      performSearch(contextQuery, "web", "all");
+    }
+  }, [isOpen, initialQuery, slideContext, performSearch]);
 
   const handleCopyAttribution = (imgObj, e) => {
     e?.stopPropagation();
@@ -413,7 +413,10 @@ export default function ImageSearchModal({
               </div>
 
               {/* VISUAL TYPE FILTER CHIPS */}
-              <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, overflowX: "auto", paddingBottom: 4 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "11px", color: "#64748b", fontWeight: 700, paddingRight: 4 }}>
+                  <Filter size={12} /> Filter:
+                </span>
                 {VISUAL_TYPES.map((vt) => (
                   <button
                     key={vt.id}

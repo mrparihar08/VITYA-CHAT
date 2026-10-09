@@ -136,7 +136,7 @@ const FilesApp = () => {
       </div>
 
       <p className="mutedText" style={{ marginTop: 0, marginBottom: 12 }}>
-        Upload PDF, CSV, TXT, or DOCX documents to connect them with MOTHER&apos;s Knowledge Base and AI Chat.
+        Upload PDF, CSV, TXT, or DOCX documents to connect them with vitya.ai&apos;s Knowledge Base and AI Chat.
       </p>
 
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>

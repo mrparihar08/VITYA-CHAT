@@ -25,6 +25,22 @@ const AppsIcon = () => (
   </svg>
 );
 
+const DoraIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
+    <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
+    <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
+    <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
+  </svg>
+);
+
+const FinanceIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+    <line x1="2" x2="22" y1="10" y2="10"></line>
+  </svg>
+);
+
 const HistoryIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"></circle>
@@ -77,27 +93,15 @@ const DocIcon = () => (
   </svg>
 );
 
-const ImageIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-    <polyline points="21 15 16 10 5 21"></polyline>
-  </svg>
-);
-
-const CodeIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="16 18 22 12 16 6"></polyline>
-    <polyline points="8 6 2 12 8 18"></polyline>
-  </svg>
-);
 
 export default function Sidebar({
   sidebarOpen,
   setSidebarOpen,
   isMobile,
   activeTab,
+  activeApp,
   handleTabClick,
+  onOpenApp,
   handleNewChat,
   searchText,
   setSearchText,
@@ -124,8 +128,22 @@ export default function Sidebar({
 
   const navItems = [
     { key: "chat", label: "Chat", icon: <ChatIcon /> },
-    { key: "presentation", label: "Presentation", icon: <PresentationIcon /> },
-    { key: "apps", label: "Apps", icon: <AppsIcon /> },
+    { key: "presentation", label: "Presentation Studio", icon: <PresentationIcon /> },
+    {
+      key: "dora",
+      label: "Dora Dr. Health",
+      icon: <DoraIcon />,
+      action: () => (onOpenApp ? onOpenApp({ id: "dora" }) : handleTabClick("apps")),
+      active: activeTab === "apps" && activeApp === "dora",
+    },
+    {
+      key: "finance",
+      label: "Vidya F.E.I Advisor",
+      icon: <FinanceIcon />,
+      action: () => (onOpenApp ? onOpenApp({ id: "finance" }) : handleTabClick("apps")),
+      active: activeTab === "apps" && activeApp === "finance",
+    },
+    { key: "apps", label: "All Apps", icon: <AppsIcon /> },
     { key: "history", label: "History", icon: <HistoryIcon /> },
     { key: "profile", label: "Profile", icon: <ProfileIcon /> },
   ];
@@ -140,20 +158,20 @@ export default function Sidebar({
       active: activeTab === "presentation",
     },
     {
-      id: "generate_image",
-      label: "Generate Image",
-      icon: <ImageIcon />,
+      id: "dora_health",
+      label: "Dora Medical",
+      icon: <DoraIcon />,
       colorClass: "qt-teal",
-      action: () => onQuickToolClick?.("image"),
-      active: false,
+      action: () => (onOpenApp ? onOpenApp({ id: "dora" }) : handleTabClick("apps")),
+      active: activeTab === "apps" && activeApp === "dora",
     },
     {
-      id: "write_code",
-      label: "Write Code",
-      icon: <CodeIcon />,
+      id: "vidya_fei",
+      label: "Vidya F.E.I",
+      icon: <FinanceIcon />,
       colorClass: "qt-blue",
-      action: () => onQuickToolClick?.("code"),
-      active: false,
+      action: () => (onOpenApp ? onOpenApp({ id: "finance" }) : handleTabClick("apps")),
+      active: activeTab === "apps" && activeApp === "finance",
     },
     {
       id: "explore_apps",
@@ -161,7 +179,7 @@ export default function Sidebar({
       icon: <AppsIcon />,
       colorClass: "qt-amber",
       action: () => (onQuickToolClick ? onQuickToolClick("apps") : handleTabClick("apps")),
-      active: activeTab === "apps",
+      active: activeTab === "apps" && !activeApp,
     },
   ];
 
@@ -175,10 +193,10 @@ export default function Sidebar({
           </div>
           <div className="vitya-brand-text">
             <div className="vitya-brand-name-row">
-              <h2 className="vitya-brand-title">Vitya.AI</h2>
+              <h2 className="vitya-brand-title">vitya.ai</h2>
             </div>
-            <span className="vitya-brand-subtitle">AI Assistant</span>
-            <div className="vitya-brand-tagline">Think • Create • Achieve</div>
+            <span className="vitya-brand-subtitle">Multimodal Platform</span>
+            <div className="vitya-brand-tagline">Presentation • Dora • Vidya F.E.I</div>
           </div>
         </div>
 
@@ -227,13 +245,17 @@ export default function Sidebar({
       <nav className="vitya-sidebar-nav">
         {navItems.map((item) => {
           const isActive =
-            activeTab === item.key ||
-            (item.key === "profile" && (activeTab || "").startsWith("profile"));
+            item.active !== undefined
+              ? item.active
+              : item.key === "apps"
+                ? activeTab === "apps" && !activeApp
+                : activeTab === item.key ||
+                  (item.key === "profile" && (activeTab || "").startsWith("profile"));
           return (
             <button
               key={item.key}
               className={`vitya-nav-item ${isActive ? "active" : ""}`}
-              onClick={() => handleTabClick(item.key)}
+              onClick={item.action ? item.action : () => handleTabClick(item.key)}
             >
               {isActive && <div className="vitya-active-indicator" />}
               <span className="vitya-nav-icon">{item.icon}</span>
