@@ -765,6 +765,7 @@ const Chatbot = ({
   const forceStopRef = useRef(false);
   const menuRef = useRef(null);
   const userLocationRef = useRef(null);
+  const sendMessageRef = useRef(null);
 
   useEffect(() => {
     try {
@@ -1149,17 +1150,51 @@ const Chatbot = ({
                 <div style={styles.newsCardContent}>
                   <h3 style={styles.cardTitle}>{item?.title || "No title"}</h3>
                   {item?.description ? <p style={styles.cardBody}>{item.description}</p> : null}
-                  {item?.url ? (
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noreferrer"
+                  <div style={styles.newsActionGroup}>
+                    {item?.url ? (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="vitya-action-btn"
+                        style={styles.actionLinkBtn}
+                      >
+                        Read Full Article <span style={{ marginLeft: 6 }}>↗</span>
+                      </a>
+                    ) : null}
+                    <button
+                      type="button"
                       className="vitya-action-btn"
-                      style={styles.actionLinkBtn}
+                      style={styles.newsActionBtn}
+                      onClick={() => {
+                        const headline = item?.title ? item.title.trim() : "";
+                        sendMessageRef.current?.(
+                          headline
+                            ? `Is news ko simple Hindi/Hinglish me summarize karo: "${headline}"`
+                            : "Is news ko simple Hindi/Hinglish me summarize karo."
+                        );
+                      }}
+                      title="AI se is news ko simple Hindi/Hinglish me samjhein"
                     >
-                      Read Full Article <span style={{ marginLeft: 6 }}>↗</span>
-                    </a>
-                  ) : null}
+                      📝 Summarize in Hindi
+                    </button>
+                    <button
+                      type="button"
+                      className="vitya-action-btn"
+                      style={styles.newsActionBtn}
+                      onClick={() => {
+                        const headline = item?.title ? item.title.trim() : "";
+                        sendMessageRef.current?.(
+                          headline
+                            ? `Iska India par kya impact hoga: "${headline}"`
+                            : "Is news ka India aur common logon par kya impact hoga?"
+                        );
+                      }}
+                      title="Is khabar ka India par kya asar padega janein"
+                    >
+                      💡 Impact Analysis
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -1206,6 +1241,212 @@ const Chatbot = ({
               Read Article on Wikipedia <span style={{ marginLeft: 6 }}>↗</span>
             </a>
           ) : null}
+        </div>
+      </div>
+    );
+  }, []);
+
+  const renderProducts = useCallback((msg) => {
+    const raw = msg.content ?? msg.data ?? [];
+    const items = Array.isArray(raw) ? raw : (typeof raw === "object" && raw.content ? raw.content : []);
+    if (!items.length) return <div style={styles.emptyText}>No product results found</div>;
+
+    return (
+      <div style={styles.newsContainer}>
+        <div style={styles.newsHeader}>
+          <span style={{ ...styles.newsHeaderBadge, background: "linear-gradient(135deg, rgba(234, 88, 12, 0.25) 0%, rgba(249, 115, 22, 0.25) 100%)", borderColor: "rgba(249, 115, 22, 0.4)", color: "#fdba74" }}>
+            🛍️ SHOPPING & PRODUCT OPTIONS
+          </span>
+          <span style={styles.newsCount}>{items.length} Products</span>
+        </div>
+        <div style={styles.cardList}>
+          {items.map((item, i) => {
+            const shopMeta = item.shopping || {};
+            const store = shopMeta.store || item.source || "Retailer";
+            const price = shopMeta.price ? `₹${shopMeta.price.toLocaleString("en-IN")}` : "Check Store";
+            const isAmazon = store.toLowerCase().includes("amazon");
+
+            return (
+              <div key={i} className="vitya-news-card" style={styles.newsCard}>
+                <div style={styles.noImageBadgeGroup}>
+                  <span style={{ ...styles.sourceBadge, background: isAmazon ? "rgba(255, 153, 0, 0.2)" : "rgba(40, 116, 240, 0.2)", color: isAmazon ? "#ffb74d" : "#60a5fa" }}>
+                    {store}
+                  </span>
+                  <span style={{ ...styles.dateBadge, color: "#4ade80", fontWeight: 700 }}>{price}</span>
+                </div>
+                <div style={styles.newsCardContent}>
+                  <h3 style={styles.cardTitle}>{item.title}</h3>
+                  {item.description && <p style={styles.cardBody}>{item.description}</p>}
+                  <div style={styles.newsActionGroup}>
+                    {item.url && (
+                      <a href={item.url} target="_blank" rel="noreferrer" className="vitya-action-btn" style={styles.actionLinkBtn}>
+                        View on {store} <span style={{ marginLeft: 6 }}>↗</span>
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      className="vitya-action-btn"
+                      style={styles.newsActionBtn}
+                      onClick={() => sendMessageRef.current?.(`Compare features and offers for: "${item.title}"`)}
+                    >
+                      ⚖️ Compare
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }, []);
+
+  const renderResearch = useCallback((msg) => {
+    const raw = msg.content ?? msg.data ?? [];
+    const items = Array.isArray(raw) ? raw : (typeof raw === "object" && raw.content ? raw.content : []);
+    if (!items.length) return <div style={styles.emptyText}>No research papers found</div>;
+
+    return (
+      <div style={styles.newsContainer}>
+        <div style={styles.newsHeader}>
+          <span style={{ ...styles.newsHeaderBadge, background: "linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.25) 100%)", borderColor: "rgba(16, 185, 129, 0.4)", color: "#6ee7b7" }}>
+            📑 ACADEMIC RESEARCH & PAPERS
+          </span>
+          <span style={styles.newsCount}>{items.length} Papers</span>
+        </div>
+        <div style={styles.cardList}>
+          {items.map((item, i) => {
+            const academic = item.academic || {};
+            const authorsStr = academic.authors && academic.authors.length ? academic.authors.join(", ") : "Academic Researchers";
+            const yearStr = academic.year || (item.published_at ? item.published_at.slice(0, 4) : "Recent");
+
+            return (
+              <div key={i} className="vitya-news-card" style={styles.newsCard}>
+                <div style={styles.noImageBadgeGroup}>
+                  <span style={{ ...styles.sourceBadge, background: "rgba(16, 185, 129, 0.2)", color: "#6ee7b7" }}>arXiv Open Access</span>
+                  <span style={styles.dateBadge}>{yearStr}</span>
+                </div>
+                <div style={styles.newsCardContent}>
+                  <h3 style={styles.cardTitle}>{item.title}</h3>
+                  <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 6 }}>✍️ {authorsStr}</div>
+                  {item.description && <p style={styles.cardBody}>{item.description}</p>}
+                  <div style={styles.newsActionGroup}>
+                    {academic.pdf_url ? (
+                      <a href={academic.pdf_url} target="_blank" rel="noreferrer" className="vitya-action-btn" style={styles.actionLinkBtn}>
+                        Download PDF <span style={{ marginLeft: 6 }}>↗</span>
+                      </a>
+                    ) : item.url ? (
+                      <a href={item.url} target="_blank" rel="noreferrer" className="vitya-action-btn" style={styles.actionLinkBtn}>
+                        Read Abstract <span style={{ marginLeft: 6 }}>↗</span>
+                      </a>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="vitya-action-btn"
+                      style={styles.newsActionBtn}
+                      onClick={() => sendMessageRef.current?.(`Is research paper ke key findings simple bhasha me samjhao: "${item.title}"`)}
+                    >
+                      💡 Key Findings
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }, []);
+
+  const renderEducation = useCallback((msg) => {
+    const raw = msg.content ?? msg.data ?? [];
+    const items = Array.isArray(raw) ? raw : (typeof raw === "object" && raw.content ? raw.content : []);
+    if (!items.length) return <div style={styles.emptyText}>No educational resources found</div>;
+
+    return (
+      <div style={styles.newsContainer}>
+        <div style={styles.newsHeader}>
+          <span style={{ ...styles.newsHeaderBadge, background: "linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(99, 102, 241, 0.25) 100%)", borderColor: "rgba(59, 130, 246, 0.4)", color: "#93c5fd" }}>
+            🎓 COURSES & TECHNICAL DOCUMENTATION
+          </span>
+          <span style={styles.newsCount}>{items.length} Resources</span>
+        </div>
+        <div style={styles.cardList}>
+          {items.map((item, i) => {
+            const edu = item.education || {};
+            const platform = edu.platform || item.source || "Docs";
+
+            return (
+              <div key={i} className="vitya-news-card" style={styles.newsCard}>
+                <div style={styles.noImageBadgeGroup}>
+                  <span style={{ ...styles.sourceBadge, background: "rgba(59, 130, 246, 0.2)", color: "#93c5fd" }}>{platform}</span>
+                  {edu.is_free && <span style={{ ...styles.dateBadge, color: "#34d399", fontWeight: 700 }}>FREE</span>}
+                </div>
+                <div style={styles.newsCardContent}>
+                  <h3 style={styles.cardTitle}>{item.title}</h3>
+                  {item.description && <p style={styles.cardBody}>{item.description}</p>}
+                  <div style={styles.newsActionGroup}>
+                    {item.url && (
+                      <a href={item.url} target="_blank" rel="noreferrer" className="vitya-action-btn" style={styles.actionLinkBtn}>
+                        Open {edu.resource_type || "Resource"} <span style={{ marginLeft: 6 }}>↗</span>
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      className="vitya-action-btn"
+                      style={styles.newsActionBtn}
+                      onClick={() => sendMessageRef.current?.(`Is resource se step-by-step roadmap banao: "${item.title}"`)}
+                    >
+                      🗺️ Learning Roadmap
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }, []);
+
+  const renderGovData = useCallback((msg) => {
+    const raw = msg.content ?? msg.data ?? [];
+    const items = Array.isArray(raw) ? raw : (typeof raw === "object" && raw.content ? raw.content : []);
+    if (!items.length) return <div style={styles.emptyText}>No government datasets found</div>;
+
+    return (
+      <div style={styles.newsContainer}>
+        <div style={styles.newsHeader}>
+          <span style={{ ...styles.newsHeaderBadge, background: "linear-gradient(135deg, rgba(234, 179, 8, 0.25) 0%, rgba(202, 138, 4, 0.25) 100%)", borderColor: "rgba(234, 179, 8, 0.4)", color: "#fde047" }}>
+            🏛️ OFFICIAL GOVERNMENT & PUBLIC DATA
+          </span>
+          <span style={styles.newsCount}>{items.length} Datasets</span>
+        </div>
+        <div style={styles.cardList}>
+          {items.map((item, i) => {
+            const gov = item.government || {};
+            const portal = gov.portal || item.source || "Open Data Portal";
+
+            return (
+              <div key={i} className="vitya-news-card" style={styles.newsCard}>
+                <div style={styles.noImageBadgeGroup}>
+                  <span style={{ ...styles.sourceBadge, background: "rgba(234, 179, 8, 0.2)", color: "#fde047" }}>{portal}</span>
+                  <span style={styles.dateBadge}>{gov.license_name || "OGD License"}</span>
+                </div>
+                <div style={styles.newsCardContent}>
+                  <h3 style={styles.cardTitle}>{item.title}</h3>
+                  {item.description && <p style={styles.cardBody}>{item.description}</p>}
+                  <div style={styles.newsActionGroup}>
+                    {item.url && (
+                      <a href={item.url} target="_blank" rel="noreferrer" className="vitya-action-btn" style={styles.actionLinkBtn}>
+                        Official Portal Link <span style={{ marginLeft: 6 }}>↗</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -2242,6 +2483,8 @@ const Chatbot = ({
     [input, attachedImages, loading, token, mode, conversationId, useWebSearch, handleSessionExpired, sendPptMessage, sendChatMessage, sendStreamingChatMessage, speak, onConversationChange, onConversationUpdated]
   );
 
+  sendMessageRef.current = sendMessage;
+
   const startListening = useCallback(() => {
     const recognition = recognitionRef.current;
 
@@ -3251,6 +3494,22 @@ const Chatbot = ({
                         <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
                           {renderNews(msg)}
                         </div>
+                      ) : type === "shopping" ? (
+                        <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
+                          {renderProducts(msg)}
+                        </div>
+                      ) : type === "research" ? (
+                        <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
+                          {renderResearch(msg)}
+                        </div>
+                      ) : type === "education" ? (
+                        <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
+                          {renderEducation(msg)}
+                        </div>
+                      ) : type === "gov_data" ? (
+                        <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
+                          {renderGovData(msg)}
+                        </div>
                       ) : type === "wiki" ? (
                         <div ref={(el) => (chartRefs.current[i] = el)} style={styles.cardWrap}>
                           {renderWiki(msg)}
@@ -4043,6 +4302,27 @@ const styles = {
     textDecoration: "none",
     fontSize: 13,
     fontWeight: 700,
+    transition: "all 0.2s ease",
+  },
+  newsActionGroup: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 8,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  newsActionBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "8px 14px",
+    borderRadius: 10,
+    background: "rgba(255, 255, 255, 0.06)",
+    border: "1px solid rgba(255, 255, 255, 0.14)",
+    color: "#e2e8f0",
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: "pointer",
     transition: "all 0.2s ease",
   },
   mediaSmall: { width: "100%", maxWidth: 260, height: "auto", display: "block", borderRadius: 14 },
