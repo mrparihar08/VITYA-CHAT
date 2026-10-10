@@ -1109,63 +1109,68 @@ const Chatbot = ({
 
     if (!data.length) return <div style={styles.emptyText}>No news available</div>;
 
+    const introText = msg.intro || "";
+    const headerText = msg.header || "";
+    const disclaimerText = msg.disclaimer || "";
+
     return (
-      <div style={styles.newsContainer}>
-        <div style={styles.newsHeader}>
-          <span style={styles.newsHeaderBadge}>⚡ TOP HEADLINES</span>
-          <span style={styles.newsCount}>{data.length} Articles</span>
+      <div style={styles.copilotNewsContainer}>
+        {introText && (
+          <p style={styles.copilotIntroText}>
+            {introText}
+          </p>
+        )}
+
+        <div style={styles.copilotHeaderRow}>
+          <span style={styles.copilotFlagBadge}>IN</span>
+          <h3 style={styles.copilotHeaderText}>
+            {headerText || `आज की ${data.length} बड़ी खबरें`}
+          </h3>
         </div>
-        <div style={styles.cardList}>
+
+        <div style={styles.copilotList}>
           {data.map((item, i) => {
             const rawSource = item?.source || item?.author;
             const sourceName = typeof rawSource === "object" ? rawSource?.name || "News" : rawSource || "News";
-            const published = item?.publishedAt
-              ? new Date(item.publishedAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" })
-              : null;
+            const title = item?.title ? (item.title.match(/^\d+\./) ? item.title : `${i + 1}. ${item.title}`) : `${i + 1}. News Headline`;
+            const imageSrc = item?.image || "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&auto=format&fit=crop&q=80";
 
             return (
-              <div key={i} className="vitya-news-card" style={styles.newsCard}>
-                {item?.image ? (
-                  <div style={styles.mediaContainer}>
-                    <img
-                      src={item.image}
-                      alt={item.title || "news"}
-                      style={styles.mediaLarge}
-                      onError={(e) => {
-                        e.currentTarget.parentElement.style.display = "none";
-                      }}
-                    />
-                    <div style={styles.mediaBadgeGroup}>
-                      <span style={styles.sourceBadge}>{sourceName}</span>
-                      {published && <span style={styles.dateBadge}>{published}</span>}
-                    </div>
-                  </div>
-                ) : (
-                  <div style={styles.noImageBadgeGroup}>
-                    <span style={styles.sourceBadge}>{sourceName}</span>
-                    {published && <span style={styles.dateBadge}>{published}</span>}
-                  </div>
-                )}
+              <div key={i} className="vitya-copilot-news-row" style={styles.copilotNewsRow}>
+                <div style={styles.copilotThumbWrap}>
+                  <img
+                    src={imageSrc}
+                    alt={title}
+                    style={styles.copilotThumb}
+                    onError={(e) => {
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&auto=format&fit=crop&q=80";
+                    }}
+                  />
+                </div>
 
-                <div style={styles.newsCardContent}>
-                  <h3 style={styles.cardTitle}>{item?.title || "No title"}</h3>
-                  {item?.description ? <p style={styles.cardBody}>{item.description}</p> : null}
-                  <div style={styles.newsActionGroup}>
-                    {item?.url ? (
+                <div style={styles.copilotTextCol}>
+                  <h4 style={styles.copilotHeadline}>{title}</h4>
+                  {item?.description && (
+                    <p style={styles.copilotDesc}>{item.description}</p>
+                  )}
+                  <div style={styles.copilotMetaRow}>
+                    <span style={styles.copilotSourcePill}>
+                      <span style={styles.copilotSourceDot}>●</span>
+                      {sourceName}
+                    </span>
+                    {item?.url && (
                       <a
                         href={item.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="vitya-action-btn"
-                        style={styles.actionLinkBtn}
+                        style={styles.copilotReadLink}
                       >
-                        Read Full Article <span style={{ marginLeft: 6 }}>↗</span>
+                        Read Article ↗
                       </a>
-                    ) : null}
+                    )}
                     <button
                       type="button"
-                      className="vitya-action-btn"
-                      style={styles.newsActionBtn}
+                      style={styles.copilotMiniBtn}
                       onClick={() => {
                         const headline = item?.title ? item.title.trim() : "";
                         sendMessageRef.current?.(
@@ -1176,12 +1181,11 @@ const Chatbot = ({
                       }}
                       title="AI se is news ko simple Hindi/Hinglish me samjhein"
                     >
-                      📝 Summarize in Hindi
+                      📝 Summarize
                     </button>
                     <button
                       type="button"
-                      className="vitya-action-btn"
-                      style={styles.newsActionBtn}
+                      style={styles.copilotMiniBtn}
                       onClick={() => {
                         const headline = item?.title ? item.title.trim() : "";
                         sendMessageRef.current?.(
@@ -1192,7 +1196,7 @@ const Chatbot = ({
                       }}
                       title="Is khabar ka India par kya asar padega janein"
                     >
-                      💡 Impact Analysis
+                      💡 Impact
                     </button>
                   </div>
                 </div>
@@ -1200,6 +1204,12 @@ const Chatbot = ({
             );
           })}
         </div>
+
+        {disclaimerText && (
+          <p style={styles.copilotDisclaimerText}>
+            {disclaimerText}
+          </p>
+        )}
       </div>
     );
   }, []);
@@ -4156,6 +4166,145 @@ const styles = {
     flexDirection: "column",
     gap: 14,
     width: "100%",
+  },
+  copilotNewsContainer: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    maxWidth: "100%",
+    boxSizing: "border-box",
+  },
+  copilotIntroText: {
+    color: "#f1f5f9",
+    fontSize: 14.5,
+    lineHeight: 1.65,
+    margin: "0 0 16px 0",
+    fontWeight: 400,
+  },
+  copilotHeaderRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    margin: "0 0 14px 0",
+  },
+  copilotFlagBadge: {
+    background: "rgba(255, 255, 255, 0.12)",
+    color: "#ffffff",
+    fontSize: 11,
+    fontWeight: 700,
+    padding: "2px 6px",
+    borderRadius: 4,
+    letterSpacing: 0.5,
+  },
+  copilotHeaderText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: 700,
+    margin: 0,
+    letterSpacing: -0.2,
+  },
+  copilotList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 12,
+    width: "100%",
+  },
+  copilotNewsRow: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 14,
+    padding: "12px 14px",
+    borderRadius: 12,
+    background: "rgba(255, 255, 255, 0.02)",
+    border: "1px solid rgba(255, 255, 255, 0.07)",
+    transition: "background 0.15s ease, border-color 0.15s ease",
+    boxSizing: "border-box",
+  },
+  copilotThumbWrap: {
+    width: 115,
+    minWidth: 115,
+    height: 74,
+    borderRadius: 8,
+    overflow: "hidden",
+    flexShrink: 0,
+    background: "#1e293b",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  copilotThumb: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+  },
+  copilotTextCol: {
+    flex: 1,
+    minWidth: 0,
+    display: "flex",
+    flexDirection: "column",
+  },
+  copilotHeadline: {
+    color: "#f8fafc",
+    fontSize: 14.5,
+    fontWeight: 700,
+    lineHeight: 1.4,
+    margin: "0 0 4px 0",
+  },
+  copilotDesc: {
+    color: "#cbd5e1",
+    fontSize: 13,
+    lineHeight: 1.55,
+    margin: "0 0 8px 0",
+  },
+  copilotMetaRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: 8,
+  },
+  copilotSourcePill: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 5,
+    padding: "2px 8px",
+    borderRadius: 6,
+    background: "rgba(255, 255, 255, 0.06)",
+    color: "#94a3b8",
+    fontSize: 11,
+    fontWeight: 600,
+  },
+  copilotSourceDot: {
+    fontSize: 8,
+    color: "#ef4444",
+  },
+  copilotReadLink: {
+    color: "#a855f7",
+    fontSize: 11.5,
+    fontWeight: 600,
+    textDecoration: "none",
+    marginLeft: 2,
+  },
+  copilotMiniBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    background: "rgba(255, 255, 255, 0.05)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    borderRadius: 6,
+    color: "#e2e8f0",
+    fontSize: 11,
+    fontWeight: 600,
+    padding: "2px 8px",
+    cursor: "pointer",
+    transition: "all 0.15s ease",
+  },
+  copilotDisclaimerText: {
+    color: "#64748b",
+    fontSize: 12.5,
+    lineHeight: 1.5,
+    margin: "14px 0 0 0",
+    fontStyle: "italic",
   },
   newsHeader: {
     display: "flex",
