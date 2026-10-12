@@ -13,7 +13,7 @@ const getApiBaseUrl = () => {
 
   const fallback =
     typeof process !== "undefined" && process.env.NODE_ENV === "development"
-      ? "http://localhost:5000"
+      ? (process.env.REACT_APP_DEV_URL || "http://localhost:8000")
       : "https://mother-8599.onrender.com";
   const url = viteUrl || craUrl || fallback;
 

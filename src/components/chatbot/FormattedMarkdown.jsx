@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { Copy, Check } from "lucide-react";
 
 export const extractYouTubeId = (url) => {
   if (!url) return null;
@@ -38,13 +39,174 @@ export const extractAllYouTubeVideos = (line) => {
   return videos;
 };
 
+function MarkdownTable({ headers, rows, parseInline }) {
+  return (
+    <div
+      style={{
+        overflowX: "auto",
+        margin: "12px 0",
+        borderRadius: "10px",
+        border: "1px solid rgba(255, 255, 255, 0.14)",
+        background: "rgba(15, 23, 42, 0.75)",
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.25)",
+      }}
+    >
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          fontSize: "13px",
+          textAlign: "left",
+        }}
+      >
+        <thead>
+          <tr style={{ background: "rgba(255, 255, 255, 0.08)", borderBottom: "1px solid rgba(255, 255, 255, 0.16)" }}>
+            {headers.map((h, i) => (
+              <th
+                key={i}
+                style={{
+                  padding: "10px 14px",
+                  fontWeight: 700,
+                  color: "#f8fafc",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {parseInline(h)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, rIdx) => (
+            <tr
+              key={rIdx}
+              style={{
+                borderBottom: rIdx < rows.length - 1 ? "1px solid rgba(255, 255, 255, 0.06)" : "none",
+                background: rIdx % 2 === 1 ? "rgba(255, 255, 255, 0.02)" : "transparent",
+              }}
+            >
+              {row.map((cell, cIdx) => (
+                <td
+                  key={cIdx}
+                  style={{
+                    padding: "9px 14px",
+                    color: "#e2e8f0",
+                    verticalAlign: "top",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {parseInline(cell)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function CodeBlock({ lang, code }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.warn("Failed to copy code to clipboard:", err);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        background: "rgba(10, 14, 26, 0.95)",
+        border: "1px solid rgba(255, 255, 255, 0.12)",
+        borderRadius: 12,
+        overflow: "hidden",
+        margin: "10px 0",
+        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          background: "rgba(255, 255, 255, 0.06)",
+          padding: "6px 14px",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: "rgba(255, 255, 255, 0.7)",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+          }}
+        >
+          {lang || "code"}
+        </span>
+        <button
+          onClick={handleCopy}
+          type="button"
+          aria-label="Copy code"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            background: copied ? "rgba(34, 197, 94, 0.2)" : "rgba(255, 255, 255, 0.08)",
+            border: copied ? "1px solid rgba(34, 197, 94, 0.4)" : "1px solid rgba(255, 255, 255, 0.15)",
+            color: copied ? "#4ade80" : "rgba(255, 255, 255, 0.8)",
+            borderRadius: 6,
+            padding: "3px 8px",
+            fontSize: 11,
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "all 0.15s ease",
+          }}
+        >
+          {copied ? (
+            <>
+              <Check size={12} />
+              <span>Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy size={12} />
+              <span>Copy</span>
+            </>
+          )}
+        </button>
+      </div>
+      <pre
+        style={{
+          margin: 0,
+          padding: 14,
+          overflowX: "auto",
+          fontFamily: "'Fira Code', 'Courier New', monospace",
+          fontSize: 13,
+          lineHeight: 1.5,
+          color: "#e2e8f0",
+        }}
+      >
+        <code>{code}</code>
+      </pre>
+    </div>
+  );
+}
+
 export function FormattedMarkdown({ content }) {
   if (typeof content !== "string") {
     return <span>{JSON.stringify(content)}</span>;
   }
 
-  // Helper to parse inline markdown: **bold**, *italic*, `code`, [link](url), raw URLs
-  const parseInline = (text) => {
+  // Parse inline text tokens (code, bold, italic, links, URLs)
+  const parseInlineFragment = (text) => {
     if (!text) return [];
 
     const regex = /(`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|(?:\b|_)\*[^*]+\*(?:\b|_)|(?:\b|_)_[^_]+_(?:\b|_)|\[(?:\[[^\]]*\]|[\s\S])*?\]\(https?:\/\/[^\s)]+\)|https?:\/\/[^\s<>()]+)/g;
@@ -226,7 +388,22 @@ export function FormattedMarkdown({ content }) {
     });
   };
 
-  // Split by code blocks first
+  // Helper to parse inline markdown and convert <br> tags cleanly to JSX breaks
+  const parseInline = (text) => {
+    if (!text) return [];
+    const brSplits = text.split(/<br\s*\/?>/gi);
+    if (brSplits.length > 1) {
+      return brSplits.map((subText, idx) => (
+        <React.Fragment key={idx}>
+          {parseInlineFragment(subText)}
+          {idx < brSplits.length - 1 && <br />}
+        </React.Fragment>
+      ));
+    }
+    return parseInlineFragment(text);
+  };
+
+  // Split content by code blocks first
   const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
   const blocks = [];
   let lastIndex = 0;
@@ -244,63 +421,77 @@ export function FormattedMarkdown({ content }) {
     blocks.push({ type: "text", content: content.slice(lastIndex) });
   }
 
+  // Helper for detecting table structure
+  const isTableRow = (str) => /^\s*\|.*\|\s*$/.test(str);
+  const isTableDelimiter = (str) => /^\s*\|(\s*:?-+:?\s*\|)+\s*$/.test(str);
+
   return (
     <div className="formatted-markdown" style={{ display: "flex", flexDirection: "column", gap: 6, width: "100%" }}>
       {blocks.map((block, bIdx) => {
         if (block.type === "code") {
-          return (
-            <div
-              key={bIdx}
-              style={{
-                background: "rgba(10, 14, 26, 0.92)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                borderRadius: 12,
-                overflow: "hidden",
-                margin: "8px 0",
-              }}
-            >
-              {block.lang && (
-                <div
-                  style={{
-                    background: "rgba(255, 255, 255, 0.05)",
-                    padding: "6px 12px",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: "rgba(255, 255, 255, 0.6)",
-                    textTransform: "uppercase",
-                    borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-                  }}
-                >
-                  {block.lang}
-                </div>
-              )}
-              <pre
-                style={{
-                  margin: 0,
-                  padding: 14,
-                  overflowX: "auto",
-                  fontFamily: "'Fira Code', 'Courier New', monospace",
-                  fontSize: 13,
-                  lineHeight: 1.5,
-                  color: "#e2e8f0",
-                }}
-              >
-                <code>{block.code}</code>
-              </pre>
-            </div>
-          );
+          return <CodeBlock key={bIdx} lang={block.lang} code={block.code} />;
         }
 
         // Process block text line by line
         const lines = block.content.split("\n");
         const renderedLines = [];
 
-        lines.forEach((line, lIdx) => {
+        for (let lIdx = 0; lIdx < lines.length; lIdx++) {
+          const line = lines[lIdx];
           const trimmed = line.trim();
           const ytVideos = extractAllYouTubeVideos(line);
 
+          // Table handling: Header followed by delimiter
+          if (
+            isTableRow(trimmed) &&
+            lIdx + 1 < lines.length &&
+            isTableDelimiter(lines[lIdx + 1].trim())
+          ) {
+            const rawHeaders = trimmed.split("|").slice(1, -1).map((c) => c.trim());
+            const tableRows = [];
+            lIdx += 2; // skip header and delimiter
+
+            while (lIdx < lines.length && isTableRow(lines[lIdx].trim())) {
+              const cells = lines[lIdx].trim().split("|").slice(1, -1).map((c) => c.trim());
+              tableRows.push(cells);
+              lIdx++;
+            }
+            lIdx--; // adjust for the loop increment
+
+            renderedLines.push(
+              <MarkdownTable
+                key={`tbl-${lIdx}`}
+                headers={rawHeaders}
+                rows={tableRows}
+                parseInline={parseInline}
+              />
+            );
+            continue;
+          }
+
+          // Horizontal rule
+          if (/^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) {
+            renderedLines.push(
+              <hr
+                key={lIdx}
+                style={{
+                  border: "none",
+                  borderTop: "1px solid rgba(255, 255, 255, 0.12)",
+                  margin: "12px 0",
+                }}
+              />
+            );
+            continue;
+          }
+
           // Headings
-          if (trimmed.startsWith("### ")) {
+          if (trimmed.startsWith("#### ")) {
+            renderedLines.push(
+              <h3 key={lIdx} style={{ fontSize: 16, fontWeight: 700, margin: "8px 0 4px", color: "#fff" }}>
+                {parseInline(trimmed.slice(4))}
+              </h3>
+            );
+          } else if (trimmed.startsWith("### ")) {
             renderedLines.push(
               <h3 key={lIdx} style={{ fontSize: 16, fontWeight: 700, margin: "8px 0 4px", color: "#fff" }}>
                 {parseInline(trimmed.slice(4))}
@@ -330,8 +521,8 @@ export function FormattedMarkdown({ content }) {
             );
           }
           // Bullet Lists (e.g. - item or * item)
-          else if (/^[-*]\s/.test(trimmed)) {
-            const matchBullet = trimmed.match(/^[-*]\s+(.*)/);
+          else if (/^[-*•]\s/.test(trimmed)) {
+            const matchBullet = trimmed.match(/^[-*•]\s+(.*)/);
             renderedLines.push(
               <div key={lIdx} style={{ display: "flex", gap: 8, marginLeft: 4, margin: "2px 0" }}>
                 <span style={{ color: "#38bdf8", flexShrink: 0 }}>•</span>
@@ -438,7 +629,7 @@ export function FormattedMarkdown({ content }) {
               );
             });
           }
-        });
+        }
 
         return <React.Fragment key={bIdx}>{renderedLines}</React.Fragment>;
       })}

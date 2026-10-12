@@ -50,9 +50,7 @@ export function Login() {
         profile_pic: "/profile.png",
       };
       login(token, userData);
-
-      alert(res.data?.message || "Login successful!");
-      navigate("/profile");
+      navigate("/dashboard");
     } catch (err) {
       alert(handleApiError(err));
     } finally {

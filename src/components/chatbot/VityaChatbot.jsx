@@ -1972,7 +1972,7 @@ const Chatbot = ({
   const handleExportPDF = async (msg, index) => {
     try {
       const text = getMessageText(msg);
-      const res = await fetch(`${API_BASE_URL}/chat/export`, {
+      const res = await fetch(`${API_BASE_URL}/api/chat/export`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
