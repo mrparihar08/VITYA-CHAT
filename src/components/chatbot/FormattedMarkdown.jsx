@@ -485,7 +485,13 @@ export function FormattedMarkdown({ content }) {
           }
 
           // Headings
-          if (trimmed.startsWith("#### ")) {
+          if (trimmed.startsWith("##### ")) {
+            renderedLines.push(
+              <h3 key={lIdx} style={{ fontSize: 16, fontWeight: 700, margin: "8px 0 4px", color: "#fff" }}>
+                {parseInline(trimmed.slice(4))}
+              </h3>
+            );
+          } else if (trimmed.startsWith("#### ")) {
             renderedLines.push(
               <h3 key={lIdx} style={{ fontSize: 16, fontWeight: 700, margin: "8px 0 4px", color: "#fff" }}>
                 {parseInline(trimmed.slice(4))}

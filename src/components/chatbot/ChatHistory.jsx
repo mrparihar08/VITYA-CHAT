@@ -2,14 +2,71 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { API_BASE_URL } from "../../services/api";
 import "./ChatHistory.css";
 
-const getConversationTitle = (conversation) => {
-  if (conversation?.title && conversation.title.trim()) {
-    return conversation.title.trim();
+const deriveSmartTitle = (text) => {
+  if (!text || typeof text !== "string") return "";
+  const trimmed = text.trim();
+  if (!trimmed) return "";
+
+  let clean = trimmed;
+  if (clean.startsWith("{") && clean.endsWith("}")) {
+    try {
+      const parsed = JSON.parse(clean);
+      clean = parsed.title || parsed.message || parsed.text || parsed.summary || clean;
+    } catch {}
   }
-  if (conversation?.topic && conversation.topic.trim()) {
+
+  clean = clean
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/[{}\[\]"']/g, "")
+    .replace(/^Gemini stream error:\s*503\s*UNAVAILABLE.*/i, "AI Assistant Query")
+    .replace(/[\r\n]+/g, " ")
+    .trim();
+
+  const lower = clean.toLowerCase();
+
+  if (lower.includes("expence") || lower.includes("expense") || lower.includes("kharch") || lower.includes("paid")) {
+    const words = clean.match(/\b[A-Za-z0-9]+\b/g) || [];
+    const stopWords = new Set(["add", "karo", "kar", "do", "aaj", "mene", "maine", "mera", "meri", "mere", "expence", "expense", "expenses", "bhi", "liya", "hu", "hai", "me", "mein", "ka", "ki", "ke", "ko"]);
+    const meaningful = words.filter((w) => !stopWords.has(w.toLowerCase()));
+    if (meaningful.length > 0) {
+      return `Expense: ${meaningful.slice(0, 4).join(" ").replace(/\b\w/g, (c) => c.toUpperCase())}`;
+    }
+    return "Expense Log";
+  }
+
+  if (lower.includes("balance") || lower.includes("kitna paisa")) {
+    return "Account Balance";
+  }
+
+  if (lower.includes("quickprompts") || lower.includes("import") || lower.includes("export") || lower.includes("react") || lower.includes("error")) {
+    const words = clean.match(/\b[A-Za-z0-9_]+\b/g) || [];
+    const sig = words.filter((w) => w.length > 2).slice(0, 4);
+    if (sig.length > 0) {
+      return sig.join(" ").replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+  }
+
+  const noGreetings = clean
+    .replace(/^(?:hi|hello|hey|namaste|hlo|hii+|bhai|yaar|vitya|ai|please|batao)\b[!,.]*\s*/i, "")
+    .trim();
+
+  const source = noGreetings.length >= 3 ? noGreetings : clean;
+  const words = source.split(/\s+/).slice(0, 5).join(" ");
+  return words.length > 35 ? words.slice(0, 32) + "..." : words.replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
+const getConversationTitle = (conversation) => {
+  const t = conversation?.title;
+  if (t && typeof t === "string" && t.trim() && !t.startsWith("Conversation #") && t !== "New Chat") {
+    return t.trim();
+  }
+  if (conversation?.topic && typeof conversation.topic === "string" && conversation.topic.trim()) {
     return conversation.topic.trim();
   }
-  return `Conversation #${conversation.id}`;
+  const derived = deriveSmartTitle(conversation?.first_message || conversation?.last_message);
+  if (derived) return derived;
+
+  return `Chat #${conversation.id}`;
 };
 
 const getPreview = (conversation) => {

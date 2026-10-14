@@ -325,9 +325,6 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
     if (currentTab === "chat") {
       const fromUrl = searchParams.get("c");
       if (fromUrl) return fromUrl;
-      if (typeof window !== "undefined") {
-        return localStorage.getItem("vitya_activeConversationId") || null;
-      }
     }
     return null;
   };
@@ -420,13 +417,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
             ? localStorage.getItem("vitya_activeApp")
             : null)
         : null;
-    const c =
-      tab === "chat"
-        ? cParam ||
-          (typeof window !== "undefined"
-            ? localStorage.getItem("vitya_activeConversationId")
-            : null)
-        : null;
+    const c = tab === "chat" ? (cParam || null) : null;
 
     setActiveTabState((prev) => (prev !== tab ? tab : prev));
     setActiveAppState((prev) => (prev !== app ? app : prev));
@@ -470,20 +461,12 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
     [closeSidebarIfMobile, activeConversationId, updateNavigationState]
   );
 
-  const handleNewChat = useCallback(async () => {
-    let newId = null;
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_BASE_URL}/api/chat/new`, {
-        method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      const data = await response.json();
-      newId = response.ok ? data.conversation_id : null;
-    } catch {
-      newId = null;
+  const handleNewChat = useCallback(() => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("vitya_activeConversationId");
     }
-    updateNavigationState("chat", null, newId);
+    updateNavigationState("chat", null, null);
+    setChatInitialPrompt("");
     closeSidebarIfMobile();
   }, [closeSidebarIfMobile, updateNavigationState]);
 
