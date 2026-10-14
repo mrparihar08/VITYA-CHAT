@@ -29,6 +29,7 @@ import {
 } from "../../services/api";
 import "./FinanceApp.css";
 import FinancialHealthApp from "./FinancialHealthApp";
+import MonteCarloSimulatorTab from "./finance/MonteCarloSimulatorTab";
 
 const CATEGORY_COLORS = {
   Food: "#f59e0b",
@@ -403,6 +404,12 @@ export default function FinanceApp() {
         >
           ⚡ F.E.I Score & AI Advisor
         </button>
+        <button
+          className={`finance-tab ${activeTab === "monte-carlo" ? "active" : ""}`}
+          onClick={() => setActiveTab("monte-carlo")}
+        >
+          🎯 Monte Carlo & Retirement
+        </button>
       </div>
 
       {/* TAB CONTENT: EXPENSES */}
@@ -741,6 +748,13 @@ export default function FinanceApp() {
       {activeTab === "health" && (
         <div className="finance-tab-body" style={{ marginTop: 12 }}>
           <FinancialHealthApp />
+        </div>
+      )}
+
+      {/* TAB CONTENT: MONTE CARLO & RETIREMENT SIMULATOR */}
+      {activeTab === "monte-carlo" && (
+        <div className="finance-tab-body" style={{ marginTop: 12 }}>
+          <MonteCarloSimulatorTab />
         </div>
       )}
     </div>

@@ -2873,6 +2873,247 @@ const Chatbot = ({
     );
   };
 
+  const renderNoteItem = (msg) => {
+    const noteId = msg.note_id;
+    const content = msg.note_content || msg.content || "";
+    return (
+      <div
+        style={{
+          padding: "16px 18px",
+          borderRadius: 18,
+          background: "linear-gradient(145deg, rgba(26, 32, 56, 0.95) 0%, rgba(15, 20, 36, 0.98) 100%)",
+          border: "1px solid rgba(245, 158, 11, 0.35)",
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.45), 0 0 20px rgba(245, 158, 11, 0.12)",
+          maxWidth: 520,
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 14,
+              background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 6px 16px rgba(245, 158, 11, 0.35)",
+              flexShrink: 0,
+            }}
+          >
+            <FileText size={22} color="#ffffff" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#ffffff", lineHeight: 1.35 }}>
+              Personal Note Stored
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+              <span
+                style={{
+                  background: "rgba(245, 158, 11, 0.18)",
+                  color: "#fcd34d",
+                  padding: "3px 9px",
+                  borderRadius: 6,
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  border: "1px solid rgba(245, 158, 11, 0.35)",
+                }}
+              >
+                📝 NotesApp {noteId ? `(#${noteId})` : ""}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: "rgba(15, 23, 42, 0.6)",
+            padding: "12px 14px",
+            borderRadius: 12,
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            fontSize: 13,
+            color: "#cbd5e1",
+            lineHeight: 1.5,
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {typeof content === "string" ? content.replace(/📝 \*\*Note Saved to NotesApp Successfully!\*\*[\s\S]*?```text\n?/i, "").replace(/\n?```[\s\S]*/, "") || content : JSON.stringify(content)}
+        </div>
+
+        <button
+          onClick={() => navigate("/apps/notes")}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+            color: "#ffffff",
+            padding: "10px 16px",
+            borderRadius: 12,
+            fontSize: 13,
+            fontWeight: 600,
+            border: "none",
+            cursor: "pointer",
+            boxShadow: "0 4px 16px rgba(245, 158, 11, 0.35)",
+            transition: "all 0.15s ease",
+          }}
+        >
+          <FileText size={15} /> 📝 Open NotesApp
+        </button>
+      </div>
+    );
+  };
+
+  const renderCompoundAgentAction = (msg) => {
+    const actions = msg.actions_executed || [];
+    const cal = msg.calendar_event;
+    const note = msg.note;
+    const task = msg.task;
+    const gcalUrl = cal?.gcal_url;
+
+    return (
+      <div
+        style={{
+          padding: "20px 22px",
+          borderRadius: 20,
+          background: "linear-gradient(145deg, rgba(22, 27, 46, 0.96) 0%, rgba(13, 17, 33, 0.98) 100%)",
+          border: "1px solid rgba(139, 92, 246, 0.45)",
+          boxShadow: "0 16px 36px rgba(0, 0, 0, 0.55), 0 0 24px rgba(139, 92, 246, 0.18)",
+          maxWidth: 580,
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: 14 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 14,
+              background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #3b82f6 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 6px 18px rgba(139, 92, 246, 0.4)",
+              flexShrink: 0,
+            }}
+          >
+            <Sparkles size={22} color="#ffffff" />
+          </div>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#ffffff", display: "flex", alignItems: "center", gap: 6 }}>
+              Autonomous Agentic Orchestration
+              <span style={{ fontSize: 11, background: "rgba(139, 92, 246, 0.25)", color: "#c4b5fd", padding: "2px 8px", borderRadius: 10, border: "1px solid rgba(139, 92, 246, 0.4)" }}>
+                AGENTIC MODE
+              </span>
+            </div>
+            <div style={{ fontSize: 12.5, color: "#94a3b8", marginTop: 2 }}>
+              Executed {actions.length || "multiple"} tools simultaneously across workspace
+            </div>
+          </div>
+        </div>
+
+        {/* Content Body */}
+        <div style={{ fontSize: 13.5, color: "#e2e8f0", lineHeight: 1.6 }}>
+          <FormattedMarkdown content={msg.content || ""} />
+        </div>
+
+        {/* Action Shortcuts Bar */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, paddingTop: 4 }}>
+          {gcalUrl && (
+            <a
+              href={gcalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                color: "#ffffff",
+                padding: "8px 14px",
+                borderRadius: 10,
+                fontSize: 12.5,
+                fontWeight: 600,
+                textDecoration: "none",
+                boxShadow: "0 3px 12px rgba(59, 130, 246, 0.3)",
+              }}
+            >
+              <Calendar size={14} /> ➕ Add to Google Calendar
+            </a>
+          )}
+          {cal && (
+            <button
+              onClick={() => navigate("/apps/calendar")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                background: "rgba(59, 130, 246, 0.15)",
+                color: "#93c5fd",
+                border: "1px solid rgba(59, 130, 246, 0.35)",
+                padding: "8px 14px",
+                borderRadius: 10,
+                fontSize: 12.5,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              <Calendar size={14} /> 📅 Open CalendarApp
+            </button>
+          )}
+          {note && (
+            <button
+              onClick={() => navigate("/apps/notes")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                background: "rgba(245, 158, 11, 0.15)",
+                color: "#fcd34d",
+                border: "1px solid rgba(245, 158, 11, 0.35)",
+                padding: "8px 14px",
+                borderRadius: 10,
+                fontSize: 12.5,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              <FileText size={14} /> 📝 Open NotesApp
+            </button>
+          )}
+          {task && (
+            <button
+              onClick={() => navigate("/apps/tasks")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                background: "rgba(16, 185, 129, 0.15)",
+                color: "#6ee7b7",
+                border: "1px solid rgba(16, 185, 129, 0.35)",
+                padding: "8px 14px",
+                borderRadius: 10,
+                fontSize: 12.5,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              <CheckSquare size={14} /> 📋 Open TasksApp
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const showLanding = messages.length === 0;
 
   return (
@@ -3317,7 +3558,7 @@ const Chatbot = ({
                         ...(isUser && msg.images && msg.images.length > 0 && !msg.text
                           ? { padding: "6px", background: "rgba(139, 92, 246, 0.15)", border: "1px solid rgba(139, 92, 246, 0.35)", boxShadow: "0 6px 20px rgba(0,0,0,0.3)" }
                           : {}),
-                        ...(msg.type === "download_link" || msg.type === "calendar_event" || msg.type === "task_item" || msg.type === "email_draft" || msg.type === "email_dispatched" ? { background: "transparent", border: "none", padding: 0, boxShadow: "none" } : {}),
+                        ...(msg.type === "download_link" || msg.type === "calendar_event" || msg.type === "task_item" || msg.type === "email_draft" || msg.type === "email_dispatched" || msg.type === "compound_agent_action" || msg.type === "note_item" ? { background: "transparent", border: "none", padding: 0, boxShadow: "none" } : {}),
                       }}
                     >
                       {msg.type === "download_link" ? (
@@ -3483,6 +3724,14 @@ const Chatbot = ({
                               Edit in Studio
                             </button>
                           </div>
+                        </div>
+                      ) : type === "compound_agent_action" ? (
+                        <div style={{ maxWidth: "100%", width: "100%", display: "flex" }}>
+                          {renderCompoundAgentAction(msg)}
+                        </div>
+                      ) : type === "note_item" ? (
+                        <div style={{ maxWidth: "100%", width: "100%", display: "flex" }}>
+                          {renderNoteItem(msg)}
                         </div>
                       ) : type === "calendar_event" ? (
                         <div style={{ maxWidth: "100%", width: "100%", display: "flex" }}>

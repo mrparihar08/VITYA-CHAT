@@ -37,6 +37,7 @@ import {
   getDoraInfo,
 } from "../../services/api";
 import FormattedMarkdown from "../chatbot/FormattedMarkdown";
+import DoraLabReportTab from "./dora/DoraLabReportTab";
 import "./DoraHealthApp.css";
 
 export const LANGUAGE_OPTIONS = [
@@ -573,6 +574,15 @@ export default function DoraHealthApp() {
           >
             <FileText size={16} />
             <span>Medical Encyclopedia</span>
+          </button>
+
+          <button
+            className={`dora-shelf-tab ${activeTab === "lab-report" ? "active" : ""}`}
+            onClick={() => setActiveTab("lab-report")}
+          >
+            <Activity size={16} />
+            <span>Lab Report Interpreter</span>
+            <span className="dora-badge-glow">Biomarkers</span>
           </button>
         </div>
       </div>
@@ -1554,6 +1564,9 @@ export default function DoraHealthApp() {
             </div>
           </div>
         )}
+
+        {/* ================= TAB 5: MEDICAL LAB REPORT INTERPRETER ================= */}
+        {activeTab === "lab-report" && <DoraLabReportTab />}
       </div>
     </div>
   );

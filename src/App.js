@@ -160,6 +160,10 @@ const PageTitleUpdater = () => {
     else if (path.startsWith("/settings/help")) title = "Help & Support | Vitya AI";
     else if (path.startsWith("/settings")) title = "Settings | Vitya AI";
     else if (path.startsWith("/presentation")) title = "Presentation Studio | vitya.ai";
+    else if (path.startsWith("/research")) title = "Research & Deep Document Lab | vitya.ai";
+    else if (path.startsWith("/scan-ledger") || path.startsWith("/scanner")) title = "AI Vision Receipt Ledger | vitya.ai";
+    else if (path.startsWith("/automations") || path.startsWith("/routines")) title = "Neural Automations & Routines | vitya.ai";
+    else if (path.startsWith("/voice-notes") || path.startsWith("/voicenotes") || path.startsWith("/audio-brain")) title = "Voice Notes & Audio Brain | vitya.ai";
     else if (path.startsWith("/dora")) title = "Dora Dr. | vitya.ai";
     else if (path.startsWith("/finance") || path.startsWith("/fei")) title = "Vidya F.E.I Advisor | vitya.ai";
     else if (path.startsWith("/chatbot")) title = "AI Assistant | vitya.ai";
@@ -250,6 +254,70 @@ function AppRoutes() {
           element={
             <PrivateRoute>
               <Dashboard initialTab="presentation" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/research"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="research" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/scan-ledger"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="scan-ledger" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/scanner"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="scan-ledger" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/automations"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="automations" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/routines"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="automations" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/voice-notes"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="voice-notes" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/voicenotes"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="voice-notes" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/audio-brain"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="voice-notes" />
             </PrivateRoute>
           }
         />

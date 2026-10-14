@@ -41,6 +41,39 @@ const FinanceIcon = () => (
   </svg>
 );
 
+const ResearchIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+    <path d="M6 6h10"></path>
+    <path d="M6 10h10"></path>
+    <path d="m9 16 2 2 4-4"></path>
+  </svg>
+);
+
+const ScannerIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 7V4h3"></path>
+    <path d="M20 7V4h-3"></path>
+    <path d="M4 17v3h3"></path>
+    <path d="M20 17v3h-3"></path>
+    <line x1="4" y1="12" x2="20" y2="12"></line>
+  </svg>
+);
+
+const RoutinesIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+  </svg>
+);
+
+const VoiceIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+    <line x1="12" y1="19" x2="12" y2="22"></line>
+  </svg>
+);
+
 const HistoryIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"></circle>
@@ -83,15 +116,7 @@ const SearchIcon = () => (
   </svg>
 );
 
-const DocIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-    <polyline points="14 2 14 8 20 8"></polyline>
-    <line x1="16" y1="13" x2="8" y2="13"></line>
-    <line x1="16" y1="17" x2="8" y2="17"></line>
-    <polyline points="10 9 9 9 8 9"></polyline>
-  </svg>
-);
+
 
 
 export default function Sidebar({
@@ -108,7 +133,6 @@ export default function Sidebar({
   user,
   profilePicSrc,
   defaultAvatar,
-  onQuickToolClick,
 }) {
   const searchInputRef = useRef(null);
 
@@ -143,44 +167,37 @@ export default function Sidebar({
       action: () => (onOpenApp ? onOpenApp({ id: "finance" }) : handleTabClick("apps")),
       active: activeTab === "apps" && activeApp === "finance",
     },
+    {
+      key: "scan-ledger",
+      label: "Receipt Scanner",
+      icon: <ScannerIcon />,
+      action: () => (onOpenApp ? onOpenApp({ id: "scan-ledger" }) : handleTabClick("apps")),
+      active: activeTab === "apps" && activeApp === "scan-ledger",
+    },
+    {
+      key: "automations",
+      label: "Neural Routines",
+      icon: <RoutinesIcon />,
+      action: () => (onOpenApp ? onOpenApp({ id: "automations" }) : handleTabClick("apps")),
+      active: activeTab === "apps" && activeApp === "automations",
+    },
+    {
+      key: "research",
+      label: "Research Lab",
+      icon: <ResearchIcon />,
+      action: () => (onOpenApp ? onOpenApp({ id: "research" }) : handleTabClick("apps")),
+      active: activeTab === "apps" && activeApp === "research",
+    },
+    {
+      key: "voice-notes",
+      label: "Voice Notes",
+      icon: <VoiceIcon />,
+      action: () => (onOpenApp ? onOpenApp({ id: "voice-notes" }) : handleTabClick("apps")),
+      active: activeTab === "apps" && activeApp === "voice-notes",
+    },
     { key: "apps", label: "All Apps", icon: <AppsIcon /> },
     { key: "history", label: "History", icon: <HistoryIcon /> },
     { key: "profile", label: "Profile", icon: <ProfileIcon /> },
-  ];
-
-  const quickTools = [
-    {
-      id: "create_presentation",
-      label: "Create Presentation",
-      icon: <DocIcon />,
-      colorClass: "qt-purple",
-      action: () => (onQuickToolClick ? onQuickToolClick("presentation") : handleTabClick("presentation")),
-      active: activeTab === "presentation",
-    },
-    {
-      id: "dora_health",
-      label: "Dora Medical",
-      icon: <DoraIcon />,
-      colorClass: "qt-teal",
-      action: () => (onOpenApp ? onOpenApp({ id: "dora" }) : handleTabClick("apps")),
-      active: activeTab === "apps" && activeApp === "dora",
-    },
-    {
-      id: "vidya_fei",
-      label: "Vidya F.E.I",
-      icon: <FinanceIcon />,
-      colorClass: "qt-blue",
-      action: () => (onOpenApp ? onOpenApp({ id: "finance" }) : handleTabClick("apps")),
-      active: activeTab === "apps" && activeApp === "finance",
-    },
-    {
-      id: "explore_apps",
-      label: "Explore Apps",
-      icon: <AppsIcon />,
-      colorClass: "qt-amber",
-      action: () => (onQuickToolClick ? onQuickToolClick("apps") : handleTabClick("apps")),
-      active: activeTab === "apps" && !activeApp,
-    },
   ];
 
   return (
@@ -266,25 +283,7 @@ export default function Sidebar({
         })}
       </nav>
 
-      {/* 5. QUICK TOOLS 2X2 GRID */}
-      <div className="vitya-quick-tools-section">
-        <div className="vitya-section-header">
-          <span className="vitya-section-bolt">⚡</span>
-          <span className="vitya-section-title">Quick Tools</span>
-        </div>
-        <div className="vitya-quick-tools-grid">
-          {quickTools.map((tool) => (
-            <button
-              key={tool.id}
-              className={`vitya-qt-card ${tool.colorClass} ${tool.active ? "active" : ""}`}
-              onClick={tool.action}
-            >
-              <div className="vitya-qt-icon">{tool.icon}</div>
-              <span className="vitya-qt-label">{tool.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+
 
       {/* 6. SECONDARY SETTINGS MENU */}
       <div className="vitya-secondary-menu">

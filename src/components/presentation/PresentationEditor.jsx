@@ -2147,6 +2147,7 @@ export default function PresentationEditor({
           selectedElementId={selectedElementId}
           onSelectElement={(id) => setSelectedElementId(id)}
           onUpdateElement={handleUpdateElement}
+          onUpdateSlide={handleUpdateSlide}
           onAddElement={handleAddElement}
           onDeselectAll={() => setSelectedElementId(null)}
           onDeleteElement={handleDeleteElement}

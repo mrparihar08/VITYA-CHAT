@@ -1,12 +1,14 @@
 import React, { useEffect } from "react";
 import SlideCanvas from "./SlideCanvas";
 import SpeakerNotesPanel from "./SpeakerNotesPanel";
+import RealtimeSlideCopilot from "./RealtimeSlideCopilot";
 
 export default function CanvasWorkspace({
   slide,
   selectedElementId,
   onSelectElement,
   onUpdateElement,
+  onUpdateSlide,
   onDeselectAll,
   onDeleteElement,
   onDuplicateElement,
@@ -102,6 +104,14 @@ export default function CanvasWorkspace({
         isOpen={isNotesOpen}
         onToggleOpen={onToggleNotes}
         onOpenVoiceover={onOpenVoiceover}
+      />
+
+      {/* REAL-TIME SLIDE CO-PILOT */}
+      <RealtimeSlideCopilot
+        slide={slide}
+        selectedElement={(slide?.elements || []).find((el) => el.id === selectedElementId)}
+        onUpdateElement={onUpdateElement}
+        onUpdateSlide={onUpdateSlide}
       />
     </main>
   );

@@ -1,0 +1,695 @@
+/* =========================================================================
+   VOICE NOTES & AUDIO BRAIN (VoiceNotesApp.css)
+   MOTHER OS / Vitya AI Dark Glassmorphic Aesthetic
+   ========================================================================= */
+
+.voiceAppContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: #090d16;
+  color: #f1f5f9;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ================= TOP COMMAND BAR ================= */
+.voiceTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 10;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.voiceBrandGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.voiceIconBox {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(59, 130, 246, 0.25));
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c084fc;
+}
+
+.voiceTitleCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.voiceHeading {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.voiceBadge {
+  font-size: 10px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.voiceSubtitle {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.voiceTopActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.voiceSampleBtn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12px;
+  color: #cbd5e1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.18s ease;
+}
+
+.voiceSampleBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+/* ================= MAIN SPLIT WORKSPACE ================= */
+.voiceWorkspace {
+  display: grid;
+  grid-template-columns: 460px 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+@media (max-width: 1080px) {
+  .voiceWorkspace {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+}
+
+/* ================= LEFT RECORDER PANE ================= */
+.voiceRecorderPane {
+  background: rgba(11, 17, 32, 0.85);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 18px;
+  overflow-y: auto;
+}
+
+/* Studio Recorder Stage */
+.voiceStudioBox {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.voiceRecordingStatusBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+
+.voiceRecordingStatusBadge.recording {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+.voiceRecordDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.voiceRecordDot.live {
+  background: #ef4444;
+  box-shadow: 0 0 12px #ef4444;
+  animation: pulseLive 1.2s infinite;
+}
+
+@keyframes pulseLive {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.voiceTimerText {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+/* Canvas Waveform Visualizer */
+.voiceWaveformCanvas {
+  width: 100%;
+  height: 100px;
+  background: rgba(3, 7, 18, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  display: block;
+}
+
+/* Controls Toolbar */
+.voiceControlButtons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.voiceRecordToggleBtn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.45);
+  transition: all 0.2s ease;
+}
+
+.voiceRecordToggleBtn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 10px 28px rgba(168, 85, 247, 0.65);
+}
+
+.voiceRecordToggleBtn.isRecording {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.55);
+}
+
+.voiceRecordActionBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.voiceRecordActionBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.voiceRecordActionBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Audio File Upload Box */
+.voiceUploadBox {
+  border: 2px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.2s;
+}
+
+.voiceUploadBox:hover {
+  border-color: rgba(168, 85, 247, 0.5);
+  background: rgba(168, 85, 247, 0.04);
+}
+
+.voiceUploadText {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 6px;
+}
+
+/* Sample Meeting Cards */
+.voiceSampleSectionTitle {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.voiceSampleCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.18s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.voiceSampleCard:hover {
+  background: rgba(168, 85, 247, 0.08);
+  border-color: rgba(168, 85, 247, 0.35);
+}
+
+.voiceSampleTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.voiceSampleMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* ================= RIGHT INTELLIGENCE PANE ================= */
+.voiceIntelligencePane {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 24px 28px;
+  gap: 24px;
+  background: #090d16;
+}
+
+/* Empty State */
+.voiceEmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #64748b;
+  gap: 12px;
+  padding: 40px;
+}
+
+.voiceEmptyState h3 {
+  font-size: 18px;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.voiceEmptyState p {
+  font-size: 13px;
+  max-width: 440px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Intelligence Header Box */
+.voiceIntelHeaderBox {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.voiceIntelTitleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.voiceMeetingTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.voiceSentimentBadge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  white-space: nowrap;
+}
+
+.voiceIntelSummary {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+/* Bullet Points & Key Discussion */
+.voiceIntelBlock {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.voiceIntelBlockTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.voiceBulletList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.voiceBulletList li {
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+/* ================= ACTION ITEMS SECTION ================= */
+.voiceActionSection {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+}
+
+.voiceActionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.voiceActionTitleBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.voiceActionHeading {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.voiceActionSub {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.voiceInjectAllBtn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: none;
+  color: #ffffff;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+  transition: all 0.2s ease;
+}
+
+.voiceInjectAllBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(168, 185, 129, 0.55);
+}
+
+.voiceInjectAllBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Action Items Cards Grid */
+.voiceActionGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.voiceActionCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  transition: all 0.18s;
+}
+
+.voiceActionCard:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.voiceActionCard.injected {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.voiceActionLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.voiceActionCheckbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #a855f7;
+  cursor: pointer;
+}
+
+.voiceActionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.voiceActionTitleInput {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #f1f5f9;
+  font-size: 13.5px;
+  font-weight: 600;
+  width: 100%;
+  padding: 2px 4px;
+  border-radius: 4px;
+  outline: none;
+}
+
+.voiceActionTitleInput:focus {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
+.voiceActionMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #94a3b8;
+  flex-wrap: wrap;
+}
+
+.voiceTargetTypeBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.voiceTargetTypeBadge.task {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #60a5fa;
+}
+
+.voiceTargetTypeBadge.calendar {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+}
+
+.voicePriorityTag {
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.voicePriorityTag.High {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.voicePriorityTag.Medium {
+  background: rgba(234, 179, 8, 0.15);
+  color: #facc15;
+}
+
+.voicePriorityTag.Low {
+  background: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+}
+
+.voiceActionRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.voiceDateInput {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 11.5px;
+  border-radius: 6px;
+  padding: 4px 8px;
+  outline: none;
+}
+
+/* Post-Injection Confirmation Toast */
+.voiceInjectedBanner {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #6ee7b7;
+  font-size: 13px;
+}
+
+.voiceInjectedActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.voiceNavPill {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s;
+}
+
+.voiceNavPill:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Transcript Raw Expander */
+.voiceTranscriptBox {
+  background: rgba(3, 7, 18, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.6;
+  max-height: 160px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}

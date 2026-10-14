@@ -589,6 +589,134 @@ export const clearChatHistory = async () => {
   return res.data;
 };
 
+// ================= RESEARCH & DEEP DOCUMENT LAB API =================
+export const getSampleResearchPaper = async () => {
+  const res = await api.get("/api/research/sample");
+  return res.data;
+};
+
+export const uploadResearchDocument = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await api.post("/api/research/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+export const queryResearchDocument = async (payload) => {
+  const res = await api.post("/api/research/query", payload);
+  return res.data;
+};
+
+export const getConceptGraph = async (payload) => {
+  const res = await api.post("/api/research/concept-graph", payload);
+  return res.data;
+};
+
+export const exportResearchToSlides = async (payload) => {
+  const res = await api.post("/api/research/export-slides", payload);
+  return res.data;
+};
+
+// ================= AI VISION & SMART RECEIPT LEDGER API =================
+export const getSampleReceipts = async () => {
+  const res = await api.get("/api/scan-ledger/samples");
+  return res.data;
+};
+
+export const scanReceiptDocument = async (file, { autoPost = false, typeHint = null } = {}) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("auto_post", String(autoPost));
+  if (typeHint) formData.append("type_hint", typeHint);
+
+  const res = await api.post("/api/scan-ledger/scan", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+export const postTransactionToLedger = async (payload) => {
+  const res = await api.post("/api/scan-ledger/post", payload);
+  return res.data;
+};
+
+export const getRecentScannedLedger = async (limit = 20) => {
+  const res = await api.get(`/api/scan-ledger/recent?limit=${limit}`);
+  return res.data;
+};
+
+// ================= NEURAL AUTOMATIONS / MOTHER ROUTINES API =================
+export const getRoutines = async () => {
+  const res = await api.get("/api/automations/routines");
+  return res.data;
+};
+
+export const createCustomRoutine = async (payload) => {
+  const res = await api.post("/api/automations/routines", payload);
+  return res.data;
+};
+
+export const toggleRoutineActive = async (routineId) => {
+  const res = await api.put(`/api/automations/routines/${encodeURIComponent(routineId)}/toggle`);
+  return res.data;
+};
+
+export const executeRoutineNow = async (routineId) => {
+  const res = await api.post(`/api/automations/routines/${encodeURIComponent(routineId)}/execute`);
+  return res.data;
+};
+
+export const getAutomationLogs = async (limit = 30) => {
+  const res = await api.get(`/api/automations/logs?limit=${limit}`);
+  return res.data;
+};
+
+// ================= VOICE NOTES & AUDIO BRAIN API =================
+export const getVoiceNoteSamples = async () => {
+  const res = await api.get("/api/voice-notes/samples");
+  return res.data;
+};
+
+export const transcribeAndAnalyzeAudio = async (formData) => {
+  const res = await api.post("/api/voice-notes/transcribe-and-analyze", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+};
+
+export const injectActionItemsToWorkspace = async (payload) => {
+  const res = await api.post("/api/voice-notes/inject-items", payload);
+  return res.data;
+};
+
+// ================= DORA LAB REPORT INTERPRETER API =================
+export const getDoraSampleLabReports = async () => {
+  const res = await api.get("/api/dora/sample-lab-reports");
+  return res.data;
+};
+
+export const interpretDoraLabReport = async (formData) => {
+  const res = await api.post("/api/dora/interpret-lab-report", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+};
+
+// ================= MONTE CARLO & RETIREMENT SIMULATOR API =================
+export const runMonteCarloSimulation = async (payload) => {
+  const res = await api.post("/api/vitya/monte-carlo-simulation", payload);
+  return res.data;
+};
+
 export default api;
+
+
+
 
 

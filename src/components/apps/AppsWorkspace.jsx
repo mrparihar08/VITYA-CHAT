@@ -48,7 +48,7 @@ export const AppsWorkspace = ({
     try {
       return JSON.parse(localStorage.getItem("vitya_recent_apps") || "[]");
     } catch {
-      return ["dora", "finance", "notes", "calendar"];
+      return ["voice-notes", "automations", "scan-ledger", "research", "dora", "finance", "notes", "calendar"];
     }
   });
   const [openMenuAppId, setOpenMenuAppId] = useState(null);

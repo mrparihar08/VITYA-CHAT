@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Chatbot from "../components/chatbot/VityaChatbot";
 import ChatHistory from "../components/chatbot/ChatHistory";
 import Presentation from "../components/presentation/Presentation";
-import { API_BASE_URL, resolveAssetUrl } from "../services/api";
+import { resolveAssetUrl } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import "./Dashboard.css";
 
@@ -17,12 +17,17 @@ import SubscriptionsApp from "../components/apps/SubscriptionsApp";
 import FinancialHealthApp from "../components/apps/FinancialHealthApp";
 import DoraHealthApp from "../components/apps/DoraHealthApp";
 import FinanceApp from "../components/apps/FinanceApp";
+import ResearchApp from "../components/apps/ResearchApp";
+import ScanLedgerApp from "../components/apps/ScanLedgerApp";
+import AutomationsApp from "../components/apps/AutomationsApp";
+import VoiceNotesApp from "../components/apps/VoiceNotesApp";
 import Profile from "../components/auth/Profile";
 import ProfileEdit from "../components/auth/ProfileEdit";
 import Sidebar from "../components/sidebar/Sidebar";
 import AppsWorkspace from "../components/apps/AppsWorkspace";
 import CommandPalette from "../components/common/CommandPalette";
-import { Search } from "lucide-react";
+import AmbientVoiceOrbModal from "../components/common/AmbientVoiceOrbModal";
+import { Search, Columns, Mic } from "lucide-react";
 import {
   SettingsPage,
   HelpSupportPage,
@@ -34,6 +39,50 @@ import {
 } from "../components/profile";
 
 const APP_REGISTRY = [
+  {
+    id: "voice-notes",
+    name: "Voice Meeting & Audio Brain",
+    desc: "In-browser ambient voice recorder, Whisper speech transcription & automated workspace injection",
+    icon: "🎙️",
+    type: "internal",
+    category: "ai",
+    keywords: ["voice", "audio", "recording", "meeting", "whisper", "speech", "transcription", "microphone", "sound", "notes", "action items"],
+    iconBg: "linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #38bdf8 100%)",
+    component: VoiceNotesApp,
+  },
+  {
+    id: "automations",
+    name: "Neural Automations",
+    desc: "Cross-app triggers, autonomous task generation & scheduled presentation synthesis",
+    icon: "⚡",
+    type: "internal",
+    category: "ai",
+    keywords: ["automations", "routines", "triggers", "workflow", "mother routines", "zapier", "scheduler", "cron", "ai"],
+    iconBg: "linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%)",
+    component: AutomationsApp,
+  },
+  {
+    id: "scan-ledger",
+    name: "AI Vision & Receipt Ledger",
+    desc: "Scan receipts & bills with Gemini Vision, extract items and auto-post to database",
+    icon: "🧾",
+    type: "internal",
+    category: "finance",
+    keywords: ["receipt", "scan", "ledger", "invoice", "vision", "camera", "bills", "ocr", "bookkeeping", "expenses", "income"],
+    iconBg: "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)",
+    component: ScanLedgerApp,
+  },
+  {
+    id: "research",
+    name: "Research & Document Lab",
+    desc: "Interactive AI research workbench for PDFs, papers, concept graphs & slide deck export",
+    icon: "🔬",
+    type: "internal",
+    category: "ai",
+    keywords: ["research", "papers", "pdf", "documents", "deep research", "citations", "concept graph", "study", "analysis"],
+    iconBg: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%)",
+    component: ResearchApp,
+  },
   {
     id: "dora",
     name: "DORA Health AI",
@@ -341,6 +390,14 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
   const [chatInitialPrompt, setChatInitialPrompt] = useState("");
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [ambientVoiceOpen, setAmbientVoiceOpen] = useState(false);
+  const [isSplitView, setIsSplitView] = useState(() => {
+    try {
+      return localStorage.getItem("vitya_split_view") === "true";
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -553,7 +610,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
       );
     }
 
-    const isSovereignApp = ["dora", "finance"].includes(currentApp.id);
+    const isSovereignApp = ["dora", "finance", "research", "scan-ledger", "automations", "voice-notes"].includes(currentApp.id);
     const AppComponent = currentApp.component;
 
     return (
@@ -569,7 +626,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           </div>
         )}
 
-        {!["analytics", "dora", "finance"].includes(currentApp.id) && (
+        {!["analytics", "dora", "finance", "research", "scan-ledger", "automations", "voice-notes"].includes(currentApp.id) && (
           <div className="panelHeader">
             <div className="appHeaderIconBox" style={{ background: currentApp.iconBg }}>
               {currentApp.icon}
@@ -585,6 +642,23 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           <ErrorBoundary>
             {currentApp.id === "analytics" ? (
               <AppComponent {...analyticsData} />
+            ) : currentApp.id === "research" ? (
+              <AppComponent onNavigateToPresentation={() => updateNavigationState("presentation")} />
+            ) : currentApp.id === "scan-ledger" ? (
+              <AppComponent onNavigateToFinance={() => updateNavigationState("apps", "finance")} />
+            ) : currentApp.id === "automations" ? (
+              <AppComponent
+                onNavigateToTasks={() => updateNavigationState("apps", "tasks")}
+                onNavigateToCalendar={() => updateNavigationState("apps", "calendar")}
+                onNavigateToPresentation={() => updateNavigationState("presentation")}
+                onNavigateToFinance={() => updateNavigationState("apps", "finance")}
+              />
+            ) : currentApp.id === "voice-notes" ? (
+              <AppComponent
+                onNavigateToTasks={() => updateNavigationState("apps", "tasks")}
+                onNavigateToCalendar={() => updateNavigationState("apps", "calendar")}
+                onNavigateToNotes={() => updateNavigationState("apps", "notes")}
+              />
             ) : (
               <AppComponent />
             )}
@@ -644,7 +718,57 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button
+              onClick={() => setAmbientVoiceOpen(true)}
+              title="Hands-Free Ambient Voice Mode"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                background: "linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%)",
+                border: "1px solid rgba(168, 85, 247, 0.35)",
+                borderRadius: "10px",
+                padding: "6px 12px",
+                color: "#c084fc",
+                fontSize: "12.5px",
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.18s ease",
+              }}
+            >
+              <Mic size={14} color="#c084fc" />
+              <span className="hideOnMobile">Voice Mode</span>
+            </button>
+
+            <button
+              onClick={() =>
+                setIsSplitView((prev) => {
+                  const next = !prev;
+                  localStorage.setItem("vitya_split_view", String(next));
+                  return next;
+                })
+              }
+              title={isSplitView ? "Close Split View" : "Enable Dual-Pane Split View"}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                background: isSplitView ? "rgba(56, 189, 248, 0.18)" : "rgba(255, 255, 255, 0.05)",
+                border: `1px solid ${isSplitView ? "rgba(56, 189, 248, 0.45)" : "rgba(255, 255, 255, 0.12)"}`,
+                borderRadius: "10px",
+                padding: "6px 12px",
+                color: isSplitView ? "#38bdf8" : "#94a3b8",
+                fontSize: "12.5px",
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.18s ease",
+              }}
+            >
+              <Columns size={14} color={isSplitView ? "#38bdf8" : "#94a3b8"} />
+              <span className="hideOnMobile">{isSplitView ? "Dual Pane" : "Split View"}</span>
+            </button>
+
             <button
               onClick={() => setCommandPaletteOpen(true)}
               title="Search apps & commands (Ctrl+K)"
@@ -687,102 +811,149 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           </div>
         </header>
 
-        <main className={`content ${activeTab === "chat" || activeTab === "presentation" || (activeTab === "apps" && (activeApp === "dora" || activeApp === "finance")) ? "contentNoScroll" : ""}`}>
-          {activeTab === "chat" && (
-            <section className="chatShell">
-              <Chatbot
-                conversationId={activeConversationId}
-                onConversationChange={(id) => updateNavigationState("chat", null, id)}
-                onConversationUpdated={() => setHistoryRefreshKey((value) => value + 1)}
-                initialInput={chatInitialPrompt}
-                onClearInitialInput={() => setChatInitialPrompt("")}
-              />
-            </section>
-          )}
-
-          {activeTab === "presentation" && (
-            <section className="contentCard" style={{ width: "100%", height: "100%", minHeight: 0, padding: 0, background: "transparent", border: "none", boxShadow: "none", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-              <Presentation />
-            </section>
-          )}
-
-          {activeTab === "history" && (
-            <section className="contentCard">
-              <ChatHistory
-                onOpenConversation={openConversation}
-                refreshKey={historyRefreshKey}
-              />
-            </section>
-          )}
-
-          {activeTab === "apps" && (
-            <section className="contentCard" style={!activeApp ? { background: "transparent", border: "none", boxShadow: "none", padding: "4px 0 24px 0" } : {}}>
-              {!activeApp ? (
-                <AppsWorkspace
-                  apps={APP_REGISTRY}
-                  onOpenApp={openApp}
-                  user={user}
-                />
-              ) : (
-                renderAppPanel()
+        {/* Active View Renderer */}
+        {(() => {
+          const renderActiveTabContent = () => (
+            <>
+              {activeTab === "chat" && (
+                <section className="chatShell">
+                  <Chatbot
+                    conversationId={activeConversationId}
+                    onConversationChange={(id) => updateNavigationState("chat", null, id)}
+                    onConversationUpdated={() => setHistoryRefreshKey((value) => value + 1)}
+                    initialInput={chatInitialPrompt}
+                    onClearInitialInput={() => setChatInitialPrompt("")}
+                  />
+                </section>
               )}
-            </section>
-          )}
 
-          {activeTab === "profile" && (
-            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
-              <Profile insideDashboard={true} />
-            </section>
-          )}
+              {activeTab === "presentation" && (
+                <section className="contentCard" style={{ width: "100%", height: "100%", minHeight: 0, padding: 0, background: "transparent", border: "none", boxShadow: "none", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                  <Presentation />
+                </section>
+              )}
 
-          {activeTab === "profile/edit" && (
-            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
-              <ProfileEdit insideDashboard={true} />
-            </section>
-          )}
+              {activeTab === "history" && (
+                <section className="contentCard">
+                  <ChatHistory
+                    onOpenConversation={openConversation}
+                    refreshKey={historyRefreshKey}
+                  />
+                </section>
+              )}
 
-          {activeTab === "settings" && (
-            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
-              <SettingsPage plain={true} insideDashboard={true} />
-            </section>
-          )}
+              {activeTab === "apps" && (
+                <section className="contentCard" style={!activeApp ? { background: "transparent", border: "none", boxShadow: "none", padding: "4px 0 24px 0" } : {}}>
+                  {!activeApp ? (
+                    <AppsWorkspace
+                      apps={APP_REGISTRY}
+                      onOpenApp={openApp}
+                      user={user}
+                    />
+                  ) : (
+                    renderAppPanel()
+                  )}
+                </section>
+              )}
 
-          {(activeTab === "help" || activeTab === "settings/help") && (
-            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
-              <HelpSupportPage insideDashboard={true} />
-            </section>
-          )}
+              {activeTab === "profile" && (
+                <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+                  <Profile insideDashboard={true} />
+                </section>
+              )}
 
-          {activeTab === "settings/security" && (
-            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
-              <SecurityPrivacyPage insideDashboard={true} />
-            </section>
-          )}
+              {activeTab === "profile/edit" && (
+                <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+                  <ProfileEdit insideDashboard={true} />
+                </section>
+              )}
 
-          {activeTab === "settings/subscription" && (
-            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
-              <SubscriptionPage insideDashboard={true} />
-            </section>
-          )}
+              {activeTab === "settings" && (
+                <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+                  <SettingsPage plain={true} insideDashboard={true} />
+                </section>
+              )}
 
-          {activeTab === "settings/notifications" && (
-            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
-              <NotificationsPage insideDashboard={true} />
-            </section>
-          )}
+              {(activeTab === "help" || activeTab === "settings/help") && (
+                <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+                  <HelpSupportPage insideDashboard={true} />
+                </section>
+              )}
 
-          {activeTab === "settings/appearance" && (
-            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
-              <AppearancePage insideDashboard={true} />
-            </section>
-          )}
+              {activeTab === "settings/security" && (
+                <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+                  <SecurityPrivacyPage insideDashboard={true} />
+                </section>
+              )}
 
-          {activeTab === "settings/about" && (
-            <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
-              <AboutPage insideDashboard={true} />
-            </section>
-          )}
-        </main>
+              {activeTab === "settings/subscription" && (
+                <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+                  <SubscriptionPage insideDashboard={true} />
+                </section>
+              )}
+
+              {activeTab === "settings/notifications" && (
+                <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+                  <NotificationsPage insideDashboard={true} />
+                </section>
+              )}
+
+              {activeTab === "settings/appearance" && (
+                <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+                  <AppearancePage insideDashboard={true} />
+                </section>
+              )}
+
+              {activeTab === "settings/about" && (
+                <section className="contentCard" style={{ width: "100%", padding: 0, background: "transparent", border: "none", boxShadow: "none" }}>
+                  <AboutPage insideDashboard={true} />
+                </section>
+              )}
+            </>
+          );
+
+          return (
+            <main className={`content ${(activeTab === "chat" || activeTab === "presentation" || (activeTab === "apps" && (activeApp === "dora" || activeApp === "finance" || activeApp === "research" || activeApp === "scan-ledger" || activeApp === "automations" || activeApp === "voice-notes"))) || isSplitView ? "contentNoScroll" : ""}`}>
+              {isSplitView && activeTab !== "chat" ? (
+                <div className="vSplitViewContainer" style={{ display: "flex", width: "100%", height: "100%", overflow: "hidden", gap: 0 }}>
+                  {/* Left Dock: Chatbot Co-Pilot (40% width) */}
+                  <div className="vSplitLeftPane" style={{ width: "40%", minWidth: "340px", height: "100%", borderRight: "1px solid rgba(255, 255, 255, 0.1)", display: "flex", flexDirection: "column", background: "rgba(10, 15, 29, 0.85)" }}>
+                    <div style={{ padding: "8px 14px", background: "rgba(15, 23, 42, 0.8)", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "12px", color: "#94a3b8", fontWeight: 600 }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: 6, color: "#c084fc" }}>
+                        🤖 Vitya Co-Pilot Dock
+                      </span>
+                      <button
+                        onClick={() => {
+                          setIsSplitView(false);
+                          localStorage.setItem("vitya_split_view", "false");
+                        }}
+                        style={{ background: "transparent", border: "none", color: "#64748b", cursor: "pointer", fontSize: "11px", fontWeight: 600 }}
+                      >
+                        ✕ Close Dock
+                      </button>
+                    </div>
+                    <div style={{ flex: 1, minHeight: 0 }}>
+                      <Chatbot
+                        conversationId={activeConversationId}
+                        onConversationChange={(id) => updateNavigationState("chat", null, id)}
+                        onConversationUpdated={() => setHistoryRefreshKey((value) => value + 1)}
+                        initialInput={chatInitialPrompt}
+                        onClearInitialInput={() => setChatInitialPrompt("")}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right Dock: Active App Workspace (60% width) */}
+                  <div className="vSplitRightPane" style={{ flex: 1, height: "100%", minWidth: 0, overflowY: "auto", display: "flex", flexDirection: "column" }}>
+                    {renderActiveTabContent()}
+                  </div>
+                </div>
+              ) : (
+                renderActiveTabContent()
+              )}
+            </main>
+          );
+        })()}
       </div>
 
       {/* Global Command Palette Spotlight Modal */}
@@ -794,7 +965,18 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           setChatInitialPrompt(prompt);
           updateNavigationState("chat");
         }}
+        onOpenAmbientVoice={() => setAmbientVoiceOpen(true)}
         apps={APP_REGISTRY}
+      />
+
+      {/* Hands-Free Ambient Voice Assistant Modal */}
+      <AmbientVoiceOrbModal
+        isOpen={ambientVoiceOpen}
+        onClose={() => setAmbientVoiceOpen(false)}
+        onNavigateToChat={() => {
+          setAmbientVoiceOpen(false);
+          updateNavigationState("chat");
+        }}
       />
     </div>
   );

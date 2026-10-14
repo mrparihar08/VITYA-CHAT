@@ -17,7 +17,7 @@ const deriveSmartTitle = (text) => {
 
   clean = clean
     .replace(/```[\s\S]*?```/g, "")
-    .replace(/[{}\[\]"']/g, "")
+    .replace(/[{}[\]"']/g, "")
     .replace(/^Gemini stream error:\s*503\s*UNAVAILABLE.*/i, "AI Assistant Query")
     .replace(/[\r\n]+/g, " ")
     .trim();
