@@ -711,17 +711,58 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .scanMainWorkspace {
     grid-template-columns: 1fr;
+    overflow-y: auto;
   }
 
   .scanUploadPane {
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 18px;
   }
 
   .scanFormGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .scanTopBar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .scanHeaderActions {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .scanModePills {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .scanModePill {
+    flex: 1;
+    justify-content: center;
+    padding: 6px 8px;
+  }
+
+  .scanDropZone {
+    padding: 20px 14px;
+  }
+
+  .scanTableWrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .scanTable {
+    min-width: 480px;
   }
 }

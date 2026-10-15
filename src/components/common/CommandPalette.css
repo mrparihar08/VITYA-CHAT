@@ -379,3 +379,37 @@
   font-size: 10.5px;
   color: #94a3b8;
 }
+
+/* RESPONSIVE MEDIA QUERIES FOR COMMAND PALETTE */
+@media (max-width: 640px) {
+  .vityaCommandPaletteOverlay {
+    padding-top: 24px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .vityaCommandPaletteModal {
+    max-width: 100%;
+    border-radius: 14px;
+  }
+
+  .vCommandInputWrap {
+    padding: 12px 14px;
+  }
+
+  .vCommandInput {
+    font-size: 16px !important; /* Prevents iOS auto-zoom */
+  }
+
+  .vCommandHintsRow {
+    display: none;
+  }
+
+  .vCommandResultsList {
+    max-height: 50vh;
+  }
+
+  .vCommandItem {
+    padding: 10px;
+  }
+}

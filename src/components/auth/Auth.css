@@ -1177,6 +1177,68 @@ select.vitya-input-field option {
   box-shadow: 0 12px 28px rgba(139, 92, 246, 0.5);
 }
 
+/* RESPONSIVE MEDIA QUERIES FOR PROFILE & AUTH */
+@media (max-width: 640px) {
+  .vitya-stat-tiles {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .vitya-user-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .vitya-profile-card {
+    padding: 16px;
+  }
+
+  .vitya-user-name {
+    font-size: 19px;
+  }
+
+  .vitya-profile-top-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .pro-badge {
+    align-self: flex-start;
+  }
+
+  .vitya-btn-purple {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .vitya-faq-question-row {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .faq-question-text {
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vitya-profile-header-bar {
+    margin-bottom: 14px;
+  }
+
+  .page-shell-card {
+    padding: 20px 16px !important;
+  }
+
+  .auth-layout button,
+  .page-shell button {
+    min-height: 44px;
+  }
+}
+
 
 
 

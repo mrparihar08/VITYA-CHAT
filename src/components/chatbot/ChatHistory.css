@@ -290,14 +290,27 @@
 }
 
 @media (max-width: 560px) {
+  .historyPanel {
+    padding: 6px;
+  }
   .historyHeader {
     flex-direction: column;
+    gap: 12px;
   }
   .historyActions {
     width: 100%;
   }
   .historyButton {
     flex: 1;
+    justify-content: center;
+    min-height: 44px;
+  }
+  .historySearchInput {
+    font-size: 16px !important;
+  }
+  .historyItem {
+    padding: 14px 12px;
+    border-radius: 14px;
   }
   .historyItemTop {
     align-items: flex-start;

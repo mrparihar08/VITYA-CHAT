@@ -252,7 +252,16 @@ export default function Sidebar({
       </div>
 
       {/* 3. NEW CHAT BUTTON */}
-      <button className="vitya-new-chat-btn" onClick={handleNewChat}>
+      <button
+        type="button"
+        className="vitya-new-chat-btn"
+        onClick={() => {
+          if (handleNewChat) handleNewChat();
+          if (isMobile && setSidebarOpen) setSidebarOpen(false);
+        }}
+        title="Start a new chat conversation"
+        aria-label="New Chat"
+      >
         <span className="vitya-btn-icon-left">+</span>
         <span className="vitya-btn-label">New Chat</span>
         <span className="vitya-btn-sparkles">✨</span>

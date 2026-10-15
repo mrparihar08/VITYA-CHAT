@@ -576,3 +576,72 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+/* RESPONSIVE MEDIA QUERIES FOR NEURAL AUTOMATIONS */
+@media (max-width: 768px) {
+  .autoTopBar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .autoHeaderActions {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .autoNewRoutineBtn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .autoModePills {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .autoModePill {
+    flex: 1;
+    justify-content: center;
+    padding: 6px 8px;
+  }
+
+  .autoWorkspaceScroll {
+    padding: 14px 12px 48px;
+    gap: 16px;
+  }
+
+  .autoCardTop {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .autoCardControls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .autoFlowPipeline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .autoFlowArrow {
+    transform: rotate(90deg);
+    align-self: center;
+  }
+
+  .autoModalBox {
+    max-width: 95vw;
+    margin: 10px;
+  }
+
+  .autoModalHeader,
+  .autoModalBody,
+  .autoModalFooter {
+    padding: 14px 16px;
+  }
+}

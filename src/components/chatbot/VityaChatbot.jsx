@@ -617,6 +617,7 @@ const Chatbot = ({
   const [toastMessage, setToastMessage] = useState(null);
   const [activeLightboxImg, setActiveLightboxImg] = useState(null);
   const [lastUserPrompt, setLastUserPrompt] = useState("");
+  const activeLocalConvIdRef = useRef(conversationId);
 
   const showToast = useCallback((msg) => {
     setToastMessage(msg);
@@ -797,15 +798,25 @@ const Chatbot = ({
     }
   }, []);
 
+  const hasMessagesRef = useRef(false);
+  hasMessagesRef.current = messages.length > 0;
+
   useEffect(() => {
     let cancelled = false;
 
-    const loadConversation = async () => {
-      if (!conversationId) {
-        setMessages([]);
-        return;
-      }
+    if (!conversationId) {
+      activeLocalConvIdRef.current = null;
+      setMessages([]);
+      return;
+    }
 
+    if (conversationId === activeLocalConvIdRef.current && hasMessagesRef.current) {
+      return;
+    }
+
+    activeLocalConvIdRef.current = conversationId;
+
+    const loadConversation = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/chat/history?conversation_id=${conversationId}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -2200,7 +2211,10 @@ const Chatbot = ({
       };
 
       setMessages((prev) => [...prev, botMessage].slice(-50));
-      if (data?.conversation_id) onConversationChange?.(data.conversation_id);
+      if (data?.conversation_id) {
+        activeLocalConvIdRef.current = data.conversation_id;
+        onConversationChange?.(data.conversation_id);
+      }
       onConversationUpdated?.();
       return botMessage;
     },
@@ -2374,7 +2388,10 @@ const Chatbot = ({
           })
         );
 
-        if (finalConvId) onConversationChange?.(finalConvId);
+        if (finalConvId) {
+          activeLocalConvIdRef.current = finalConvId;
+          onConversationChange?.(finalConvId);
+        }
         onConversationUpdated?.();
 
         return { sender: "bot", type: "text", text: streamedText };
@@ -2460,7 +2477,10 @@ const Chatbot = ({
           } else {
             setMessages((prev) => [...prev, botMessage].slice(-50));
           }
-          if (multimodalData?.conversation_id) onConversationChange?.(multimodalData.conversation_id);
+          if (multimodalData?.conversation_id) {
+            activeLocalConvIdRef.current = multimodalData.conversation_id;
+            onConversationChange?.(multimodalData.conversation_id);
+          }
           onConversationUpdated?.();
         } else {
           const isPresentationSlash = /^\/(presentation|ppt)\b/i.test(messageToSend);
@@ -3114,8 +3134,6 @@ const Chatbot = ({
     );
   };
 
-  const showLanding = messages.length === 0;
-
   return (
     <div style={styles.page}>
       <style>{`
@@ -3381,69 +3399,7 @@ const Chatbot = ({
 
       <main style={styles.main}>
         <div style={styles.chatArea} className="chat-scroll">
-          {showLanding ? (
-            <section style={styles.emptyState}>
-              <div style={styles.emptyCard}>
-                <div style={styles.heroTitle}>What can I help you with today?</div>
-                <p className="vitya-chat-hero-sub">
-                  Analyze finances, scan receipts & images, consult DORA Health AI, or generate slide decks in seconds.
-                </p>
-
-                <div className="vitya-chat-starter-grid">
-                  <div
-                    className="vitya-starter-card"
-                    onClick={() => sendMessage("Analyze my monthly expenses, budget breakdown, and savings")}
-                  >
-                    <div className="starter-icon-box bg-purple">📊</div>
-                    <div className="starter-card-body">
-                      <h4>Financial Intelligence</h4>
-                      <p>Monthly expenses & budget breakdown</p>
-                    </div>
-                  </div>
-
-                  <div
-                    className="vitya-starter-card"
-                    onClick={() => sendMessage("How can I scan a receipt, bill, or analyze an image with AI Vision?")}
-                  >
-                    <div className="starter-icon-box bg-blue">📸</div>
-                    <div className="starter-card-body">
-                      <h4>AI Vision & Bills</h4>
-                      <p>Scan receipts, charts, notes & photos</p>
-                    </div>
-                  </div>
-
-                  <div
-                    className="vitya-starter-card"
-                    onClick={() => {
-                      openMode("dora");
-                      sendMessage("/dora I have a mild headache and throat pain for 2 days. What should I do?");
-                    }}
-                  >
-                    <div className="starter-icon-box bg-teal">🩺</div>
-                    <div className="starter-card-body">
-                      <h4>DORA.AI</h4>
-                      <p>Symptom analysis & health guidance</p>
-                    </div>
-                  </div>
-
-                  <div
-                    className="vitya-starter-card"
-                    onClick={() => {
-                      openMode("file");
-                      sendMessage("Artificial Intelligence Trends");
-                    }}
-                  >
-                    <div className="starter-icon-box bg-rose">🚀</div>
-                    <div className="starter-card-body">
-                      <h4>AI Presentation</h4>
-                      <p>Generate deck: AI Trends</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          ) : (
-            messages.map((msg, i) => {
+          {messages.map((msg, i) => {
               let type = (msg.type || "").toLowerCase().trim();
               const rawData = msg.content ?? msg.data ?? msg.text;
               const newsData = normalizeNewsData(rawData);
@@ -4042,8 +3998,7 @@ const Chatbot = ({
                   </div>
                 </div>
               );
-            })
-          )}
+            })}
 
           {loading && !messages.some((m) => m.isStreaming) && (
             <div style={{ ...styles.messageRow, justifyContent: "flex-start", marginTop: 4 }}>

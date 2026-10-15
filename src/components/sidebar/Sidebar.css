@@ -547,20 +547,50 @@
   text-overflow: ellipsis;
 }
 
-/* Mobile responsive drawer overlay overrides */
-@media (max-width: 900px) {
+/* Mobile & Tablet responsive drawer overlay overrides */
+@media (max-width: 1023px) {
   .vitya-sidebar {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
-    width: 280px;
-    max-width: 80vw;
+    width: 290px;
+    max-width: 84vw;
     transform: translateX(-100%);
-    box-shadow: 12px 0 35px rgba(0, 0, 0, 0.6);
+    box-shadow: 16px 0 45px rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
   }
 
   .vitya-sidebar.open {
     transform: translateX(0);
+  }
+
+  .vitya-nav-item {
+    min-height: 44px;
+    padding: 12px 14px;
+  }
+
+  .vitya-new-chat-btn {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vitya-sidebar {
+    width: min(290px, 88vw);
+    padding: 14px 10px;
+  }
+
+  .vitya-brand-title {
+    font-size: 17px;
+  }
+
+  .vitya-brand-subtitle {
+    font-size: 11px;
+  }
+
+  .vitya-brand-tagline {
+    display: none;
   }
 }

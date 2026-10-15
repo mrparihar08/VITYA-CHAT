@@ -896,7 +896,7 @@
 @media (max-width: 1024px) {
   .researchMainWorkspace {
     grid-template-columns: 1fr;
-    grid-template-rows: 50% 50%;
+    grid-template-rows: minmax(280px, 45%) minmax(320px, 55%);
   }
 
   .researchDocPane {
@@ -905,15 +905,45 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .researchMainWorkspace {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .researchDocPane {
+    min-height: 260px;
+    flex-shrink: 0;
+  }
+
   .researchTopBar {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
+    padding: 10px 12px;
   }
 
   .researchHeaderActions {
     justify-content: space-between;
+    width: 100%;
+  }
+
+  .researchUploadBtn,
+  .researchDeckExportBtn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .researchModePills {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .researchModePill {
+    flex: 1;
+    justify-content: center;
+    padding: 6px 8px;
   }
 
   .researchSlideCardsGrid {

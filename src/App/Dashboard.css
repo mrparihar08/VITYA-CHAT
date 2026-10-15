@@ -51,7 +51,7 @@ body,
   -moz-osx-font-smoothing: grayscale;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .dashboard {
     --sidebar-width: 0px;
   }
@@ -674,15 +674,16 @@ body,
   line-height: 1.6;
 }
 
-/* Tablet and below */
-@media (max-width: 900px) {
+/* Tablet (768px - 1023px) and below */
+@media (max-width: 1023px) {
   .sidebar {
     position: fixed;
     top: 0;
     left: 0;
     height: 100%;
     transform: translateX(-100%);
-    box-shadow: 20px 0 40px rgba(0, 0, 0, 0.35);
+    box-shadow: 20px 0 40px rgba(0, 0, 0, 0.45);
+    z-index: 1000;
   }
 
   .sidebar.open {
@@ -693,6 +694,8 @@ body,
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
   }
 
   .profileMiniBtn {
@@ -704,17 +707,54 @@ body,
   .topbarText h1 {
     font-size: 18px;
   }
+
+  /* Dual-Pane Split View reflows to vertical on tablet/mobile */
+  .vSplitViewContainer {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+  }
+
+  .vSplitLeftPane {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-height: 48vh !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    flex-shrink: 0 !important;
+  }
+
+  .vSplitRightPane {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
 }
 
-/* Mobile */
-@media (max-width: 600px) {
+/* Tablet landscape / portrait balance */
+@media (min-width: 768px) and (max-width: 1023px) {
   .content {
-    padding: 4px !important;
+    padding: 16px;
+  }
+
+  .appsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+/* Mobile (320px - 767px) */
+@media (max-width: 767px) {
+  .topbarSplitBtn {
+    display: none !important;
+  }
+
+  .content {
+    padding: 10px !important;
   }
 
   .topbar {
-    padding: 0 12px;
-    height: 64px;
+    padding: 0 10px;
+    height: 60px;
+    gap: 8px;
   }
 
   .sidebar {
@@ -723,19 +763,20 @@ body,
   }
 
   .appsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
   }
 
   .emptyCard {
-    padding: 26px 18px;
+    padding: 24px 16px;
   }
 
   .emptyCard h2 {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .emptyCard p {
-    font-size: 14px;
+    font-size: 13.5px;
   }
 
   .topbarText h1 {
@@ -743,7 +784,11 @@ body,
   }
 
   .topbarText p {
-    font-size: 12px;
+    font-size: 11.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
   }
 
   .taskItem {
@@ -752,15 +797,55 @@ body,
   }
 }
 
-/* Very small devices */
+/* Small mobile (under 540px) */
+@media (max-width: 540px) {
+  .spotlightLabel,
+  .spotlightKbd {
+    display: none !important;
+  }
+
+  .topbarSpotlightBtn {
+    padding: 6px 10px !important;
+  }
+
+  .topbarText p {
+    display: none !important;
+  }
+
+  .topbarText .brand {
+    font-size: 17px !important;
+  }
+}
+
+/* Extra small mobile (320px - 380px) */
 @media (max-width: 380px) {
   .content {
-    padding: 12px;
+    padding: 8px !important;
+  }
+
+  .topbar {
+    padding: 0 8px;
   }
 
   .sidebar {
-    width: 92vw;
-    padding: 16px;
+    width: 90vw;
+    padding: 14px;
+  }
+
+  .topbarRightGroup {
+    gap: 4px !important;
+  }
+
+  .topbarMicBtn,
+  .topbarSpotlightBtn {
+    padding: 5px 8px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+  }
+
+  .profileMiniBtn img {
+    width: 34px !important;
+    height: 34px !important;
   }
 
   .newChatBtn,
@@ -770,11 +855,11 @@ body,
   }
 
   .appCard {
-    padding: 14px;
+    padding: 12px;
   }
 
   .appCard h3 {
-    font-size: 15px;
+    font-size: 14px;
   }
 }
 .sidebarHeader {

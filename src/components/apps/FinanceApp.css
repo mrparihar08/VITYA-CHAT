@@ -270,11 +270,15 @@
   background: #1e293b;
   border: 1px solid #334155;
   border-radius: 12px;
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
 }
 
 .finance-table {
   width: 100%;
+  min-width: 580px;
   border-collapse: collapse;
   font-size: 14px;
 }
@@ -355,8 +359,8 @@
 /* CHARTS GRID */
 .finance-charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
 }
 
 .chart-card {
@@ -364,6 +368,7 @@
   border: 1px solid #334155;
   border-radius: 12px;
   padding: 20px;
+  min-width: 0;
 }
 
 .chart-card h4 {
@@ -389,4 +394,99 @@
   font-weight: 600;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
   z-index: 9999;
+}
+
+/* RESPONSIVE MEDIA QUERIES FOR FINANCE APP */
+@media (max-width: 768px) {
+  .vitya-finance-app {
+    padding: 14px 10px;
+  }
+
+  .finance-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .finance-export-group {
+    width: 100%;
+  }
+
+  .export-csv-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 10px 12px;
+  }
+
+  .finance-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    width: 100%;
+    padding-bottom: 4px;
+  }
+
+  .finance-tab {
+    padding: 8px 14px;
+    font-size: 13.5px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .form-group,
+  .form-group.flex-2 {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .add-entry-btn {
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .finance-filter-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .finance-search-input,
+  .finance-filter-select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .finance-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .finance-kpi-card {
+    padding: 12px 14px;
+  }
+
+  .kpi-value {
+    font-size: 18px;
+  }
+
+  .chart-card {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .finance-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vitya-finance-toast {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    text-align: center;
+  }
 }

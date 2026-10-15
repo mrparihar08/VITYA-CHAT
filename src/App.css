@@ -18,9 +18,9 @@
 }
 
 html {
-  zoom: 0.9;
   height: 100%;
   width: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 html,
@@ -618,12 +618,9 @@ button {
   }
 }
 html, body, #root {
-  height: auto;
-  min-height: 100%;
-  overflow-y: auto;
-}
-body {
-  margin: 0;
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Presentation Setup & Editor Responsive CSS (Consistent Top Horizontal Layout) */

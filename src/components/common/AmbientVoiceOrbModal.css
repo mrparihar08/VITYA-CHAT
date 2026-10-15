@@ -24,7 +24,8 @@
 .vAmbientVoiceModal {
   width: 100%;
   max-width: 780px;
-  min-height: 560px;
+  min-height: min(560px, 85vh);
+  max-height: 92vh;
   background: rgba(15, 23, 42, 0.75);
   border: 1px solid rgba(168, 85, 247, 0.35);
   border-radius: 28px;
@@ -35,7 +36,8 @@
   justify-content: space-between;
   padding: 24px 32px 28px 32px;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Header */
@@ -338,4 +340,50 @@
   background: rgba(168, 85, 247, 0.2);
   border-color: rgba(168, 85, 247, 0.4);
   color: #ffffff;
+}
+
+/* RESPONSIVE MEDIA QUERIES FOR AMBIENT VOICE MODAL */
+@media (max-width: 640px) {
+  .vAmbientVoiceOverlay {
+    padding: 10px;
+    align-items: center;
+  }
+
+  .vAmbientVoiceModal {
+    padding: 16px 14px 20px 14px;
+    border-radius: 20px;
+    min-height: auto;
+    max-height: 94vh;
+  }
+
+  .vAmbientOrbContainer {
+    width: 150px;
+    height: 150px;
+    margin: 10px 0;
+  }
+
+  .vAmbientGlowRing.outer {
+    width: 146px;
+    height: 146px;
+  }
+
+  .vAmbientGlowRing.inner {
+    width: 120px;
+    height: 120px;
+  }
+
+  .vAmbientOrb {
+    width: 90px;
+    height: 90px;
+  }
+
+  .vAmbientOrbCore {
+    width: 32px;
+    height: 32px;
+  }
+
+  .vAmbientSpeechText,
+  .vAmbientAiText {
+    font-size: 13px;
+  }
 }

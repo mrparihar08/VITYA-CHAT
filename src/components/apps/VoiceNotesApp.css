@@ -679,7 +679,6 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Transcript Raw Expander */
 .voiceTranscriptBox {
   background: rgba(3, 7, 18, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -692,4 +691,26 @@
   max-height: 160px;
   overflow-y: auto;
   white-space: pre-wrap;
+}
+
+@media (max-width: 768px) {
+  .voiceTopBar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .voiceTopActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .voiceRecorderPane {
+    padding: 14px 12px;
+  }
+
+  .voiceStudioBox {
+    padding: 16px 12px;
+  }
 }

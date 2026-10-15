@@ -1,5 +1,23 @@
 import React from "react";
-import { Paperclip, Camera, X, Image as ImageIcon } from "lucide-react";
+import {
+  Paperclip,
+  Camera,
+  X,
+  Image as ImageIcon,
+  Plus,
+  Send,
+  Mic,
+  MicOff,
+  Sparkles,
+  CreditCard,
+  TrendingDown,
+  PieChart,
+  Wallet,
+  FileText,
+  CloudSun,
+  Newspaper,
+} from "lucide-react";
+import "./ChatInput.css";
 
 export const MODES = [
   { key: "chat", label: "Chat", hint: "Default AI Assistant" },
@@ -10,22 +28,22 @@ export const MODES = [
 ];
 
 export const placeholderMap = {
-  chat: "Ask Vitya anything, upload an image, or ask for charts…",
-  dora: "Describe symptoms or ask a health question (e.g. fever & throat pain)…",
-  news: "Type news topic (e.g. India Economy)…",
-  wiki: "Search Wikipedia (e.g. Quantum Computing)…",
-  file: "Describe presentation (e.g. AI Trends)…",
+  chat: "Ask Vitya anything, upload an image, or ask for charts...",
+  dora: "Describe symptoms or ask a health question (e.g. fever & throat pain)...",
+  news: "Type news topic (e.g. India Economy)...",
+  wiki: "Search Wikipedia (e.g. Quantum Computing)...",
+  file: "Describe presentation (e.g. AI Trends)...",
 };
 
 export const QUICK_ACTIONS = [
-  { label: "💳 Balance", query: "my balance" },
-  { label: "💸 Expenses", query: "mere recent expenses dikhao" },
-  { label: "📊 Charts", query: "show pie chart for expenses" },
-  { label: "💰 Budget", query: "budget status" },
-  { label: "📈 Reports", query: "monthly report" },
-  { label: "🌦️ Weather", query: "aaj weather kaisa hai?" },
-  { label: "📸 Vision", query: "How to scan receipts and analyze images" },
-  { label: "📰 News", query: "/news latest updates" },
+  { id: "balance", label: "Balance", query: "my balance", icon: CreditCard, color: "#38bdf8" },
+  { id: "expenses", label: "Expenses", query: "mere recent expenses dikhao", icon: TrendingDown, color: "#34d399" },
+  { id: "charts", label: "Charts", query: "show pie chart for expenses", icon: PieChart, color: "#a78bfa" },
+  { id: "budget", label: "Budget", query: "budget status", icon: Wallet, color: "#fbbf24" },
+  { id: "reports", label: "Reports", query: "monthly report", icon: FileText, color: "#818cf8" },
+  { id: "weather", label: "Weather", query: "aaj weather kaisa hai?", icon: CloudSun, color: "#60a5fa" },
+  { id: "vision", label: "Vision", query: "How to scan receipts and analyze images", icon: Camera, color: "#fb7185" },
+  { id: "news", label: "News", query: "/news latest updates", icon: Newspaper, color: "#c084fc" },
 ];
 
 export const ChatInput = ({
@@ -62,6 +80,24 @@ export const ChatInput = ({
   const receiptInputRef = React.useRef(null);
   const videoRef = React.useRef(null);
   const streamRef = React.useRef(null);
+
+  const adjustHeight = React.useCallback(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const nextH = Math.min(Math.max(el.scrollHeight, 36), 140);
+    el.style.height = `${nextH}px`;
+  }, []);
+
+  React.useEffect(() => {
+    adjustHeight();
+  }, [input, adjustHeight]);
+
+  const handleQuickActionsWheel = (e) => {
+    if (e.deltaY !== 0) {
+      e.currentTarget.scrollLeft += e.deltaY;
+    }
+  };
 
   React.useEffect(() => {
     if (!plusOpen) {
@@ -197,60 +233,40 @@ export const ChatInput = ({
   };
 
   return (
-    <div
-      style={{
-        padding: "8px 18px 14px 18px",
-        background: "transparent",
-        backdropFilter: "none",
-        borderTop: "none",
-        flexShrink: 0,
-      }}
-    >
-      <div style={{ position: "relative", maxWidth: 900, margin: "0 auto" }} ref={menuRef}>
-        {/* QUICK SUGGESTION CHIPS */}
-        <div
-          style={{
-            display: "flex",
-            gap: 6,
-            overflowX: "auto",
-            paddingBottom: 8,
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-            alignItems: "center",
-          }}
-        >
-          {QUICK_ACTIONS.map((action, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => {
-                setInput(action.query);
-                setTimeout(() => sendMessage(action.query), 50);
-              }}
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                color: "rgba(255,255,255,0.85)",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 999,
-                padding: "4px 12px",
-                whiteSpace: "nowrap",
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(139,92,246,0.25)";
-                e.currentTarget.style.borderColor = "rgba(139,92,246,0.4)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.06)";
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-              }}
-            >
-              {action.label}
-            </button>
-          ))}
+    <div className="vitya-chat-input-wrapper">
+      <div className="vitya-chat-input-inner" ref={menuRef}>
+        {/* REDESIGNED QUICK ACTIONS BAR */}
+        <div className="vitya-quick-actions-wrap">
+          <div
+            className="vitya-quick-actions-scroll"
+            onWheel={handleQuickActionsWheel}
+            role="toolbar"
+            aria-label="Quick Actions"
+          >
+            {QUICK_ACTIONS.map((action) => {
+              const Icon = action.icon;
+              return (
+                <button
+                  key={action.id || action.label}
+                  type="button"
+                  className="vitya-quick-action-chip"
+                  onClick={() => {
+                    setInput(action.query);
+                    setTimeout(() => sendMessage(action.query), 50);
+                  }}
+                  title={`Query: "${action.query}"`}
+                  aria-label={action.label}
+                >
+                  {Icon && (
+                    <span className="vitya-quick-action-icon" style={{ color: action.color }}>
+                      <Icon size={14} strokeWidth={2.2} />
+                    </span>
+                  )}
+                  <span>{action.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* PLUS / ACTIONS FLOATING POPOVER */}
@@ -263,7 +279,8 @@ export const ChatInput = ({
               position: "absolute",
               bottom: "calc(100% + 8px)",
               left: 0,
-              width: "min(215px, 86vw)",
+              width: "min(240px, calc(100vw - 32px))",
+              maxWidth: "calc(100vw - 24px)",
               maxHeight: "min(75vh, 520px)",
               overflowY: "auto",
               overflowX: "hidden",
@@ -949,151 +966,111 @@ export const ChatInput = ({
           </div>
         )}
 
-        {/* INPUT BAR */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.10)",
-            borderRadius: 22,
-            padding: "6px 10px",
-          }}
-        >
-          {/* PLUS / ACTIONS MENU TRIGGER */}
-          <button
-            onClick={() => setPlusOpen((v) => !v)}
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 12,
-              border: "none",
-              background: "rgba(255,255,255,0.06)",
-              color: "#fff",
-              cursor: "pointer",
-              display: "grid",
-              placeItems: "center",
-              flexShrink: 0,
-            }}
-            title="More actions & plugins"
-          >
-            <img src="/plus.png" alt="Plus" style={{ width: 16, height: 16 }} />
-          </button>
+        {/* REFINED COMPOSER CONTAINER */}
+        <div className="vitya-composer-box">
+          {/* LEFT ACTIONS GROUP */}
+          <div className="vitya-composer-btn-group">
+            {/* PLUS / ACTIONS MENU TRIGGER */}
+            <button
+              type="button"
+              className={`vitya-composer-btn ${plusOpen ? "btn-active" : ""}`}
+              onClick={() => setPlusOpen((v) => !v)}
+              title="More actions & plugins"
+              aria-label="More actions and plugins"
+              aria-expanded={plusOpen}
+            >
+              <Plus size={16} strokeWidth={2.2} />
+            </button>
 
-          {/* ATTACH IMAGE BUTTON */}
-          <button
-            type="button"
-            onClick={() => imageInputRef.current?.click()}
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: 11,
-              border: "none",
-              background: attachedImages.length > 0 ? "rgba(59, 130, 246, 0.25)" : "rgba(255,255,255,0.06)",
-              color: attachedImages.length > 0 ? "#60a5fa" : "rgba(255,255,255,0.75)",
-              cursor: "pointer",
-              display: "grid",
-              placeItems: "center",
-              flexShrink: 0,
-              transition: "all 0.15s ease",
-            }}
-            title="Attach image (JPG, PNG, WEBP)"
-          >
-            <Paperclip size={16} />
-          </button>
+            {/* ATTACH IMAGE BUTTON */}
+            <button
+              type="button"
+              className={`vitya-composer-btn ${attachedImages?.length > 0 ? "btn-has-attachments" : ""}`}
+              onClick={() => imageInputRef.current?.click()}
+              title="Attach image (JPG, PNG, WEBP)"
+              aria-label="Attach image"
+            >
+              <Paperclip size={16} strokeWidth={2} />
+              {attachedImages?.length > 0 && <span className="vitya-attachment-badge" />}
+            </button>
 
-          {/* CAMERA BUTTON */}
-          <button
-            type="button"
-            onClick={startLiveCamera}
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: 11,
-              border: "none",
-              background: isCameraOpen ? "rgba(168, 85, 247, 0.35)" : "rgba(255,255,255,0.06)",
-              color: isCameraOpen ? "#c084fc" : "rgba(255,255,255,0.75)",
-              cursor: "pointer",
-              display: "grid",
-              placeItems: "center",
-              flexShrink: 0,
-              transition: "all 0.15s ease",
-            }}
-            title="Capture photo with live camera"
-          >
-            <Camera size={16} />
-          </button>
+            {/* CAMERA BUTTON */}
+            <button
+              type="button"
+              className={`vitya-composer-btn ${isCameraOpen ? "btn-active" : ""}`}
+              onClick={startLiveCamera}
+              title="Capture photo with live camera"
+              aria-label="Capture photo with live camera"
+            >
+              <Camera size={16} strokeWidth={2} />
+            </button>
+          </div>
 
-          {/* TEXT INPUT */}
-          <input
+          {/* AUTO-EXPANDING TEXTAREA */}
+          <textarea
             ref={inputRef}
+            rows={1}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={getPlaceholder()}
-            style={{
-              flex: 1,
-              background: "transparent",
-              border: "none",
-              outline: "none",
-              color: "#fff",
-              fontSize: 15,
-              padding: "8px 4px",
+            onChange={(e) => {
+              setInput(e.target.value);
+              adjustHeight();
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                sendMessage();
+                if (!loading && (input.trim() || (attachedImages && attachedImages.length > 0))) {
+                  sendMessage();
+                }
               }
             }}
+            placeholder={getPlaceholder()}
+            className="vitya-composer-textarea"
+            aria-label="Message Vitya"
           />
 
-          {/* VOICE INPUT BUTTON */}
-          <button
-            onClick={handleMicClick}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              toggleVoiceEnabled();
-            }}
-            title="Click to talk. Right-click to turn voice on/off."
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 12,
-              border: "none",
-              background: listening ? "rgba(139,92,246,0.25)" : "rgba(255,255,255,0.06)",
-              boxShadow: listening ? "0 0 0 4px rgba(139,92,246,0.2)" : "none",
-              color: "#fff",
-              cursor: "pointer",
-              display: "grid",
-              placeItems: "center",
-              flexShrink: 0,
-            }}
-          >
-            <img src={getMicIcon()} alt="Mic" style={{ width: 17, height: 17 }} />
-          </button>
+          {/* RIGHT ACTIONS GROUP */}
+          <div className="vitya-composer-btn-group">
+            {/* VOICE INPUT BUTTON */}
+            <button
+              type="button"
+              className={`vitya-composer-btn ${listening ? "mic-listening" : ""}`}
+              onClick={handleMicClick}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                toggleVoiceEnabled();
+              }}
+              title="Voice input (Click to talk. Right-click to toggle voice)"
+              aria-label="Voice input"
+            >
+              {listening ? (
+                <Mic size={16} strokeWidth={2.4} />
+              ) : getMicIcon && getMicIcon().includes("off") ? (
+                <MicOff size={16} strokeWidth={2} style={{ opacity: 0.6 }} />
+              ) : (
+                <Mic size={16} strokeWidth={2} />
+              )}
+            </button>
 
-          {/* SEND BUTTON */}
-          <button
-            onClick={() => sendMessage()}
-            disabled={loading}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 14,
-              border: "none",
-              background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
-              color: "#fff",
-              cursor: loading ? "not-allowed" : "pointer",
-              opacity: loading ? 0.7 : 1,
-              display: "grid",
-              placeItems: "center",
-              flexShrink: 0,
-              boxShadow: "0 8px 18px rgba(99,102,241,0.3)",
-            }}
-          >
-            <img src="/send.png" alt="Send" style={{ width: 17, height: 17 }} />
-          </button>
+            {/* SEND BUTTON */}
+            <button
+              type="button"
+              className="vitya-composer-send-btn"
+              onClick={() => {
+                if (!loading && (input.trim() || (attachedImages && attachedImages.length > 0))) {
+                  sendMessage();
+                }
+              }}
+              disabled={loading || (!input.trim() && (!attachedImages || attachedImages.length === 0))}
+              title="Send message (Enter)"
+              aria-label="Send message"
+            >
+              {loading ? (
+                <Sparkles size={16} className="vitya-spin" />
+              ) : (
+                <Send size={15} strokeWidth={2.4} />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* LIVE CAMERA VIEWFINDER MODAL */}

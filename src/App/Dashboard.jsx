@@ -304,7 +304,7 @@ const APP_REGISTRY = [
 ];
 
 const getIsMobile = () =>
-  typeof window !== "undefined" ? window.innerWidth < 900 : false;
+  typeof window !== "undefined" ? window.innerWidth < 1024 : false;
 
 const safeReadArrayLength = (key) => {
   if (typeof window === "undefined") return 0;
@@ -718,27 +718,30 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="topbarRightGroup" style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <button
               onClick={() => setAmbientVoiceOpen(true)}
-              title="Hands-Free Ambient Voice Mode"
+              title="Talk to Vitya"
+              className="topbarMicBtn"
+              aria-label="Talk to Vitya voice assistant"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "6px",
+                justifyContent: "center",
                 background: "linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%)",
                 border: "1px solid rgba(168, 85, 247, 0.35)",
                 borderRadius: "10px",
-                padding: "6px 12px",
+                padding: "6px 10px",
                 color: "#c084fc",
                 fontSize: "12.5px",
                 fontWeight: 600,
                 cursor: "pointer",
                 transition: "all 0.18s ease",
+                minWidth: 36,
+                minHeight: 36,
               }}
             >
-              <Mic size={14} color="#c084fc" />
-              <span className="hideOnMobile">Voice Mode</span>
+              <Mic size={15} color="#c084fc" />
             </button>
 
             <button
@@ -750,46 +753,52 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
                 })
               }
               title={isSplitView ? "Close Split View" : "Enable Dual-Pane Split View"}
+              className="topbarSplitBtn"
+              aria-label="Toggle dual-pane split view"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "6px",
+                justifyContent: "center",
                 background: isSplitView ? "rgba(56, 189, 248, 0.18)" : "rgba(255, 255, 255, 0.05)",
                 border: `1px solid ${isSplitView ? "rgba(56, 189, 248, 0.45)" : "rgba(255, 255, 255, 0.12)"}`,
                 borderRadius: "10px",
-                padding: "6px 12px",
+                padding: "6px 10px",
                 color: isSplitView ? "#38bdf8" : "#94a3b8",
                 fontSize: "12.5px",
                 fontWeight: 600,
                 cursor: "pointer",
                 transition: "all 0.18s ease",
+                minWidth: 36,
+                minHeight: 36,
               }}
             >
-              <Columns size={14} color={isSplitView ? "#38bdf8" : "#94a3b8"} />
-              <span className="hideOnMobile">{isSplitView ? "Dual Pane" : "Split View"}</span>
+              <Columns size={15} color={isSplitView ? "#38bdf8" : "#94a3b8"} />
             </button>
 
             <button
               onClick={() => setCommandPaletteOpen(true)}
               title="Search apps & commands (Ctrl+K)"
+              className="topbarSpotlightBtn"
+              aria-label="Open spotlight search"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "8px",
+                gap: "6px",
                 background: "rgba(255, 255, 255, 0.05)",
                 border: "1px solid rgba(255, 255, 255, 0.12)",
                 borderRadius: "10px",
-                padding: "6px 12px",
+                padding: "6px 10px",
                 color: "#94a3b8",
                 fontSize: "12.5px",
                 fontWeight: 500,
                 cursor: "pointer",
                 transition: "all 0.18s ease",
+                minHeight: 36,
               }}
             >
-              <Search size={14} color="#818cf8" />
-              <span className="hideOnMobile">Spotlight</span>
-              <kbd style={{ background: "rgba(255, 255, 255, 0.08)", padding: "1px 6px", borderRadius: "4px", fontSize: "10.5px", color: "#cbd5e1", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
+              <Search size={15} color="#818cf8" />
+              <span className="spotlightLabel">Spotlight</span>
+              <kbd className="spotlightKbd" style={{ background: "rgba(255, 255, 255, 0.08)", padding: "1px 5px", borderRadius: "4px", fontSize: "10px", color: "#cbd5e1", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
                 ⌘K
               </kbd>
             </button>
@@ -920,7 +929,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
                   <div className="vSplitLeftPane" style={{ width: "40%", minWidth: "340px", height: "100%", borderRight: "1px solid rgba(255, 255, 255, 0.1)", display: "flex", flexDirection: "column", background: "rgba(10, 15, 29, 0.85)" }}>
                     <div style={{ padding: "8px 14px", background: "rgba(15, 23, 42, 0.8)", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "12px", color: "#94a3b8", fontWeight: 600 }}>
                       <span style={{ display: "flex", alignItems: "center", gap: 6, color: "#c084fc" }}>
-                        🤖 Vitya Co-Pilot Dock
+                        Vitya
                       </span>
                       <button
                         onClick={() => {
@@ -929,7 +938,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
                         }}
                         style={{ background: "transparent", border: "none", color: "#64748b", cursor: "pointer", fontSize: "11px", fontWeight: 600 }}
                       >
-                        ✕ Close Dock
+                        ✕
                       </button>
                     </div>
                     <div style={{ flex: 1, minHeight: 0 }}>

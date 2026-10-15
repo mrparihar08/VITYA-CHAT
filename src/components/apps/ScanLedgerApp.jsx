@@ -269,12 +269,10 @@ export default function ScanLedgerApp({ onNavigateToFinance }) {
           </div>
           <div className="scanTitleCol">
             <div className="scanHeading">
-              AI Vision & Smart Receipt Ledger
-              <span className="scanBadge">Multimodal OCR</span>
+              Receipt Ledger
+              
             </div>
-            <div className="scanSubtitle">
-              Automated invoice scanning, line-item extraction & database auto-posting
-            </div>
+            
           </div>
         </div>
 
@@ -285,7 +283,7 @@ export default function ScanLedgerApp({ onNavigateToFinance }) {
             onClick={() => setActiveTab("scan")}
           >
             <Camera size={14} />
-            Scan & Review
+            Scan
           </button>
           <button
             className={`scanModePill ${activeTab === "history" ? "active" : ""}`}
@@ -295,7 +293,7 @@ export default function ScanLedgerApp({ onNavigateToFinance }) {
             }}
           >
             <Clock size={14} />
-            Synced Database Ledger ({recentLedger.length})
+            Synced Data ({recentLedger.length})
           </button>
         </div>
 
@@ -307,7 +305,7 @@ export default function ScanLedgerApp({ onNavigateToFinance }) {
             title="Automatically post directly to SQLAlchemy database upon receipt scan"
           >
             <Sparkles size={13} color={autoPost ? "#10b981" : "#94a3b8"} />
-            <span>Auto-Post to DB</span>
+            <span>Post to DB</span>
             <input
               type="checkbox"
               checked={autoPost}

@@ -410,3 +410,53 @@ input:checked + .slider:before {
 .text-danger .item-chevron {
   color: rgba(239, 68, 68, 0.6) !important;
 }
+
+/* RESPONSIVE MEDIA QUERIES FOR SETTINGS PAGE */
+@media (max-width: 768px) {
+  .vitya-settings-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .vitya-settings-search-wrap {
+    width: 100%;
+  }
+
+  .vitya-settings-cat-pills {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    width: 100%;
+  }
+
+  .cat-pill {
+    flex-shrink: 0;
+  }
+
+  .vitya-settings-card {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .vitya-setting-item {
+    padding: 12px 10px;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vitya-setting-item {
+    gap: 8px;
+  }
+
+  .item-label {
+    font-size: 13px;
+  }
+
+  .vitya-select-pill {
+    font-size: 12.5px;
+    padding: 4px 22px 4px 8px;
+  }
+}
