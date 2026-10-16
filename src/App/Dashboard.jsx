@@ -922,7 +922,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
           );
 
           return (
-            <main className={`content ${(activeTab === "chat" || activeTab === "presentation" || (activeTab === "apps" && (activeApp === "dora" || activeApp === "finance" || activeApp === "research" || activeApp === "scan-ledger" || activeApp === "automations" || activeApp === "voice-notes"))) || isSplitView ? "contentNoScroll" : ""}`}>
+            <main className={`content ${activeTab === "chat" ? "contentChat " : ""}${(activeTab === "chat" || activeTab === "presentation" || (activeTab === "apps" && (activeApp === "dora" || activeApp === "finance" || activeApp === "research" || activeApp === "scan-ledger" || activeApp === "automations" || activeApp === "voice-notes"))) || isSplitView ? "contentNoScroll" : ""}`}>
               {isSplitView && activeTab !== "chat" ? (
                 <div className="vSplitViewContainer" style={{ display: "flex", width: "100%", height: "100%", overflow: "hidden", gap: 0 }}>
                   {/* Left Dock: Chatbot Co-Pilot (40% width) */}

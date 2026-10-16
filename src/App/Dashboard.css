@@ -255,16 +255,21 @@ body,
 }
 
 .topbar {
-  height: clamp(60px, 7vh, 72px);
+  min-height: clamp(60px, 7vh, 72px);
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 0 clamp(12px, 2vw, 18px);
+  padding-top: max(6px, env(safe-area-inset-top, 0px));
+  padding-left: max(clamp(12px, 2vw, 18px), env(safe-area-inset-left, 0px));
+  padding-right: max(clamp(12px, 2vw, 18px), env(safe-area-inset-right, 0px));
   background: rgba(15, 20, 36, 0.78);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(12px);
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .menuBtn {
@@ -747,14 +752,24 @@ body,
     display: none !important;
   }
 
-  .content {
+  .content:not(.contentNoScroll):not(.contentChat) {
     padding: 10px !important;
+  }
+  .contentNoScroll,
+  .contentChat {
+    padding: 0 !important;
+    border: none !important;
   }
 
   .topbar {
     padding: 0 10px;
-    height: 60px;
+    padding-top: max(8px, env(safe-area-inset-top, 0px));
+    padding-left: max(10px, env(safe-area-inset-left, 0px));
+    padding-right: max(10px, env(safe-area-inset-right, 0px));
+    min-height: calc(56px + max(8px, env(safe-area-inset-top, 0px)));
+    height: auto;
     gap: 8px;
+    box-sizing: border-box;
   }
 
   .sidebar {
@@ -819,12 +834,23 @@ body,
 
 /* Extra small mobile (320px - 380px) */
 @media (max-width: 380px) {
-  .content {
+  .content:not(.contentNoScroll):not(.contentChat) {
     padding: 8px !important;
+  }
+  .contentNoScroll,
+  .contentChat {
+    padding: 0 !important;
+    border: none !important;
   }
 
   .topbar {
     padding: 0 8px;
+    padding-top: max(8px, env(safe-area-inset-top, 0px));
+    padding-left: max(8px, env(safe-area-inset-left, 0px));
+    padding-right: max(8px, env(safe-area-inset-right, 0px));
+    min-height: calc(54px + max(8px, env(safe-area-inset-top, 0px)));
+    height: auto;
+    box-sizing: border-box;
   }
 
   .sidebar {
