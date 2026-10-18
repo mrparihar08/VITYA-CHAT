@@ -104,6 +104,7 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
   const [error, setError] = useState("");
   const [clearing, setClearing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [copiedId, setCopiedId] = useState(null);
 
   const fetchConversations = useCallback(async () => {
     setLoading(true);
@@ -148,9 +149,10 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
     }
   };
 
-  const deleteSingleConversation = async (e, id) => {
+  const deleteSingleConversation = async (e, id, uniqueId) => {
     e.stopPropagation();
-    if (!window.confirm(`Delete Conversation #${id}?`)) return;
+    const displayId = uniqueId || id;
+    if (!window.confirm(`Delete Conversation #${displayId}?`)) return;
 
     try {
       const token = localStorage.getItem("token");
@@ -170,7 +172,9 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
     return conversations.filter(
       (c) =>
         getConversationTitle(c).toLowerCase().includes(q) ||
+        (c.unique_id && c.unique_id.toLowerCase().includes(q)) ||
         `conversation #${c.id}`.toLowerCase().includes(q) ||
+        `#${c.unique_id || c.id}`.toLowerCase().includes(q) ||
         getPreview(c).toLowerCase().includes(q)
     );
   }, [conversations, searchQuery]);
@@ -238,7 +242,7 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
           {filteredConversations.map((conversation) => (
             <div
               className="historyItem"
-              key={conversation.id}
+              key={conversation.unique_id || conversation.id}
               onClick={() => onOpenConversation(conversation.id)}
               role="button"
               tabIndex={0}
@@ -247,12 +251,26 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
                 <div className="historyItemTitleGroup">
                   <span className="historyIconBadge">💬</span>
                   <span className="historyItemTitle">{getConversationTitle(conversation)}</span>
+                  {conversation.unique_id && (
+                    <span
+                      className="historyUniqueIdBadge"
+                      title="Click to copy Unique ID"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigator.clipboard?.writeText(conversation.unique_id);
+                        setCopiedId(conversation.unique_id);
+                        setTimeout(() => setCopiedId(null), 2000);
+                      }}
+                    >
+                      {copiedId === conversation.unique_id ? "✓ Copied" : `#${conversation.unique_id}`}
+                    </span>
+                  )}
                 </div>
                 <div className="historyTopRight">
                   <span className="historyItemDate">{formatDate(conversation.created_at)}</span>
                   <button
                     className="historyDeleteBtn"
-                    onClick={(e) => deleteSingleConversation(e, conversation.id)}
+                    onClick={(e) => deleteSingleConversation(e, conversation.id, conversation.unique_id)}
                     title="Delete conversation"
                   >
                     🗑️

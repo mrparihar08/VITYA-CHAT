@@ -1,3 +1,32 @@
 # https://www.robotstxt.org/robotstxt.html
+# Vitya AI - Robots.txt Directive
+
 User-agent: *
-Disallow:
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /presentation
+Allow: /finance
+Allow: /scan-ledger
+Allow: /scanner
+Allow: /research
+Allow: /dora
+Allow: /automations
+Allow: /voice-notes
+Allow: /assets/
+Allow: /outputs/
+
+# Disallow private user-specific and authenticated application states
+Disallow: /dashboard
+Disallow: /dashboard/*
+Disallow: /profile
+Disallow: /profile/*
+Disallow: /settings
+Disallow: /settings/*
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /api/
+
+# Host and Sitemap Declarations
+Host: https://vitya-chat.onrender.com
+Sitemap: https://vitya-chat.onrender.com/sitemap.xml

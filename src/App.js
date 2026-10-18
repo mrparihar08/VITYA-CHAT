@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 import Dashboard from "./App/Dashboard";
+import LandingPage from "./components/landing/LandingPage";
 import {
   Register,
   Login,
@@ -137,40 +138,96 @@ const AppRouteWrapper = () => {
 };
 
 // ==============================
-// PAGE TITLE UPDATER
+// SEO & METADATA HEAD UPDATER
 // ==============================
 const PageTitleUpdater = () => {
   const location = useLocation();
 
   useEffect(() => {
     const path = location.pathname;
-    let title = "Vitya AI";
+    let title = "Vitya AI | Autonomous Multimodal Workstation";
+    let description = "Vitya AI is an autonomous multimodal intelligence platform uniting AI Presentation Studio, Vidya F.E.I personal wealth intelligence, DORA health triage, and research.";
+    let robots = "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
+    let keywords = "AI presentation generator, personal finance AI, receipt OCR scanner, DORA health AI, symptom triage";
 
-    if (path.startsWith("/login")) title = "Login | Vitya AI";
-    else if (path.startsWith("/register")) title = "Register | Vitya AI";
-    else if (path.startsWith("/forgot-password")) title = "Forgot Password | Vitya AI";
-    else if (path.startsWith("/reset-password")) title = "Reset Password | Vitya AI";
-    else if (path.startsWith("/profile/edit")) title = "Edit Profile | Vitya AI";
-    else if (path.startsWith("/profile")) title = "Profile | Vitya AI";
-    else if (path.startsWith("/settings/security")) title = "Security & Privacy | Vitya AI";
-    else if (path.startsWith("/settings/subscription")) title = "Subscription | Vitya AI";
-    else if (path.startsWith("/settings/notifications")) title = "Notifications | Vitya AI";
-    else if (path.startsWith("/settings/appearance")) title = "Appearance | Vitya AI";
-    else if (path.startsWith("/settings/about")) title = "About Vitya AI | Vitya AI";
-    else if (path.startsWith("/settings/help")) title = "Help & Support | Vitya AI";
-    else if (path.startsWith("/settings")) title = "Settings | Vitya AI";
-    else if (path.startsWith("/presentation")) title = "Presentation Studio | vitya.ai";
-    else if (path.startsWith("/research")) title = "Research & Deep Document Lab | vitya.ai";
-    else if (path.startsWith("/scan-ledger") || path.startsWith("/scanner")) title = "AI Vision Receipt Ledger | vitya.ai";
-    else if (path.startsWith("/automations") || path.startsWith("/routines")) title = "Neural Automations & Routines | vitya.ai";
-    else if (path.startsWith("/voice-notes") || path.startsWith("/voicenotes") || path.startsWith("/audio-brain")) title = "Voice Notes & Audio Brain | vitya.ai";
-    else if (path.startsWith("/dora")) title = "Dora Dr. | vitya.ai";
-    else if (path.startsWith("/finance") || path.startsWith("/fei")) title = "Vidya F.E.I Advisor | vitya.ai";
-    else if (path.startsWith("/chatbot")) title = "AI Assistant | vitya.ai";
-    else if (path.startsWith("/apps")) title = "Apps Workspace | vitya.ai";
-    else if (path.startsWith("/dashboard")) title = "Dashboard | vitya.ai";
+    if (path === "/" || path === "") {
+      title = "Vitya AI | Autonomous Multimodal AI Workstation & Wealth Intelligence";
+      description = "Vitya AI unites AI Presentation Studio (automated PPTX with Edge-TTS voiceovers), Vidya F.E.I personal wealth management, DORA clinical health triage, and deep document research.";
+      keywords = "AI presentation generator, automated pitch deck maker, personal finance AI, double-entry accounting software, receipt OCR scanner, DORA health AI, Vitya AI";
+    } else if (path.startsWith("/presentation")) {
+      title = "AI Presentation Studio | Autonomous PPTX Generator | Vitya AI";
+      description = "Generate executive 16:9 presentation decks from natural language with automated spatial layouts, 21 content plugins, and Edge-TTS voice narration.";
+      keywords = "AI presentation maker, generate powerpoint with AI, automated pitch deck, PPTX generator, Edge-TTS narration, presentation studio";
+    } else if (path.startsWith("/finance") || path.startsWith("/fei")) {
+      title = "Vidya F.E.I | AI Personal Wealth & Double-Entry Accounting | Vitya AI";
+      description = "Track finances with double-entry precision, forecast cashflow with scikit-learn machine learning, optimize savings goals, and check your 0-100 Financial Health Score.";
+      keywords = "personal finance AI, double-entry accounting software, financial health score, expense forecasting, savings tracker, Vidya FEI";
+    } else if (path.startsWith("/scan-ledger") || path.startsWith("/scanner")) {
+      title = "AI Vision Receipt Ledger | Optical Character Recognition | Vitya AI";
+      description = "Instantly scan paper receipts and invoices using computer vision OCR. Automatically categorize expenses, calculate tax deductions, and update your ledger.";
+      keywords = "receipt OCR scanner, invoice scanner AI, automated bookkeeping, receipt ledger, expense tracking OCR";
+    } else if (path.startsWith("/dora")) {
+      title = "DORA Health AI | Clinical Triage & Diagnostic Intelligence | Vitya AI";
+      description = "Clinical triage classifier analyzing 130+ symptom vectors. Get rapid differential diagnostic suggestions, triage urgency levels, and specialist guidance.";
+      keywords = "clinical triage AI, symptom checker, medical diagnostic AI, DORA health, healthcare assistant";
+    } else if (path.startsWith("/research")) {
+      title = "Research Lab & Deep Document Intelligence | Vitya AI";
+      description = "Synthesize complex multi-document repositories, execute multimodal RAG queries, and cross-reference citations with precision.";
+      keywords = "deep research AI, document synthesis, multimodal RAG, academic research assistant, document intelligence";
+    } else if (path.startsWith("/voice-notes") || path.startsWith("/voicenotes") || path.startsWith("/audio-brain")) {
+      title = "Voice Notes & Audio Brain | Whisper Meeting Intelligence | Vitya AI";
+      description = "Capture voice thoughts and meetings with Whisper speech recognition. Automatically extract action items, summarize dialogues, and synchronize tasks.";
+      keywords = "AI voice notes, Whisper transcription, meeting summary AI, audio brain, speech to action items";
+    } else if (path.startsWith("/automations") || path.startsWith("/routines")) {
+      title = "Neural Automations & Smart Routines | Vitya AI";
+      description = "Set up autonomous background routines, smart scheduled workflows, calendar syncing, and automated enterprise triggers.";
+      keywords = "workflow automation AI, scheduled routines, autonomous agents, productivity automations";
+    } else if (path.startsWith("/login")) {
+      title = "Sign In | Vitya AI";
+      description = "Sign in to your Vitya AI unified workspace to access Presentation Studio, Vidya F.E.I wealth analytics, and DORA health.";
+      robots = "index, follow";
+    } else if (path.startsWith("/register")) {
+      title = "Create Your Free Account | Vitya AI";
+      description = "Get started with Vitya AI today. Launch your autonomous multimodal workstation for presentations, finance, and research.";
+      robots = "index, follow";
+    } else if (path.startsWith("/forgot-password") || path.startsWith("/reset-password")) {
+      title = "Account Recovery | Vitya AI";
+      description = "Reset your Vitya AI password securely.";
+      robots = "noindex, nofollow";
+    } else if (path.startsWith("/profile") || path.startsWith("/settings") || path.startsWith("/dashboard")) {
+      title = "User Workspace | Vitya AI";
+      description = "Vitya AI authenticated workspace.";
+      robots = "noindex, nofollow";
+    }
 
     document.title = title;
+
+    const setMeta = (attr, key, val) => {
+      let tag = document.querySelector(`meta[${attr}="${key}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute(attr, key);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", val);
+    };
+
+    setMeta("name", "description", description);
+    setMeta("name", "keywords", keywords);
+    setMeta("name", "robots", robots);
+    setMeta("property", "og:title", title);
+    setMeta("property", "og:description", description);
+    setMeta("property", "og:url", `https://vitya-chat.onrender.com${path === "/" ? "" : path}`);
+    setMeta("name", "twitter:title", title);
+    setMeta("name", "twitter:description", description);
+
+    let canon = document.querySelector('link[rel="canonical"]');
+    if (!canon) {
+      canon = document.createElement("link");
+      canon.setAttribute("rel", "canonical");
+      document.head.appendChild(canon);
+    }
+    canon.setAttribute("href", `https://vitya-chat.onrender.com${path === "/" ? "" : path}`);
   }, [location]);
 
   return null;
@@ -193,7 +250,7 @@ function AppRoutes() {
             isAuthenticated ? (
               <Navigate to="/dashboard" replace />
             ) : (
-              <Navigate to="/login" replace />
+              <LandingPage />
             )
           }
         />
