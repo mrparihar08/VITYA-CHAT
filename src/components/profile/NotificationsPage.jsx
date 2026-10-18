@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageShell } from "../auth/AuthCommon";
 import { api, handleApiError } from "../../services/api";
+import PushSubscriptionManager from "../notifications/PushSubscriptionManager";
 import "../auth/Auth.css";
 
 export function NotificationsPage({ insideDashboard = false }) {
@@ -146,6 +147,8 @@ export function NotificationsPage({ insideDashboard = false }) {
             ))}
           </div>
         </div>
+
+        <PushSubscriptionManager />
       </div>
     </PageShell>
   );

@@ -27,6 +27,7 @@ import Sidebar from "../components/sidebar/Sidebar";
 import AppsWorkspace from "../components/apps/AppsWorkspace";
 import CommandPalette from "../components/common/CommandPalette";
 import AmbientVoiceOrbModal from "../components/common/AmbientVoiceOrbModal";
+import NotificationBell from "../components/notifications/NotificationBell";
 import { Search, Columns, Mic } from "lucide-react";
 import {
   SettingsPage,
@@ -802,6 +803,10 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
                 ⌘K
               </kbd>
             </button>
+
+            <NotificationBell
+              onNavigateToSettings={() => updateNavigationState("settings/notifications", null, null)}
+            />
 
             <button
               className="profileMiniBtn"
