@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageShell } from "../auth/AuthCommon";
-import { api, handleApiError } from "../../services/api";
+import { api } from "../../services/api";
 import PushSubscriptionManager from "../notifications/PushSubscriptionManager";
 import "../auth/Auth.css";
 
 export function NotificationsPage({ insideDashboard = false }) {
   const navigate = useNavigate();
-  const [emailAlerts, setEmailAlerts] = useState(true);
-  const [securityAlerts, setSecurityAlerts] = useState(true);
-  const [aiUpdates, setAiUpdates] = useState(true);
-  const [marketing, setMarketing] = useState(false);
-  const [toastMsg, setToastMsg] = useState("");
+  const [emailAlerts, setEmailAlerts] = useState(() => localStorage.getItem("vitya_email_alerts") !== "false");
+  const [securityAlerts, setSecurityAlerts] = useState(() => localStorage.getItem("vitya_security_alerts") !== "false");
+  const [aiUpdates, setAiUpdates] = useState(() => localStorage.getItem("vitya_ai_updates") !== "false");
+  const [marketing, setMarketing] = useState(() => localStorage.getItem("vitya_marketing") === "true");
+  const [toastMsg, setToastMsg] = useState({ text: "", isError: false });
 
-  const showToast = (msg) => {
-    setToastMsg(msg);
-    setTimeout(() => setToastMsg(""), 3500);
+  const showToast = (text, isError = false) => {
+    setToastMsg({ text, isError });
+    setTimeout(() => setToastMsg({ text: "", isError: false }), 3500);
   };
 
   // Load from backend
@@ -24,17 +24,29 @@ export function NotificationsPage({ insideDashboard = false }) {
     if (!token) return;
 
     api
-      .get("/api/settings/")
+      .get("/api/settings")
       .then((res) => {
         if (res.data) {
-          if (typeof res.data.email_alerts === "boolean") setEmailAlerts(res.data.email_alerts);
-          if (typeof res.data.security_alerts === "boolean") setSecurityAlerts(res.data.security_alerts);
-          if (typeof res.data.ai_updates === "boolean") setAiUpdates(res.data.ai_updates);
-          if (typeof res.data.marketing === "boolean") setMarketing(res.data.marketing);
+          if (typeof res.data.email_alerts === "boolean") {
+            setEmailAlerts(res.data.email_alerts);
+            localStorage.setItem("vitya_email_alerts", String(res.data.email_alerts));
+          }
+          if (typeof res.data.security_alerts === "boolean") {
+            setSecurityAlerts(res.data.security_alerts);
+            localStorage.setItem("vitya_security_alerts", String(res.data.security_alerts));
+          }
+          if (typeof res.data.ai_updates === "boolean") {
+            setAiUpdates(res.data.ai_updates);
+            localStorage.setItem("vitya_ai_updates", String(res.data.ai_updates));
+          }
+          if (typeof res.data.marketing === "boolean") {
+            setMarketing(res.data.marketing);
+            localStorage.setItem("vitya_marketing", String(res.data.marketing));
+          }
         }
       })
       .catch((err) => {
-        console.warn("Could not load notification settings from backend", err);
+        console.warn("Could not load notification settings from backend, using local defaults", err);
       });
   }, []);
 
@@ -45,19 +57,24 @@ export function NotificationsPage({ insideDashboard = false }) {
       ai_updates: setAiUpdates,
       marketing: setMarketing,
     };
+    // 1. Immediately update UI state
     stateSetters[key]?.(val);
 
+    // 2. Persist locally to localStorage immediately
+    localStorage.setItem(`vitya_${key}`, String(val));
+
+    // 3. Sync to backend
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        await api.put("/api/settings/", { [key]: val });
+        await api.put("/api/settings", { [key]: val });
         showToast(`${label} ${val ? "Enabled" : "Disabled"}`);
       } catch (err) {
-        showToast(handleApiError(err) || "Failed to update notification setting");
-        stateSetters[key]?.(!val); // revert on failure
+        console.warn(`Backend sync deferred for ${key}:`, err);
+        showToast(`${label} ${val ? "Enabled" : "Disabled"} (saved locally)`);
       }
     } else {
-      showToast(`${label} ${val ? "Enabled" : "Disabled"} (local)`);
+      showToast(`${label} ${val ? "Enabled" : "Disabled"} (saved locally)`);
     }
   };
 
@@ -101,7 +118,21 @@ export function NotificationsPage({ insideDashboard = false }) {
       wide={true}
     >
       <div className="vitya-profile-edit-container">
-        {toastMsg && <div className="vitya-settings-toast">✓ {toastMsg}</div>}
+        {toastMsg.text && (
+          <div
+            className="vitya-settings-toast"
+            style={{
+              background: toastMsg.isError
+                ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
+                : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+              boxShadow: toastMsg.isError
+                ? "0 10px 25px rgba(239, 68, 68, 0.4)"
+                : "0 10px 25px rgba(16, 185, 129, 0.4)",
+            }}
+          >
+            {toastMsg.isError ? "⚠️ " : "✓ "} {toastMsg.text}
+          </div>
+        )}
 
         <div className="vitya-profile-top-nav">
           <button

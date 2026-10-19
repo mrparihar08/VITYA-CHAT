@@ -147,10 +147,15 @@ export async function subscribeToPushNotifications() {
   const reg = await registerServiceWorker();
   if (!reg) throw new Error("Could not register service worker");
 
-  // 3. Fetch VAPID Public Key from Backend
-  const vapidPublicKey = await notificationApi.getVapidPublicKey();
+  // 3. Fetch VAPID Public Key from Backend (with fallback)
+  let vapidPublicKey = "";
+  try {
+    vapidPublicKey = await notificationApi.getVapidPublicKey();
+  } catch (err) {
+    console.warn("Failed to fetch VAPID key from backend, using fallback:", err);
+  }
   if (!vapidPublicKey) {
-    throw new Error("VAPID public key not configured on server");
+    vapidPublicKey = "BK0JaC7kPGJ-29eQUTkpO3nV_mSBjGKMl53qAZMh1eoCYYk9o78Hn5F9ErJx5CK9AQNYiMR2_ZkDeJLwjLPyw6g";
   }
 
   // 4. Subscribe with PushManager

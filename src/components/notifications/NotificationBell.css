@@ -2,6 +2,7 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  z-index: 5000;
 }
 
 .notif-bell-btn {
@@ -57,17 +58,26 @@
   top: calc(100% + 10px);
   right: 0;
   width: 360px;
-  max-width: 90vw;
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  max-width: calc(100vw - 24px);
+  box-sizing: border-box;
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.1);
-  z-index: 1000;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 25px rgba(139, 92, 246, 0.2);
+  z-index: 999999;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   animation: notifFadeIn 0.2s ease-out;
+}
+
+@media (max-width: 480px) {
+  .notif-dropdown {
+    right: -42px;
+    width: min(340px, calc(100vw - 20px));
+  }
 }
 
 @keyframes notifFadeIn {

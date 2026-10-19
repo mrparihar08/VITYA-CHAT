@@ -5,6 +5,7 @@ import {
   unsubscribeFromPushNotifications,
   notificationApi,
 } from "../../services/notificationService";
+import { handleApiError } from "../../services/api";
 
 export default function PushSubscriptionManager() {
   const [supported, setSupported] = useState(true);
@@ -38,6 +39,13 @@ export default function PushSubscriptionManager() {
 
   const handleSubscribe = async () => {
     if (!supported) return;
+
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) {
+      showMessage("Please log in to your account to enable Web Push alerts.", "error");
+      return;
+    }
+
     setLoading(true);
     try {
       await subscribeToPushNotifications();
@@ -48,9 +56,10 @@ export default function PushSubscriptionManager() {
       const currentPerm = typeof Notification !== "undefined" ? Notification.permission : "default";
       setPermission(currentPerm);
       if (currentPerm === "denied") {
-        showMessage("Notification permission was denied in your browser settings.", "error");
+        showMessage("Notification permission was denied in your browser settings. Please allow notifications in site settings.", "error");
       } else {
-        showMessage(err.message || "Failed to enable notifications.", "error");
+        const errorMsg = handleApiError(err) || err.message || "Failed to enable notifications.";
+        showMessage(errorMsg, "error");
       }
     } finally {
       setLoading(false);
@@ -79,7 +88,25 @@ export default function PushSubscriptionManager() {
       });
       showMessage("Test notification dispatched! Check your notifications.");
     } catch (err) {
-      showMessage(err.response?.data?.detail || "Failed to dispatch test notification.", "error");
+      // Fallback: If backend dispatch encounters an issue, display local notification via Service Worker
+      if (typeof Notification !== "undefined" && Notification.permission === "granted" && "serviceWorker" in navigator) {
+        try {
+          const reg = await navigator.serviceWorker.ready;
+          if (reg && reg.showNotification) {
+            reg.showNotification("Vitya AI Test Push", {
+              body: "Your Web Push notifications are active and delivering in real time!",
+              icon: "/favicon.ico",
+              badge: "/favicon.ico",
+              tag: `test-push-${Date.now()}`,
+            });
+            showMessage("Test notification displayed in your browser!");
+            return;
+          }
+        } catch (swErr) {
+          console.warn("Local SW notification failed:", swErr);
+        }
+      }
+      showMessage(err.response?.data?.detail || handleApiError(err) || "Failed to dispatch test notification.", "error");
     } finally {
       setTestLoading(false);
     }

@@ -255,6 +255,8 @@ body,
 }
 
 .topbar {
+  position: relative;
+  z-index: 1100;
   min-height: clamp(60px, 7vh, 72px);
   height: auto;
   display: flex;
@@ -681,6 +683,10 @@ body,
 
 /* Tablet (768px - 1023px) and below */
 @media (max-width: 1023px) {
+  .overlay {
+    z-index: 9998;
+  }
+
   .sidebar {
     position: fixed;
     top: 0;
@@ -688,7 +694,7 @@ body,
     height: 100%;
     transform: translateX(-100%);
     box-shadow: 20px 0 40px rgba(0, 0, 0, 0.45);
-    z-index: 1000;
+    z-index: 10000;
   }
 
   .sidebar.open {
