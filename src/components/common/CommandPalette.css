@@ -5,7 +5,7 @@
 .vityaCommandPaletteOverlay {
   position: fixed;
   inset: 0;
-  z-index: 99999;
+  z-index: var(--z-spotlight, 2200);
   background: rgba(5, 8, 18, 0.75);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);

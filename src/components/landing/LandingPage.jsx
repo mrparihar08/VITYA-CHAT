@@ -22,7 +22,7 @@ export default function LandingPage() {
     <div className="landing-container">
       <SEOHead
         title="Autonomous Multimodal AI Workstation & Wealth Intelligence"
-        description="Experience Vitya AI: An autonomous multimodal workspace combining AI Presentation Studio with Edge-TTS voiceovers, Vidya F.E.I double-entry wealth intelligence, AI vision receipt OCR, and DORA health triage."
+        description="Experience Vitya AI: An autonomous multimodal workspace combining AI Presentation Studio with Edge-TTS voiceovers, Vidya double-entry wealth intelligence, AI vision receipt OCR, and DORA health triage."
         keywords="AI presentation generator, automated pitch deck maker, personal finance AI, double-entry accounting software, receipt OCR scanner, DORA health AI, symptom triage, deep research lab, autonomous AI agent"
         canonicalUrl="https://vitya-chat.onrender.com/"
         structuredData={landingStructuredData}
@@ -109,7 +109,7 @@ export default function LandingPage() {
             {/* Feature 2 */}
             <article className="feature-card">
               <div className="feature-icon-wrap" aria-hidden="true">📈</div>
-              <h3 className="feature-heading">Vidya F.E.I Wealth Advisor</h3>
+              <h3 className="feature-heading">Vidya Wealth Advisor</h3>
               <p className="feature-text">
                 Full double-entry personal accounting with machine-learning cashflow forecasting, 0–100 financial health scoring, automated budget capping, and subscription leak detection.
               </p>
@@ -204,9 +204,9 @@ export default function LandingPage() {
             </article>
 
             <article className="faq-item">
-              <h3 className="faq-question">How does Vidya F.E.I calculate my Financial Health Score?</h3>
+              <h3 className="faq-question">How does Vidya calculate my Financial Health Score?</h3>
               <p className="faq-answer">
-                The Vidya F.E.I scoring engine evaluates your debt-to-savings ratio, recurring subscription burn rate, savings consistency, and expense volatility to output an objective score from 0 to 100 alongside actionable optimization recommendations.
+                The Vidya scoring engine evaluates your debt-to-savings ratio, recurring subscription burn rate, savings consistency, and expense volatility to output an objective score from 0 to 100 alongside actionable optimization recommendations.
               </p>
             </article>
 

@@ -19,6 +19,23 @@
   --sidebar-bg: #0b0f19;
   --text: #ffffff;
   --muted: rgba(255, 255, 255, 0.72);
+
+  /* Global Z-Index Stacking Architecture */
+  --z-base: 0;
+  --z-card: 1;
+  --z-sticky: 10;
+  --z-header: 20;
+  --z-topbar: 90;
+  --z-sidebar: 100;
+  --z-dropdown: 150;
+  --z-overlay-mobile: 1000;
+  --z-drawer-mobile: 1050;
+  --z-modal-backdrop: 2000;
+  --z-modal: 2050;
+  --z-spotlight: 2200;
+  --z-voice-orb: 2300;
+  --z-toast: 5000;
+  --z-fullscreen: 10000;
 }
 
 [data-theme="midnight"] {

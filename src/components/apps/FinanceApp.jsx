@@ -318,7 +318,7 @@ export default function FinanceApp() {
       {/* HEADER & CSV EXPORT ACTIONS */}
       <div className="finance-header">
         <div>
-          <h2>💳 Vidya F.E.I Advisor • Finance, Expense & Income</h2>
+          <h2>💳 Vidya Advisor • Finance, Expense & Income</h2>
           <p>Live cashflow tracking, income velocity, expense analytics, and autonomous AI Fiduciary advice.</p>
         </div>
         <div className="finance-export-group">
@@ -402,7 +402,7 @@ export default function FinanceApp() {
           className={`finance-tab ${activeTab === "health" ? "active" : ""}`}
           onClick={() => setActiveTab("health")}
         >
-          ⚡ F.E.I Score & AI Advisor
+          ⚡ Score & AI Advisor
         </button>
         <button
           className={`finance-tab ${activeTab === "monte-carlo" ? "active" : ""}`}
@@ -744,7 +744,7 @@ export default function FinanceApp() {
         </div>
       )}
 
-      {/* TAB CONTENT: F.E.I HEALTH & AI ADVISOR */}
+      {/* TAB CONTENT: HEALTH & AI ADVISOR */}
       {activeTab === "health" && (
         <div className="finance-tab-body" style={{ marginTop: 12 }}>
           <FinancialHealthApp />

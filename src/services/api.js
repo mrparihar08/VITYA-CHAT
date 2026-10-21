@@ -1,10 +1,13 @@
 import axios from "axios";
 
 const getApiBaseUrl = () => {
-  const viteUrl =
-    typeof import.meta !== "undefined" &&
-    import.meta.env &&
-    import.meta.env.VITE_API_URL;
+  let viteUrl = "";
+  try {
+    // eslint-disable-next-line no-new-func
+    viteUrl = new Function("return typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_API_URL : ''")();
+  } catch (e) {
+    viteUrl = "";
+  }
 
   const craUrl =
     typeof process !== "undefined" &&

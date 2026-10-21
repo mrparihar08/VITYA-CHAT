@@ -41,266 +41,361 @@ import {
 
 const APP_REGISTRY = [
   {
-    id: "voice-notes",
-    name: "Voice Meeting & Audio Brain",
-    desc: "In-browser ambient voice recorder, Whisper speech transcription & automated workspace injection",
-    icon: "🎙️",
+    id: "chat",
+    name: "AI Chat",
+    desc: "Get instant answers, generate content, and solve problems with advanced AI.",
+    icon: "chat",
     type: "internal",
     category: "ai",
-    keywords: ["voice", "audio", "recording", "meeting", "whisper", "speech", "transcription", "microphone", "sound", "notes", "action items"],
-    iconBg: "linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #38bdf8 100%)",
-    component: VoiceNotesApp,
+    tags: ["AI", "Productivity"],
+    keywords: ["chat", "gpt", "chatbot", "ai", "assistant", "conversation", "prompt", "answers"],
+    iconBg: "linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)",
+    context: "Continue your last conversation",
+    popularity: 100,
   },
   {
-    id: "automations",
-    name: "Neural Automations",
-    desc: "Cross-app triggers, autonomous task generation & scheduled presentation synthesis",
-    icon: "⚡",
+    id: "presentation",
+    name: "Prompt to PPT",
+    desc: "Turn your ideas into beautiful presentations in seconds with AI.",
+    icon: "presentation",
     type: "internal",
-    category: "ai",
-    keywords: ["automations", "routines", "triggers", "workflow", "mother routines", "zapier", "scheduler", "cron", "ai"],
-    iconBg: "linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%)",
-    component: AutomationsApp,
+    category: "productivity",
+    tags: ["AI", "Productivity"],
+    keywords: ["presentation", "ppt", "powerpoint", "slides", "deck", "pitch", "export", "ai"],
+    iconBg: "linear-gradient(135deg, #ea580c 0%, #f97316 50%, #ef4444 100%)",
+    context: "Create stunning presentations with AI",
+    popularity: 98,
   },
   {
-    id: "scan-ledger",
-    name: "AI Vision & Receipt Ledger",
-    desc: "Scan receipts & bills with Gemini Vision, extract items and auto-post to database",
-    icon: "🧾",
+    id: "notes",
+    name: "Smart Notes",
+    desc: "Take notes, organize ideas and summarize content with AI assistance.",
+    icon: "notes",
+    type: "internal",
+    category: "productivity",
+    tags: ["Productivity", "AI"],
+    keywords: ["notes", "ideas", "writing", "scratchpad", "text", "docs", "smart notes"],
+    iconBg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+    context: "Access quick scratchpad & formatted docs",
+    popularity: 92,
+    component: NotesApp,
+  },
+  {
+    id: "tasks",
+    name: "Task Manager",
+    desc: "Organize tasks, set reminders and boost your productivity.",
+    icon: "tasks",
+    type: "internal",
+    category: "productivity",
+    tags: ["Productivity"],
+    keywords: ["tasks", "todos", "work", "checklist", "tracking", "goals", "manager"],
+    iconBg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+    context: "Review open checklists & action items",
+    popularity: 90,
+    component: TasksApp,
+  },
+  {
+    id: "finance",
+    name: "Financial Planner",
+    desc: "Plan budgets, track expenses and build financial models with ease.",
+    icon: "finance",
     type: "internal",
     category: "finance",
-    keywords: ["receipt", "scan", "ledger", "invoice", "vision", "camera", "bills", "ocr", "bookkeeping", "expenses", "income"],
-    iconBg: "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)",
-    component: ScanLedgerApp,
+    tags: ["Finance", "Productivity"],
+    keywords: ["finance", "expenses", "income", "money", "budget", "cashflow", "tracking", "planner", "fei"],
+    iconBg: "linear-gradient(135deg, #2563eb 0%, #0284c7 100%)",
+    context: "Manage budget, expenses & cashflow",
+    popularity: 88,
+    component: FinanceApp,
+  },
+  {
+    id: "analytics",
+    name: "Analytics Studio",
+    desc: "Visualize data, create charts and gain insights from your data.",
+    icon: "analytics",
+    type: "internal",
+    category: "finance",
+    tags: ["Analytics", "Data"],
+    keywords: ["analytics", "charts", "graphs", "statistics", "reports", "insights", "data"],
+    iconBg: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
+    context: "Visualize activity & metric trends",
+    popularity: 84,
+    component: AnalyticsApp,
+  },
+  {
+    id: "files",
+    name: "Cloud Files",
+    desc: "Store, manage and access your files from anywhere in the cloud.",
+    icon: "files",
+    type: "internal",
+    category: "productivity",
+    tags: ["Cloud", "Storage"],
+    keywords: ["files", "documents", "storage", "upload", "pdf", "folders", "cloud"],
+    iconBg: "linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%)",
+    context: "Browse workspace files & storage",
+    popularity: 82,
+    component: FilesApp,
   },
   {
     id: "research",
-    name: "Research & Document Lab",
-    desc: "Interactive AI research workbench for PDFs, papers, concept graphs & slide deck export",
-    icon: "🔬",
+    name: "News & Research",
+    desc: "Get latest news, research articles and insights from trusted sources.",
+    icon: "research",
     type: "internal",
     category: "ai",
-    keywords: ["research", "papers", "pdf", "documents", "deep research", "citations", "concept graph", "study", "analysis"],
-    iconBg: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%)",
+    tags: ["Research", "News"],
+    keywords: ["research", "papers", "pdf", "documents", "deep research", "citations", "concept graph", "study", "analysis", "news"],
+    iconBg: "linear-gradient(135deg, #0d9488 0%, #06b6d4 100%)",
+    context: "Explore synthesized research papers",
+    popularity: 86,
     component: ResearchApp,
   },
   {
     id: "dora",
     name: "DORA Health AI",
-    desc: "Doctor AI, Symptom Diagnosis & Clinical Wellness",
-    icon: "🩺",
+    desc: "Doctor AI, Symptom Diagnosis & Clinical Wellness Triage",
+    icon: "dora",
     type: "internal",
     category: "ai",
+    tags: ["AI", "Healthcare"],
     keywords: ["health", "doctor", "symptoms", "diagnosis", "medical", "dora", "ai", "wellness"],
     iconBg: "linear-gradient(135deg, #06b6d4 0%, #0284c7 50%, #2563eb 100%)",
+    context: "Check clinical health & lab report insights",
+    popularity: 89,
     component: DoraHealthApp,
   },
   {
-    id: "notes",
-    name: "Notes",
-    desc: "Quick scratchpad, ideas and formatted notes",
-    icon: "📝",
+    id: "scan-ledger",
+    name: "AI Vision & Receipt Ledger",
+    desc: "Scan receipts & bills with Gemini Vision, extract items and auto-post to database.",
+    icon: "scan-ledger",
     type: "internal",
-    category: "productivity",
-    keywords: ["notes", "ideas", "writing", "scratchpad", "text", "docs"],
-    iconBg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-    component: NotesApp,
+    category: "finance",
+    tags: ["Finance", "AI"],
+    keywords: ["receipt", "scan", "ledger", "invoice", "vision", "camera", "bills", "ocr", "bookkeeping", "expenses", "income"],
+    iconBg: "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)",
+    context: "Scan physical receipts with Gemini OCR",
+    popularity: 85,
+    component: ScanLedgerApp,
+  },
+  {
+    id: "automations",
+    name: "Neural Automations",
+    desc: "Cross-app triggers, autonomous task generation & scheduled routines.",
+    icon: "automations",
+    type: "internal",
+    category: "ai",
+    tags: ["AI", "Productivity"],
+    keywords: ["automations", "routines", "triggers", "workflow", "mother routines", "zapier", "scheduler", "cron", "ai"],
+    iconBg: "linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%)",
+    context: "Automate background workflow triggers",
+    popularity: 80,
+    component: AutomationsApp,
+  },
+  {
+    id: "voice-notes",
+    name: "Voice Notes & Audio Brain",
+    desc: "In-browser ambient voice recorder, Whisper speech transcription & automated workspace injection.",
+    icon: "voice-notes",
+    type: "internal",
+    category: "ai",
+    tags: ["AI", "Productivity"],
+    keywords: ["voice", "audio", "recording", "meeting", "whisper", "speech", "transcription", "microphone", "sound", "notes", "action items"],
+    iconBg: "linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #38bdf8 100%)",
+    context: "Record meetings & transcribe voice notes",
+    popularity: 81,
+    component: VoiceNotesApp,
   },
   {
     id: "calendar",
     name: "Calendar",
-    desc: "Meetings, schedules and calendar events",
-    icon: "📅",
+    desc: "Meetings, schedules and calendar events planner.",
+    icon: "calendar",
     type: "internal",
     category: "productivity",
+    tags: ["Productivity"],
     keywords: ["calendar", "events", "meetings", "schedule", "planner", "time"],
     iconBg: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+    context: "Review agenda & upcoming events",
+    popularity: 76,
     component: CalendarApp,
-  },
-  {
-    id: "files",
-    name: "Files",
-    desc: "Manage and organize workspace documents",
-    icon: "📁",
-    type: "internal",
-    category: "productivity",
-    keywords: ["files", "documents", "storage", "upload", "pdf", "folders"],
-    iconBg: "linear-gradient(135deg, #eab308 0%, #ca8a04 100%)",
-    component: FilesApp,
-  },
-  {
-    id: "tasks",
-    name: "Tasks",
-    desc: "Track work, todos and action checklists",
-    icon: "✅",
-    type: "internal",
-    category: "productivity",
-    keywords: ["tasks", "todos", "work", "checklist", "tracking", "goals"],
-    iconBg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-    component: TasksApp,
-  },
-  {
-    id: "analytics",
-    name: "Analytics",
-    desc: "Interactive activity trends & performance charts",
-    icon: "📊",
-    type: "internal",
-    category: "finance",
-    keywords: ["analytics", "charts", "graphs", "statistics", "reports", "insights"],
-    iconBg: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
-    component: AnalyticsApp,
-  },
-  {
-    id: "finance",
-    name: "Finance & Expenses",
-    desc: "Income, expense, cashflow and budget tracker",
-    icon: "💳",
-    type: "internal",
-    category: "finance",
-    keywords: ["finance", "expenses", "income", "money", "budget", "cashflow", "tracking"],
-    iconBg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-    component: FinanceApp,
   },
   {
     id: "savings",
     name: "Savings Goals",
-    desc: "Target savings, milestones & emergency funds",
-    icon: "🎯",
+    desc: "Target savings, milestones & emergency funds tracker.",
+    icon: "savings",
     type: "internal",
     category: "finance",
+    tags: ["Finance"],
     keywords: ["savings", "goals", "funds", "targets", "emergency", "money"],
     iconBg: "linear-gradient(135deg, #10b981 0%, #047857 100%)",
+    context: "Track progress on savings milestones",
+    popularity: 73,
     component: SavingsApp,
   },
   {
     id: "subscriptions",
     name: "Subscriptions",
-    desc: "Recurring bills, active plans & renewal tracker",
-    icon: "🔄",
+    desc: "Recurring bills, active plans & renewal tracker.",
+    icon: "subscriptions",
     type: "internal",
     category: "finance",
+    tags: ["Finance"],
     keywords: ["subscriptions", "recurring", "bills", "membership", "renewal"],
     iconBg: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
+    context: "Audit recurring renewals & expenses",
+    popularity: 71,
     component: SubscriptionsApp,
   },
   {
     id: "financial-health",
     name: "Financial Health",
-    desc: "AI Financial Health Score & Intelligence Briefings",
-    icon: "⚡",
+    desc: "AI Financial Health Score & Intelligence Briefings.",
+    icon: "financial-health",
     type: "internal",
     category: "finance",
+    tags: ["Finance", "AI"],
     keywords: ["financial health", "score", "advisor", "briefings", "budget", "ai"],
     iconBg: "linear-gradient(135deg, #ec4899 0%, #be185d 100%)",
+    context: "Inspect financial health score",
+    popularity: 74,
     component: FinancialHealthApp,
   },
   {
     id: "settings",
-    name: "Settings",
-    desc: "System preferences, security & user profile",
-    icon: "⚙️",
+    name: "System Settings",
+    desc: "System preferences, security & user profile.",
+    icon: "settings",
     type: "internal",
     category: "system",
+    tags: ["System"],
     keywords: ["settings", "preferences", "config", "account", "profile", "options"],
-    iconBg: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+    iconBg: "linear-gradient(135deg, #64748b 0%, #475569 100%)",
+    context: "Configure system preferences",
+    popularity: 67,
     component: SettingsPage,
   },
   {
     id: "vitya-expense",
-    name: "Vitya.Expense",
-    desc: "Automated receipt scanning & expense ledger",
-    icon: "💸",
+    name: "Vitya Expense",
+    desc: "Automated receipt scanning & expense ledger.",
+    icon: "vitya-expense",
     type: "external",
     category: "finance",
     isExternal: true,
+    tags: ["Finance", "Cloud"],
     keywords: ["vitya expense", "receipts", "tracking", "business", "money"],
     iconBg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+    context: "Enterprise receipt scanning service",
     url: "https://vitya-expense.onrender.com",
+    popularity: 63,
   },
   {
     id: "Security-vitya",
     name: "Vitya Tourist Security",
-    desc: "Tourist safety, SOS emergency & web monitoring",
-    icon: "🛡️",
+    desc: "Tourist safety, SOS emergency & web monitoring.",
+    icon: "Security-vitya",
     type: "external",
-    category: "security",
+    category: "cloud",
     isExternal: true,
+    tags: ["Security", "Cloud"],
     keywords: ["security", "tourist", "safety", "alert", "emergency", "protection"],
     iconBg: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+    context: "Perimeter safety & emergency SOS",
     url: "https://security-vitya.onrender.com",
+    popularity: 56,
   },
   {
     id: "vitya-admin-dashboard",
     name: "Vitya Admin",
-    desc: "System administration & user control panel",
-    icon: "⚡",
+    desc: "System administration & user control panel.",
+    icon: "vitya-admin-dashboard",
     type: "external",
-    category: "security",
+    category: "cloud",
     isAdmin: true,
     isExternal: true,
+    tags: ["Admin", "Security"],
     keywords: ["admin", "control", "dashboard", "moderation", "system", "vitya"],
     iconBg: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+    context: "Platform administration & metrics",
     url: "https://admin-vitya.onrender.com",
+    popularity: 52,
   },
   {
     id: "vitya-tourist-travel-assistant",
     name: "Vitya Assistant",
-    desc: "AI Tourist Travel Guide & Local Itinerary Assistant",
-    icon: "🧭",
+    desc: "AI Tourist Travel Guide & Local Itinerary Assistant.",
+    icon: "vitya-tourist-travel-assistant",
     type: "external",
     category: "ai",
     isExternal: true,
+    tags: ["AI", "Travel"],
     keywords: ["assistant", "travel", "tourist", "guide", "ai", "trip", "places"],
     iconBg: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+    context: "AI tourist guide & local itinerary",
     url: "https://tourist-vitya.onrender.com",
+    popularity: 59,
   },
   {
     id: "vitya-monitor",
     name: "Vitya Monitor",
-    desc: "Real-time telemetry, server health & live status",
-    icon: "📡",
+    desc: "Real-time telemetry, server health & live status.",
+    icon: "vitya-monitor",
     type: "external",
-    category: "ai",
+    category: "cloud",
     isExternal: true,
+    tags: ["Monitoring", "Cloud"],
     keywords: ["monitor", "realtime", "telemetry", "system", "status", "ai", "analytics"],
     iconBg: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
+    context: "Live server telemetry & node status",
     url: "https://monitor-vitya.onrender.com",
-  },
-  {
-    id: "gmail",
-    name: "Gmail",
-    desc: "Google Mail inbox & message communications",
-    icon: "📧",
-    type: "external",
-    category: "external",
-    isExternal: true,
-    keywords: ["gmail", "email", "mail", "google", "inbox", "messages"],
-    iconBg: "linear-gradient(135deg, #ea4335 0%, #c5221f 100%)",
-    url: "https://mail.google.com/",
+    popularity: 54,
   },
   {
     id: "drive",
     name: "Google Drive",
-    desc: "Cloud file storage, shared drives and backups",
-    icon: "🗂️",
+    desc: "Cloud file storage, shared drives and backups.",
+    icon: "drive",
     type: "external",
-    category: "external",
+    category: "cloud",
     isExternal: true,
+    tags: ["Cloud", "Storage"],
     keywords: ["google drive", "drive", "cloud", "google", "storage", "backup"],
     iconBg: "linear-gradient(135deg, #fbbc04 0%, #f29900 100%)",
+    context: "Google Drive files & shared backups",
     url: "https://drive.google.com/",
+    popularity: 66,
+  },
+  {
+    id: "gmail",
+    name: "Gmail",
+    desc: "Google Mail inbox & message communications.",
+    icon: "gmail",
+    type: "external",
+    category: "cloud",
+    isExternal: true,
+    tags: ["Cloud", "Productivity"],
+    keywords: ["gmail", "email", "mail", "google", "inbox", "messages"],
+    iconBg: "linear-gradient(135deg, #ea4335 0%, #c5221f 100%)",
+    context: "Google Mail inbox & communications",
+    url: "https://mail.google.com/",
+    popularity: 68,
   },
   {
     id: "calendar-web",
     name: "Google Calendar",
-    desc: "Google Cloud Calendar events & appointments",
-    icon: "🌐",
+    desc: "Google Cloud Calendar events & appointments.",
+    icon: "calendar-web",
     type: "external",
-    category: "external",
+    category: "cloud",
     isExternal: true,
+    tags: ["Cloud", "Productivity"],
     keywords: ["google calendar", "calendar", "google", "events", "web", "schedule"],
     iconBg: "linear-gradient(135deg, #4285f4 0%, #1a73e8 100%)",
+    context: "Google Calendar schedule & meetings",
     url: "https://calendar.google.com/",
+    popularity: 65,
   },
 ];
 
@@ -350,22 +445,46 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
   const [searchParams] = useSearchParams();
 
   const getInitialTab = () => {
-    if (propTab) return propTab;
+    if (propTab) {
+      if (propTab === "apps" && (propApp === "chat" || propApp === "presentation")) {
+        return propApp;
+      }
+      return propTab;
+    }
     const fromUrl = searchParams.get("tab");
-    if (fromUrl) return fromUrl;
+    if (fromUrl) {
+      if (fromUrl === "apps") {
+        const appFromUrl = searchParams.get("app");
+        if (appFromUrl === "chat" || appFromUrl === "presentation") return appFromUrl;
+      }
+      return fromUrl;
+    }
     if (typeof window !== "undefined") {
-      return localStorage.getItem("vitya_activeTab") || "chat";
+      const storedTab = localStorage.getItem("vitya_activeTab");
+      const storedApp = localStorage.getItem("vitya_activeApp");
+      if (storedTab === "apps" && (storedApp === "chat" || storedApp === "presentation")) {
+        return storedApp;
+      }
+      return storedTab || "chat";
     }
     return "chat";
   };
 
   const getInitialApp = (currentTab) => {
-    if (propApp) return propApp;
+    if (propApp) {
+      if (propApp === "chat" || propApp === "presentation") return null;
+      return propApp;
+    }
     if (currentTab === "apps") {
       const fromUrl = searchParams.get("app");
-      if (fromUrl) return fromUrl;
+      if (fromUrl) {
+        if (fromUrl === "chat" || fromUrl === "presentation") return null;
+        return fromUrl;
+      }
       if (typeof window !== "undefined") {
-        return localStorage.getItem("vitya_activeApp") || null;
+        const storedApp = localStorage.getItem("vitya_activeApp");
+        if (storedApp === "chat" || storedApp === "presentation") return null;
+        return storedApp || null;
       }
     }
     return null;
@@ -466,8 +585,8 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
     const appParam = searchParams.get("app");
     const cParam = searchParams.get("c");
 
-    const tab = propTab || tabParam || "chat";
-    const app =
+    let tab = propTab || tabParam || "chat";
+    let app =
       tab === "apps"
         ? propApp ||
           appParam ||
@@ -475,6 +594,12 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
             ? localStorage.getItem("vitya_activeApp")
             : null)
         : null;
+
+    if (tab === "apps" && (app === "chat" || app === "presentation")) {
+      tab = app;
+      app = null;
+    }
+
     const c = tab === "chat" ? (cParam || null) : null;
 
     setActiveTabState((prev) => (prev !== tab ? tab : prev));
@@ -557,8 +682,13 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
 
   const openApp = useCallback(
     (app) => {
+      if (!app) return;
       if (app.type === "external") {
         window.open(app.url, "_blank", "noopener,noreferrer");
+      } else if (app.id === "chat") {
+        updateNavigationState("chat", null, null);
+      } else if (app.id === "presentation") {
+        updateNavigationState("presentation", null, null);
       } else {
         updateNavigationState("apps", app.id, null);
       }
@@ -706,14 +836,14 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
 
           <div className="topbarText">
             <div className="brandWrap">
-              <h2 className="brand">vitya.ai</h2>
+              <h2 className="brand">Vitya.AI</h2>
               <p>
                 {activeTab === "presentation"
                   ? "Presentation Studio • Autonomous Deck Synthesizer"
                   : activeApp === "dora"
-                  ? "Dora Dr. • Clinical Health Intelligence & Triage"
+                  ? "Dr.Dora • Clinical Health Intelligence & Triage"
                   : activeApp === "finance"
-                  ? "Vidya F.E.I Advisor • Finance, Expense & Income Intelligence"
+                  ? "Vidya Advisor • Finance, Expense & Income Intelligence"
                   : `Welcome back, ${user?.name || "User"}`}
               </p>
             </div>

@@ -1,123 +1,23 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import {
+  MessageSquare,
+  Presentation,
+  LayoutGrid,
+  Clock,
+  Search,
+  Plus,
+  PanelLeftClose,
+  PanelLeftOpen,
+  User,
+  Settings,
+  HelpCircle,
+  LogOut,
+  ChevronUp,
+  X,
+  Sparkles,
+} from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 import "./Sidebar.css";
-
-// SVG Icons matching high-end UI design
-const ChatIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-  </svg>
-);
-
-const PresentationIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-    <line x1="8" y1="21" x2="16" y2="21"></line>
-    <line x1="12" y1="17" x2="12" y2="21"></line>
-  </svg>
-);
-
-const AppsIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-    <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-    <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-    <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-  </svg>
-);
-
-const DoraIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
-    <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
-    <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
-    <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
-  </svg>
-);
-
-const FinanceIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-    <line x1="2" x2="22" y1="10" y2="10"></line>
-  </svg>
-);
-
-const ResearchIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
-    <path d="M6 6h10"></path>
-    <path d="M6 10h10"></path>
-    <path d="m9 16 2 2 4-4"></path>
-  </svg>
-);
-
-const ScannerIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 7V4h3"></path>
-    <path d="M20 7V4h-3"></path>
-    <path d="M4 17v3h3"></path>
-    <path d="M20 17v3h-3"></path>
-    <line x1="4" y1="12" x2="20" y2="12"></line>
-  </svg>
-);
-
-const RoutinesIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-  </svg>
-);
-
-const VoiceIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
-    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-    <line x1="12" y1="19" x2="12" y2="22"></line>
-  </svg>
-);
-
-const HistoryIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"></circle>
-    <polyline points="12 6 12 12 16 14"></polyline>
-  </svg>
-);
-
-const ProfileIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-);
-
-const SettingsIcon = () => (
-  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="3"></circle>
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-  </svg>
-);
-
-const HelpIcon = () => (
-  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"></circle>
-    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-  </svg>
-);
-
-const ChevronRight = () => (
-  <svg className="vitya-chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="9 18 15 12 9 6"></polyline>
-  </svg>
-);
-
-const SearchIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8"></circle>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-  </svg>
-);
-
-
-
 
 export default function Sidebar({
   sidebarOpen,
@@ -133,128 +33,239 @@ export default function Sidebar({
   user,
   profilePicSrc,
   defaultAvatar,
+  onQuickToolClick,
 }) {
+  const { logout } = useAuth();
   const searchInputRef = useRef(null);
+  const profileCardRef = useRef(null);
+  const profileMenuRef = useRef(null);
+
+  // Collapsed state persisted in localStorage (desktop only)
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        return localStorage.getItem("vitya_sidebar_collapsed") === "true";
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
+
+  // Profile dropdown menu state
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
+  // On mobile/tablet, collapse mode is disabled; drawer overlay is used instead
+  const effectiveCollapsed = !isMobile && isCollapsed;
+
+  // Toggle desktop collapse
+  const toggleCollapse = useCallback(() => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("vitya_sidebar_collapsed", String(next));
+      } catch {}
+      return next;
+    });
+  }, []);
 
   // Keyboard shortcut Ctrl+K to focus search input
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        if (searchInputRef.current) {
-          searchInputRef.current.focus();
+        if (effectiveCollapsed) {
+          setIsCollapsed(false);
+          try {
+            localStorage.setItem("vitya_sidebar_collapsed", "false");
+          } catch {}
+          setTimeout(() => searchInputRef.current?.focus(), 100);
+        } else {
+          searchInputRef.current?.focus();
         }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [effectiveCollapsed]);
+
+  // Close profile menu on click outside
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (
+        profileCardRef.current &&
+        !profileCardRef.current.contains(e.target) &&
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(e.target)
+      ) {
+        setProfileMenuOpen(false);
+      }
+    };
+    if (profileMenuOpen) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    }
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [profileMenuOpen]);
+
+  // Close profile menu on Escape
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        setProfileMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
   }, []);
 
+  // Essential navigation items
   const navItems = [
-    { key: "chat", label: "Chat", icon: <ChatIcon /> },
-    { key: "presentation", label: "Presentation Studio", icon: <PresentationIcon /> },
-    {
-      key: "dora",
-      label: "Dora Dr. Health",
-      icon: <DoraIcon />,
-      action: () => (onOpenApp ? onOpenApp({ id: "dora" }) : handleTabClick("apps")),
-      active: activeTab === "apps" && activeApp === "dora",
-    },
-    {
-      key: "finance",
-      label: "Vidya F.E.I Advisor",
-      icon: <FinanceIcon />,
-      action: () => (onOpenApp ? onOpenApp({ id: "finance" }) : handleTabClick("apps")),
-      active: activeTab === "apps" && activeApp === "finance",
-    },
-    {
-      key: "scan-ledger",
-      label: "Receipt Scanner",
-      icon: <ScannerIcon />,
-      action: () => (onOpenApp ? onOpenApp({ id: "scan-ledger" }) : handleTabClick("apps")),
-      active: activeTab === "apps" && activeApp === "scan-ledger",
-    },
-    {
-      key: "automations",
-      label: "Neural Routines",
-      icon: <RoutinesIcon />,
-      action: () => (onOpenApp ? onOpenApp({ id: "automations" }) : handleTabClick("apps")),
-      active: activeTab === "apps" && activeApp === "automations",
-    },
-    {
-      key: "research",
-      label: "Research Lab",
-      icon: <ResearchIcon />,
-      action: () => (onOpenApp ? onOpenApp({ id: "research" }) : handleTabClick("apps")),
-      active: activeTab === "apps" && activeApp === "research",
-    },
-    {
-      key: "voice-notes",
-      label: "Voice Notes",
-      icon: <VoiceIcon />,
-      action: () => (onOpenApp ? onOpenApp({ id: "voice-notes" }) : handleTabClick("apps")),
-      active: activeTab === "apps" && activeApp === "voice-notes",
-    },
-    { key: "apps", label: "All Apps", icon: <AppsIcon /> },
-    { key: "history", label: "History", icon: <HistoryIcon /> },
-    { key: "profile", label: "Profile", icon: <ProfileIcon /> },
+    { key: "chat", label: "Chat", icon: MessageSquare },
+    { key: "presentation", label: "Presentation Studio", icon: Presentation },
+    { key: "apps", label: "All Apps", icon: LayoutGrid },
+    { key: "history", label: "History", icon: Clock },
   ];
 
+  // Check active state
+  const isItemActive = (key) => {
+    if (key === "chat") return activeTab === "chat";
+    if (key === "presentation") return activeTab === "presentation";
+    if (key === "apps") return activeTab === "apps" && !activeApp;
+    if (key === "history") return activeTab === "history";
+    return false;
+  };
+
+  // Nav item click handler
+  const handleItemClick = (key) => {
+    handleTabClick(key);
+    if (isMobile && setSidebarOpen) {
+      setSidebarOpen(false);
+    }
+  };
+
+  // Profile menu action handler
+  const handleProfileNavigation = (destination) => {
+    setProfileMenuOpen(false);
+    if (destination === "profile") {
+      handleTabClick("profile");
+    } else if (destination === "settings") {
+      handleTabClick("settings");
+    } else if (destination === "help") {
+      handleTabClick("help");
+    }
+    if (isMobile && setSidebarOpen) {
+      setSidebarOpen(false);
+    }
+  };
+
+  // Sign out handler
+  const handleLogout = () => {
+    setProfileMenuOpen(false);
+    if (logout) {
+      logout();
+    }
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
   return (
-    <aside className={`vitya-sidebar ${sidebarOpen ? "open" : ""}`}>
-      {/* 1. BRAND HEADER */}
+    <aside
+      className={`vitya-sidebar ${sidebarOpen ? "open" : ""} ${
+        effectiveCollapsed ? "collapsed" : ""
+      }`}
+      aria-label="Main sidebar"
+    >
+      {/* ========================================================
+          1. BRAND HEADER & COLLAPSE TOGGLE
+          ======================================================== */}
       <div className="vitya-sidebar-header">
-        <div className="vitya-brand-container">
+        <div
+          className="vitya-brand-container"
+          onClick={() => {
+            if (effectiveCollapsed) toggleCollapse();
+          }}
+          title={effectiveCollapsed ? "Expand sidebar" : "Vitya.AI"}
+        >
           <div className="vitya-logo-badge">
             <span className="vitya-logo-text">V.</span>
           </div>
-          <div className="vitya-brand-text">
-            <div className="vitya-brand-name-row">
-              <h2 className="vitya-brand-title">vitya.ai</h2>
+          {!effectiveCollapsed && (
+            <div className="vitya-brand-text">
+              <h1 className="vitya-brand-title">Vitya.AI</h1>
+              <span className="vitya-brand-subtitle">Multimodal Workstation</span>
             </div>
-            <span className="vitya-brand-subtitle">Multimodal Platform</span>
-            <div className="vitya-brand-tagline">Presentation • Dora • Vidya F.E.I</div>
-          </div>
+          )}
         </div>
 
-        {isMobile && (
+        {/* Mobile close button or Desktop collapse toggle */}
+        {isMobile ? (
           <button
-            className="vitya-close-btn"
+            className="vitya-header-icon-btn"
             onClick={() => setSidebarOpen(false)}
             aria-label="Close sidebar"
+            title="Close sidebar"
           >
-            ✕
+            <X size={18} />
+          </button>
+        ) : (
+          <button
+            className="vitya-header-icon-btn vitya-collapse-btn"
+            onClick={toggleCollapse}
+            aria-label={effectiveCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={effectiveCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {effectiveCollapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
           </button>
         )}
       </div>
 
-      {/* 2. SEARCH BAR */}
+      {/* ========================================================
+          2. SEARCH BAR / SEARCH TRIGGER
+          ======================================================== */}
       <div className="vitya-sidebar-search">
-        <div className="vitya-search-wrapper">
-          <span className="vitya-search-icon">
-            <SearchIcon />
-          </span>
-          <input
-            ref={searchInputRef}
-            type="text"
-            placeholder="Search apps, chats, prompts..."
-            className="vitya-search-input"
-            value={searchText}
-            onChange={(e) => {
-              setSearchText(e.target.value);
-              if (e.target.value.trim() && activeTab !== "apps") {
-                handleTabClick("apps");
-              }
+        {effectiveCollapsed ? (
+          <button
+            className="vitya-search-collapsed-btn"
+            onClick={() => {
+              toggleCollapse();
+              setTimeout(() => searchInputRef.current?.focus(), 100);
             }}
-          />
-          <kbd className="vitya-kbd-badge">Ctrl K</kbd>
-        </div>
+            title="Search (Ctrl+K)"
+            aria-label="Search"
+          >
+            <Search size={17} />
+          </button>
+        ) : (
+          <div className="vitya-search-wrapper">
+            <span className="vitya-search-icon">
+              <Search size={15} />
+            </span>
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search apps, chats, prompts..."
+              className="vitya-search-input"
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                if (e.target.value.trim() && activeTab !== "apps") {
+                  handleTabClick("apps");
+                }
+              }}
+              aria-label="Search apps, chats, prompts"
+            />
+            <kbd className="vitya-kbd-badge">Ctrl K</kbd>
+          </div>
+        )}
       </div>
 
-      {/* 3. NEW CHAT BUTTON */}
+      {/* ========================================================
+          3. NEW CHAT PRIMARY ACTION
+          ======================================================== */}
       <button
         type="button"
-        className="vitya-new-chat-btn"
+        className={`vitya-new-chat-btn ${effectiveCollapsed ? "collapsed-btn" : ""}`}
         onClick={() => {
           if (handleNewChat) handleNewChat();
           if (isMobile && setSidebarOpen) setSidebarOpen(false);
@@ -262,89 +273,166 @@ export default function Sidebar({
         title="Start a new chat conversation"
         aria-label="New Chat"
       >
-        <span className="vitya-btn-icon-left">+</span>
-        <span className="vitya-btn-label">New Chat</span>
-        <span className="vitya-btn-sparkles">✨</span>
+        <Plus size={18} strokeWidth={2.6} className="vitya-btn-icon-plus" />
+        {!effectiveCollapsed && (
+          <>
+            <span className="vitya-btn-label">New Chat</span>
+            <Sparkles size={14} className="vitya-btn-sparkle" />
+          </>
+        )}
       </button>
 
-      {/* 4. MAIN NAVIGATION */}
-      <nav className="vitya-sidebar-nav">
+      {/* ========================================================
+          4. ESSENTIAL NAVIGATION ITEMS
+          ======================================================== */}
+      <nav className="vitya-sidebar-nav" aria-label="Main navigation">
         {navItems.map((item) => {
-          const isActive =
-            item.active !== undefined
-              ? item.active
-              : item.key === "apps"
-                ? activeTab === "apps" && !activeApp
-                : activeTab === item.key ||
-                  (item.key === "profile" && (activeTab || "").startsWith("profile"));
+          const Icon = item.icon;
+          const active = isItemActive(item.key);
+
           return (
             <button
               key={item.key}
-              className={`vitya-nav-item ${isActive ? "active" : ""}`}
-              onClick={item.action ? item.action : () => handleTabClick(item.key)}
+              className={`vitya-nav-item ${active ? "active" : ""}`}
+              onClick={() => handleItemClick(item.key)}
+              title={effectiveCollapsed ? item.label : undefined}
+              aria-label={item.label}
+              aria-current={active ? "page" : undefined}
             >
-              {isActive && <div className="vitya-active-indicator" />}
-              <span className="vitya-nav-icon">{item.icon}</span>
-              <span className="vitya-nav-label">{item.label}</span>
-              <ChevronRight />
+              {active && <div className="vitya-active-indicator" />}
+              <span className="vitya-nav-icon">
+                <Icon size={19} />
+              </span>
+              {!effectiveCollapsed && (
+                <span className="vitya-nav-label">{item.label}</span>
+              )}
             </button>
           );
         })}
       </nav>
 
+      {/* ========================================================
+          5. BOTTOM USER PROFILE CARD & POPUP DROPDOWN
+          ======================================================== */}
+      <div className="vitya-profile-container">
+        {/* Floating Profile Dropdown Menu */}
+        {profileMenuOpen && (
+          <div
+            className={`vitya-profile-menu ${effectiveCollapsed ? "collapsed-popup" : ""}`}
+            ref={profileMenuRef}
+            role="menu"
+            aria-label="Account options"
+          >
+            <div className="vitya-pm-header">
+              <div className="vitya-pm-avatar-wrap">
+                <img
+                  src={profilePicSrc}
+                  alt="Profile"
+                  className="vitya-pm-avatar"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = defaultAvatar;
+                  }}
+                />
+              </div>
+              <div className="vitya-pm-user-info">
+                <div className="vitya-pm-name">{user?.name || "User Account"}</div>
+                <div className="vitya-pm-email">{user?.email || "user@vitya.ai"}</div>
+              </div>
+            </div>
 
+            <div className="vitya-pm-divider" />
 
-      {/* 6. SECONDARY SETTINGS MENU */}
-      <div className="vitya-secondary-menu">
-        <button
-          className={`vitya-nav-item ${(activeTab || "").startsWith("settings") && activeTab !== "settings/help" ? "active" : ""}`}
-          onClick={() => handleTabClick("settings")}
+            <button
+              className={`vitya-pm-item ${(activeTab || "").startsWith("profile") ? "active" : ""}`}
+              onClick={() => handleProfileNavigation("profile")}
+              role="menuitem"
+            >
+              <User size={16} />
+              <span>Profile &amp; Account</span>
+            </button>
+
+            <button
+              className={`vitya-pm-item ${(activeTab || "").startsWith("settings") && activeTab !== "settings/help" ? "active" : ""}`}
+              onClick={() => handleProfileNavigation("settings")}
+              role="menuitem"
+            >
+              <Settings size={16} />
+              <span>Settings</span>
+            </button>
+
+            <button
+              className={`vitya-pm-item ${activeTab === "help" || activeTab === "settings/help" ? "active" : ""}`}
+              onClick={() => handleProfileNavigation("help")}
+              role="menuitem"
+            >
+              <HelpCircle size={16} />
+              <span>Help &amp; Support</span>
+            </button>
+
+            <div className="vitya-pm-divider" />
+
+            <button
+              className="vitya-pm-item vitya-pm-logout"
+              onClick={handleLogout}
+              role="menuitem"
+            >
+              <LogOut size={16} />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        )}
+
+        {/* Profile Card Button */}
+        <div
+          ref={profileCardRef}
+          className={`vitya-sidebar-profile-card ${
+            (activeTab || "").startsWith("profile") ? "active-route" : ""
+          } ${profileMenuOpen ? "menu-open" : ""}`}
+          onClick={() => setProfileMenuOpen((prev) => !prev)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setProfileMenuOpen((prev) => !prev);
+            }
+          }}
+          title={effectiveCollapsed ? (user?.name || "User Account") : undefined}
+          aria-expanded={profileMenuOpen}
+          aria-haspopup="menu"
+          aria-label="User profile and settings menu"
         >
-          {((activeTab || "").startsWith("settings") && activeTab !== "settings/help") && (
-            <div className="vitya-active-indicator" />
-          )}
-          <span className="vitya-nav-icon"><SettingsIcon /></span>
-          <span className="vitya-nav-label">Settings</span>
-          <ChevronRight />
-        </button>
+          <div className="vitya-sb-avatar-wrapper">
+            <img
+              src={profilePicSrc}
+              alt="Profile"
+              className="vitya-profile-avatar"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = defaultAvatar;
+              }}
+            />
+            <span className="vitya-online-status" />
+          </div>
 
-        <button
-          className={`vitya-nav-item ${activeTab === "help" || activeTab === "settings/help" ? "active" : ""}`}
-          onClick={() => handleTabClick("help")}
-        >
-          {(activeTab === "help" || activeTab === "settings/help") && (
-            <div className="vitya-active-indicator" />
+          {!effectiveCollapsed && (
+            <>
+              <div className="vitya-profile-details">
+                <span className="vitya-profile-user-name">
+                  {user?.name || "User Account"}
+                </span>
+                <span className="vitya-profile-user-email">
+                  {user?.email || "Free Plan"}
+                </span>
+              </div>
+              <ChevronUp
+                size={16}
+                className={`vitya-profile-chevron ${profileMenuOpen ? "open" : ""}`}
+              />
+            </>
           )}
-          <span className="vitya-nav-icon"><HelpIcon /></span>
-          <span className="vitya-nav-label">Help & Support</span>
-          <ChevronRight />
-        </button>
-      </div>
-
-      {/* 7. PROFILE FOOTER CARD */}
-      <div
-        className="vitya-sidebar-profile-card"
-        onClick={() => handleTabClick("profile")}
-        role="button"
-        tabIndex={0}
-      >
-        <div className="vitya-sb-avatar-wrapper">
-          <img
-            src={profilePicSrc}
-            alt="Profile"
-            className="vitya-profile-avatar"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = defaultAvatar;
-            }}
-          />
-          <span className="vitya-online-status" />
         </div>
-        <div className="vitya-profile-details">
-          <div className="vitya-profile-user-name">{user?.name || "Pradeep Parihar"}</div>
-          <div className="vitya-profile-user-email">{user?.email || "pradeep0810parihar@gmail.com"}</div>
-        </div>
-        <ChevronRight />
       </div>
     </aside>
   );

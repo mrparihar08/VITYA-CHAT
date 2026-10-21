@@ -99,29 +99,81 @@ const formatDate = (value) => {
 };
 
 const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
-  const [conversations, setConversations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Initialize with cached conversations for instantaneous zero-latency render
+  const [conversations, setConversations] = useState(() => {
+    try {
+      const raw = localStorage.getItem("vitya_conversations") || localStorage.getItem("chats");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isRetrying, setIsRetrying] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState(null);
 
-  const fetchConversations = useCallback(async () => {
+  const fetchConversations = useCallback(async (isUserRetry = false) => {
     setLoading(true);
+    if (isUserRetry) setIsRetrying(true);
     setError("");
+
     try {
       const token = localStorage.getItem("token");
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+
       const response = await fetch(`${API_BASE_URL}/api/chat/conversations`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
-      if (!response.ok) throw new Error("Unable to load chat history.");
+      if (!response.ok) {
+        throw new Error(`Server returned HTTP ${response.status}`);
+      }
+
       const data = await response.json();
-      setConversations(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      setConversations(list);
+      setError("");
+
+      if (list.length > 0) {
+        try {
+          localStorage.setItem("vitya_conversations", JSON.stringify(list));
+        } catch {}
+      }
     } catch (err) {
-      setError(err.message || "Unable to load chat history.");
+      console.warn("ChatHistory fetch error:", err);
+
+      // Check offline cache fallback
+      let cached = [];
+      try {
+        const raw = localStorage.getItem("vitya_conversations") || localStorage.getItem("chats");
+        if (raw) cached = JSON.parse(raw);
+      } catch {}
+
+      if (Array.isArray(cached) && cached.length > 0) {
+        setConversations(cached);
+        setError("Viewing offline saved conversations. Server is connecting in the background.");
+      } else {
+        const isAbort = err.name === "AbortError";
+        const isNetwork = err.name === "TypeError" || (err.message && err.message.toLowerCase().includes("fetch"));
+
+        if (isAbort || isNetwork) {
+          setError("Server is waking up from idle state. Please click Retry in a few seconds.");
+        } else {
+          setError(err.message || "Unable to load chat history. Please try again.");
+        }
+      }
     } finally {
       setLoading(false);
+      setIsRetrying(false);
     }
   }, []);
 
@@ -142,6 +194,9 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
       });
       if (!response.ok) throw new Error("Unable to clear chat history.");
       setConversations([]);
+      try {
+        localStorage.removeItem("vitya_conversations");
+      } catch {}
     } catch (err) {
       setError(err.message || "Unable to clear chat history.");
     } finally {
@@ -160,7 +215,13 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
         method: "DELETE",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      setConversations((prev) => prev.filter((c) => c.id !== id));
+      setConversations((prev) => {
+        const next = prev.filter((c) => c.id !== id);
+        try {
+          localStorage.setItem("vitya_conversations", JSON.stringify(next));
+        } catch {}
+        return next;
+      });
     } catch (err) {
       console.error(err);
     }
@@ -190,11 +251,15 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
         <div>
           <p className="historyEyebrow">⚡ Workspace History</p>
           <h2>Chat History</h2>
-          <p className="historyCount">{loading ? "Loading conversations…" : heading}</p>
+          <p className="historyCount">{loading ? "Connecting to conversations…" : heading}</p>
         </div>
         <div className="historyActions">
-          <button className="historyButton" onClick={fetchConversations} disabled={loading}>
-            <span>🔄</span> Refresh
+          <button
+            className="historyButton"
+            onClick={() => fetchConversations(true)}
+            disabled={loading || isRetrying}
+          >
+            <span>🔄</span> {loading || isRetrying ? "Refreshing…" : "Refresh"}
           </button>
           <button
             className="historyButton historyDangerButton"
@@ -223,10 +288,28 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
         )}
       </div>
 
-      {error && <div className="historyError" role="alert">{error}</div>}
+      {/* ERROR / RECONNECT BANNER WITH RETRY BUTTON */}
+      {error && (
+        <div className="historyError" role="alert">
+          <div className="historyErrorLeft">
+            <span className="historyErrorIcon">⚡</span>
+            <span className="historyErrorText">{error}</span>
+          </div>
+          <button
+            className="historyRetryBtn"
+            onClick={() => fetchConversations(true)}
+            disabled={loading || isRetrying}
+          >
+            {isRetrying ? "Connecting…" : "Retry"}
+          </button>
+        </div>
+      )}
 
-      {loading ? (
-        <div className="historyEmpty">Loading your conversations…</div>
+      {loading && conversations.length === 0 ? (
+        <div className="historyEmpty">
+          <div className="historyLoadingSpinner" />
+          <p>Connecting to Vitya Cloud…</p>
+        </div>
       ) : filteredConversations.length === 0 ? (
         <div className="historyEmpty">
           <span className="historyEmptyIcon">💬</span>

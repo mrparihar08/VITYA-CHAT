@@ -159,7 +159,7 @@ const CalendarApp = () => {
       </div>
 
       <p className="mutedText" style={{ marginTop: 0, marginBottom: 12 }}>
-        Schedule deadlines, meetings, and project milestones synced with your vitya.ai account.
+        Schedule deadlines, meetings, and project milestones synced with your Vitya.AI account.
       </p>
 
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>

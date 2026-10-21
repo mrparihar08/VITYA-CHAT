@@ -90,7 +90,7 @@ export function HelpSupportPage({ insideDashboard = false }) {
     try {
       const { submitSupportTicket } = await import("../../services/api");
       await submitSupportTicket({
-        email: userEmail || "anonymous@vitya.ai",
+        email: userEmail || "anonymous@Vitya.AI",
         subject: contactSubject || "Support Inquiry",
         category: contactCategory || "General Inquiry",
         message: contactMessage,
