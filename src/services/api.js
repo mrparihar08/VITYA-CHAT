@@ -178,8 +178,14 @@ export const getAuthHeaders = (token) => {
 
 export const resolveAssetUrl = (path) => {
   if (!path) return "/profile.png";
-  if (/^https?:\/\//i.test(path)) return path;
-  return `${API_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+  let resolved = path;
+  if (!/^https?:\/\//i.test(resolved)) {
+    resolved = `${API_BASE_URL}${resolved.startsWith("/") ? "" : "/"}${resolved}`;
+  }
+  if (typeof window !== "undefined" && window.location.protocol === "https:" && resolved.startsWith("http://")) {
+    resolved = resolved.replace(/^http:\/\//i, "https://");
+  }
+  return resolved;
 };
 
 export const handleApiError = (err) => {
@@ -259,7 +265,11 @@ export const synthesizeVoiceover = async ({ text, language = "en-US", voice = nu
       headers: { "Content-Type": "application/json", ...getAuthHeaders() },
       body: JSON.stringify({ text, language, voice, slide_index }),
     });
-    return await safeFetchJSON(res);
+    const data = await safeFetchJSON(res);
+    if (data && data.audio_url) {
+      data.audio_url = resolveAssetUrl(data.audio_url);
+    }
+    return data;
   } catch (err) {
     console.warn("synthesizeVoiceover error", err);
     throw err;
@@ -643,25 +653,17 @@ export const scanReceiptImage = async (file, autoSave = true, conversationId = n
   return res.data;
 };
 
-export const sendChatMessage = async ({
-  message,
-  conversation_id = null,
-  use_web_search = false,
-  mode = null,
-  requestType = null,
-  latitude = null,
-  longitude = null,
-  city = null,
-}) => {
+export const sendChatMessage = async (input) => {
+  const payload = typeof input === "string" ? { message: input } : (input || {});
   const res = await api.post("/api/chat/", {
-    message,
-    conversation_id,
-    use_web_search,
-    mode,
-    requestType,
-    latitude,
-    longitude,
-    city,
+    message: payload.message,
+    conversation_id: payload.conversation_id || null,
+    use_web_search: Boolean(payload.use_web_search),
+    mode: payload.mode || null,
+    requestType: payload.requestType || null,
+    latitude: payload.latitude || null,
+    longitude: payload.longitude || null,
+    city: payload.city || null,
   });
   return res.data;
 };
