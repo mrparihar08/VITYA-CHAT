@@ -10,6 +10,8 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.14.0",
+    "baseline-browser-mapping": "^2.11.34",
+    "caniuse-lite": "^1.0.30001820",
     "framer-motion": "^12.38.0",
     "html2canvas": "^1.4.1",
     "lucide-react": "^1.7.0",
@@ -20,6 +22,7 @@
     "recharts": "^3.8.1",
     "web-vitals": "^2.1.4"
   },
+  "proxy": "http://127.0.0.1:10000",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

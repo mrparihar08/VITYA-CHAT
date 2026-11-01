@@ -9,18 +9,48 @@ const getApiBaseUrl = () => {
     viteUrl = "";
   }
 
-  const craUrl =
-    typeof process !== "undefined" &&
-    process.env &&
-    (process.env.REACT_APP_API_URL || process.env.REACT_APP_VITYA_API_URL);
+  const isBrowser = typeof window !== "undefined";
+  const hostname = isBrowser ? window.location.hostname : "";
+  const isLocalHost =
+    isBrowser &&
+    (hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "::1" ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("10.") ||
+      hostname.startsWith("172."));
 
-  const fallback =
-    typeof process !== "undefined" && process.env.NODE_ENV === "development"
-      ? (process.env.REACT_APP_DEV_URL || "http://localhost:8000")
-      : "https://mother-8599.onrender.com";
-  const url = viteUrl || craUrl || fallback;
+  const envUrl =
+    (typeof process !== "undefined" &&
+      process.env &&
+      (process.env.REACT_APP_API_URL || process.env.REACT_APP_VITYA_API_URL || process.env.REACT_APP_DEV_URL)) ||
+    viteUrl ||
+    "";
 
-  return url.endsWith("/") ? url.slice(0, -1) : url;
+  // If running in a browser on localhost / LAN
+  if (isLocalHost) {
+    // If envUrl is explicitly pointing to localhost or local IP, use that
+    if (envUrl && (envUrl.includes("localhost") || envUrl.includes("127.0.0.1") || envUrl.includes("192.168.") || envUrl.includes("10."))) {
+      return envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl;
+    }
+    // If envUrl is missing or points to the old suspended Render host, connect to local backend (port 10000)
+    if (!envUrl || envUrl.includes("mother-8599.onrender.com")) {
+      return `http://${hostname || "localhost"}:10000`;
+    }
+    return envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl;
+  }
+
+  // If in production and custom envUrl is provided (and not suspended)
+  if (envUrl && !envUrl.includes("mother-8599.onrender.com")) {
+    return envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl;
+  }
+
+  // If in browser and served from production reverse-proxy / same origin
+  if (isBrowser && window.location.origin && !isLocalHost) {
+    return window.location.origin;
+  }
+
+  return "http://localhost:10000";
 };
 
 export const API_BASE_URL = getApiBaseUrl();
@@ -44,18 +74,83 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Automatic 401 Token Expiry Handler
+// Automatic 401 Token Expiry & Silent Refresh Handler
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error?.response?.status === 401 && typeof window !== "undefined") {
+  async (error) => {
+    const originalRequest = error.config;
+    if (error?.response?.status === 401 && !originalRequest._retry && typeof window !== "undefined") {
       const isAuthRoute =
         window.location.pathname.startsWith("/login") ||
         window.location.pathname.startsWith("/register") ||
         window.location.pathname.startsWith("/forgot-password") ||
         window.location.pathname.startsWith("/reset-password");
 
-      if (!isAuthRoute) {
+      if (isAuthRoute) {
+        return Promise.reject(error);
+      }
+
+      const refreshToken = localStorage.getItem("refresh_token");
+      if (refreshToken) {
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then((token) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              return api(originalRequest);
+            })
+            .catch((err) => Promise.reject(err));
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+          // Attempt refresh via /api/auth/refresh or fallback to /api/users/refresh
+          const refreshRes = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
+            refresh_token: refreshToken,
+          }).catch(() => axios.post(`${API_BASE_URL}/api/users/refresh`, {}, {
+            headers: { Authorization: `Bearer ${refreshToken}` },
+          }));
+
+          const newToken = refreshRes?.data?.access_token || refreshRes?.data?.token;
+          const newRefreshToken = refreshRes?.data?.refresh_token;
+
+          if (newToken) {
+            localStorage.setItem("token", newToken);
+            if (newRefreshToken) {
+              localStorage.setItem("refresh_token", newRefreshToken);
+            }
+            api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+            processQueue(null, newToken);
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return api(originalRequest);
+          }
+        } catch (refreshErr) {
+          processQueue(refreshErr, null);
+          localStorage.removeItem("token");
+          localStorage.removeItem("refresh_token");
+          window.location.href = "/login";
+          return Promise.reject(refreshErr);
+        } finally {
+          isRefreshing = false;
+        }
+      } else {
         localStorage.removeItem("token");
         window.location.href = "/login";
       }
@@ -285,6 +380,27 @@ export const generateAiPresentationImage = async ({
     console.warn("generateAiPresentationImage error", err);
     throw err;
   }
+};
+
+export const getPresentationJobStatus = async (jobId) => {
+  try {
+    const res = await api.get(`/api/presentation/jobs/${jobId}`);
+    return res.data;
+  } catch (err) {
+    console.warn("getPresentationJobStatus error", err);
+    throw err;
+  }
+};
+
+export const pollPresentationJob = async (jobId, { intervalMs = 1500, maxAttempts = 40 } = {}) => {
+  for (let i = 0; i < maxAttempts; i++) {
+    const job = await getPresentationJobStatus(jobId);
+    if (job.status === "completed" || job.status === "failed") {
+      return job;
+    }
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+  throw new Error("Job polling timed out.");
 };
 
 

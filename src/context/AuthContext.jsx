@@ -37,10 +37,13 @@ export const AuthProvider = ({ children }) => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  const login = useCallback((newToken, userData) => {
+  const login = useCallback((newToken, userData, refreshToken = null) => {
     if (newToken) {
       localStorage.setItem("token", newToken);
       setToken(newToken);
+    }
+    if (refreshToken) {
+      localStorage.setItem("refresh_token", refreshToken);
     }
     if (userData) {
       localStorage.setItem("user", JSON.stringify(userData));
@@ -50,6 +53,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(() => {
     localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
     setToken(null);
     setUser(null);

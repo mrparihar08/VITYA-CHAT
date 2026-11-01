@@ -3,10 +3,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Chatbot from "../components/chatbot/VityaChatbot";
 import ChatHistory from "../components/chatbot/ChatHistory";
 import Presentation from "../components/presentation/Presentation";
-import { resolveAssetUrl } from "../services/api";
+import { resolveAssetUrl, createNewConversation } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import "./Dashboard.css";
-
 import NotesApp from "../components/apps/NotesApp";
 import CalendarApp from "../components/apps/CalendarApp";
 import FilesApp from "../components/apps/FilesApp";
@@ -644,14 +643,51 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
     [closeSidebarIfMobile, activeConversationId, updateNavigationState]
   );
 
-  const handleNewChat = useCallback(() => {
+  const handleNewChat = useCallback(async () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("vitya_activeConversationId");
     }
-    updateNavigationState("chat", null, null);
     setChatInitialPrompt("");
     closeSidebarIfMobile();
+
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (token) {
+      try {
+        const data = await createNewConversation();
+        const newId = data?.conversation_id || data?.id;
+        if (newId) {
+          updateNavigationState("chat", null, newId);
+          setHistoryRefreshKey((prev) => prev + 1);
+          return;
+        }
+      } catch (err) {
+        console.warn("handleNewChat error:", err);
+      }
+    }
+    updateNavigationState("chat", null, null);
+    setHistoryRefreshKey((prev) => prev + 1);
   }, [closeSidebarIfMobile, updateNavigationState]);
+
+  // On initial app open / load: start a brand new conversation if not opening a specific existing chat
+  const autoNewChatInitializedRef = useRef(false);
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const fromUrl = searchParams.get("c");
+    if (!autoNewChatInitializedRef.current && activeTab === "chat" && !fromUrl && token) {
+      autoNewChatInitializedRef.current = true;
+      createNewConversation()
+        .then((data) => {
+          const newId = data?.conversation_id || data?.id;
+          if (newId) {
+            updateNavigationState("chat", null, newId);
+            setHistoryRefreshKey((prev) => prev + 1);
+          }
+        })
+        .catch((err) => {
+          console.warn("Auto new chat init on app open error:", err);
+        });
+    }
+  }, [activeTab, searchParams, updateNavigationState]);
 
   const openConversation = useCallback(
     (conversationId) => {

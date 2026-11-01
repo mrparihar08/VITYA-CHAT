@@ -36,7 +36,8 @@ export function Login() {
         password,
       });
 
-      const token = res?.data?.token;
+      const token = res?.data?.token || res?.data?.access_token;
+      const refreshToken = res?.data?.refresh_token;
       if (!token) {
         alert(res?.data?.message || "Invalid login response.");
         return;
@@ -49,7 +50,7 @@ export function Login() {
         email: "",
         profile_pic: "/profile.png",
       };
-      login(token, userData);
+      login(token, userData, refreshToken);
       navigate("/dashboard");
     } catch (err) {
       alert(handleApiError(err));

@@ -48,7 +48,8 @@ export function Register() {
         password,
       });
 
-      const token = res?.data?.token;
+      const token = res?.data?.token || res?.data?.access_token;
+      const refreshToken = res?.data?.refresh_token;
       if (!token) {
         alert(res?.data?.message || "Registration successful, but token was not returned.");
         navigate("/login");
@@ -62,7 +63,7 @@ export function Register() {
         email: email.trim(),
         profile_pic: "/profile.png",
       };
-      login(token, userData);
+      login(token, userData, refreshToken);
 
       alert(res.data?.message || "Registration successful!");
       navigate("/profile");
