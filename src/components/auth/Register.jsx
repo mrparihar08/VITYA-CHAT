@@ -48,7 +48,12 @@ export function Register() {
         password,
       });
 
-      const token = res?.data?.token || res?.data?.access_token;
+      // Defensive check against static server HTML fallback responses
+      if (typeof res?.data === "string" && res.data.includes("<!doctype html>")) {
+        throw new Error("Unable to connect to the authentication server. Please check backend API configuration.");
+      }
+
+      const token = res?.data?.access_token || res?.data?.token;
       const refreshToken = res?.data?.refresh_token;
       if (!token) {
         alert(res?.data?.message || "Registration successful, but token was not returned.");
@@ -56,17 +61,22 @@ export function Register() {
         return;
       }
 
-      const profile = await loadProfileIntoStorage(token);
-      const userData = profile || {
-        name: name.trim(),
-        username: username.trim(),
-        email: email.trim(),
-        profile_pic: "/profile.png",
-      };
-      login(token, userData, refreshToken);
+      // Extract user profile from registration response or load into storage
+      let userData = res?.data?.user;
+      if (!userData) {
+        userData = await loadProfileIntoStorage(token).catch(() => null);
+      }
+      if (!userData) {
+        userData = {
+          name: name.trim(),
+          username: username.trim(),
+          email: email.trim(),
+          profile_pic: "/profile.png",
+        };
+      }
 
-      alert(res.data?.message || "Registration successful!");
-      navigate("/profile");
+      login(token, userData, refreshToken);
+      navigate("/dashboard");
     } catch (err) {
       alert(handleApiError(err));
     } finally {

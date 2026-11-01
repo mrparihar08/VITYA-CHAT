@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const PRODUCTION_BACKEND_URL = "https://mother-8599.onrender.com";
+
 const getApiBaseUrl = () => {
   let viteUrl = "";
   try {
@@ -29,20 +31,30 @@ const getApiBaseUrl = () => {
 
   // If running in a browser on localhost / LAN
   if (isLocalHost) {
-    // If envUrl is explicitly pointing to localhost or local IP, use that
     if (envUrl && (envUrl.includes("localhost") || envUrl.includes("127.0.0.1") || envUrl.includes("192.168.") || envUrl.includes("10."))) {
       return envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl;
     }
-    // If envUrl is missing or points to the old suspended Render host, connect to local backend (port 10000)
-    if (!envUrl || envUrl.includes("mother-8599.onrender.com")) {
-      return `http://${hostname || "localhost"}:10000`;
-    }
-    return envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl;
+    return `http://${hostname || "localhost"}:10000`;
   }
 
-  // If in production and custom envUrl is provided (and not suspended)
-  if (envUrl && !envUrl.includes("mother-8599.onrender.com")) {
-    return envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl;
+  // If in production and custom envUrl is provided
+  if (envUrl && envUrl.trim()) {
+    const cleanUrl = envUrl.trim();
+    return cleanUrl.endsWith("/") ? cleanUrl.slice(0, -1) : cleanUrl;
+  }
+
+  // Known frontend static sites that do not host the API directly
+  const staticFrontendHosts = [
+    "vitya-chat.onrender.com",
+    "vitya-expense.onrender.com",
+    "security-vitya.onrender.com",
+    "admin-vitya.onrender.com",
+    "tourist-vitya.onrender.com",
+    "monitor-vitya.onrender.com",
+  ];
+
+  if (isBrowser && staticFrontendHosts.includes(hostname)) {
+    return PRODUCTION_BACKEND_URL;
   }
 
   // If in browser and served from production reverse-proxy / same origin
@@ -50,7 +62,7 @@ const getApiBaseUrl = () => {
     return window.location.origin;
   }
 
-  return "http://localhost:10000";
+  return PRODUCTION_BACKEND_URL;
 };
 
 export const API_BASE_URL = getApiBaseUrl();
