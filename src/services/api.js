@@ -847,6 +847,35 @@ export const runMonteCarloSimulation = async (payload) => {
   return res.data;
 };
 
+// ================= REAL-TIME VOICE ASSISTANT API =================
+export const sendVoiceAssistantChat = async (payload) => {
+  const res = await api.post("/api/voice-assistant/chat", payload);
+  return res.data;
+};
+
+export const synthesizeVoiceAssistantTTS = async (payload) => {
+  const res = await api.post("/api/voice-assistant/tts", payload, {
+    responseType: "blob",
+  });
+  return res.data;
+};
+
+export const transcribeVoiceAssistantSTT = async (audioBlob) => {
+  const formData = new FormData();
+  formData.append("file", audioBlob, "recording.webm");
+  const res = await api.post("/api/voice-assistant/stt", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+};
+
+export const getVoiceAssistantVoices = async () => {
+  const res = await api.get("/api/voice-assistant/voices");
+  return res.data;
+};
+
 export default api;
 
 

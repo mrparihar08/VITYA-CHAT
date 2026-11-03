@@ -178,6 +178,10 @@ const PageTitleUpdater = () => {
       title = "Voice Notes & Audio Brain | Whisper Meeting Intelligence | Vitya AI";
       description = "Capture voice thoughts and meetings with Whisper speech recognition. Automatically extract action items, summarize dialogues, and synchronize tasks.";
       keywords = "AI voice notes, Whisper transcription, meeting summary AI, audio brain, speech to action items";
+    } else if (path.startsWith("/voice") || path.startsWith("/assistant")) {
+      title = "AI Voice Assistant | Real-Time Voice Intelligence | Vitya AI";
+      description = "Talk naturally with Vitya AI Voice Assistant in real time with continuous conversation, multilingual speech recognition, neural audio synthesis, and interactive animated AI orb.";
+      keywords = "AI voice assistant, ChatGPT voice mode, real time voice AI, speech recognition, Edge-TTS, Hindi voice AI, Hinglish voice assistant, Vitya AI";
     } else if (path.startsWith("/automations") || path.startsWith("/routines")) {
       title = "Neural Automations & Smart Routines | Vitya AI";
       description = "Set up autonomous background routines, smart scheduled workflows, calendar syncing, and automated enterprise triggers.";
@@ -359,6 +363,22 @@ function AppRoutes() {
           element={
             <PrivateRoute>
               <Dashboard initialTab="apps" initialApp="voice-notes" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/voice"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="voice" />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/assistant"
+          element={
+            <PrivateRoute>
+              <Dashboard initialTab="apps" initialApp="voice" />
             </PrivateRoute>
           }
         />

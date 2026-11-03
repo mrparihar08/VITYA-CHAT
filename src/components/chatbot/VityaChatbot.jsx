@@ -555,6 +555,8 @@ const Chatbot = ({
   onConversationUpdated,
   initialInput,
   onClearInitialInput,
+  refreshKey,
+  onOpenVoiceAssistant,
 }) => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
@@ -618,6 +620,7 @@ const Chatbot = ({
   const [activeLightboxImg, setActiveLightboxImg] = useState(null);
   const [lastUserPrompt, setLastUserPrompt] = useState("");
   const activeLocalConvIdRef = useRef(conversationId);
+  const prevRefreshKeyRef = useRef(refreshKey);
 
   const showToast = useCallback((msg) => {
     setToastMessage(msg);
@@ -810,7 +813,10 @@ const Chatbot = ({
       return;
     }
 
-    if (conversationId === activeLocalConvIdRef.current && hasMessagesRef.current) {
+    const isRefresh = prevRefreshKeyRef.current !== refreshKey;
+    prevRefreshKeyRef.current = refreshKey;
+
+    if (!isRefresh && conversationId === activeLocalConvIdRef.current && hasMessagesRef.current) {
       return;
     }
 
@@ -888,6 +894,8 @@ const Chatbot = ({
             intent: parsed?.intent,
             disclaimer: parsed?.disclaimer,
             suggestions: parsed?.suggestions,
+            input_mode: message.input_mode || "chat",
+            meta_info: message.meta_info,
           };
         }));
       } catch (error) {
@@ -900,7 +908,7 @@ const Chatbot = ({
 
     loadConversation();
     return () => { cancelled = true; };
-  }, [conversationId, token, handleSessionExpired]);
+  }, [conversationId, refreshKey, token, handleSessionExpired]);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -3473,6 +3481,11 @@ const Chatbot = ({
                     >
                       {isUser ? (
                         <>
+                          {msg.input_mode === "voice" && (
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 10, padding: "1px 6px", borderRadius: 9999, background: "rgba(168, 85, 247, 0.15)", color: "#c084fc", border: "1px solid rgba(168, 85, 247, 0.3)", marginRight: 2 }}>
+                              <Mic size={9} /> Voice
+                            </span>
+                          )}
                           <span style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8" }}>You</span>
                           <div
                             style={{
@@ -3503,6 +3516,11 @@ const Chatbot = ({
                             <Sparkles size={11} color="#ffffff" />
                           </div>
                           <span style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0" }}>Vitya</span>
+                          {msg.input_mode === "voice" && (
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 10, padding: "1px 6px", borderRadius: 9999, background: "rgba(16, 185, 129, 0.15)", color: "#6ee7b7", border: "1px solid rgba(16, 185, 129, 0.3)", marginLeft: 2 }}>
+                              <Mic size={9} /> Voice
+                            </span>
+                          )}
                         </>
                       )}
                     </div>
@@ -4045,6 +4063,7 @@ const Chatbot = ({
         setAttachedImages={setAttachedImages}
         onImageSelect={handleImageSelect}
         removeAttachedImage={handleRemoveAttachedImage}
+        onOpenVoiceAssistant={onOpenVoiceAssistant}
       />
 
       {/* Lightbox Image Preview Modal */}

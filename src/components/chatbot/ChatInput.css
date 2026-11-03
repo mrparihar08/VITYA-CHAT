@@ -273,6 +273,7 @@
    Primary Send Button
    -------------------------------------------------------------------------- */
 .vitya-composer-send-btn {
+  animation: vityaBtnSwap 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -350,6 +351,7 @@
   }
 
   .vitya-composer-send-btn {
+  animation: vityaBtnSwap 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     width: 34px;
     height: 34px;
   }
@@ -379,11 +381,151 @@
   }
 
   .vitya-composer-send-btn {
+  animation: vityaBtnSwap 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     width: 32px;
     height: 32px;
   }
 
   .vitya-composer-btn-group {
     gap: 2px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Futuristic AI Voice Assistant Button (Replaces Send button when input is empty)
+   -------------------------------------------------------------------------- */
+.vitya-composer-assistant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(192, 132, 252, 0.45);
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #3b82f6 100%);
+  color: #ffffff;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  user-select: none;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.42), 0 0 12px rgba(99, 102, 241, 0.3), inset 0 1px 1.5px rgba(255, 255, 255, 0.4);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  animation: vityaBtnSwap 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vitya-composer-assistant-btn:hover {
+  background: linear-gradient(135deg, #9d71f7 0%, #7075f7 50%, #60a5fa 100%);
+  border-color: rgba(216, 180, 254, 0.7);
+  box-shadow: 0 6px 22px rgba(139, 92, 246, 0.6), 0 0 18px rgba(99, 102, 241, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.55);
+  transform: translateY(-1.5px) scale(1.05);
+}
+
+.vitya-composer-assistant-btn:active {
+  transform: scale(0.94) translateY(0);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+}
+
+.vitya-composer-assistant-btn:focus-visible {
+  outline: 2px solid #c084fc;
+  outline-offset: 2px;
+}
+
+/* Ambient rotating/breathing aura glow behind the icon */
+.vitya-assistant-btn-aura {
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, rgba(139, 92, 246, 0.2) 50%, transparent 75%);
+  opacity: 0.65;
+  pointer-events: none;
+  animation: vityaAssistantPulse 2.8s infinite ease-in-out;
+}
+
+.vitya-assistant-btn-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vitya-assistant-mic-icon {
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vitya-composer-assistant-btn:hover .vitya-assistant-mic-icon {
+  transform: scale(1.1);
+}
+
+/* Micro voice activity indicator dot */
+.vitya-assistant-soundwave-dot {
+  position: absolute;
+  top: -2px;
+  right: -3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 6px #38bdf8, 0 0 10px #38bdf8;
+  animation: vityaDotGlow 1.8s infinite ease-in-out;
+}
+
+/* Active listening / recording mode */
+.vitya-composer-assistant-btn.is-listening {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border-color: rgba(252, 165, 165, 0.7);
+  box-shadow: 0 0 22px rgba(239, 68, 68, 0.65);
+  animation: vityaListeningThrob 1.2s infinite ease-in-out;
+}
+
+/* Butter-smooth entry transition when morphing */
+@keyframes vityaBtnSwap {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes vityaAssistantPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.3;
+  }
+}
+
+@keyframes vityaDotGlow {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes vityaListeningThrob {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.65);
+  }
+  70% {
+    box-shadow: 0 0 0 9px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
   }
 }

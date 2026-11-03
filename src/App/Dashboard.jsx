@@ -27,7 +27,7 @@ import AppsWorkspace from "../components/apps/AppsWorkspace";
 import CommandPalette from "../components/common/CommandPalette";
 import AmbientVoiceOrbModal from "../components/common/AmbientVoiceOrbModal";
 import NotificationBell from "../components/notifications/NotificationBell";
-import { Search, Columns, Mic } from "lucide-react";
+import { Search, Columns } from "lucide-react";
 import {
   SettingsPage,
   HelpSupportPage,
@@ -39,6 +39,19 @@ import {
 } from "../components/profile";
 
 const APP_REGISTRY = [
+  {
+    id: "voice",
+    name: "Voice Assistant",
+    desc: "Talk naturally in real time with Vitya AI Voice Assistant. Powered by neural TTS, live speech recognition, and an interactive 3D animated AI orb.",
+    icon: "mic",
+    type: "internal",
+    category: "ai",
+    tags: ["AI", "Voice", "Realtime"],
+    keywords: ["voice", "assistant", "audio", "mic", "talk", "realtime", "speech", "hindi", "hinglish", "orb", "ai voice"],
+    iconBg: "linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #06b6d4 100%)",
+    context: "Talk naturally with Vitya voice assistant",
+    popularity: 101,
+  },
   {
     id: "chat",
     name: "AI Chat",
@@ -509,7 +522,15 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
   const [chatInitialPrompt, setChatInitialPrompt] = useState("");
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const [ambientVoiceOpen, setAmbientVoiceOpen] = useState(false);
+  const [ambientVoiceOpen, setAmbientVoiceOpen] = useState(
+    () => propApp === "voice" || propApp === "voice-assistant"
+  );
+
+  useEffect(() => {
+    if (propApp === "voice" || propApp === "voice-assistant" || activeApp === "voice" || activeApp === "voice-assistant") {
+      setAmbientVoiceOpen(true);
+    }
+  }, [propApp, activeApp]);
   const [isSplitView, setIsSplitView] = useState(() => {
     try {
       return localStorage.getItem("vitya_split_view") === "true";
@@ -636,6 +657,11 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
 
   const handleTabClick = useCallback(
     (tab) => {
+      if (tab === "voice" || tab === "assistant") {
+        setAmbientVoiceOpen(true);
+        closeSidebarIfMobile();
+        return;
+      }
       const convId = tab === "chat" ? activeConversationId : null;
       updateNavigationState(tab, null, convId);
       closeSidebarIfMobile();
@@ -721,6 +747,8 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
       if (!app) return;
       if (app.type === "external") {
         window.open(app.url, "_blank", "noopener,noreferrer");
+      } else if (app.id === "voice" || app.id === "voice-assistant") {
+        setAmbientVoiceOpen(true);
       } else if (app.id === "chat") {
         updateNavigationState("chat", null, null);
       } else if (app.id === "presentation") {
@@ -747,7 +775,7 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
         <div className="appPanel">
           <div className="appPanelTopBar">
             <button className="backBtn" onClick={() => updateNavigationState("apps", null, null)}>
-              ← Back to Apps
+              ← Apps
             </button>
             <div className="appBreadcrumb">
               <span>Apps</span> <span className="bcSep">/</span> <strong className="bcCurrent">{currentApp.name}</strong>
@@ -887,31 +915,6 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
 
           <div className="topbarRightGroup" style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <button
-              onClick={() => setAmbientVoiceOpen(true)}
-              title="Talk to Vitya"
-              className="topbarMicBtn"
-              aria-label="Talk to Vitya voice assistant"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%)",
-                border: "1px solid rgba(168, 85, 247, 0.35)",
-                borderRadius: "10px",
-                padding: "6px 10px",
-                color: "#c084fc",
-                fontSize: "12.5px",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.18s ease",
-                minWidth: 36,
-                minHeight: 36,
-              }}
-            >
-              <Mic size={15} color="#c084fc" />
-            </button>
-
-            <button
               onClick={() =>
                 setIsSplitView((prev) => {
                   const next = !prev;
@@ -999,10 +1002,12 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
                 <section className="chatShell">
                   <Chatbot
                     conversationId={activeConversationId}
+                    refreshKey={historyRefreshKey}
                     onConversationChange={(id) => updateNavigationState("chat", null, id)}
                     onConversationUpdated={() => setHistoryRefreshKey((value) => value + 1)}
                     initialInput={chatInitialPrompt}
                     onClearInitialInput={() => setChatInitialPrompt("")}
+                    onOpenVoiceAssistant={() => setAmbientVoiceOpen(true)}
                   />
                 </section>
               )}
@@ -1115,10 +1120,12 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
                     <div style={{ flex: 1, minHeight: 0 }}>
                       <Chatbot
                         conversationId={activeConversationId}
+                        refreshKey={historyRefreshKey}
                         onConversationChange={(id) => updateNavigationState("chat", null, id)}
                         onConversationUpdated={() => setHistoryRefreshKey((value) => value + 1)}
                         initialInput={chatInitialPrompt}
                         onClearInitialInput={() => setChatInitialPrompt("")}
+                        onOpenVoiceAssistant={() => setAmbientVoiceOpen(true)}
                       />
                     </div>
                   </div>
@@ -1152,10 +1159,13 @@ const Dashboard = ({ initialTab: propTab, initialApp: propApp }) => {
       {/* Hands-Free Ambient Voice Assistant Modal */}
       <AmbientVoiceOrbModal
         isOpen={ambientVoiceOpen}
+        conversationId={activeConversationId}
+        onConversationChange={(id) => updateNavigationState(activeTab, activeApp, id)}
+        onConversationUpdated={() => setHistoryRefreshKey((prev) => prev + 1)}
         onClose={() => setAmbientVoiceOpen(false)}
         onNavigateToChat={() => {
           setAmbientVoiceOpen(false);
-          updateNavigationState("chat");
+          updateNavigationState("chat", null, activeConversationId);
         }}
       />
     </div>

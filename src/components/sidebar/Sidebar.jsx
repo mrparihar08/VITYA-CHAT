@@ -15,6 +15,7 @@ import {
   ChevronUp,
   X,
   Sparkles,
+  Mic,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import "./Sidebar.css";
@@ -121,6 +122,7 @@ export default function Sidebar({
   // Essential navigation items
   const navItems = [
     { key: "chat", label: "Chat", icon: MessageSquare },
+    { key: "voice", label: "Voice Assistant", icon: Mic },
     { key: "presentation", label: "Presentation Studio", icon: Presentation },
     { key: "apps", label: "All Apps", icon: LayoutGrid },
     { key: "history", label: "History", icon: Clock },

@@ -7,7 +7,6 @@ import {
   Plus,
   Send,
   Mic,
-  MicOff,
   Sparkles,
   CreditCard,
   TrendingDown,
@@ -70,7 +69,13 @@ export const ChatInput = ({
   setAttachedImages,
   onImageSelect,
   removeAttachedImage,
+  onOpenVoiceAssistant,
 }) => {
+  const hasInputText = Boolean(
+    (input && input.trim().length > 0) ||
+    (attachedImages && attachedImages.length > 0) ||
+    loading
+  );
   const [activeMenu, setActiveMenu] = React.useState("main"); // "main" | "plugins"
   const [isCameraOpen, setIsCameraOpen] = React.useState(false);
   const [cameraError, setCameraError] = React.useState(null);
@@ -1028,48 +1033,56 @@ export const ChatInput = ({
             aria-label="Message Vitya"
           />
 
-          {/* RIGHT ACTIONS GROUP */}
+          {/* RIGHT ACTIONS GROUP: Seamless morph between Voice Assistant button & Send button */}
           <div className="vitya-composer-btn-group">
-            {/* VOICE INPUT BUTTON */}
-            <button
-              type="button"
-              className={`vitya-composer-btn ${listening ? "mic-listening" : ""}`}
-              onClick={handleMicClick}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                toggleVoiceEnabled();
-              }}
-              title="Voice input (Click to talk. Right-click to toggle voice)"
-              aria-label="Voice input"
-            >
-              {listening ? (
-                <Mic size={16} strokeWidth={2.4} />
-              ) : getMicIcon && getMicIcon().includes("off") ? (
-                <MicOff size={16} strokeWidth={2} style={{ opacity: 0.6 }} />
-              ) : (
-                <Mic size={16} strokeWidth={2} />
-              )}
-            </button>
-
-            {/* SEND BUTTON */}
-            <button
-              type="button"
-              className="vitya-composer-send-btn"
-              onClick={() => {
-                if (!loading && (input.trim() || (attachedImages && attachedImages.length > 0))) {
-                  sendMessage();
-                }
-              }}
-              disabled={loading || (!input.trim() && (!attachedImages || attachedImages.length === 0))}
-              title="Send message (Enter)"
-              aria-label="Send message"
-            >
-              {loading ? (
-                <Sparkles size={16} className="vitya-spin" />
-              ) : (
-                <Send size={15} strokeWidth={2.4} />
-              )}
-            </button>
+            {hasInputText ? (
+              /* SEND BUTTON: Visible when text is typed or media attached */
+              <button
+                key="composer-send-action"
+                type="button"
+                className="vitya-composer-send-btn"
+                onClick={() => {
+                  if (!loading && (input.trim() || (attachedImages && attachedImages.length > 0))) {
+                    sendMessage();
+                  }
+                }}
+                disabled={loading || (!input.trim() && (!attachedImages || attachedImages.length === 0))}
+                title="Send message (Enter)"
+                aria-label="Send message"
+              >
+                {loading ? (
+                  <Sparkles size={16} className="vitya-spin" />
+                ) : (
+                  <Send size={15} strokeWidth={2.4} />
+                )}
+              </button>
+            ) : (
+              /* VOICE ASSISTANT BUTTON: Shown in send button position when input is empty */
+              <button
+                key="composer-assistant-action"
+                type="button"
+                className={`vitya-composer-assistant-btn ${listening ? "is-listening" : ""}`}
+                onClick={() => {
+                  if (onOpenVoiceAssistant) {
+                    onOpenVoiceAssistant();
+                  } else if (handleMicClick) {
+                    handleMicClick();
+                  }
+                }}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  if (toggleVoiceEnabled) toggleVoiceEnabled();
+                }}
+                title="Voice Assistant (Talk naturally with Vitya)"
+                aria-label="Talk to Vitya voice assistant"
+              >
+                <div className="vitya-assistant-btn-aura" />
+                <div className="vitya-assistant-btn-inner">
+                  <Mic size={17} strokeWidth={2.4} className="vitya-assistant-mic-icon" />
+                  <span className="vitya-assistant-soundwave-dot" />
+                </div>
+              </button>
+            )}
           </div>
         </div>
 
