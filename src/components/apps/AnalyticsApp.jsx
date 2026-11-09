@@ -257,9 +257,7 @@ const AnalyticsApp = ({ notesCount: propNotes = 0, tasksCount: propTasks = 0, ch
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.warn("Download error", err);
-      const token = localStorage.getItem("token");
-      const tokenParam = token ? `?token=${encodeURIComponent(token)}` : "";
-      window.open(`${API_BASE_URL}/api/presentation/download-presentation/${presentationId}${tokenParam}`, "_blank");
+      alert("Unable to download presentation. Please check your network connection and try again.");
     }
   };
 

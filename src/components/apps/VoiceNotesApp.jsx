@@ -30,6 +30,22 @@ export default function VoiceNotesApp({
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [recordedAudioBlob, setRecordedAudioBlob] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioUrl && audioUrl.startsWith("blob:")) {
+        try { URL.revokeObjectURL(audioUrl); } catch {}
+      }
+    };
+  }, [audioUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (audioUrl && audioUrl.startsWith("blob:")) {
+        try { URL.revokeObjectURL(audioUrl); } catch {}
+      }
+    };
+  }, [audioUrl]);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   // Audio Processing State

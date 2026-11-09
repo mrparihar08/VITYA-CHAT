@@ -67,9 +67,7 @@ export default function SavedPresentationsModal({ isOpen, onClose, onLoadDeck, o
       onToast?.({ type: "success", title: "Downloaded", message: "PowerPoint file downloaded." });
     } catch (err) {
       console.warn("Download error", err);
-      const token = localStorage.getItem("token");
-      const tokenParam = token ? `?token=${encodeURIComponent(token)}` : "";
-      window.open(`${API_BASE_URL}/api/presentation/download-presentation/${presentationId}${tokenParam}`, "_blank");
+      onToast?.({ type: "error", title: "Download Failed", message: "Could not export PowerPoint file." });
     }
   };
 

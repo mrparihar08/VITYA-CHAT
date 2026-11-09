@@ -46,7 +46,9 @@ export async function downloadFileAsBlob(url, filename = "presentation.pptx") {
     : `${targetUrl}?_t=${Date.now()}`;
 
   try {
-    const res = await fetch(cacheBustUrl, { cache: "no-store" });
+    const token = typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const res = await fetch(cacheBustUrl, { cache: "no-store", headers });
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const blob = await res.blob();
     const blobUrl = window.URL.createObjectURL(blob);
@@ -59,8 +61,8 @@ export async function downloadFileAsBlob(url, filename = "presentation.pptx") {
     document.body.removeChild(link);
     setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000);
   } catch (err) {
-    console.warn("Blob download failed, using direct window open fallback", err);
-    window.open(cacheBustUrl, "_blank");
+    console.warn("Blob download failed", err);
+    throw err;
   }
 }
 

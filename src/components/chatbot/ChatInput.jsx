@@ -225,7 +225,14 @@ export const ChatInput = ({
     if (img.preview) return img.preview;
     if (typeof img === "string") return img;
     if (img instanceof Blob || img instanceof File) {
-      return URL.createObjectURL(img);
+      if (!img._blobUrl) {
+        try {
+          img._blobUrl = URL.createObjectURL(img);
+        } catch {
+          return "";
+        }
+      }
+      return img._blobUrl;
     }
     return "";
   };

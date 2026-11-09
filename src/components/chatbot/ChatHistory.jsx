@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { API_BASE_URL } from "../../services/api";
+import { getConversations, clearChatHistory, deleteConversation } from "../../services/api";
 import "./ChatHistory.css";
 
 const deriveSmartTitle = (text) => {
@@ -124,22 +124,8 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
     setError("");
 
     try {
-      const token = localStorage.getItem("token");
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 12000);
-
-      const response = await fetch(`${API_BASE_URL}/api/chat/conversations`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(`Server returned HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-      const list = Array.isArray(data) ? data : [];
+      const data = await getConversations(50);
+      const list = Array.isArray(data) ? data : (data?.conversations || []);
       setConversations(list);
       setError("");
 
@@ -187,12 +173,7 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
     setClearing(true);
     setError("");
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_BASE_URL}/api/chat/history`, {
-        method: "DELETE",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (!response.ok) throw new Error("Unable to clear chat history.");
+      await clearChatHistory();
       setConversations([]);
       try {
         localStorage.removeItem("vitya_conversations");
@@ -210,11 +191,7 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
     if (!window.confirm(`Delete Conversation #${displayId}?`)) return;
 
     try {
-      const token = localStorage.getItem("token");
-      await fetch(`${API_BASE_URL}/api/chat/conversation/${id}`, {
-        method: "DELETE",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      await deleteConversation(id);
       setConversations((prev) => {
         const next = prev.filter((c) => c.id !== id);
         try {
@@ -223,7 +200,8 @@ const ChatHistory = ({ onOpenConversation, refreshKey = 0 }) => {
         return next;
       });
     } catch (err) {
-      console.error(err);
+      console.error("Failed to delete conversation:", err);
+      setError("Failed to delete conversation. Please try again.");
     }
   };
 

@@ -47,6 +47,22 @@ export default function ScanLedgerApp({ onNavigateToFinance }) {
   const [selectedSample, setSelectedSample] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith("blob:")) {
+        try { URL.revokeObjectURL(previewUrl); } catch {}
+      }
+    };
+  }, [previewUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith("blob:")) {
+        try { URL.revokeObjectURL(previewUrl); } catch {}
+      }
+    };
+  }, [previewUrl]);
   const [isScanning, setIsScanning] = useState(false);
   const [autoPost, setAutoPost] = useState(false);
   
@@ -147,7 +163,10 @@ export default function ScanLedgerApp({ onNavigateToFinance }) {
 
       const tType = data.transaction_type || (data.category === "Salary" || data.category === "Freelance" ? "income" : "expense");
       setTransactionType(tType);
-      setMerchant(data.merchant || file.name.rsplit?.(".", 1)?.[0] || "Scanned Vendor");
+      const fn = file?.name || "";
+      const dotIdx = fn.lastIndexOf(".");
+      const cleanBaseName = dotIdx > 0 ? fn.substring(0, dotIdx) : fn;
+      setMerchant(data.merchant || cleanBaseName || "Scanned Vendor");
       setAmount(String(data.amount || ""));
       setCategory(data.category || (tType === "income" ? "Freelance" : "Shopping"));
       setDate(data.date || new Date().toISOString().split("T")[0]);
@@ -210,8 +229,12 @@ export default function ScanLedgerApp({ onNavigateToFinance }) {
   // 6. Post Transaction to SQLAlchemy Backend
   const handlePostTransaction = async () => {
     const numAmount = parseFloat(amount);
+    if (!merchant || !merchant.trim()) {
+      setPostError("Please specify a merchant or vendor name before committing.");
+      return;
+    }
     if (isNaN(numAmount) || numAmount <= 0) {
-      alert("Please specify a valid transaction amount greater than 0.");
+      setPostError("Please specify a valid transaction amount greater than 0.");
       return;
     }
 
@@ -463,6 +486,11 @@ export default function ScanLedgerApp({ onNavigateToFinance }) {
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
                     />
+                    {amount && (isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) ? (
+                      <span style={{ fontSize: "11px", color: "#f87171", marginTop: "3px", display: "block" }}>
+                        Enter a valid positive amount
+                      </span>
+                    ) : null}
                   </div>
 
                   <div className="scanFormField">
@@ -607,6 +635,9 @@ export default function ScanLedgerApp({ onNavigateToFinance }) {
                             </td>
                             <td style={{ textAlign: "center" }}>
                               <button
+                                type="button"
+                                aria-label="Remove item"
+                                title="Remove item"
                                 onClick={() => handleRemoveItem(idx)}
                                 style={{
                                   background: "transparent",

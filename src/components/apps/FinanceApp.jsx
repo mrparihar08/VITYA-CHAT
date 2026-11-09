@@ -305,9 +305,8 @@ export default function FinanceApp() {
       setTimeout(() => setToastMsg(""), 3000);
     } catch (err) {
       console.warn("CSV download fallback", err);
-      const token = localStorage.getItem("token");
-      const tokenParam = token ? `?token=${encodeURIComponent(token)}` : "";
-      window.open(`${API_BASE_URL}${urlPath}${tokenParam}`, "_blank");
+      setToastMsg("Export failed. Please check network connection.");
+      setTimeout(() => setToastMsg(""), 4000);
     }
   };
 

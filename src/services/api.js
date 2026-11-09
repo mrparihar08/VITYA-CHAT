@@ -278,10 +278,8 @@ export const synthesizeVoiceover = async ({ text, language = "en-US", voice = nu
 
 export const getUserPresentations = async (limit = 50) => {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/presentation/my-presentations?limit=${limit}`, {
-      headers: getAuthHeaders(),
-    });
-    return await safeFetchJSON(res);
+    const res = await api.get(`/api/presentation/my-presentations?limit=${limit}`);
+    return res.data;
   } catch (err) {
     console.warn("getUserPresentations error", err);
     return { status: "error", presentations: [] };
@@ -290,11 +288,8 @@ export const getUserPresentations = async (limit = 50) => {
 
 export const deleteUserPresentation = async (presentationId) => {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/presentation/${presentationId}`, {
-      method: "DELETE",
-      headers: getAuthHeaders(),
-    });
-    return await safeFetchJSON(res);
+    const res = await api.delete(`/api/presentation/${presentationId}`);
+    return res.data;
   } catch (err) {
     console.warn("deleteUserPresentation error", err);
     throw err;

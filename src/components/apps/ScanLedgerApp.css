@@ -766,3 +766,36 @@
     min-width: 480px;
   }
 }
+
+@media (max-width: 480px) {
+  .scanItemsTableWrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .scanItemsTable {
+    min-width: 320px;
+  }
+
+  .scanCommitRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .scanPostToDatabaseBtn {
+    width: 100%;
+  }
+
+  .scanDropZoneActions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .scanUploadBtn,
+  .scanCameraBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}

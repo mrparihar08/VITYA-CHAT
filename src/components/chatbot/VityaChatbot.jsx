@@ -639,11 +639,27 @@ const Chatbot = ({
   const handleImageSelect = useCallback((files) => {
     const fileArray = Array.from(files || []).filter((f) => f.type && f.type.startsWith("image/"));
     if (!fileArray.length) return;
-    setAttachedImages((prev) => [...prev, ...fileArray]);
+    const withPreviews = fileArray.map((file) => {
+      if (!file.preview) {
+        try {
+          file.preview = URL.createObjectURL(file);
+        } catch {}
+      }
+      return file;
+    });
+    setAttachedImages((prev) => [...prev, ...withPreviews]);
   }, []);
 
   const handleRemoveAttachedImage = useCallback((index) => {
-    setAttachedImages((prev) => prev.filter((_, i) => i !== index));
+    setAttachedImages((prev) => {
+      const removed = prev[index];
+      if (removed?.preview && String(removed.preview).startsWith("blob:")) {
+        try {
+          URL.revokeObjectURL(removed.preview);
+        } catch {}
+      }
+      return prev.filter((_, i) => i !== index);
+    });
   }, []);
 
   useEffect(() => {
@@ -659,6 +675,21 @@ const Chatbot = ({
   const handleDocumentFileUpload = async (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
+
+    const docNames = files.map((f) => f.name).join(", ");
+
+    // 1. Instantly display user's uploaded document bubble in chat (Right / "You")
+    const userDocId = `user-doc-${Date.now()}`;
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: userDocId,
+        sender: "user",
+        type: "document_upload",
+        fileName: docNames,
+        text: `Uploaded Document: **${docNames}**`,
+      },
+    ]);
 
     const formData = new FormData();
     if (conversationId) formData.append("conversation_id", conversationId);
@@ -676,10 +707,11 @@ const Chatbot = ({
       const data = await res.json();
       setRagDocs(data.documents || []);
 
-      const docNames = files.map((f) => f.name).join(", ");
+      // 2. Add Assistant's confirmation bubble in chat (Left / "Vitya")
       setMessages((prev) => [
         ...prev,
         {
+          id: `bot-doc-${Date.now()}`,
           sender: "bot",
           type: "text",
           text: `📑 Successfully indexed document(s) for Q&A: **${docNames}**!\nYou can now ask any question about the content of these reports or files.`,
@@ -687,9 +719,18 @@ const Chatbot = ({
       ]);
     } catch (err) {
       console.error("Document upload failed:", err);
-      alert("Failed to upload document for Q&A.");
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `bot-doc-err-${Date.now()}`,
+          sender: "bot",
+          type: "text",
+          text: `⚠️ Failed to index **${docNames}**. Please verify the file is a valid PDF, DOCX, CSV, or TXT file and try again.`,
+        },
+      ]);
     } finally {
       setLoading(false);
+      if (e.target) e.target.value = "";
     }
   };
 
@@ -813,10 +854,12 @@ const Chatbot = ({
       return;
     }
 
-    const isRefresh = prevRefreshKeyRef.current !== refreshKey;
+    const isConvChanged = conversationId !== activeLocalConvIdRef.current;
     prevRefreshKeyRef.current = refreshKey;
 
-    if (!isRefresh && conversationId === activeLocalConvIdRef.current && hasMessagesRef.current) {
+    // If conversation ID has not changed and we already have messages rendered on screen,
+    // do not re-fetch from database (prevents overwriting active in-memory chat, rewritten turns, or re-rendering old messages).
+    if (!isConvChanged && hasMessagesRef.current) {
       return;
     }
 
@@ -2041,7 +2084,8 @@ const Chatbot = ({
     try {
       if (type === "download_link" && msg.content) {
         const fileUrl = buildFileUrl(msg.content);
-        const fileName = msg.fileName || "presentation.pptx";
+        const defaultName = msg.fileType === "pdf" || (msg.content && msg.content.toLowerCase().endsWith(".pdf")) ? "vitya_document.pdf" : (msg.fileType === "docx" ? "vitya_document.docx" : "presentation.pptx");
+        const fileName = msg.fileName || defaultName;
         await downloadBlobFromUrl(fileUrl, fileName);
         return;
       }
@@ -2306,6 +2350,9 @@ const Chatbot = ({
                     content: resolvedContent,
                     data: p.data || resolvedContent,
                     title: p.title,
+                    fileName: p.fileName,
+                    fileType: p.fileType,
+                    download_url: p.download_url,
                     text: displayText,
                     sources: p.sources,
                     intent: p.intent || currentIntent,
@@ -2379,6 +2426,9 @@ const Chatbot = ({
                 content: resolvedContent,
                 data: structuredPayload.data || resolvedContent,
                 title: structuredPayload.title,
+                fileName: structuredPayload.fileName,
+                fileType: structuredPayload.fileType,
+                download_url: structuredPayload.download_url,
                 text: streamedText || structuredPayload.title || "",
                 sources: structuredPayload.sources,
                 intent: structuredPayload.intent || streamedIntent,
@@ -3551,153 +3601,197 @@ const Chatbot = ({
                             gap: 14,
                           }}
                         >
-                          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-                            {/* MODERN PRESENTATION ICON BADGE */}
-                            <div
-                              style={{
-                                width: 44,
-                                height: 44,
-                                borderRadius: 14,
-                                background: "linear-gradient(135deg, #d946ef 0%, #8b5cf6 50%, #6366f1 100%)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                boxShadow: "0 6px 16px rgba(139, 92, 246, 0.35)",
-                                flexShrink: 0,
-                                marginTop: 2,
-                              }}
-                            >
-                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="2" y="3" width="20" height="14" rx="2" />
-                                <line x1="8" y1="21" x2="16" y2="21" />
-                                <line x1="12" y1="17" x2="12" y2="21" />
-                                <path d="M7 8h10" />
-                                <path d="M7 11h6" />
-                              </svg>
-                            </div>
+                          {(() => {
+                            const isPdf = msg.fileType === "pdf" || (msg.fileName && msg.fileName.toLowerCase().endsWith(".pdf")) || (msg.content && String(msg.content).toLowerCase().endsWith(".pdf"));
+                            const isDocx = msg.fileType === "docx" || (msg.fileName && msg.fileName.toLowerCase().endsWith(".docx"));
+                            const isCsv = msg.fileType === "csv" || (msg.fileName && msg.fileName.toLowerCase().endsWith(".csv"));
 
-                            {/* TITLE & META BADGES */}
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div
-                                style={{
-                                  fontSize: 15.5,
-                                  fontWeight: 700,
-                                  color: "#ffffff",
-                                  lineHeight: 1.35,
-                                  display: "-webkit-box",
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: "vertical",
-                                  overflow: "hidden",
-                                  letterSpacing: "0.2px",
-                                }}
-                              >
-                                {msg.title || msg.text?.split("\n")[0]?.replace(/^✅\s*Presentation ready:\s*/i, "") || "Presentation Deck"}
-                              </div>
+                            const badgeBg = isPdf 
+                              ? "linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)" 
+                              : isDocx 
+                              ? "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)" 
+                              : isCsv 
+                              ? "linear-gradient(135deg, #10b981 0%, #059669 100%)" 
+                              : "linear-gradient(135deg, #d946ef 0%, #8b5cf6 50%, #6366f1 100%)";
 
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 8,
-                                  marginTop: 6,
-                                  flexWrap: "wrap",
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    background: "rgba(139, 92, 246, 0.2)",
-                                    color: "#d8b4fe",
-                                    padding: "3px 9px",
-                                    borderRadius: 6,
-                                    fontSize: 11.5,
-                                    fontWeight: 600,
-                                    border: "1px solid rgba(139, 92, 246, 0.35)",
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: 4,
-                                  }}
-                                >
-                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                  {msg.slidesCount || 6} Slides
-                                </span>
+                            const typeLabel = isPdf ? "PDF Document (.pdf)" : isDocx ? "Word Document (.docx)" : isCsv ? "Spreadsheet (.csv)" : "PowerPoint (.pptx)";
+                            const btnLabel = isPdf ? "Download PDF" : isDocx ? "Download Word" : isCsv ? "Download CSV" : "Download PPT";
+                            const btnBg = isPdf
+                              ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
+                              : isDocx
+                              ? "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
+                              : isCsv
+                              ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+                              : "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)";
+                            const btnShadow = isPdf ? "0 4px 16px rgba(239, 68, 68, 0.4)" : "0 4px 16px rgba(139, 92, 246, 0.4)";
 
-                                <span
-                                  style={{
-                                    background: "rgba(255, 255, 255, 0.06)",
-                                    color: "#94a3b8",
-                                    padding: "3px 9px",
-                                    borderRadius: 6,
-                                    fontSize: 11.5,
-                                    fontWeight: 500,
-                                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                                  }}
-                                >
-                                  PowerPoint (.pptx)
-                                </span>
-                              </div>
-                            </div>
-                          </div>
+                            return (
+                              <>
+                                <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+                                  <div
+                                    style={{
+                                      width: 44,
+                                      height: 44,
+                                      borderRadius: 14,
+                                      background: badgeBg,
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      boxShadow: isPdf ? "0 6px 16px rgba(239, 68, 68, 0.35)" : "0 6px 16px rgba(139, 92, 246, 0.35)",
+                                      flexShrink: 0,
+                                      marginTop: 2,
+                                    }}
+                                  >
+                                    {isPdf ? (
+                                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                        <polyline points="14 2 14 8 20 8" />
+                                        <line x1="16" y1="13" x2="8" y2="13" />
+                                        <line x1="16" y1="17" x2="8" y2="17" />
+                                      </svg>
+                                    ) : isDocx ? (
+                                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                        <polyline points="14 2 14 8 20 8" />
+                                        <line x1="12" y1="18" x2="12" y2="12" />
+                                        <line x1="9" y1="15" x2="15" y2="15" />
+                                      </svg>
+                                    ) : (
+                                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="2" y="3" width="20" height="14" rx="2" />
+                                        <line x1="8" y1="21" x2="16" y2="21" />
+                                        <line x1="12" y1="17" x2="12" y2="21" />
+                                        <path d="M7 8h10" />
+                                        <path d="M7 11h6" />
+                                      </svg>
+                                    )}
+                                  </div>
 
-                          {/* ACTION BUTTONS */}
-                          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                            <button
-                              type="button"
-                              onClick={() => handleDownloadMessage(msg, i)}
-                              style={{
-                                flex: 1,
-                                minWidth: 130,
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: 8,
-                                background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
-                                color: "#ffffff",
-                                border: "none",
-                                padding: "10px 16px",
-                                borderRadius: 12,
-                                fontSize: 13,
-                                fontWeight: 600,
-                                cursor: "pointer",
-                                boxShadow: "0 4px 16px rgba(139, 92, 246, 0.4)",
-                                transition: "all 0.15s ease",
-                              }}
-                            >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="7 10 12 15 17 10" />
-                                <line x1="12" y1="15" x2="12" y2="3" />
-                              </svg>
-                              Download PPT
-                            </button>
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div
+                                      style={{
+                                        fontSize: 15.5,
+                                        fontWeight: 700,
+                                        color: "#ffffff",
+                                        lineHeight: 1.35,
+                                        display: "-webkit-box",
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: "vertical",
+                                        overflow: "hidden",
+                                        letterSpacing: "0.2px",
+                                      }}
+                                    >
+                                      {msg.title || msg.fileName || (isPdf ? "PDF Document" : "Presentation Deck")}
+                                    </div>
 
-                            <button
-                              type="button"
-                              onClick={() => handleEditPresentation(msg)}
-                              style={{
-                                flex: 1,
-                                minWidth: 130,
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: 8,
-                                background: "rgba(255, 255, 255, 0.08)",
-                                border: "1px solid rgba(255, 255, 255, 0.18)",
-                                color: "#f1f5f9",
-                                padding: "10px 16px",
-                                borderRadius: 12,
-                                fontSize: 13,
-                                fontWeight: 600,
-                                cursor: "pointer",
-                                transition: "all 0.15s ease",
-                              }}
-                            >
-                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                              </svg>
-                              Edit in Studio
-                            </button>
-                          </div>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 8,
+                                        marginTop: 6,
+                                        flexWrap: "wrap",
+                                      }}
+                                    >
+                                      <span
+                                        style={{
+                                          background: isPdf ? "rgba(239, 68, 68, 0.2)" : "rgba(139, 92, 246, 0.2)",
+                                          color: isPdf ? "#fca5a5" : "#d8b4fe",
+                                          padding: "3px 9px",
+                                          borderRadius: 6,
+                                          fontSize: 11.5,
+                                          fontWeight: 600,
+                                          border: isPdf ? "1px solid rgba(239, 68, 68, 0.35)" : "1px solid rgba(139, 92, 246, 0.35)",
+                                          display: "inline-flex",
+                                          alignItems: "center",
+                                          gap: 4,
+                                        }}
+                                      >
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                        {isPdf ? "Ready to Download" : `${msg.slidesCount || 6} Slides`}
+                                      </span>
+
+                                      <span
+                                        style={{
+                                          background: "rgba(255, 255, 255, 0.06)",
+                                          color: "#94a3b8",
+                                          padding: "3px 9px",
+                                          borderRadius: 6,
+                                          fontSize: 11.5,
+                                          fontWeight: 500,
+                                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                                        }}
+                                      >
+                                        {typeLabel}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDownloadMessage(msg, i)}
+                                    style={{
+                                      flex: 1,
+                                      minWidth: 130,
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: 8,
+                                      background: btnBg,
+                                      color: "#ffffff",
+                                      border: "none",
+                                      padding: "10px 16px",
+                                      borderRadius: 12,
+                                      fontSize: 13,
+                                      fontWeight: 600,
+                                      cursor: "pointer",
+                                      boxShadow: btnShadow,
+                                      transition: "all 0.15s ease",
+                                    }}
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                      <polyline points="7 10 12 15 17 10" />
+                                      <line x1="12" y1="15" x2="12" y2="3" />
+                                    </svg>
+                                    {btnLabel}
+                                  </button>
+
+                                  {!isPdf && !isDocx && !isCsv && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleEditPresentation(msg)}
+                                      style={{
+                                        flex: 1,
+                                        minWidth: 130,
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        gap: 8,
+                                        background: "rgba(255, 255, 255, 0.08)",
+                                        border: "1px solid rgba(255, 255, 255, 0.18)",
+                                        color: "#f1f5f9",
+                                        padding: "10px 16px",
+                                        borderRadius: 12,
+                                        fontSize: 13,
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                        transition: "all 0.15s ease",
+                                      }}
+                                    >
+                                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                      </svg>
+                                      Edit in Studio
+                                    </button>
+                                  )}
+                                </div>
+                              </>
+                            );
+                          })()}
                         </div>
                       ) : type === "compound_agent_action" ? (
                         <div style={{ maxWidth: "100%", width: "100%", display: "flex" }}>
@@ -3798,6 +3892,55 @@ const Chatbot = ({
                         </div>
                       ) : (
                         <>
+                          {isUser && msg.type === "document_upload" && (
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 10,
+                                padding: "8px 14px",
+                                borderRadius: 14,
+                                background: "rgba(139, 92, 246, 0.2)",
+                                border: "1px solid rgba(139, 92, 246, 0.45)",
+                                marginBottom: 6,
+                                maxWidth: 360,
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: 34,
+                                  height: 34,
+                                  borderRadius: 10,
+                                  background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  color: "#ffffff",
+                                  flexShrink: 0,
+                                  boxShadow: "0 3px 10px rgba(239, 68, 68, 0.35)",
+                                }}
+                              >
+                                <FileText size={18} />
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                                <span
+                                  style={{
+                                    fontSize: 13,
+                                    fontWeight: 700,
+                                    color: "#ffffff",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {msg.fileName || "Uploaded Document"}
+                                </span>
+                                <span style={{ fontSize: 10.5, color: "#cbd5e1" }}>
+                                  Document attached for Q&A ✓
+                                </span>
+                              </div>
+                            </div>
+                          )}
                           {isUser && msg.images && msg.images.length > 0 && (
                             <div
                               style={{
